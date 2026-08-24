@@ -1,0 +1,917 @@
+{
+  "101": {
+    "residence": "101",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 883,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 112.6,
+      "interior": 82,
+      "exterior": 26.5
+    }
+  },
+  "102": {
+    "residence": "102",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 614,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 68.35,
+      "interior": 57,
+      "exterior": 8.5
+    }
+  },
+  "103": {
+    "residence": "103",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "104": {
+    "residence": "104",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "105": {
+    "residence": "105",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 560,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 65.6,
+      "interior": 52,
+      "exterior": 11
+    }
+  },
+  "106": {
+    "residence": "106",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 624,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 75.9,
+      "interior": 58,
+      "exterior": 15
+    }
+  },
+  "107": {
+    "residence": "107",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 829,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 103.35,
+      "interior": 77,
+      "exterior": 22.5
+    }
+  },
+  "108": {
+    "residence": "108",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 549,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 70.55,
+      "interior": 51,
+      "exterior": 17
+    }
+  },
+  "109": {
+    "residence": "109",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "110": {
+    "residence": "110",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "201": {
+    "residence": "201",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 883,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 95.6,
+      "interior": 82,
+      "exterior": 9.5
+    }
+  },
+  "202": {
+    "residence": "202",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 614,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 68.35,
+      "interior": 57,
+      "exterior": 8.5
+    }
+  },
+  "203": {
+    "residence": "203",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "204": {
+    "residence": "204",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "205": {
+    "residence": "205",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 560,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 60.6,
+      "interior": 52,
+      "exterior": 6
+    }
+  },
+  "206": {
+    "residence": "206",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 624,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 69.9,
+      "interior": 58,
+      "exterior": 9
+    }
+  },
+  "207": {
+    "residence": "207",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 829,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 86.85,
+      "interior": 77,
+      "exterior": 6
+    }
+  },
+  "208": {
+    "residence": "208",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 549,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 59.55,
+      "interior": 51,
+      "exterior": 6
+    }
+  },
+  "209": {
+    "residence": "209",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "210": {
+    "residence": "210",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "301": {
+    "residence": "301",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 883,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 95.6,
+      "interior": 82,
+      "exterior": 9.5
+    }
+  },
+  "302": {
+    "residence": "302",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 614,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 68.35,
+      "interior": 57,
+      "exterior": 8.5
+    }
+  },
+  "303": {
+    "residence": "303",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "304": {
+    "residence": "304",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "305": {
+    "residence": "305",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 560,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 60.6,
+      "interior": 52,
+      "exterior": 6
+    }
+  },
+  "306": {
+    "residence": "306",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 624,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 69.9,
+      "interior": 58,
+      "exterior": 9
+    }
+  },
+  "307": {
+    "residence": "307",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 829,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 86.85,
+      "interior": 77,
+      "exterior": 6
+    }
+  },
+  "308": {
+    "residence": "308",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 549,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 59.55,
+      "interior": 51,
+      "exterior": 6
+    }
+  },
+  "309": {
+    "residence": "309",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "310": {
+    "residence": "310",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "401": {
+    "residence": "401",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 883,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 95.6,
+      "interior": 82,
+      "exterior": 9.5
+    }
+  },
+  "402": {
+    "residence": "402",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 614,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 68.35,
+      "interior": 57,
+      "exterior": 8.5
+    }
+  },
+  "403": {
+    "residence": "403",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "404": {
+    "residence": "404",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "405": {
+    "residence": "405",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 560,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 60.6,
+      "interior": 52,
+      "exterior": 6
+    }
+  },
+  "406": {
+    "residence": "406",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 624,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 69.9,
+      "interior": 58,
+      "exterior": 9
+    }
+  },
+  "407": {
+    "residence": "407",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 829,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 86.85,
+      "interior": 77,
+      "exterior": 6
+    }
+  },
+  "408": {
+    "residence": "408",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 549,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 59.55,
+      "interior": 51,
+      "exterior": 6
+    }
+  },
+  "409": {
+    "residence": "409",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "410": {
+    "residence": "410",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "501": {
+    "residence": "501",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 883,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 95.6,
+      "interior": 82,
+      "exterior": 9.5
+    }
+  },
+  "502": {
+    "residence": "502",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 614,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 68.35,
+      "interior": 57,
+      "exterior": 8.5
+    }
+  },
+  "503": {
+    "residence": "503",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "504": {
+    "residence": "504",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "505": {
+    "residence": "505",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 560,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 60.6,
+      "interior": 52,
+      "exterior": 6
+    }
+  },
+  "506": {
+    "residence": "506",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 624,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 69.9,
+      "interior": 58,
+      "exterior": 9
+    }
+  },
+  "507": {
+    "residence": "507",
+    "beds": 2,
+    "baths": 2,
+    "sqft": 829,
+    "status": "available",
+    "ambientes": 3,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 86.85,
+      "interior": 77,
+      "exterior": 6
+    }
+  },
+  "508": {
+    "residence": "508",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 549,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 59.55,
+      "interior": 51,
+      "exterior": 6
+    }
+  },
+  "509": {
+    "residence": "509",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "510": {
+    "residence": "510",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "601": {
+    "residence": "601",
+    "beds": 3,
+    "baths": 2,
+    "sqft": 1206,
+    "status": "available",
+    "ambientes": 4,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 161.6,
+      "interior": 112,
+      "exterior": 44
+    }
+  },
+  "602": {
+    "residence": "602",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "603": {
+    "residence": "603",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "604": {
+    "residence": "604",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 560,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 60.6,
+      "interior": 52,
+      "exterior": 6
+    }
+  },
+  "606": {
+    "residence": "606",
+    "beds": 3,
+    "baths": 2,
+    "sqft": 1206,
+    "status": "available",
+    "ambientes": 4,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 157.6,
+      "interior": 112,
+      "exterior": 40
+    }
+  },
+  "607": {
+    "residence": "607",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 549,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 59.55,
+      "interior": 51,
+      "exterior": 6
+    }
+  },
+  "608": {
+    "residence": "608",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 40.7,
+      "interior": 34,
+      "exterior": 5
+    }
+  },
+  "609": {
+    "residence": "609",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4
+    }
+  },
+  "701": {
+    "residence": "701",
+    "beds": 3,
+    "baths": 2,
+    "sqft": 1001,
+    "status": "available",
+    "ambientes": 4,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 217.65,
+      "interior": 93,
+      "exterior": 120
+    }
+  },
+  "702": {
+    "residence": "702",
+    "beds": 3,
+    "baths": 2,
+    "sqft": 1076,
+    "status": "available",
+    "ambientes": 4,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 229,
+      "interior": 100,
+      "exterior": 124
+    }
+  },
+  "706": {
+    "residence": "706",
+    "beds": 3,
+    "baths": 2,
+    "sqft": 1324,
+    "status": "available",
+    "ambientes": 4,
+    "price": "Consultar",
+    "floorPlan": "/plans/placeholder.svg",
+    "areas": {
+      "total": 258.15,
+      "interior": 123,
+      "exterior": 129
+    }
+  }
+}

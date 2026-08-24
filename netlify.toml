@@ -1,0 +1,56 @@
+# Netlify detecta Next.js y aplica su runtime oficial (SSR + API + middleware
+# como funciones). No hace falta declarar el plugin a mano.
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# www → apex a nivel EDGE (cubre páginas Y assets, que en Netlify no pasan por el
+# server de Next — el redirect de next.config sólo ve documentos). Hoy el DNS de
+# www apunta a Hostinger, así que esta regla queda dormida; si el sitio migra o se
+# alias-ea www acá, ya canonicaliza sola. force=true para pisar contenido existente.
+#
+# ⚠ PLACEHOLDER — el dominio real todavía no está definido: actualizá este host
+# junto con el de next.config.ts y PROD_SITE_URL (src/lib/seo.ts).
+[[redirects]]
+  from = "https://www.mariobravo955.com.ar/*"
+  to = "https://mariobravo955.com.ar/:splat"
+  status = 301
+  force = true
+
+# Cache larga para los assets del flyby (frames + stills). El runtime de Next sirve
+# /public con `max-age=0, must-revalidate`, y ni next.config>headers() ni public/_headers
+# lo override-an en Netlify (verificado por curl: seguía en max-age=0). Declarado acá
+# (nivel CDN, post-procesado por Netlify) sí pisa el default → los frames se sirven de
+# cache sin re-bajar por red tras un rato idle (evita el lag/teletransporte). Sin
+# `immutable` (las URLs no tienen hash); SWR propaga renders nuevos tras un deploy.
+[[headers]]
+  for = "/frames/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
+
+[[headers]]
+  for = "/stops/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
+
+# Assets de la INTRO (portada "/"): viven en /public root, así que sin esto caen al
+# default de Netlify (max-age=0, must-revalidate) y Safari (más estricto revalidando)
+# rechequea el video en cada visita y en cada back desde /showroom. Misma cache larga
+# que frames/stops. Sin `immutable` (los nombres no tienen hash); SWR propaga un
+# re-encode del mismo nombre en segundo plano.
+[[headers]]
+  for = "/intro.mp4"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
+
+[[headers]]
+  for = "/intro-mobile.mp4"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
+
+[[headers]]
+  for = "/intro-poster.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"

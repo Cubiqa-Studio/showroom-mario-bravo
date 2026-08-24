@@ -1,0 +1,36 @@
+{
+  "stops": [
+    {
+      "id": 0,
+      "frame": 0,
+      "image": "/stops/stop-0.webp",
+      "imageWidth": 4000,
+      "imageHeight": 2250,
+      "polygons": []
+    },
+    {
+      "id": 1,
+      "frame": 1,
+      "image": "/stops/stop-1.webp",
+      "imageWidth": 4000,
+      "imageHeight": 2250,
+      "polygons": []
+    },
+    {
+      "id": 2,
+      "frame": 2,
+      "image": "/stops/stop-2.webp",
+      "imageWidth": 4000,
+      "imageHeight": 2250,
+      "polygons": []
+    },
+    {
+      "id": 3,
+      "frame": 3,
+      "image": "/stops/stop-3.webp",
+      "imageWidth": 4000,
+      "imageHeight": 2250,
+      "polygons": []
+    }
+  ]
+}

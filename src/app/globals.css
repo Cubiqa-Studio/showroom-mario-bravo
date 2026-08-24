@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+/* ============================================================
+   SISTEMA PREMIUM — global
+   Playfair Display SC (títulos) + Jost (general). La paleta de
+   acentos sale del LOGO del proyecto (muestreada de public/logo.png):
+   el dorado del monolito da #C69A3C en crudo, que sobre blanco sólo
+   llega a 2.6:1 de contraste — así que `--gold` usa el mismo tono
+   oscurecido a #A68132 (3.6:1, AA para texto grande, igual que el
+   template base) y `--gold-soft` a #8F6F2B (4.7:1, AA para cuerpo).
+   El logo no tiene verde: --green/--lime son SEMÁNTICOS (estado
+   "disponible"), no de marca.
+   Los tokens viven en :root (CSS plano) y en @theme (utilidades
+   Tailwind: bg-gold, text-ink, text-muted, border-line, font-serif…).
+   ============================================================ */
+
+:root {
+  /* El sitio es claro SIEMPRE: opt-out del auto-oscurecido de los browsers
+     (Chrome "Oscurecer sitios web", Samsung Internet dark mode). "only light"
+     por elemento en :root cubre toda la página; el meta espejo va en layout.tsx. */
+  color-scheme: only light;
+
+  /* base */
+  --background: #ffffff;
+  --foreground: #18181a;
+
+  /* brand tokens — espejo de .res-landing */
+  --paper: #ffffff;
+  --mist: #f7f7f8;
+  --ink: #18181a;
+  --muted: #6b6b6e;
+  --faint: #9b9b9e;
+  --line: #ececec;
+  --gold: #a68132;
+  --gold-soft: #8f6f2b;
+  --green: #2f6b3a;
+  --lime: #7fa653;
+  --cream: #fbf8f1;
+}
+
+@theme {
+  /* colores premium → utilidades Tailwind con modificador de opacidad
+     (bg-gold/10, text-ink, border-line, …) */
+  --color-paper: #ffffff;
+  --color-mist: #f7f7f8;
+  --color-ink: #18181a;
+  --color-muted: #6b6b6e;
+  --color-faint: #9b9b9e;
+  --color-line: #ececec;
+  --color-gold: #a68132;
+  --color-gold-soft: #8f6f2b;
+  --color-green: #2f6b3a;
+  --color-lime: #7fa653;
+  --color-cream: #fbf8f1;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* tipografías de marca: sans global = Jost; display/serif = Playfair Display SC */
+  --font-sans: var(--font-jost);
+  --font-serif: var(--font-playfair-sc);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Rótulo premium reutilizable (eyebrow): mayúsculas + tracking. */
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ============================================================
+   Unidad que "respira" en el showroom (pista de interacción):
+   contorno + relleno suave en el color de disponibilidad, pulsando
+   de forma PERMANENTE. CSS puro → arranca al montar y corre siempre,
+   sin depender de hover ni de framer-motion. Respeta reduced-motion.
+   ============================================================ */
+@keyframes unit-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.unit-breathe {
+  animation: unit-breathe 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .unit-breathe {
+    animation: none;
+    opacity: 0.9;
+  }
+}
+
+/* ============================================================
+   Piquito "minero" del badge de Avance de Obra: se levanta, PEGA
+   rápido (golpe) y vuelve a subir lento, en loop. Pivota sobre la
+   mano (base del mango). CSS puro; respeta reduced-motion.
+   ============================================================ */
+@keyframes avance-pick {
+  0%,
+  50% {
+    transform: rotate(-19deg);
+  }
+  66% {
+    transform: rotate(12deg);
+  }
+  78% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(-19deg);
+  }
+}
+.avance-pick {
+  transform-origin: 50% 82%;
+  animation: avance-pick 1.7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .avance-pick {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   LUPA del buscador de unidades — "La Sonda".
+   Botón con lupa que abre el modal del buscador. Vive en el chrome
+   del showroom (Tailwind) y en la navbar de la unidad (.res-landing),
+   así que estas clases son GLOBALES (no scopeadas) para servir a ambos.
+   Idle: un ÚNICO ping dorado (sonar) + una respiración del glifo, y
+   descanso — misma familia "ráfaga y descanso" del piquito/CTA, pero
+   en contrapunto. La lente va siempre en dorado (lee como "buscar"
+   incluso estática). Respeta reduced-motion.
+   ============================================================ */
+.finder-lupa {
+  position: relative;
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+/* La lente (círculo del SVG SearchIcon) en dorado, sólo bajo la lupa del chrome. */
+.finder-lupa .finder-lens {
+  stroke: var(--gold);
+}
+/* Anillo del ping: centrado sobre el botón, escala hacia afuera y se desvanece. */
+.finder-sonar-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1.5px solid var(--gold);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.55);
+  opacity: 0;
+  animation: finder-sonar 3.3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.finder-lupa-glyph {
+  animation: finder-breath 3.3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes finder-sonar {
+  0% {
+    transform: translate(-50%, -50%) scale(0.55);
+    opacity: 0.55;
+  }
+  27% {
+    transform: translate(-50%, -50%) scale(1.85);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.85);
+    opacity: 0;
+  }
+}
+@keyframes finder-breath {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  13% {
+    transform: scale(1.06) translateY(-1px);
+  }
+  27% {
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+/* Hover: se frena el ping, la lente pasa a ámbar oscuro y aparece un halo dorado. */
+.finder-lupa:hover {
+  box-shadow: 0 0 0 4px rgba(184, 125, 9, 0.12);
+}
+.finder-lupa:hover .finder-sonar-ring {
+  animation: none;
+  opacity: 0;
+}
+.finder-lupa:hover .finder-lens {
+  stroke: var(--gold-soft);
+}
+.finder-lupa:active {
+  transform: scale(0.93);
+}
+@media (prefers-reduced-motion: reduce) {
+  .finder-sonar-ring {
+    animation: none;
+    opacity: 0;
+  }
+  .finder-lupa-glyph {
+    animation: none;
+  }
+}

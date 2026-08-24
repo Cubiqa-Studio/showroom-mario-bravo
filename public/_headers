@@ -1,0 +1,25 @@
+# Cache-Control GARANTIZADO para los assets del flyby (Netlify-nativo).
+# El next.config.ts > headers() NO se aplica a /public en el runtime de Netlify
+# (los estáticos los sirve el CDN), así que sin esto el browser recibe
+# `max-age=0, must-revalidate` y, tras un rato idle, re-baja los ~30 frames por red
+# al disparar la transición → lag/teletransporte. El prefijo `!` fuerza el override
+# del default de Netlify. Sin `immutable` (las URLs no tienen hash): stale-while-
+# revalidate deja que un deploy con frames nuevos se propague en segundo plano.
+/frames/*
+  ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
+
+/stops/*
+  ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
+
+# Intro (portada "/"): video + poster viven en /public root → sin esto se sirven con
+# el default must-revalidate y se re-bajan/revalidan en cada visita y cada back desde
+# el showroom. Misma cache larga que frames/stops (netlify.toml es el que manda en
+# Netlify; esto lo espeja para local/otros hosts).
+/intro.mp4
+  ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
+
+/intro-mobile.mp4
+  ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
+
+/intro-poster.jpg
+  ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000

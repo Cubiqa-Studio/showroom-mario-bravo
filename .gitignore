@@ -1,0 +1,69 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+# …pero el template SÍ se comparte (no trae secretos).
+!.env.example
+
+# Deliverables de Airtable (definiciones para pegar) — NO pushear.
+/AIRTABLE-*.txt
+
+# Buzón de entregas crudas del cliente: se tira el drop acá tal cual llega y se
+# reorganiza en /_media-src (ver _media-src/MANIFIESTO-ENTREGA.md). Nunca se pushea.
+/reordenar-(no-subir)/
+
+# deploy artifact (zip para subir al hosting) — NO se commitea
+/DEPLOY.zip
+
+# Doc de estado para el cliente/Cubiqa (deliverable local) — NO se pushea
+/ESTADO-MIRO-*.md
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Claude Code: permisos locales por-maquina (no compartir)
+.claude/settings.local.json
+
+# Symlinks por-agente que genera `npx skills` (rutas absolutas de la maquina).
+# El contenido real vive en /.agents/skills; regenerar con:
+#   npx skills experimental_install
+.claude/skills/
+
+# Masters crudos del cliente (renders, planos CAD, PDF, logos, videos sin comprimir).
+# NO sirven al deploy: lo que se commitea son los derivados web de /public.
+/_media-src/
+.gstack/

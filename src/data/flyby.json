@@ -1,0 +1,88 @@
+{
+  "segments": [
+    {
+      "from": 0,
+      "to": 1,
+      "dir": "left",
+      "frames": [
+        "/frames/seg-0-1/0001.webp",
+        "/frames/seg-0-1/0002.webp",
+        "/frames/seg-0-1/0003.webp",
+        "/frames/seg-0-1/0004.webp",
+        "/frames/seg-0-1/0005.webp",
+        "/frames/seg-0-1/0006.webp",
+        "/frames/seg-0-1/0007.webp",
+        "/frames/seg-0-1/0008.webp",
+        "/frames/seg-0-1/0009.webp",
+        "/frames/seg-0-1/0010.webp",
+        "/frames/seg-0-1/0011.webp",
+        "/frames/seg-0-1/0012.webp",
+        "/frames/seg-0-1/0013.webp",
+        "/frames/seg-0-1/0014.webp"
+      ]
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "dir": "left",
+      "frames": [
+        "/frames/seg-1-2/0001.webp",
+        "/frames/seg-1-2/0002.webp",
+        "/frames/seg-1-2/0003.webp",
+        "/frames/seg-1-2/0004.webp",
+        "/frames/seg-1-2/0005.webp",
+        "/frames/seg-1-2/0006.webp",
+        "/frames/seg-1-2/0007.webp",
+        "/frames/seg-1-2/0008.webp",
+        "/frames/seg-1-2/0009.webp",
+        "/frames/seg-1-2/0010.webp",
+        "/frames/seg-1-2/0011.webp",
+        "/frames/seg-1-2/0012.webp",
+        "/frames/seg-1-2/0013.webp",
+        "/frames/seg-1-2/0014.webp"
+      ]
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "dir": "left",
+      "frames": [
+        "/frames/seg-2-3/0001.webp",
+        "/frames/seg-2-3/0002.webp",
+        "/frames/seg-2-3/0003.webp",
+        "/frames/seg-2-3/0004.webp",
+        "/frames/seg-2-3/0005.webp",
+        "/frames/seg-2-3/0006.webp",
+        "/frames/seg-2-3/0007.webp",
+        "/frames/seg-2-3/0008.webp",
+        "/frames/seg-2-3/0009.webp",
+        "/frames/seg-2-3/0010.webp",
+        "/frames/seg-2-3/0011.webp",
+        "/frames/seg-2-3/0012.webp",
+        "/frames/seg-2-3/0013.webp",
+        "/frames/seg-2-3/0014.webp"
+      ]
+    },
+    {
+      "from": 3,
+      "to": 0,
+      "dir": "left",
+      "frames": [
+        "/frames/seg-3-0/0001.webp",
+        "/frames/seg-3-0/0002.webp",
+        "/frames/seg-3-0/0003.webp",
+        "/frames/seg-3-0/0004.webp",
+        "/frames/seg-3-0/0005.webp",
+        "/frames/seg-3-0/0006.webp",
+        "/frames/seg-3-0/0007.webp",
+        "/frames/seg-3-0/0008.webp",
+        "/frames/seg-3-0/0009.webp",
+        "/frames/seg-3-0/0010.webp",
+        "/frames/seg-3-0/0011.webp",
+        "/frames/seg-3-0/0012.webp",
+        "/frames/seg-3-0/0013.webp",
+        "/frames/seg-3-0/0014.webp"
+      ]
+    }
+  ]
+}
