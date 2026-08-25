@@ -1,3 +1,53 @@
 {
-  "plates": []
+  "plates": [
+    {
+      "floor": "1",
+      "image": "/tipology/piso-1.webp",
+      "imageWidth": 1589,
+      "imageHeight": 1711,
+      "polygons": []
+    },
+    {
+      "floor": "2",
+      "image": "/tipology/piso-tipo-2-5.webp",
+      "imageWidth": 1589,
+      "imageHeight": 1711,
+      "polygons": []
+    },
+    {
+      "floor": "3",
+      "image": "/tipology/piso-tipo-2-5.webp",
+      "imageWidth": 1589,
+      "imageHeight": 1711,
+      "polygons": []
+    },
+    {
+      "floor": "4",
+      "image": "/tipology/piso-tipo-2-5.webp",
+      "imageWidth": 1589,
+      "imageHeight": 1711,
+      "polygons": []
+    },
+    {
+      "floor": "5",
+      "image": "/tipology/piso-tipo-2-5.webp",
+      "imageWidth": 1589,
+      "imageHeight": 1711,
+      "polygons": []
+    },
+    {
+      "floor": "6",
+      "image": "/tipology/piso-6.webp",
+      "imageWidth": 1587,
+      "imageHeight": 1711,
+      "polygons": []
+    },
+    {
+      "floor": "7",
+      "image": "/tipology/piso-7.webp",
+      "imageWidth": 1587,
+      "imageHeight": 1408,
+      "polygons": []
+    }
+  ]
 }

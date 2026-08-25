@@ -7,11 +7,13 @@ import type { UnitWithId } from "@/lib/data";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { scrollToTop } from "./landing-dom";
 import { unitFillColor } from "@/lib/status";
+import { SITE } from "@/data/site";
 import { UnitCard } from "../UnitCard";
 
-// Pisos del edificio, en orden de recorrido (todos con plate trazada en
-// plates.json / Blobs). Las flechas ciclan con wrap-around: 3 → PB → 1 → …
-const FLOORS = ["0", "1", "2", "3"];
+// Pisos del edificio, en orden de recorrido. Las flechas ciclan con wrap-around
+// (último → primero). Sale de la config del proyecto, NO de una constante local:
+// es el dato que cambia en cada showroom.
+const FLOORS = SITE.floors;
 
 /**
  * "Planta del piso" — COMPONENTE AISLADO. Tiene dos caminos:
@@ -43,8 +45,10 @@ export function FloorPlate({
   /** Pills de acceso directo a cada piso (Plan Maestro). */
   floorPills?: boolean;
 }) {
-  // Piso de ESTA unidad ("207" → "2"); sin unidad (Plan Maestro) arranca en PB.
-  const homeFloor = unitId ? (unitId.length > 2 ? unitId.slice(0, -2) : unitId) : "0";
+  // Piso de ESTA unidad ("207" → "2"); sin unidad (Plan Maestro) arranca en el
+  // primero del edificio — no en un "0" fijo, que en un edificio sin PB habitable
+  // dejaba el Plan Maestro abriendo en un piso inexistente.
+  const homeFloor = unitId ? (unitId.length > 2 ? unitId.slice(0, -2) : unitId) : FLOORS[0];
   const [floor, setFloor] = useState(homeFloor);
   const { t } = useI18n();
   const floorLabel = (f: string) => (f === "0" ? t.plate.groundFloor : t.plate.floor(f));

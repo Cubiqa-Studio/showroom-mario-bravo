@@ -197,6 +197,16 @@ export interface SiteConfig {
   tagline?: string;
   /** Dirección base del desarrollo (fallback de `Unit.address`). */
   addressBase: string;
+  /**
+   * Pisos del edificio EN ORDEN DE RECORRIDO, como strings — los mismos que
+   * `floorOf(unitId)` produce ("0" = PB si el proyecto la tiene). Alimenta las
+   * pills y las flechas ‹ › de "Planta del piso" / Plan Maestro, que ciclan con
+   * wrap-around. Vive acá y no dentro del componente porque cambia por proyecto:
+   * hardcodearlo en el componente fue lo que dejó el selector de pisos mostrando
+   * los del showroom anterior. `getFloors()` avisa en dev si se desincroniza de
+   * units.json.
+   */
+  floors: string[];
   /** Coordenadas del edificio para el mapa de la sección ubicación. */
   location: { lat: number; lng: number };
   broker: Broker;

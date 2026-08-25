@@ -135,7 +135,7 @@ export function ContactModal({
               <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto px-5 pb-6 pt-7 sm:px-7 sm:pb-7 sm:pt-8">
                 <img
                   src="/logo.png"
-                  alt="Mario Bravo 955"
+                  alt="TIER Bravo"
                   className="mb-4 h-10 w-auto sm:mb-5 sm:h-12"
                 />
 

@@ -10,7 +10,7 @@ import { MESSAGES, type Dict, type Lang } from "./translations";
 // navegación overlay/standalone porque el provider vive en el layout raíz.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "mario-bravo-lang";
+const STORAGE_KEY = "tier-bravo-lang";
 
 const LangContext = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({
   lang: "es",

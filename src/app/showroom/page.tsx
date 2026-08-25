@@ -6,9 +6,9 @@ import { ShowroomSeo } from "@/components/seo/ShowroomSeo";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Showroom 360° en Buenos Aires",
+  title: "Showroom 360° en Mario Bravo 955",
   description:
-    "Recorré Mario Bravo 955 en 360°: explorá los 61 departamentos de 1 a 4 ambientes y mirá planta, superficie, vistas y disponibilidad de cada unidad.",
+    "Recorré TIER Bravo en 360°: explorá los 61 departamentos de 1 a 4 ambientes de Mario Bravo 955 y mirá planta, superficie, vistas y disponibilidad de cada unidad.",
   path: "/showroom",
 });
 
@@ -62,8 +62,11 @@ export default async function Showroom() {
           branding={
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src="/logo.png"
-              alt="Mario Bravo 955"
+              // Variante BLANCA: el wordmark va sobre el render del flyby (cielo,
+              // árboles, fachada) y el oro de la paleta —calibrado contra blanco—
+              // se pierde ahí. Ver scripts/make-brand-assets.mjs.
+              src="/logo_blanco.png"
+              alt="TIER Bravo"
               // 52px = altura del logo en la nav de /residencia/:id (.res-landing .logo img).
               // En mobile lo achicamos (h-9) para que entre prolijo en la fila del switch
               // "Disponibilidad" sin chocarlo (incluso en pantallas de ~360px).

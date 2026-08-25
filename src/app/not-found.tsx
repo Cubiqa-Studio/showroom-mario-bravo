@@ -38,7 +38,7 @@ export default function NotFound() {
       <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-white/40 px-8 py-10 text-center shadow-2xl ring-1 ring-white/50 backdrop-blur-3xl sm:px-14 sm:py-12">
         <img
           src="/logo.png"
-          alt="Mario Bravo 955"
+          alt="TIER Bravo"
           className="mx-auto h-12 w-auto sm:h-14"
         />
 

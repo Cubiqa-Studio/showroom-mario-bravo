@@ -14,20 +14,23 @@ import galleryManifest from "./gallery.json";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SITE: SiteConfig = {
-  projectName: "Showroom Mario Bravo 955",
+  projectName: "Showroom TIER Bravo",
   developer: "Cubiqa Studio",
   addressBase: "Mario Bravo 955, Ciudad Autónoma de Buenos Aires",
+  // Pisos con unidades. La planta baja (amenities), el subsuelo (cochera) y la
+  // azotea del 8° NO tienen unidades → no son pisos navegables del selector.
+  floors: ["1", "2", "3", "4", "5", "6", "7"],
   // PLACEHOLDER — coordenadas APROXIMADAS de la altura 900 de Mario Bravo (CABA).
   // Pedile al cliente el pin exacto (link de Google Maps) y reemplazalas: esto es
   // lo que posiciona el marker del mapa de Ubicación y el GeoCoordinates del JSON-LD.
   location: { lat: -34.5985, lng: -58.4215 },
-  brandName: "Mario Bravo 955",
+  brandName: "TIER Bravo",
   // Nombre del edificio — se muestra en el marker del mapa de Ubicación.
-  buildingName: "Mario Bravo 955",
-  tagline: "DEPARTAMENTOS · BUENOS AIRES",
+  buildingName: "TIER Bravo",
+  tagline: "MARIO BRAVO 955 · BUENOS AIRES",
   // PLACEHOLDER — el equipo de ventas todavía no está definido.
   broker: {
-    name: "Ventas · Mario Bravo 955",
+    name: "Ventas · TIER Bravo",
     role: "Asesores",
     phone: "", // PLACEHOLDER — ver también WHATSAPP_NUMBER en src/lib/contact.ts
     email: "", // PLACEHOLDER

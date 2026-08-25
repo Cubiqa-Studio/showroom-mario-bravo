@@ -6,24 +6,28 @@
    ============================================================ */
 
 .res-landing {
-  /* surfaces — true neutral white */
+  /* surfaces — los paneles siguen en blanco puro (los alterna --bg-2, que sí
+     bajó un escalón: es donde se lee el "más oscuro" sin romper la cohesión) */
   --bg:        #FFFFFF;
-  --bg-2:      #F7F7F8;
+  --bg-2:      #F1F1F3;
   --panel:     #FFFFFF;
-  --panel-2:   #FBFBFC;
+  --panel-2:   #FAFAFB;
   --card:      #FFFFFF;
 
-  /* gold — dorado del logo del proyecto, oscurecido para que contraste en blanco
-     (crudo #C69A3C = 2.6:1; --gold 3.6:1 large-text, --gold-soft 4.7:1 cuerpo) */
-  --gold:      #A68132;
-  --gold-soft: #8F6F2B;
+  /* gold — oro TIER (#BF9753 en el key visual) oscurecido para contrastar sobre
+     blanco: crudo 2.7:1 · --gold 3.7:1 (AA texto grande) · --gold-soft 4.9:1 (AA
+     cuerpo). --gold-bright es el crudo, sólo para superficies oscuras. */
+  --gold:        #A07F46;
+  --gold-soft:   #8A6D3C;
+  --gold-bright: #BF9753;
 
-  /* ink + neutral grays. NOTE: --white means primary INK */
-  --white:     #18181A;
-  --gray:      #6B6B6E;
-  --gray-dim:  #9B9B9E;
-  --divider:   #ECECEC;
-  --divider-2: #F2F2F3;
+  /* ink + grises neutros, en grafito (la marca es negro + oro, no beige).
+     NOTE: --white means primary INK */
+  --white:     #0F0F11;
+  --gray:      #56565A;
+  --gray-dim:  #86868A;
+  --divider:   #E2E2E4;
+  --divider-2: #EEEEF0;
 
   /* estados — SEMÁNTICOS (verde = disponible), no de marca: el logo es dorado y negro */
   --green:        #2F6B3A;
@@ -149,7 +153,7 @@
   transition: all .25s ease;
   white-space: nowrap;
 }
-.res-landing .btn-gold { background: var(--gold); color: #FBF8F1; }
+.res-landing .btn-gold { background: var(--gold); color: var(--cream); }
 /* El botón que vibra (framer anima el transform) NO debe transicionar transform
    por CSS, o la vibración queda pastosa. Solo color/sombra (como el home). */
 .res-landing .consult-buzz { transition: background-color .25s ease, box-shadow .25s ease, color .25s ease; }
@@ -306,11 +310,11 @@
   transition: all .2s ease;
 }
 .res-landing .lang-opt:hover { color: var(--white); }
-.res-landing .lang-opt.active { background: var(--gold); color: #FBF8F1; }
+.res-landing .lang-opt.active { background: var(--gold); color: var(--cream); }
 .res-landing .nav--ghost .lang-switch { border-color: rgba(255,255,255,.32); }
 .res-landing .nav--ghost .lang-opt { color: rgba(255,255,255,.75); }
 .res-landing .nav--ghost .lang-opt:hover { color: #fff; }
-.res-landing .nav--ghost .lang-opt.active { background: var(--gold); color: #FBF8F1; }
+.res-landing .nav--ghost .lang-opt.active { background: var(--gold); color: var(--cream); }
 .res-landing .icon-btn {
   width: 42px; height: 42px;
   border-radius: 10px;
@@ -534,7 +538,7 @@
   transition: all .2s ease;
 }
 .res-landing .plate-pill:hover { border-color: var(--gold); color: var(--gold); }
-.res-landing .plate-pill.active { background: var(--gold); border-color: var(--gold); color: #FBF8F1; }
+.res-landing .plate-pill.active { background: var(--gold); border-color: var(--gold); color: var(--cream); }
 .res-landing .stage-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .res-landing .water-banner {
   display: flex; justify-content: center; align-items: center; gap: 10px;
@@ -778,7 +782,7 @@
 .res-landing .fab {
   position: absolute; bottom: 30px; right: 30px;
   width: 60px; height: 60px; border-radius: 50%;
-  background: var(--gold); color: #FBF8F1;
+  background: var(--gold); color: var(--cream);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; z-index: 6; border: 0;
   box-shadow: 0 14px 30px rgba(184,125,9,.35);
@@ -842,7 +846,7 @@
 .res-landing .prop-marker { position: relative; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
 .res-landing .prop-marker .dot {
   width: 14px; height: 14px; border-radius: 50%;
-  background: var(--gold); border: 2px solid #FBF8F1;
+  background: var(--gold); border: 2px solid var(--cream);
   box-shadow: 0 2px 8px rgba(40,32,16,.4); z-index: 2;
 }
 .res-landing .prop-marker .ring {
@@ -1160,7 +1164,7 @@
   display: flex; align-items: center; justify-content: center; color: var(--white);
   transition: all .25s ease; justify-self: end;
 }
-.res-landing .res-row:hover .rr-arrow { background: var(--gold); border-color: var(--gold); color: #FBF8F1; transform: translateX(4px); }
+.res-landing .res-row:hover .rr-arrow { background: var(--gold); border-color: var(--gold); color: var(--cream); transform: translateX(4px); }
 .res-landing .res-row .rr-arrow svg { width: 18px; height: 18px; }
 /* Mini-plano flotante de "Unidades disponibles": plano real con altura natural
    (como .unit-tip .ut-mini) → los dúplex anchos quedan bajos sin franja blanca. */
@@ -1510,7 +1514,7 @@
 .res-landing .cvc-arrow {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
   display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px;
-  border: 0; background: rgba(255, 255, 255, 0.92); color: #18181a;
+  border: 0; background: rgba(255, 255, 255, 0.92); color: var(--white);
   cursor: pointer; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -1522,7 +1526,7 @@
 .res-landing .cvc-paused {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;
   display: grid; place-items: center; width: 64px; height: 64px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9); color: #18181a;
+  background: rgba(255, 255, 255, 0.9); color: var(--white);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3); pointer-events: none;
 }
 /* Controles de sonido de los videos del carrusel: misma píldora que el modal
@@ -1728,7 +1732,7 @@
 .res-landing .finder-active-chip {
   display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
   height: 30px; padding: 0 8px 0 13px; border-radius: 999px;
-  background: var(--white); color: var(--cream, #FBF8F1);
+  background: var(--white); color: var(--cream);
   font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: .01em;
   cursor: pointer; transition: background .2s ease;
 }
@@ -1776,7 +1780,7 @@
 .res-landing .finder-filters-btn:hover { border-color: var(--gold); }
 .res-landing .finder-filters-count {
   display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px;
-  border-radius: 999px; background: var(--gold); color: var(--cream, #FBF8F1);
+  border-radius: 999px; background: var(--gold); color: var(--cream);
   font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
 }
 
@@ -1845,7 +1849,7 @@
   border-color: rgba(184, 125, 9, .4); background: var(--bg-2); color: var(--white);
 }
 .res-landing .finder-chip.active {
-  background: var(--gold); border-color: var(--gold); color: var(--cream, #FBF8F1);
+  background: var(--gold); border-color: var(--gold); color: var(--cream);
   box-shadow: 0 2px 8px -3px rgba(184, 125, 9, .5);
 }
 .res-landing .finder-chip:active:not(:disabled) { transform: scale(.96); }
@@ -1863,7 +1867,7 @@
   transition: all .2s ease;
 }
 .res-landing .finder-seg-opt:hover:not(.active):not(:disabled) { color: var(--white); }
-.res-landing .finder-seg-opt.active { background: var(--gold); color: var(--cream, #FBF8F1); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+.res-landing .finder-seg-opt.active { background: var(--gold); color: var(--cream); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
 .res-landing .finder-seg-opt:disabled { opacity: .35; cursor: default; }
 .res-landing .finder-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .res-landing .finder-dot--available { background: var(--green); }
@@ -2058,7 +2062,7 @@
 .res-landing .finder-sheet-clear:hover { border-color: var(--gold); color: var(--gold); }
 .res-landing .finder-sheet-apply {
   flex: 1; cursor: pointer; padding: 14px 20px; border-radius: var(--radius);
-  background: var(--gold); color: var(--cream, #FBF8F1); border: 0;
+  background: var(--gold); color: var(--cream); border: 0;
   font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   transition: background .2s ease;
 }

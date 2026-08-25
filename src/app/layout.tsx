@@ -39,8 +39,8 @@ const jost = Jost({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${BRAND_SHORT} — Departamentos en Buenos Aires`,
-    template: "%s — Mario Bravo 955",
+    default: `${BRAND_SHORT} — Departamentos en Mario Bravo 955, Buenos Aires`,
+    template: "%s — TIER Bravo",
   },
   description: DEFAULT_DESCRIPTION,
   applicationName: SITE_NAME,
@@ -49,12 +49,12 @@ export const metadata: Metadata = {
   publisher: "Cubiqa Studio",
   category: "real estate",
   keywords: [
-    "departamentos en Buenos Aires",
+    "TIER Bravo",
     "Mario Bravo 955",
+    "departamentos en Buenos Aires",
     "departamentos CABA",
     "monoambientes Buenos Aires",
-    "emprendimiento Mario Bravo",
-    "invertir en Buenos Aires",
+    "TIER desarrollos",
   ],
   formatDetection: { telephone: false, address: false, email: false },
   openGraph: {
@@ -62,13 +62,13 @@ export const metadata: Metadata = {
     url: "/",
     siteName: SITE_NAME,
     locale: OG_LOCALE,
-    title: `${BRAND_SHORT} — Departamentos en Buenos Aires`,
+    title: `${BRAND_SHORT} — Departamentos en Mario Bravo 955, Buenos Aires`,
     description: DEFAULT_DESCRIPTION,
     images: [{ url: OG_IMAGE.url, width: OG_IMAGE.width, height: OG_IMAGE.height, alt: OG_IMAGE.alt }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${BRAND_SHORT} — Departamentos en Buenos Aires`,
+    title: `${BRAND_SHORT} — Departamentos en Mario Bravo 955, Buenos Aires`,
     description: DEFAULT_DESCRIPTION,
     images: [OG_IMAGE.url],
   },
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#A68132",
+  themeColor: "#A07F46",
   // "only light" (no "light" a secas): es el ÚNICO valor que el auto-oscurecido
   // de Chrome/Android ("Oscurecer sitios web") respeta como opt-out — con "light"
   // igual invertía la página en los teléfonos del cliente. Espejado en globals.css.

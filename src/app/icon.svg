@@ -1,18 +1,11 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Favicon de marca: el monolito dorado del logo del proyecto sobre el negro
-       del logotipo. Dos facetas (clara / profunda) para que lea como volumen
-       incluso a 16px, donde cualquier detalle fino se pierde. -->
-  <defs>
-    <linearGradient id="mb-face" x1="24" y1="14" x2="34" y2="52" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#F2D689"/>
-      <stop offset="1" stop-color="#C69A3C"/>
-    </linearGradient>
-    <linearGradient id="mb-side" x1="34" y1="16" x2="42" y2="52" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#B7852E"/>
-      <stop offset="1" stop-color="#8F6F2B"/>
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="64" height="64" rx="14" fill="#0D0C0A"/>
-  <path d="M24 20 L34 12 L34 52 L24 52 Z" fill="url(#mb-face)"/>
-  <path d="M34 12 L41 21 L41 52 L34 52 Z" fill="url(#mb-side)"/>
+  <!-- Favicon de marca: la "T" de TIER en oro sobre el grafito de la marca.
+       El glifo es el PATH REAL del logotipo del cliente (primera letra de
+       _media-src/logos/tier-negro.svg), reescalado — no una T de una fuente
+       cualquiera, así el favicon y el wordmark son la misma letra.
+       A 16px un wordmark completo sería una mancha: va sólo la inicial. -->
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="#0F0F11"/>
+  <g transform="translate(9.24 -0.55) scale(0.16899)">
+    <path d="M148,120.45V287.28H121.13V120.45H43.88V97.92H225.47v22.53Z" fill="#BF9753"/>
+  </g>
 </svg>

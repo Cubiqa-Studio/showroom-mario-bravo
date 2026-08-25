@@ -53,10 +53,34 @@ if (stops.length < 2) {
   process.exit(1);
 }
 
+/**
+ * Orden del anillo. `null` = orden natural por id (0→1→2→3→0), que es el caso normal.
+ *
+ * Ponelo explícito cuando un stop NUEVO no vaya al final del recorrido. Es lo que va a
+ * pasar con la "View 02b" que está preparando Juani: es un punto intermedio entre
+ * stop-1 y stop-2, pero entra como `stop-4` para NO renumerar los existentes (renumerar
+ * obligaría a re-trazar todos los polígonos). El viewer resuelve los segmentos por
+ * from/to, no por orden de ids, así que un anillo con ids salteados es perfectamente
+ * válido. En ese momento:
+ *
+ *     const RING = [0, 1, 4, 2, 3];
+ */
+const RING = null;
+
 const ids = stops.map((s) => s.id).sort((a, b) => a - b);
-// Anillo cerrado: 0→1→2→3→0. Cada tramo tiene su vuelta (el viewer reproduce el
-// mismo segmento al revés), así que 4 segmentos alcanzan para navegar en ambos sentidos.
-const ring = ids.map((from, i) => ({ from, to: ids[(i + 1) % ids.length] }));
+const order = RING ?? ids;
+for (const id of order) {
+  if (!ids.includes(id)) {
+    console.error(`RING nombra el stop ${id}, que no existe en stops.json (hay: ${ids.join(", ")}).`);
+    process.exit(1);
+  }
+}
+if (order.length !== ids.length) {
+  console.warn(`⚠ RING recorre ${order.length} de ${ids.length} stops — los que falten quedan sin flecha.`);
+}
+// Anillo cerrado. Cada tramo tiene su vuelta (el viewer reproduce el mismo segmento al
+// revés), así que un segmento por par alcanza para navegar en ambos sentidos.
+const ring = order.map((from, i) => ({ from, to: order[(i + 1) % order.length] }));
 
 /** El master nativo del stop (JPG) da el mejor downscale; el webp servido es fallback. */
 function stillFor(id) {

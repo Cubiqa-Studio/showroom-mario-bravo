@@ -35,30 +35,30 @@ const es = {
   /** Copy SEO/accesible (sr-only) de las páginas visuales (home + showroom): dan
    *  un H1 y texto crawleable describiendo el desarrollo sin tocar el diseño. */
   seo: {
-    homeH1: "Mario Bravo 955 — Departamentos en Buenos Aires",
+    homeH1: "TIER Bravo — Departamentos en Mario Bravo 955, Buenos Aires",
     homeBody:
-      "Mario Bravo 955 es un desarrollo de 61 departamentos en la Ciudad de Buenos Aires, de monoambiente a 4 ambientes, distribuidos en siete pisos. Amenities de edificio: pileta con solárium, gimnasio, SUM y coworking, parrilla y comedor de terraza, sector de juegos, cochera cubierta y lobby con seguridad. Recorré el edificio en un tour interactivo 360° y consultá plantas, superficies y disponibilidad.",
-    showroomH1: "Showroom 360° — Recorré Mario Bravo 955 en Buenos Aires",
+      "TIER Bravo, en Mario Bravo 955, es un desarrollo de 61 departamentos en la Ciudad de Buenos Aires, de monoambiente a 4 ambientes, distribuidos en siete pisos. Amenities de edificio: pileta con solárium, gimnasio, SUM y coworking, parrilla y comedor de terraza, sector de juegos, cochera cubierta y lobby con seguridad. Recorré el edificio en un tour interactivo 360° y consultá plantas, superficies y disponibilidad.",
+    showroomH1: "Showroom 360° — Recorré TIER Bravo, en Mario Bravo 955",
     showroomBody:
-      "Recorrido interactivo del edificio de Mario Bravo 955, Ciudad de Buenos Aires. Girá la vista en 360°, explorá los 61 departamentos de los pisos 1 a 7 y entrá a cada unidad para ver su planta, superficie y disponibilidad.",
+      "Recorrido interactivo de TIER Bravo, el edificio de Mario Bravo 955, Ciudad de Buenos Aires. Girá la vista en 360°, explorá los 61 departamentos de los pisos 1 a 7 y entrá a cada unidad para ver su planta, superficie y disponibilidad.",
     unitsNavLabel: "Listado de departamentos",
     unitLink: (residence: string, beds: number) =>
-      `Departamento ${residence} — ${beds >= 1 ? `${beds} ${beds === 1 ? "dormitorio" : "dormitorios"}` : "monoambiente"} en Mario Bravo 955, Buenos Aires`,
+      `Departamento ${residence} — ${beds >= 1 ? `${beds} ${beds === 1 ? "dormitorio" : "dormitorios"}` : "monoambiente"} en TIER Bravo, Mario Bravo 955`,
     /** Sección "El proyecto" del bloque SEO del showroom: párrafo auto-contenido
      *  (~120 palabras) con SOLO datos reales del proyecto — también es el bloque
      *  citable para AI search (AI Overviews / Perplexity). */
-    projectTitle: "El proyecto: 61 departamentos en Mario Bravo 955",
+    projectTitle: "El proyecto: 61 departamentos en TIER Bravo",
     projectBody:
       // Sólo datos verificados contra el listado de unidades del cliente. Sin fecha de
       // entrega ni lista cerrada de terminaciones hasta que las confirme.
-      "Mario Bravo 955 es un desarrollo residencial en la Ciudad Autónoma de Buenos Aires. El edificio reúne 61 departamentos repartidos en siete pisos: monoambientes y unidades de 2, 3 y 4 ambientes, con superficies totales que van de 39,70 m² a 258,15 m². Los pisos 1 a 5 tienen diez unidades cada uno; el 6° y el 7° son plantas de retiro, con menos unidades y terrazas de mayor superficie. Suma amenities de pileta con solárium, gimnasio, SUM y coworking, parrilla de terraza y cochera cubierta. Cada departamento tiene su ficha con plano, superficies y disponibilidad actualizados, y el edificio se recorre completo en 360° desde este showroom online.",
-    homeLink: "Volver a la portada de Mario Bravo 955",
+      "TIER Bravo es un desarrollo residencial de CCM Desarrollos en Mario Bravo 955, Ciudad Autónoma de Buenos Aires. El edificio reúne 61 departamentos repartidos en siete pisos: monoambientes y unidades de 2, 3 y 4 ambientes, con superficies totales que van de 39,70 m² a 258,15 m². Los pisos 1 a 5 tienen diez unidades cada uno; el 6° y el 7° son plantas de retiro, con menos unidades y terrazas de mayor superficie. Suma amenities de pileta con solárium, gimnasio, SUM y coworking, parrilla de terraza y cochera cubierta. Cada departamento tiene su ficha con plano, superficies y disponibilidad actualizados, y el edificio se recorre completo en 360° desde este showroom online.",
+    homeLink: "Volver a la portada de TIER Bravo",
   },
 
   /** Página 404 (ruta inexistente). */
   notFound: {
     title: "Página no encontrada",
-    body: "La página que buscás no existe o fue movida. Volvé al inicio para seguir descubriendo Mario Bravo 955.",
+    body: "La página que buscás no existe o fue movida. Volvé al inicio para seguir descubriendo TIER Bravo.",
     home: "Volver al inicio",
     showroom: "Ir al showroom",
     credit: "Un desarrollo de",
@@ -129,8 +129,8 @@ const es = {
     preparingView: "Preparando la vista…",
     backToView: (id: number) => `Volver a la vista ${id}`,
     forwardToView: (id: number) => `Avanzar a la vista ${id}`,
-    frameAlt: "Transición de vuelo sobre el edificio de Mario Bravo 955",
-    stillAlt: (id: number) => `Render del edificio de Mario Bravo 955 — vista ${id}`,
+    frameAlt: "Transición de vuelo sobre el edificio de TIER Bravo",
+    stillAlt: (id: number) => `Render del edificio de TIER Bravo — vista ${id}`,
     /** Texto entre las flechas de navegación (rotar la vista del edificio). */
     rotateLabel: "Girar",
     home: "Volver al inicio",
@@ -156,7 +156,7 @@ const es = {
 
   rotateHint: {
     aria: "Sugerencia de orientación",
-    brand: "Showroom Mario Bravo 955",
+    brand: "Showroom TIER Bravo",
     title: "Girá tu celular",
     body: "Poné el dispositivo en horizontal para una mejor experiencia.",
     continueAnyway: "Continuar igual",
@@ -237,9 +237,9 @@ const es = {
 
   // Mensajes de WhatsApp pre-cargados (wa.me).
   wa: {
-    general: "¡Hola! Estoy viendo el Showroom de Mario Bravo 955 y quería hacer una consulta.",
+    general: "¡Hola! Estoy viendo el Showroom de TIER Bravo y quería hacer una consulta.",
     unit: (n: string) =>
-      `¡Hola! Me interesa el Departamento ${n} del Showroom de Mario Bravo 955. Quisiera más información.`,
+      `¡Hola! Me interesa el Departamento ${n} de TIER Bravo (Mario Bravo 955). Quisiera más información.`,
   },
 
   // ── Landing de residencia ──────────────────────────────────────────────────
@@ -284,14 +284,14 @@ const es = {
           ? `${partes.slice(0, -1).join(", ")} y ${partes[partes.length - 1]}`
           : partes[0];
       const vistas = u.vistas ? ` Vistas: ${u.vistas}.` : "";
-      return `${que}${dup} ${piso} de Mario Bravo 955, Ciudad de Buenos Aires. Cuenta con ${detalle}.${vistas}`;
+      return `${que}${dup} ${piso} de TIER Bravo, en Mario Bravo 955, Ciudad de Buenos Aires. Cuenta con ${detalle}.${vistas}`;
     },
   },
 
   hero: {
     tourTitle: (n: string) => `Tour 360° — Departamento ${n}`,
     explore360: "Explorar tour 360°",
-    photoAlt: (n: string) => `Render del Departamento ${n} — Mario Bravo 955`,
+    photoAlt: (n: string) => `Render del Departamento ${n} — TIER Bravo`,
     photoAltN: (n: string, i: number) => `Departamento ${n} — vista ${i}`,
     seePhotos: (count: number) => `Ver las ${count} fotos`,
   },
@@ -304,7 +304,7 @@ const es = {
     // que rodeaban el plano (el cliente preguntó qué eran → "sacarlo directamente").
     access: "Acceso",
     planAlt: (n: string) => `Plano Departamento ${n}`,
-    logoAlt: "Mario Bravo 955",
+    logoAlt: "TIER Bravo",
     overviewTitle: "Resumen de la Unidad",
     totalArea: "Superficie total",
     interior: "Interior",
@@ -430,7 +430,7 @@ const es = {
     close: "Cerrar galería",
     prev: "Anterior",
     next: "Siguiente",
-    alt: (i: number) => `Render ${i} — Mario Bravo 955`,
+    alt: (i: number) => `Render ${i} — TIER Bravo`,
   },
 
   contactModal: {
@@ -452,7 +452,7 @@ const es = {
     whatsappCta: "Prefiero seguir por WhatsApp",
     close: "Cerrar",
     waMessage: (name: string, phone: string, comment: string) =>
-      `¡Hola! Soy ${name || "—"}. Mi teléfono: ${phone || "—"}. Quisiera más información sobre el proyecto Mario Bravo 955 (disponibilidad, valores y formas de pago).${
+      `¡Hola! Soy ${name || "—"}. Mi teléfono: ${phone || "—"}. Quisiera más información sobre el proyecto TIER Bravo (disponibilidad, valores y formas de pago).${
         comment ? ` Consulta: ${comment}` : ""
       }`,
   },
@@ -728,24 +728,24 @@ const en: Dict = {
   },
 
   seo: {
-    homeH1: "Mario Bravo 955 — Apartments in Buenos Aires",
+    homeH1: "TIER Bravo — Apartments at Mario Bravo 955, Buenos Aires",
     homeBody:
-      "Mario Bravo 955 is a development of 61 apartments in the City of Buenos Aires, from studios to 4-room units, across seven floors. Building amenities: pool with sun deck, gym, lounge and coworking, terrace grill and dining area, play area, covered parking and a staffed lobby. Explore the building in an interactive 360° tour and check floor plans, areas and availability.",
-    showroomH1: "360° Showroom — Explore Mario Bravo 955 in Buenos Aires",
+      "TIER Bravo, at Mario Bravo 955, is a development of 61 apartments in the City of Buenos Aires, from studios to 4-room units, across seven floors. Building amenities: pool with sun deck, gym, lounge and coworking, terrace grill and dining area, play area, covered parking and a staffed lobby. Explore the building in an interactive 360° tour and check floor plans, areas and availability.",
+    showroomH1: "360° Showroom — Explore TIER Bravo at Mario Bravo 955",
     showroomBody:
-      "Interactive tour of the Mario Bravo 955 building in the City of Buenos Aires. Rotate the 360° view, explore the 61 apartments on floors 1 to 7, and enter each unit to see its floor plan, area and availability.",
+      "Interactive tour of TIER Bravo, the building at Mario Bravo 955, City of Buenos Aires. Rotate the 360° view, explore the 61 apartments on floors 1 to 7, and enter each unit to see its floor plan, area and availability.",
     unitsNavLabel: "Apartments list",
     unitLink: (residence: string, beds: number) =>
-      `Apartment ${residence} — ${beds >= 1 ? `${beds} ${beds === 1 ? "bedroom" : "bedrooms"}` : "studio"} at Mario Bravo 955, Buenos Aires`,
-    projectTitle: "The project: 61 apartments at Mario Bravo 955",
+      `Apartment ${residence} — ${beds >= 1 ? `${beds} ${beds === 1 ? "bedroom" : "bedrooms"}` : "studio"} at TIER Bravo, Mario Bravo 955`,
+    projectTitle: "The project: 61 apartments at TIER Bravo",
     projectBody:
-      "Mario Bravo 955 is a residential development in the City of Buenos Aires. The building brings together 61 apartments across seven floors: studios and 2-, 3- and 4-room units, with total areas ranging from 39.70 m² to 258.15 m². Floors 1 through 5 hold ten units each; the 6th and 7th are setback floors, with fewer units and larger terraces. Amenities include a pool with sun deck, a gym, a lounge and coworking space, a terrace grill and covered parking. Each apartment has its own page with floor plan, areas and up-to-date availability, and you can tour the entire building in 360° from this online showroom.",
-    homeLink: "Back to the Mario Bravo 955 home page",
+      "TIER Bravo is a residential development by CCM Desarrollos at Mario Bravo 955, City of Buenos Aires. The building brings together 61 apartments across seven floors: studios and 2-, 3- and 4-room units, with total areas ranging from 39.70 m² to 258.15 m². Floors 1 through 5 hold ten units each; the 6th and 7th are setback floors, with fewer units and larger terraces. Amenities include a pool with sun deck, a gym, a lounge and coworking space, a terrace grill and covered parking. Each apartment has its own page with floor plan, areas and up-to-date availability, and you can tour the entire building in 360° from this online showroom.",
+    homeLink: "Back to the TIER Bravo home page",
   },
 
   notFound: {
     title: "Page not found",
-    body: "The page you're looking for doesn't exist or has moved. Head back home to keep discovering Mario Bravo 955.",
+    body: "The page you're looking for doesn't exist or has moved. Head back home to keep discovering TIER Bravo.",
     home: "Back to home",
     showroom: "Go to the showroom",
     credit: "Developed by",
@@ -812,8 +812,8 @@ const en: Dict = {
     preparingView: "Preparing the view…",
     backToView: (id: number) => `Back to view ${id}`,
     forwardToView: (id: number) => `Forward to view ${id}`,
-    frameAlt: "Flight transition over the Mario Bravo 955 building",
-    stillAlt: (id: number) => `Render of the Mario Bravo 955 building — view ${id}`,
+    frameAlt: "Flight transition over the TIER Bravo building",
+    stillAlt: (id: number) => `Render of the TIER Bravo building — view ${id}`,
     rotateLabel: "Rotate",
     home: "Back to start",
     hoverHintDesktop: "Hover over a unit to preview and enter it",
@@ -834,7 +834,7 @@ const en: Dict = {
 
   rotateHint: {
     aria: "Orientation hint",
-    brand: "Showroom Mario Bravo 955",
+    brand: "Showroom TIER Bravo",
     title: "Rotate your phone",
     body: "Turn your device to landscape for the best experience.",
     continueAnyway: "Continue anyway",
@@ -899,9 +899,9 @@ const en: Dict = {
   },
 
   wa: {
-    general: "Hi! I'm browsing the Mario Bravo 955 Showroom and I have a question.",
+    general: "Hi! I'm browsing the TIER Bravo Showroom and I have a question.",
     unit: (n: string) =>
-      `Hi! I'm interested in Apartment ${n} at Showroom Mario Bravo 955. I'd like more information.`,
+      `Hi! I'm interested in Apartment ${n} at TIER Bravo (Mario Bravo 955). I'd like more information.`,
   },
 
   nav: {
@@ -929,14 +929,14 @@ const en: Dict = {
       const baths = `${u.baths} ${u.baths === "1" ? "bathroom" : "bathrooms"}${u.toilette ? " plus a guest toilet" : ""}`;
       const area = u.area ? ` and ${u.area} m² in total` : "";
       const views = u.vistas ? ` Views: ${u.vistas}.` : "";
-      return `${what}${dup} ${floor} at Mario Bravo 955, City of Buenos Aires. It offers ${baths}${area}.${views}`;
+      return `${what}${dup} ${floor} at TIER Bravo, Mario Bravo 955, City of Buenos Aires. It offers ${baths}${area}.${views}`;
     },
   },
 
   hero: {
     tourTitle: (n: string) => `360° Tour — Apartment ${n}`,
     explore360: "Explore 360° tour",
-    photoAlt: (n: string) => `Render of Apartment ${n} — Mario Bravo 955`,
+    photoAlt: (n: string) => `Render of Apartment ${n} — TIER Bravo`,
     photoAltN: (n: string, i: number) => `Apartment ${n} — view ${i}`,
     seePhotos: (count: number) => `See all ${count} photos`,
   },
@@ -947,7 +947,7 @@ const en: Dict = {
     tabFloor: "Full-floor plan",
     access: "Entrance",
     planAlt: (n: string) => `Apartment ${n} floor plan`,
-    logoAlt: "Mario Bravo 955",
+    logoAlt: "TIER Bravo",
     overviewTitle: "Unit Summary",
     totalArea: "Total area",
     interior: "Interior",
@@ -1063,7 +1063,7 @@ const en: Dict = {
     close: "Close gallery",
     prev: "Previous",
     next: "Next",
-    alt: (i: number) => `Render ${i} — Mario Bravo 955`,
+    alt: (i: number) => `Render ${i} — TIER Bravo`,
   },
 
   contactModal: {
@@ -1085,7 +1085,7 @@ const en: Dict = {
     whatsappCta: "I'd rather continue on WhatsApp",
     close: "Close",
     waMessage: (name: string, phone: string, comment: string) =>
-      `Hi! I'm ${name || "—"}. My phone: ${phone || "—"}. I'd like more information about the Mario Bravo 955 project (availability, pricing and payment plans).${
+      `Hi! I'm ${name || "—"}. My phone: ${phone || "—"}. I'd like more information about the TIER Bravo project (availability, pricing and payment plans).${
         comment ? ` Note: ${comment}` : ""
       }`,
   },
@@ -1319,7 +1319,7 @@ const en: Dict = {
   tower: {
     tag: "THE BUILDING — AERIAL VIEW",
     aerialAlt: "Aerial render of the building",
-    placeholder: "AERIAL RENDER · MARIO BRAVO 955",
+    placeholder: "AERIAL RENDER · TIER BRAVO",
     backToTop: "Back to top",
     up: "TOP",
   },

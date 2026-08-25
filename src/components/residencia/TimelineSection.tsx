@@ -6,7 +6,7 @@ import type { PaymentMilestone } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
 
 // Colores del recorrido — hex literales porque framer no interpola var() CSS.
-const GOLD = "#B87D09"; // = var(--gold)
+const GOLD = "#A07F46"; // = var(--gold)
 const GREEN = "#2F6B3A"; // verde semántico de "disponible" (= var(--green))
 const GOLD_HALO = "0 0 0 5px rgba(184,125,9,.15), 0 2px 10px rgba(184,125,9,.45)";
 const GREEN_HALO = "0 0 0 5px rgba(73,99,12,.15), 0 2px 10px rgba(73,99,12,.45)";
@@ -164,7 +164,7 @@ export function TimelineSection({ embedded = false }: { embedded?: boolean } = {
               <svg viewBox="0 0 24 24" fill="none">
                 <motion.path
                   d="M5.5 12.6l4.3 4.3L18.6 8"
-                  stroke="#FBF8F1"
+                  stroke="#F5F1E8"
                   strokeWidth={2.6}
                   strokeLinecap="round"
                   strokeLinejoin="round"

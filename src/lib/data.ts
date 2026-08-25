@@ -156,9 +156,24 @@ export async function getPlateForEdit(floor: string): Promise<FloorPlate> {
 
 /** Pisos existentes (= prefijos de unidad), ordenados. Para el índice del editor. */
 export function getFloors(): string[] {
-  return Array.from(new Set(Object.keys(units).map(floorOf))).sort((a, b) =>
+  const floors = Array.from(new Set(Object.keys(units).map(floorOf))).sort((a, b) =>
     a.localeCompare(b, undefined, { numeric: true }),
   );
+  // `SITE.floors` es lo que consume el selector de pisos del cliente (no puede
+  // importar units.json sin arrastrarlo entero al bundle). Si alguien agrega un
+  // piso en units.json y se olvida de site.ts, el selector queda incompleto en
+  // silencio: acá se avisa en dev, donde el error todavía es barato.
+  if (process.env.NODE_ENV !== "production") {
+    const declared = SITE.floors.join(",");
+    const real = floors.join(",");
+    if (declared !== real) {
+      console.warn(
+        `[data] SITE.floors (${declared || "vacío"}) no coincide con los pisos de units.json (${real}). ` +
+          `Actualizá src/data/site.ts — el selector de "Planta del piso" usa SITE.floors.`,
+      );
+    }
+  }
+  return floors;
 }
 
 /** Config a nivel proyecto (broker, ubicación, specs por defecto). */

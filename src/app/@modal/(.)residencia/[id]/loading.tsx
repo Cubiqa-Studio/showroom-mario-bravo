@@ -19,7 +19,7 @@ export default function ModalLoading() {
       transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
     >
       <span
-        className="h-10 w-10 animate-spin rounded-full border-2 border-[#B87D09]/25 border-t-[#B87D09]"
+        className="h-10 w-10 animate-spin rounded-full border-2 border-[#A07F46]/25 border-t-[#A07F46]"
         role="status"
         aria-label="Cargando departamento"
       />

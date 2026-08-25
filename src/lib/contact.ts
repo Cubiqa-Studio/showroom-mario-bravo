@@ -14,7 +14,7 @@ export const WHATSAPP_NUMBER = "";
 export const WHATSAPP_NUMBER_2 = "";
 
 export const CONSULT_MESSAGE =
-  "¡Hola! Estoy viendo el Showroom de Mario Bravo 955 y quería hacer una consulta.";
+  "¡Hola! Estoy viendo el Showroom de TIER Bravo (Mario Bravo 955) y quería hacer una consulta.";
 
 /** URL de WhatsApp (wa.me) con el mensaje pre-cargado. */
 export function whatsappUrl(message: string = CONSULT_MESSAGE): string {

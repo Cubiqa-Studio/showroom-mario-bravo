@@ -61,7 +61,7 @@ export function ShowroomToolbar({
     const url = typeof window !== "undefined" ? window.location.href : "";
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: "Showroom Mario Bravo 955", url });
+        await navigator.share({ title: "Showroom TIER Bravo", url });
       } catch {
         /* el usuario canceló el diálogo nativo */
       }

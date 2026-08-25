@@ -2,12 +2,19 @@
 
 /* ============================================================
    SISTEMA PREMIUM — global
-   Playfair Display SC (títulos) + Jost (general). La paleta de
-   acentos sale del LOGO del proyecto (muestreada de public/logo.png):
-   el dorado del monolito da #C69A3C en crudo, que sobre blanco sólo
-   llega a 2.6:1 de contraste — así que `--gold` usa el mismo tono
-   oscurecido a #A68132 (3.6:1, AA para texto grande, igual que el
-   template base) y `--gold-soft` a #8F6F2B (4.7:1, AA para cuerpo).
+   Playfair Display SC (títulos) + Jost (general).
+
+   PALETA TIER (25-08-2026). El key visual de la marca es negro + oro
+   #BF9753, pensado para fondo oscuro. Decisión: se mantiene el lienzo
+   CLARO del template ("lo mismo que Caviahue pero con los tonos más
+   oscuros") y se oscurecen los neutros hacia GRAFITO —no hacia beige—,
+   dejando el oro como único acento cálido, que es como respira la marca.
+
+   El oro crudo #BF9753 sobre blanco da 2.7:1: ilegible. Se usa el mismo
+   tono oscurecido → `--gold` #A07F46 (3.7:1, AA texto grande) y
+   `--gold-soft` #8A6D3C (4.9:1, AA cuerpo). El CRUDO se reserva para
+   superficies oscuras (hero, overlays sobre render), donde da 6.9:1.
+
    El logo no tiene verde: --green/--lime son SEMÁNTICOS (estado
    "disponible"), no de marca.
    Los tokens viven en :root (CSS plano) y en @theme (utilidades
@@ -22,36 +29,39 @@
 
   /* base */
   --background: #ffffff;
-  --foreground: #18181a;
+  --foreground: #0f0f11;
 
   /* brand tokens — espejo de .res-landing */
   --paper: #ffffff;
-  --mist: #f7f7f8;
-  --ink: #18181a;
-  --muted: #6b6b6e;
-  --faint: #9b9b9e;
-  --line: #ececec;
-  --gold: #a68132;
-  --gold-soft: #8f6f2b;
+  --mist: #f1f1f3;
+  --ink: #0f0f11;
+  --muted: #56565a;
+  --faint: #86868a;
+  --line: #e2e2e4;
+  --gold: #a07f46;
+  --gold-soft: #8a6d3c;
+  /* Oro CRUDO del key visual — sólo sobre superficies oscuras (6.9:1 sobre grafito). */
+  --gold-bright: #bf9753;
   --green: #2f6b3a;
   --lime: #7fa653;
-  --cream: #fbf8f1;
+  --cream: #f5f1e8;
 }
 
 @theme {
   /* colores premium → utilidades Tailwind con modificador de opacidad
      (bg-gold/10, text-ink, border-line, …) */
   --color-paper: #ffffff;
-  --color-mist: #f7f7f8;
-  --color-ink: #18181a;
-  --color-muted: #6b6b6e;
-  --color-faint: #9b9b9e;
-  --color-line: #ececec;
-  --color-gold: #a68132;
-  --color-gold-soft: #8f6f2b;
+  --color-mist: #f1f1f3;
+  --color-ink: #0f0f11;
+  --color-muted: #56565a;
+  --color-faint: #86868a;
+  --color-line: #e2e2e4;
+  --color-gold: #a07f46;
+  --color-gold-soft: #8a6d3c;
+  --color-gold-bright: #bf9753;
   --color-green: #2f6b3a;
   --color-lime: #7fa653;
-  --color-cream: #fbf8f1;
+  --color-cream: #f5f1e8;
 }
 
 @theme inline {

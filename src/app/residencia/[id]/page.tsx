@@ -40,8 +40,8 @@ export async function generateMetadata({
   const estado = unit.status === "available" ? "Disponible" : "Reservada";
   // Miro 2026-07-15: sin precio en la description (los precios se sacaron del sitio).
   return pageMetadata({
-    title: `Departamento ${unit.residence} en Buenos Aires`,
-    description: `Departamento ${unit.residence} en Mario Bravo 955, Buenos Aires: ${dorm}, ${baths}${m2}. ${estado}. Consultá plano, superficies y vistas.`,
+    title: `Departamento ${unit.residence} en Mario Bravo 955`,
+    description: `Departamento ${unit.residence} en TIER Bravo, Mario Bravo 955 (Buenos Aires): ${dorm}, ${baths}${m2}. ${estado}. Consultá plano, superficies y vistas.`,
     path: `/residencia/${id}`,
   });
 }

@@ -12,7 +12,10 @@
     "flyby:frames": "node scripts/extract-flyby-frames.mjs",
     "stops:optimize": "node scripts/optimize-stops.mjs",
     "stops:stills": "node scripts/make-stop-stills.mjs",
-    "og:generate": "node scripts/make-og.mjs"
+    "brand:logos": "node scripts/make-brand-assets.mjs",
+    "og:generate": "node scripts/make-og.mjs",
+    "plates:images": "node scripts/make-plates.mjs",
+    "plates:clone": "node scripts/clone-plate-polygons.mjs"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.19",

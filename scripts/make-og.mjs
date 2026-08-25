@@ -25,7 +25,7 @@ const H = 630;
 const EYEBROW = "MARIO BRAVO 955 · BUENOS AIRES";
 const HEADLINE = "Departamentos de 1 a 4 ambientes";
 /** Dorado del overlay: una versión CLARA del --gold de la paleta, porque acá va
- *  sobre un scrim oscuro (el #A68132 del sitio está calibrado contra blanco). */
+ *  sobre un scrim oscuro (el --gold del sitio está calibrado contra blanco). */
 const ACCENT = "#E0B95F";
 
 async function makeOg() {
@@ -40,7 +40,10 @@ async function makeOg() {
     .resize(W, H)
     .toBuffer();
 
-  const logo = await sharp(pub("logo.png")).resize({ width: 300 }).toBuffer();
+  // Variante BLANCA del wordmark: acá va sobre el render con un scrim oscuro encima,
+  // y el OG se ve casi siempre en miniatura (WhatsApp, Meta Ads). El oro de la paleta
+  // está calibrado contra blanco y a ese tamaño se apaga contra el cielo del atardecer.
+  const logo = await sharp(pub("logo_blanco.png")).resize({ width: 300 }).toBuffer();
 
   const overlay = Buffer.from(`
     <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">

@@ -17,10 +17,10 @@ import { NextResponse } from "next/server";
 //   EMAIL_FROM      – remitente. Default `onboarding@resend.dev` (funciona SIN
 //                     dominio verificado, sólo entrega a la cuenta dueña de la key).
 //                     Al verificar el dominio en Resend → EMAIL_FROM=Showroom
-//                     Mario Bravo 955 <consultas@tu-dominio>.
+//                     TIER Bravo <consultas@tu-dominio>.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const EMAIL_FROM = process.env.EMAIL_FROM || "Showroom Mario Bravo 955 <onboarding@resend.dev>";
+const EMAIL_FROM = process.env.EMAIL_FROM || "Showroom TIER Bravo <onboarding@resend.dev>";
 
 interface ContactBody {
   name?: string;
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
   }
 }
 
-// ── Plantilla del email (dorado del logo, #A68132) ────────────────────────────
+// ── Plantilla del email (dorado del logo, #A07F46) ────────────────────────────
 
 function renderEmail(d: {
   name: string;
@@ -119,10 +119,10 @@ function renderEmail(d: {
   const rows = [
     row("Nombre", escapeHtml(d.name)),
     d.email
-      ? row("Email", `<a href="mailto:${escapeHtml(d.email)}" style="color:#A68132;">${escapeHtml(d.email)}</a>`)
+      ? row("Email", `<a href="mailto:${escapeHtml(d.email)}" style="color:#A07F46;">${escapeHtml(d.email)}</a>`)
       : "",
     d.phone
-      ? row("Teléfono", `<a href="tel:${escapeHtml(d.phone)}" style="color:#A68132;">${escapeHtml(d.phone)}</a>`)
+      ? row("Teléfono", `<a href="tel:${escapeHtml(d.phone)}" style="color:#A07F46;">${escapeHtml(d.phone)}</a>`)
       : "",
     d.unitLabel ? row("Unidad", escapeHtml(d.unitLabel)) : "",
     d.text ? row("Mensaje", escapeHtml(d.text).replace(/\n/g, "<br>")) : "",
@@ -133,9 +133,9 @@ function renderEmail(d: {
     <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;">
       <div style="background:#1c1a15;padding:32px;text-align:center;">
         <h1 style="color:#f6f1e7;margin:0;font-size:22px;font-weight:600;letter-spacing:1px;">
-          Showroom Mario Bravo 955 — Nueva consulta
+          Showroom TIER Bravo — Nueva consulta
         </h1>
-        <p style="color:#A68132;margin:8px 0 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;">
+        <p style="color:#A07F46;margin:8px 0 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;">
           Mario Bravo 955 · Buenos Aires
         </p>
       </div>
@@ -144,7 +144,7 @@ function renderEmail(d: {
         <table style="width:100%;border-collapse:collapse;">${rows}</table>
       </div>
       <div style="background:#f6f1e7;padding:18px 24px;text-align:center;">
-        <p style="color:#8a7a5c;font-size:12px;margin:0;">Email enviado automáticamente desde el Showroom Mario Bravo 955.</p>
+        <p style="color:#8a7a5c;font-size:12px;margin:0;">Email enviado automáticamente desde el Showroom TIER Bravo.</p>
       </div>
     </div>`;
 }

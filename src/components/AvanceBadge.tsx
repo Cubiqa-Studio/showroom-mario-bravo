@@ -64,8 +64,8 @@ export function AvanceBadge({ className = "" }: { className?: string }) {
           justifyContent: "center",
           gap: 8,
           padding: "8px 16px",
-          background: "#18181a",
-          color: "#fbf8f1",
+          background: "#0F0F11",
+          color: "#F5F1E8",
           fontSize: 12,
           fontWeight: 600,
         }}
@@ -83,7 +83,7 @@ export function AvanceBadge({ className = "" }: { className?: string }) {
             className="tabular-nums"
             style={{ display: "inline-flex", alignItems: "baseline", gap: 6, lineHeight: 1 }}
           >
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#b87d09" }}>{pct}%</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#A07F46" }}>{pct}%</span>
             {/* "Avance de obra" es más largo que el viejo "Obra": nowrap para que nunca
                 parta el badge en dos líneas; en el nav de la landing (768-1180px, banda
                 cargada) residencia.css oculta esta etiqueta vía .avance-short. */}

@@ -9,7 +9,9 @@ import { normalizeAmount } from "./residencia";
 // y para reusarlo en próximos showrooms.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ⚠ PLACEHOLDER — el cliente todavía no definió el dominio de producción.
+// ⚠ PLACEHOLDER — el cliente todavía no definió el dominio de producción. Ojo:
+// desde que el producto se llama TIER Bravo, el dominio probablemente NO sea el de
+// la dirección — preguntá antes de comprar nada.
 // Este valor alimenta canonical, og:url y el sitemap: si se deploya así, Google
 // indexa un dominio que no existe. Reemplazalo por el real ANTES del primer deploy
 // (y cargá el mismo valor en NEXT_PUBLIC_SITE_URL en el panel del host).
@@ -27,20 +29,20 @@ export const SITE_URL = (
   (process.env.NODE_ENV === "production" ? PROD_SITE_URL : "http://localhost:3000")
 ).replace(/\/+$/, "");
 
-export const SITE_NAME = SITE.buildingName ?? "Mario Bravo 955";
-export const BRAND_SHORT = "Mario Bravo 955";
+export const SITE_NAME = SITE.buildingName ?? "TIER Bravo";
+export const BRAND_SHORT = "TIER Bravo";
 export const OG_LOCALE = "es_AR";
 export const HTML_LANG = "es-AR";
 
 // Descripción por defecto (150–160 chars) — home / fallback.
 export const DEFAULT_DESCRIPTION =
-  "Descubrí Mario Bravo 955: 61 departamentos de 1 a 4 ambientes en Buenos Aires. Recorré el desarrollo en 360° y mirá plantas, superficies y disponibilidad.";
+  "Descubrí TIER Bravo, en Mario Bravo 955: 61 departamentos de 1 a 4 ambientes en Buenos Aires. Recorré el desarrollo en 360° y mirá plantas, superficies y disponibilidad.";
 
 export const OG_IMAGE = {
   url: "/og.jpg",
   width: 1200,
   height: 630,
-  alt: "Render de Mario Bravo 955, departamentos en Buenos Aires",
+  alt: "Render de TIER Bravo, departamentos en Mario Bravo 955, Buenos Aires",
 } as const;
 
 /** Convierte una ruta/relativa en URL absoluta contra el origen del sitio. */
@@ -62,7 +64,7 @@ export function pageMetadata(opts: {
   const { title, description, path, type = "website" } = opts;
   const img = opts.image ?? OG_IMAGE;
   const url = absolute(path);
-  const ogTitle = title ?? `${BRAND_SHORT} — Departamentos en Buenos Aires`;
+  const ogTitle = title ?? `${BRAND_SHORT} — Departamentos en Mario Bravo 955, Buenos Aires`;
   return {
     title,
     description,
