@@ -3,7 +3,7 @@
 import type { Unit } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { unitArea, orientationLabel } from "@/lib/residencia";
-import { STATUS_STYLES, DUPLEX_COLOR } from "@/lib/status";
+import { STATUS_STYLES, DUPLEX_COLOR, EXPOSURE_COLOR } from "@/lib/status";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -71,6 +71,17 @@ export function UnitCard({ unit }: { unit: Unit }) {
               style={badgeStyle(DUPLEX_COLOR)}
             >
               {t.status.duplex}
+            </span>
+          ) : null}
+          {/* Exposición (pedido del cliente, 25-08): mismo lugar y misma forma que el
+              chip de dúplex. Las unidades que dan a los dos lados no traen `exposure`
+              y no muestran chip. */}
+          {unit.exposure ? (
+            <span
+              className="rounded-full text-[11px] font-semibold text-white shadow"
+              style={badgeStyle(EXPOSURE_COLOR)}
+            >
+              {t.status[unit.exposure]}
             </span>
           ) : null}
         </div>

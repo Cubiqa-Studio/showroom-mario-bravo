@@ -48,10 +48,25 @@ export function FloorPlate({
   // Piso de ESTA unidad ("207" → "2"); sin unidad (Plan Maestro) arranca en el
   // primero del edificio — no en un "0" fijo, que en un edificio sin PB habitable
   // dejaba el Plan Maestro abriendo en un piso inexistente.
-  const homeFloor = unitId ? (unitId.length > 2 ? unitId.slice(0, -2) : unitId) : FLOORS[0];
+  // Sin unidad (Plan Maestro) arranca en el primer piso CON UNIDADES, no en el
+  // primero del selector: desde que el subsuelo y la planta baja son plantas
+  // navegables, `FLOORS[0]` es la cochera — un arranque raro para un plan maestro.
+  const firstResidential = useMemo(() => {
+    if (!allUnits) return FLOORS[0];
+    const conUnidades = new Set(
+      Object.keys(allUnits).map((id) => (id.length > 2 ? id.slice(0, -2) : id)),
+    );
+    return FLOORS.find((f) => conUnidades.has(f)) ?? FLOORS[0];
+  }, [allUnits]);
+  const homeFloor = unitId
+    ? unitId.length > 2
+      ? unitId.slice(0, -2)
+      : unitId
+    : firstResidential;
   const [floor, setFloor] = useState(homeFloor);
   const { t } = useI18n();
-  const floorLabel = (f: string) => (f === "0" ? t.plate.groundFloor : t.plate.floor(f));
+  const floorLabel = (f: string) =>
+    f === "SS" ? t.plate.basement : f === "0" ? t.plate.groundFloor : t.plate.floor(f);
 
   // Vecinos del piso ACTIVO: derivados de allUnits (Plan Maestro → correcto en
   // cualquier piso) o los `floorUnits` fijos del piso de origen (landing).

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Unit } from "@/lib/types";
 import type { UnitWithId } from "@/lib/data";
-import { formatBaths } from "@/lib/residencia";
+import { formatBaths, unitAmbientes } from "@/lib/residencia";
 import { BROCHURE_URL } from "@/lib/contact";
 import { captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
@@ -107,6 +107,34 @@ export function PlanSection({
             </div>
           ) : null}
           <div className="ov-group-gap" />
+          {/* Orden pedido por el cliente (26-08): tipología, el desglose de
+              superficies, y recién después dormitorios/baños/piso/exposición. */}
+          <div className="ov-row">
+            <span className="lbl">{t.plan.rooms}</span>
+            <span className="lead" />
+            <span className="val">{t.plan.roomsValue(unitAmbientes(unit))}</span>
+          </div>
+          {a?.interior != null ? (
+            <div className="ov-row">
+              <span className="lbl">{t.plan.covered}</span>
+              <span className="lead" />
+              <span className="val">{a.interior} m²</span>
+            </div>
+          ) : null}
+          {a?.exterior != null ? (
+            <div className="ov-row">
+              <span className="lbl">{t.plan.uncovered}</span>
+              <span className="lead" />
+              <span className="val">{a.exterior} m²</span>
+            </div>
+          ) : null}
+          {a?.comun != null ? (
+            <div className="ov-row">
+              <span className="lbl">{t.plan.common}</span>
+              <span className="lead" />
+              <span className="val">{a.comun} m²</span>
+            </div>
+          ) : null}
           <div className="ov-row">
             <span className="lbl">{t.plan.bedrooms}</span>
             <span className="lead" />
@@ -137,6 +165,15 @@ export function PlanSection({
             <span className="lead" />
             <span className="val">{t.plan.floorValue(floor)}</span>
           </div>
+          {/* Exposición (frente / contrafrente). Sale de units.json; las unidades
+              que dan a los dos lados no la traen y la fila no se muestra. */}
+          {unit.exposure ? (
+            <div className="ov-row">
+              <span className="lbl">{t.plan.exposure}</span>
+              <span className="lead" />
+              <span className="val">{t.status[unit.exposure]}</span>
+            </div>
+          ) : null}
           <div className="ov-group-gap" />
           <div className="ov-row">
             <span className="lbl">{t.plan.amenities}</span>

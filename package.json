@@ -16,7 +16,8 @@
     "og:generate": "node scripts/make-og.mjs",
     "plates:images": "node scripts/make-plates.mjs",
     "plates:clone": "node scripts/clone-plate-polygons.mjs",
-    "plans:units": "node scripts/make-unit-plans.mjs"
+    "plans:units": "node scripts/make-unit-plans.mjs",
+    "units:exposure": "node scripts/set-unit-exposure.mjs"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.19",
@@ -41,3 +42,4 @@
     "typescript": "^5"
   }
 }
+

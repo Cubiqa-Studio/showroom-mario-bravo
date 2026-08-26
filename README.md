@@ -100,8 +100,8 @@ Sale de `MB 955 - UNIDADES EN VENTA.pdf`; las superficies dan exacto contra los 
 del PDF. Ese `unitId` es **la clave de join de todo**: `polygon.unitId` ↔ key de
 `units.json` ↔ columna `Unidad` de Airtable.
 
-Cargado: `residence`, `beds`, `ambientes`, `areas`, `sqft`, `status`, y —desde el mapeo
-de Camila— `tipologia` + `tour360` en los pisos 1 a 5. Pendiente:
+Cargado: `residence`, `beds`, `ambientes`, `areas`, `sqft`, `status`, `exposure`, y
+—desde el mapeo de Camila— `tipologia` + `tour360` en los pisos 1 a 5. Pendiente:
 
 - `price` en `units.json` queda en `"Consultar"`: los precios reales llegan EN VIVO
   desde Airtable (ver más abajo), no hardcodeados. Sin Airtable el sitio no muestra precio.
@@ -109,6 +109,37 @@ de Camila— `tipologia` + `tour360` en los pisos 1 a 5. Pendiente:
   de ningún documento del cliente**, y los planos que llegaron el 25-08 dicen otra cosa:
   ver [Baños: lo que muestran los planos](#baños-lo-que-muestran-los-planos).
 - `floorPlan`: cargado en 60 de las 61 unidades. Ver [Los planos de unidad](#los-planos-de-unidad).
+
+### Exposición: frente y contrafrente
+
+`unit.exposure` (`"frente"` | `"contrafrente"`). Pedido del cliente el 25-08: el mismo
+tratamiento que el chip de dúplex. Sale de las plantas —**Airtable no tiene columna de
+orientación**, verificado contra la base— así que vive en `units.json` y se carga con
+`npm run units:exposure`.
+
+| | Unidades |
+|---|---|
+| **Frente** (Mario Bravo) | 23 — la 01, 02, 06 y 07 de los pisos 1 a 5, más 601, 606 y 701 |
+| **Contrafrente** (pulmón: pileta, deck y parque) | 37 — la 03, 04, 05, 08, 09 y 10 de los pisos 1 a 5, más 602-604, 607-609 y 702 |
+| **Sin dato, a propósito** | 1 — la **706 es PASANTE**: los tres dormitorios dan al pulmón y el estar-comedor a la calle. El campo es opcional justamente para esto: sin valor no muestra chip, que es mejor que etiquetarla mal. |
+
+Cómo se dedujo, por tres caminos independientes que dan lo mismo:
+
+1. `_planta-baja-amenities.png` fija la orientación de TODAS las plantas: abajo está la
+   calle (LOCAL 1 = el café, el hall con la recepción al centro, LOCAL 2 = el local),
+   que es exactamente lo que se ve en el render de fachada. Arriba, pileta y parque.
+2. En `piso-tipo-2-5.png` los rótulos 01, 02, 06 y 07 caen en la mitad de abajo.
+3. El Miro del cliente colorea la fachada y la numera 1, 2, 6 y 7 — cuatro unidades, y
+   en el render se cuentan cuatro módulos de balcón por piso.
+
+Dónde se ve: el chip en la tarjeta de unidad (hover del polígono, planta del piso y
+unidades disponibles), la etiqueta en la tarjeta del buscador, la fila "Exposición" en
+la ficha, el grupo de filtros del buscador, la línea de stats de "Unidades disponibles",
+el blurb sr-only y el `additionalProperty` del JSON-LD.
+
+⚠ **No meterlo en `unitFillColor`.** El violeta del dúplex es un OVERRIDE que tapa el
+verde/ámbar de disponibilidad; la exposición la tienen las 61 unidades, así que pintaría
+todos los polígonos y borraría el estado. Por eso el chip es sólo textual, en gris.
 
 ### Tipologías y recorridos 360°
 
@@ -212,23 +243,56 @@ Pasos: dejar el render en `_media-src/stops/stop-4-src.jpg` → `npm run stops:s
 poner `const RING = [0, 1, 4, 2, 3];` en `scripts/make-placeholder-frames.mjs` (o generar
 los tramos reales con `flyby:frames` respetando esa cadena).
 
-### Las 7 plantas
+### Las 10 plantas
 
-`public/tipology/piso-*.webp`, con los números de unidad ya rotulados en el render:
+`public/tipology/*.webp`, con los números de unidad ya rotulados en el render. El
+selector las recorre en este orden, de abajo hacia arriba:
 
-| Piso | Imagen | Espacio de trazado |
-|---|---|---|
-| 1 | `piso-1.webp` | 2040×2182 |
-| 2, 3, 4, 5 | `piso-tipo-2-5.webp` *(compartida)* | 2040×2182 |
-| 6 | `piso-6.webp` | 1991×2249 |
-| 7 | `piso-7.webp` | 2122×2326 |
+| Clave | Planta | Imagen | Espacio de trazado | Unidades |
+|---|---|---|---|---|
+| `SS` | Subsuelo — cochera | `subsuelo-cochera.webp` | 1596×2068 | — |
+| `0` | Planta baja — amenities | `planta-baja-amenities.webp` | 2274×4093 | — |
+| `1` | 1° | `piso-1.webp` | 1589×1711 | 10 |
+| `2`-`5` | 2° a 5° | `piso-tipo-2-5.webp` *(compartida)* | 1589×1711 | 10 c/u |
+| `6` | 6° | `piso-6.webp` | 1587×1711 | 8 |
+| `7` | 7° | `piso-7.webp` | 1587×1408 | 3 |
+| `8` | 8° — azotea común | `azotea-8vo.webp` | 1583×1049 | — |
 
 Se regeneran con `npm run plates:images` (conserva polígonos). El mapeo piso → archivo
-está en `FLOOR_SOURCES`, arriba de `scripts/make-plates.mjs`.
+está en `FLOOR_SOURCES`, y el orden en `FLOOR_ORDER`, arriba de `scripts/make-plates.mjs`.
 
-El subsuelo (cochera), la planta baja (amenities) y el 8° (azotea común) **no tienen
-unidades**, así que no son plates. Quedan en `_media-src/plantas/` con `_` adelante por
-si algún día se muestran como contexto.
+**El subsuelo y la planta baja no tienen unidades**, así que no llevan polígonos —no hay
+nada que clickear— pero **sí se muestran**: son la cochera y los amenities, que es justo
+lo que pregunta el que compra.
+
+**El 8° es la azotea, y sí lleva polígonos — pero apuntando al 7°.** No existe ninguna
+unidad `8xx`: la planilla de venta tiene 61 y ninguna es de ese piso. Lo que hay arriba
+son las **terrazas privadas de las tres unidades del 7°**, cada una con su escalera
+propia (se ven las tres en el plano, además del núcleo común y la sala de máquinas). Por
+eso los polígonos de la azotea llevan `unitId` **701, 702 y 706**: la terraza es clicable
+y abre su departamento, sin inventar unidades. El motor ya lo soporta —
+`/api/plate/[floor]` adjunta la metadata de unidades de otro piso (se hizo para los
+dúplex de Caviahue), así que el color de estado y el tooltip salen bien.
+
+> Si alguna vez el cliente confirma que esas terrazas se venden por separado, ahí sí van
+> como unidades propias en `units.json` **con sus superficies y precio**, y se re-apuntan
+> los polígonos. Mientras tanto, crearlas vacías rompería el conteo de 61 (que aparece en
+> el copy, el sitemap y el JSON-LD) y quedarían sin precio para siempre, porque Airtable
+> tampoco las tiene.
+
+El editor lista **todas las plantas con plano** (`getPlateFloors()`), no sólo las que
+tienen unidades: en la azotea hay que poder trazar aunque el piso no tenga unidades propias.
+
+Tres cosas que hay que mantener sincronizadas, o el selector queda incompleto:
+`FLOOR_ORDER` (make-plates.mjs) = `SITE.floors` (`src/data/site.ts`) = las claves de
+`plates.json`. `getFloors()` avisa en dev si `SITE.floors` se olvida de un piso que sí
+tiene unidades — es un chequeo de superconjunto, porque estas tres plantas están de más
+a propósito.
+
+⚠ `plates:images` **reescribe `src/data/plates.json`**, el mismo archivo donde el editor
+de polígonos guarda. Conserva lo ya trazado, pero si lo corrés mientras alguien está
+trazando podés pisarle un guardado hecho entre la lectura y la escritura. Corrélo con el
+editor cerrado, o revisá el diff después.
 
 ### El encuadre del render
 
@@ -454,6 +518,8 @@ faltantes) y de dónde salió cada asset.
 | **View 02b** | Juani la está preparando. Ver [El stop intermedio](#el-stop-intermedio-view-02b). |
 | **Los 4 tramos mp4 del flyby** | Reemplazar los fundidos provisorios por la órbita real. |
 | **Video de intro** | La portada `/` está en modo still. Con `public/intro.mp4` + `intro-mobile.mp4` poné `INTRO_VIDEO_READY = true` en `IntroScreen.tsx`. |
+| **Copy de "Un equipo con trayectoria"** | El cliente pidió dejar los tres logos TIER (Bravo, Avenue, Sinclair). El texto que los acompaña lo escribimos nosotros y conviene que lo apruebe. |
+| **¿Cómo etiquetar la 706?** | Es pasante (dormitorios al contrafrente, estar a la calle). Hoy no muestra chip de exposición. Si la quieren rotulada, decidir si va como "Frente", "Contrafrente" o si sumamos un valor "Pasante". |
 | **Plano de la unidad 702** | Del 7° mandaron sólo el 01 y el 06. Es la única de las 61 sin plano. |
 | **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Ver [Los planos de unidad](#los-planos-de-unidad). |
 | **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
@@ -464,10 +530,13 @@ faltantes) y de dónde salió cada asset.
 ### Del lado nuestro
 
 1. **Trazar los polígonos**: las 4 vistas + el piso 2 (y clonar a 3-5) + los pisos 1, 6 y 7.
-2. **`src/i18n/translations.ts` todavía tiene prosa editorial de Caviahue** — el equipo, la
-   narrativa constructiva y el namespace de destino. Todo lo que se RENDERIZA ya está
-   migrado (las tres rutas principales dan cero menciones); lo que queda sale en los
-   modales "El Proyecto" y "El Equipo" y necesita reescritura real, no find/replace.
+2. **Copy del cliente cargado el 26-08.** Especificaciones (Arquitectura y Los
+   Departamentos), los cuatro paneles de "El Proyecto" (Amenities, Calidad y Tecnología,
+   Financiación, Beneficios), la hoja de Amenities, el resumen de la unidad y "Hablemos",
+   en ES y EN. Lo único que queda con prosa de Caviahue es el namespace `t.caviahue`
+   ("Conocé Caviahue"), que **no se renderiza**: el item del menú está gateado por
+   `HAS_DESTINATION_MEDIA` hasta que lleguen las fotos del barrio. Se reescribe cuando
+   se active.
 
 ---
 

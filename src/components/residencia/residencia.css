@@ -1633,16 +1633,12 @@
 .team-name--sub { font-family: var(--sans, inherit); font-size: 12.5px; color: var(--gray); letter-spacing: .02em; }
 .team-logo { display: block; height: 40px; width: auto; max-width: 100%; object-fit: contain; border-radius: 8px; }
 .team-logo--big { height: 56px; }
-/* Puiggari es un wordmark fino y alargado: a 40px se lee mucho más chico que los
-   logos gruesos (RE/MAX, Fiduciaria). Le damos un poco más de alto SÓLO a él. */
-.team-logo[src*="puiggari"] { height: 54px; }
 @media (max-width: 720px) {
   .team-grid { gap: 12px; margin-top: 14px; }
   .team-grid--featured { margin-top: 26px; }
   .team-card { padding: 18px 18px; }
   .team-card--featured { padding: 24px 20px; }
   .team-logo--big { height: 44px; }
-  .team-logo[src*="puiggari"] { height: 48px; }
 }
 
 /* Paginador mobile del acordeón (01 → 03) — sólo en la hoja, sólo en mobile. */
@@ -1920,11 +1916,22 @@
 .res-landing .finder-status--available .finder-status-dot { background: var(--green); box-shadow: 0 0 6px color-mix(in srgb, var(--green) 55%, transparent); }
 .res-landing .finder-status--reserved { color: var(--orange-soft); }
 .res-landing .finder-status--reserved .finder-status-dot { background: var(--orange); }
-.res-landing .finder-duplex-label {
+/* Columna de etiquetas bajo el chip de estado (dúplex y/o exposición). Antes el
+   dúplex se posicionaba solo en top:42px; ahora la columna las apila sin que una
+   pise a la otra si alguna unidad tuviera las dos. */
+.res-landing .finder-tags {
   position: absolute; top: 42px; left: 14px; z-index: 2;
-  font-family: var(--sans); font-size: 9px; font-weight: 700; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--violet);
+  display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
 }
+.res-landing .finder-duplex-label,
+.res-landing .finder-exposure-label {
+  font-family: var(--sans); font-size: 9px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.res-landing .finder-duplex-label { color: var(--violet); }
+/* Gris, no un color propio: la exposición la tienen TODAS las unidades, así que un
+   color fuerte competiría con el estado (que es lo que hay que leer primero). */
+.res-landing .finder-exposure-label { color: var(--gray); }
 .res-landing .finder-seal {
   position: absolute; top: 12px; right: 12px; z-index: 2;
   display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;

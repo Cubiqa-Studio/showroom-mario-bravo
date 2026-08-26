@@ -216,6 +216,16 @@ export function residenceGraphLd(id: string, unit: Unit) {
     apartment.floorSize = { "@type": "QuantitativeValue", value: unit.areas.total, unitCode: "MTK" };
   }
   if (unit.ambientes != null) apartment.numberOfRooms = unit.ambientes;
+  // Exposición como additionalProperty: schema.org no tiene un campo propio para
+  // "frente/contrafrente", y es un atributo que se busca de verdad en CABA. El blurb
+  // sr-only ya lo dice en prosa; esto se lo da estructurado a buscadores y AI search.
+  if (unit.exposure) {
+    apartment.additionalProperty = {
+      "@type": "PropertyValue",
+      name: "Exposición",
+      value: unit.exposure === "frente" ? "Frente" : "Contrafrente",
+    };
+  }
   // Piso desde el id ("216" → "2", "001" → "0" = PB) — misma regla que PlanSection.
   const floor = id.length > 2 ? id.slice(0, -2) : id;
   apartment.floorLevel = floor === "0" ? "PB" : floor;

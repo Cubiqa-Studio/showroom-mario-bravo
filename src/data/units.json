@@ -11,10 +11,12 @@
     "areas": {
       "total": 112.6,
       "interior": 82,
-      "exterior": 26.5
+      "exterior": 26.5,
+      "comun": 4.1
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "102": {
     "residence": "102",
@@ -28,10 +30,12 @@
     "areas": {
       "total": 68.35,
       "interior": 57,
-      "exterior": 8.5
+      "exterior": 8.5,
+      "comun": 2.85
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "103": {
     "residence": "103",
@@ -45,10 +49,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "104": {
     "residence": "104",
@@ -62,10 +68,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "105": {
     "residence": "105",
@@ -79,10 +87,12 @@
     "areas": {
       "total": 65.6,
       "interior": 52,
-      "exterior": 11
+      "exterior": 11,
+      "comun": 2.6
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "106": {
     "residence": "106",
@@ -96,10 +106,12 @@
     "areas": {
       "total": 75.9,
       "interior": 58,
-      "exterior": 15
+      "exterior": 15,
+      "comun": 2.9
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "107": {
     "residence": "107",
@@ -113,10 +125,12 @@
     "areas": {
       "total": 103.35,
       "interior": 77,
-      "exterior": 22.5
+      "exterior": 22.5,
+      "comun": 3.85
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "108": {
     "residence": "108",
@@ -130,10 +144,12 @@
     "areas": {
       "total": 70.55,
       "interior": 51,
-      "exterior": 17
+      "exterior": 17,
+      "comun": 2.55
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "109": {
     "residence": "109",
@@ -147,10 +163,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "110": {
     "residence": "110",
@@ -164,10 +182,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "201": {
     "residence": "201",
@@ -181,10 +201,12 @@
     "areas": {
       "total": 95.6,
       "interior": 82,
-      "exterior": 9.5
+      "exterior": 9.5,
+      "comun": 4.1
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "202": {
     "residence": "202",
@@ -198,10 +220,12 @@
     "areas": {
       "total": 68.35,
       "interior": 57,
-      "exterior": 8.5
+      "exterior": 8.5,
+      "comun": 2.85
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "203": {
     "residence": "203",
@@ -215,10 +239,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "204": {
     "residence": "204",
@@ -232,10 +258,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "205": {
     "residence": "205",
@@ -249,10 +277,12 @@
     "areas": {
       "total": 60.6,
       "interior": 52,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.6
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "206": {
     "residence": "206",
@@ -266,10 +296,12 @@
     "areas": {
       "total": 69.9,
       "interior": 58,
-      "exterior": 9
+      "exterior": 9,
+      "comun": 2.9
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "207": {
     "residence": "207",
@@ -283,10 +315,12 @@
     "areas": {
       "total": 86.85,
       "interior": 77,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 3.85
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "208": {
     "residence": "208",
@@ -300,10 +334,12 @@
     "areas": {
       "total": 59.55,
       "interior": 51,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.55
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "209": {
     "residence": "209",
@@ -317,10 +353,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "210": {
     "residence": "210",
@@ -334,10 +372,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "301": {
     "residence": "301",
@@ -351,10 +391,12 @@
     "areas": {
       "total": 95.6,
       "interior": 82,
-      "exterior": 9.5
+      "exterior": 9.5,
+      "comun": 4.1
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "302": {
     "residence": "302",
@@ -368,10 +410,12 @@
     "areas": {
       "total": 68.35,
       "interior": 57,
-      "exterior": 8.5
+      "exterior": 8.5,
+      "comun": 2.85
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "303": {
     "residence": "303",
@@ -385,10 +429,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "304": {
     "residence": "304",
@@ -402,10 +448,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "305": {
     "residence": "305",
@@ -419,10 +467,12 @@
     "areas": {
       "total": 60.6,
       "interior": 52,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.6
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "306": {
     "residence": "306",
@@ -436,10 +486,12 @@
     "areas": {
       "total": 69.9,
       "interior": 58,
-      "exterior": 9
+      "exterior": 9,
+      "comun": 2.9
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "307": {
     "residence": "307",
@@ -453,10 +505,12 @@
     "areas": {
       "total": 86.85,
       "interior": 77,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 3.85
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "308": {
     "residence": "308",
@@ -470,10 +524,12 @@
     "areas": {
       "total": 59.55,
       "interior": 51,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.55
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "309": {
     "residence": "309",
@@ -487,10 +543,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "310": {
     "residence": "310",
@@ -504,10 +562,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "401": {
     "residence": "401",
@@ -521,10 +581,12 @@
     "areas": {
       "total": 95.6,
       "interior": 82,
-      "exterior": 9.5
+      "exterior": 9.5,
+      "comun": 4.1
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "402": {
     "residence": "402",
@@ -538,10 +600,12 @@
     "areas": {
       "total": 68.35,
       "interior": 57,
-      "exterior": 8.5
+      "exterior": 8.5,
+      "comun": 2.85
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "403": {
     "residence": "403",
@@ -555,10 +619,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "404": {
     "residence": "404",
@@ -572,10 +638,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "405": {
     "residence": "405",
@@ -589,10 +657,12 @@
     "areas": {
       "total": 60.6,
       "interior": 52,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.6
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "406": {
     "residence": "406",
@@ -606,10 +676,12 @@
     "areas": {
       "total": 69.9,
       "interior": 58,
-      "exterior": 9
+      "exterior": 9,
+      "comun": 2.9
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "407": {
     "residence": "407",
@@ -623,10 +695,12 @@
     "areas": {
       "total": 86.85,
       "interior": 77,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 3.85
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "408": {
     "residence": "408",
@@ -640,10 +714,12 @@
     "areas": {
       "total": 59.55,
       "interior": 51,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.55
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "409": {
     "residence": "409",
@@ -657,10 +733,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "410": {
     "residence": "410",
@@ -674,10 +752,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "501": {
     "residence": "501",
@@ -691,10 +771,12 @@
     "areas": {
       "total": 95.6,
       "interior": 82,
-      "exterior": 9.5
+      "exterior": 9.5,
+      "comun": 4.1
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "502": {
     "residence": "502",
@@ -708,10 +790,12 @@
     "areas": {
       "total": 68.35,
       "interior": 57,
-      "exterior": 8.5
+      "exterior": 8.5,
+      "comun": 2.85
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "503": {
     "residence": "503",
@@ -725,10 +809,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "504": {
     "residence": "504",
@@ -742,10 +828,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "505": {
     "residence": "505",
@@ -759,10 +847,12 @@
     "areas": {
       "total": 60.6,
       "interior": 52,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.6
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "506": {
     "residence": "506",
@@ -776,10 +866,12 @@
     "areas": {
       "total": 69.9,
       "interior": 58,
-      "exterior": 9
+      "exterior": 9,
+      "comun": 2.9
     },
     "tipologia": "E",
-    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "507": {
     "residence": "507",
@@ -793,10 +885,12 @@
     "areas": {
       "total": 86.85,
       "interior": 77,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 3.85
     },
     "tipologia": "D",
-    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS3?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "frente"
   },
   "508": {
     "residence": "508",
@@ -810,10 +904,12 @@
     "areas": {
       "total": 59.55,
       "interior": 51,
-      "exterior": 6
+      "exterior": 6,
+      "comun": 2.55
     },
     "tipologia": "C",
-    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwSg?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "509": {
     "residence": "509",
@@ -827,10 +923,12 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
+      "exterior": 5,
+      "comun": 1.7
     },
     "tipologia": "B",
-    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwST?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "510": {
     "residence": "510",
@@ -844,10 +942,12 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
+      "exterior": 4,
+      "comun": 1.7
     },
     "tipologia": "A",
-    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1"
+    "tour360": "https://kuula.co/share/collection/7TwS1?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1",
+    "exposure": "contrafrente"
   },
   "601": {
     "residence": "601",
@@ -861,8 +961,10 @@
     "areas": {
       "total": 161.6,
       "interior": 112,
-      "exterior": 44
-    }
+      "exterior": 44,
+      "comun": 5.6
+    },
+    "exposure": "frente"
   },
   "602": {
     "residence": "602",
@@ -876,8 +978,10 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
-    }
+      "exterior": 4,
+      "comun": 1.7
+    },
+    "exposure": "contrafrente"
   },
   "603": {
     "residence": "603",
@@ -891,8 +995,10 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
-    }
+      "exterior": 5,
+      "comun": 1.7
+    },
+    "exposure": "contrafrente"
   },
   "604": {
     "residence": "604",
@@ -906,8 +1012,10 @@
     "areas": {
       "total": 60.6,
       "interior": 52,
-      "exterior": 6
-    }
+      "exterior": 6,
+      "comun": 2.6
+    },
+    "exposure": "contrafrente"
   },
   "606": {
     "residence": "606",
@@ -921,8 +1029,10 @@
     "areas": {
       "total": 157.6,
       "interior": 112,
-      "exterior": 40
-    }
+      "exterior": 40,
+      "comun": 5.6
+    },
+    "exposure": "frente"
   },
   "607": {
     "residence": "607",
@@ -936,8 +1046,10 @@
     "areas": {
       "total": 59.55,
       "interior": 51,
-      "exterior": 6
-    }
+      "exterior": 6,
+      "comun": 2.55
+    },
+    "exposure": "contrafrente"
   },
   "608": {
     "residence": "608",
@@ -951,8 +1063,10 @@
     "areas": {
       "total": 40.7,
       "interior": 34,
-      "exterior": 5
-    }
+      "exterior": 5,
+      "comun": 1.7
+    },
+    "exposure": "contrafrente"
   },
   "609": {
     "residence": "609",
@@ -966,8 +1080,10 @@
     "areas": {
       "total": 39.7,
       "interior": 34,
-      "exterior": 4
-    }
+      "exterior": 4,
+      "comun": 1.7
+    },
+    "exposure": "contrafrente"
   },
   "701": {
     "residence": "701",
@@ -981,8 +1097,10 @@
     "areas": {
       "total": 217.65,
       "interior": 93,
-      "exterior": 120
-    }
+      "exterior": 120,
+      "comun": 4.65
+    },
+    "exposure": "frente"
   },
   "702": {
     "residence": "702",
@@ -996,8 +1114,10 @@
     "areas": {
       "total": 229,
       "interior": 100,
-      "exterior": 124
-    }
+      "exterior": 124,
+      "comun": 5
+    },
+    "exposure": "contrafrente"
   },
   "706": {
     "residence": "706",
@@ -1011,7 +1131,8 @@
     "areas": {
       "total": 258.15,
       "interior": 123,
-      "exterior": 129
+      "exterior": 129,
+      "comun": 6.15
     }
   }
 }

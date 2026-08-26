@@ -1354,16 +1354,15 @@ export function FlybyViewer({
 
       {/* Controles del flyby (abajo, centro). Ocultos mientras se mueve o prepara.
           El texto "Girar" entre las flechas deja claro que rotan la vista del edificio.
-          Arriba, una ayuda fija invita a interactuar con las unidades (hover/tap). */}
+          Arriba iba una ayuda fija ("Pasá el cursor sobre una unidad…"): la sacó el
+          cliente (25-08) porque tapaba el render y la unidad que respira ya invita sola
+          a interactuar. */}
       {(showBack || showForward) && !preparing && (
         // El contenedor es full-width pero TRANSPARENTE al puntero (pointer-events-none):
         // si capturara eventos en su caja vacía, taparía la mitad inferior de la bolita
-        // 360° que queda debajo (bug del hover a medias). Sólo la fila de flechas y el
-        // hint reactivan los eventos donde de verdad hay controles.
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex flex-col items-center justify-center gap-3 px-4">
-          <span className="pointer-events-none max-w-[88vw] select-none rounded-full bg-black/20 px-3.5 py-1.5 text-center text-[11px] font-normal leading-snug tracking-wide text-white/70 shadow-md ring-1 ring-white/5 backdrop-blur-sm sm:text-xs">
-            {isTouch ? t.flyby.hoverHintMobile : t.flyby.hoverHintDesktop}
-          </span>
+        // 360° que queda debajo (bug del hover a medias). Sólo la fila de flechas
+        // reactiva los eventos, que es donde de verdad hay controles.
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex items-center justify-center px-4">
           <div className="pointer-events-auto flex items-center gap-4">
             {showForward && forwardSeg && (
               <FlybyArrow

@@ -79,6 +79,9 @@ export function UnitFinderModal({
   // columna "Vistas" de Airtable (ej. Montaña / Parcial al lago / Plena al lago);
   // sin Airtable no hay valores y el grupo no se muestra.
   const [vistas, setVistas] = useState<Set<string>>(new Set());
+  // Exposición (frente / contrafrente). Set y no booleano: son dos valores y se
+  // pueden querer los dos. Sale de units.json (las plantas), no de Airtable.
+  const [exposure, setExposure] = useState<Set<string>>(new Set());
   // (Miro 2026-07-15: el filtro por tipología se eliminó junto con la tipología en la UI.)
   const [floors, setFloors] = useState<Set<string>>(new Set());
   const [duplex, setDuplex] = useState(false);
@@ -99,6 +102,7 @@ export function UnitFinderModal({
     setRooms(new Set());
     setBaths(new Set());
     setVistas(new Set());
+    setExposure(new Set());
     setFloors(new Set());
     setDuplex(false);
     setTour(false);
@@ -158,6 +162,7 @@ export function UnitFinderModal({
     const roomsSet = new Set<number>();
     const bathsSet = new Set<number>();
     const vistasSet = new Set<string>();
+    const exposureSet = new Set<string>();
     const floorSet = new Set<string>();
     let hasDuplex = false;
     let hasTour = false;
@@ -166,6 +171,7 @@ export function UnitFinderModal({
       bathsSet.add(unitTotalBaths(u));
       const v = u.vistas?.trim();
       if (v) vistasSet.add(v);
+      if (u.exposure) exposureSet.add(u.exposure);
       floorSet.add(unitFloorKey(u.id));
       if (u.duplex) hasDuplex = true;
       if (u.tour360) hasTour = true;
@@ -174,6 +180,11 @@ export function UnitFinderModal({
       rooms: [...roomsSet].sort((a, b) => a - b),
       baths: [...bathsSet].sort((a, b) => a - b),
       vistas: [...vistasSet].sort((a, b) => a.localeCompare(b, "es")),
+      // Orden fijo frente → contrafrente (no alfabético: "contrafrente" iría primero
+      // y el par se lee al revés de como lo piensa cualquiera).
+      exposures: (["frente", "contrafrente"] as const).filter((e) =>
+        exposureSet.has(e),
+      ),
       floors: [...floorSet].sort((a, b) =>
         a.localeCompare(b, undefined, { numeric: true }),
       ),
@@ -193,12 +204,14 @@ export function UnitFinderModal({
         baths.size === 0 || baths.has(unitTotalBaths(u)),
       vistas: (u: UnitWithId) =>
         vistas.size === 0 || vistas.has((u.vistas ?? "").trim()),
+      exposure: (u: UnitWithId) =>
+        exposure.size === 0 || (!!u.exposure && exposure.has(u.exposure)),
       floors: (u: UnitWithId) =>
         floors.size === 0 || floors.has(unitFloorKey(u.id)),
       duplex: (u: UnitWithId) => !duplex || u.duplex === true,
       tour: (u: UnitWithId) => !tour || !!u.tour360,
     };
-  }, [q, avail, rooms, baths, vistas, floors, duplex, tour]);
+  }, [q, avail, rooms, baths, vistas, exposure, floors, duplex, tour]);
 
   // ¿La unidad pasa todos los filtros MENOS el del grupo `skip`? Base para saber si un
   // chip, al activarse, dejaría resultados (si no, se deshabilita → nunca callejón sin salida).
@@ -241,6 +254,9 @@ export function UnitFinderModal({
     allUnits.some(
       (u) => passesExcept(u, "vistas") && (u.vistas ?? "").trim() === v,
     );
+  const exposureEnabled = (v: string) =>
+    exposure.has(v) ||
+    allUnits.some((u) => passesExcept(u, "exposure") && u.exposure === v);
   const floorEnabled = (v: string) =>
     floors.has(v) ||
     allUnits.some((u) => passesExcept(u, "floors") && unitFloorKey(u.id) === v);
@@ -308,6 +324,15 @@ export function UnitFinderModal({
           onRemove: () => toggleIn(vistas, v, setVistas),
         }),
       );
+    (["frente", "contrafrente"] as const)
+      .filter((v) => exposure.has(v))
+      .forEach((v) =>
+        chips.push({
+          id: `e${v}`,
+          label: t.status[v],
+          onRemove: () => toggleIn(exposure, v as string, setExposure),
+        }),
+      );
     [...floors]
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
       .forEach((v) =>
@@ -331,7 +356,7 @@ export function UnitFinderModal({
         onRemove: () => setTour(false),
       });
     return chips;
-  }, [q, avail, rooms, baths, vistas, floors, duplex, tour, t]);
+  }, [q, avail, rooms, baths, vistas, exposure, floors, duplex, tour, t]);
 
   const activeCount = activeChips.length;
 
@@ -467,6 +492,33 @@ export function UnitFinderModal({
                 onClick={() => toggleIn(vistas, v, setVistas)}
               >
                 {v}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5b · Exposición (frente / contrafrente). Sólo aparece si units.json tiene
+          las DOS: con un solo valor cargado el grupo no filtra nada. */}
+      {facets.exposures.length > 1 && (
+        <div className="finder-group">
+          <p className="finder-group-h">
+            {t.finder.exposure}
+            {exposure.size > 0 && (
+              <span className="finder-group-count">{exposure.size}</span>
+            )}
+          </p>
+          <div className="finder-chips">
+            {facets.exposures.map((v) => (
+              <button
+                key={v}
+                type="button"
+                className={`finder-chip serif${exposure.has(v) ? " active" : ""}`}
+                aria-pressed={exposure.has(v)}
+                disabled={!exposureEnabled(v)}
+                onClick={() => toggleIn(exposure, v as string, setExposure)}
+              >
+                {t.status[v]}
               </button>
             ))}
           </div>
@@ -884,8 +936,19 @@ function FinderCard({
           <span className="finder-status-dot" />
           {t.status[unit.status]}
         </span>
-        {unit.duplex && (
-          <span className="finder-duplex-label">{t.status.duplex}</span>
+        {/* Etiquetas bajo el chip de estado. Van en una columna para que no se
+            pisen si una unidad llegara a ser dúplex Y tener exposición cargada. */}
+        {(unit.duplex || unit.exposure) && (
+          <span className="finder-tags">
+            {unit.duplex && (
+              <span className="finder-duplex-label">{t.status.duplex}</span>
+            )}
+            {unit.exposure && (
+              <span className="finder-exposure-label">
+                {t.status[unit.exposure]}
+              </span>
+            )}
+          </span>
         )}
         {navigating && (
           <span className="finder-card-loading" aria-hidden>

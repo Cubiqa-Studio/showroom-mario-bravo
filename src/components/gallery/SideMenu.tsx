@@ -104,10 +104,6 @@ export function SideMenu({
   // Secciones de proyecto (Amenities, Calidad y Tecnología, El Equipo) que van
   // "aparte en el inicio" = acá, en el showroom (se sacaron del acordeón por unidad).
   const projectPanels = t.specs.panels.filter((p) => p.home);
-  // Panel de amenities (body + listas) para el modal Amenities (kuula + specs).
-  const amenitiesPanel =
-    t.specs.panels.find((p) => p.id === "amenities") ?? null;
-
   // Copias locales: TS no arrastra el narrowing de un import `string | null` adentro
   // del callback del onClick, y sobre un const local sí.
   const hallTour = ENTRANCE_HALL_360;
@@ -515,11 +511,7 @@ export function SideMenu({
 
       {/* "Amenities" (kuula + specs), "El Equipo" y "Ubicación" (mapa): sólo se abren
         desde el showroom/landing (gated por showProjectSections en los items). */}
-      <AmenitiesModal
-        open={amenitiesOpen}
-        onClose={() => setAmenitiesOpen(false)}
-        panel={amenitiesPanel}
-      />
+      <AmenitiesModal open={amenitiesOpen} onClose={() => setAmenitiesOpen(false)} />
       <TeamModal open={teamOpen} onClose={() => setTeamOpen(false)} />
       <LocationModal
         open={locationOpen}

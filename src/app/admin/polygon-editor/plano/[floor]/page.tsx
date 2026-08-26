@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getFloors, getPlateForEdit, getUnits } from "@/lib/data";
+import { getPlateFloors, getPlateForEdit, getUnits } from "@/lib/data";
 import { PolygonEditor } from "@/components/editor/PolygonEditor";
 import { surfaceFromPlate } from "@/components/editor/surface";
 
@@ -19,7 +19,9 @@ export default async function PlateEditorPage({
   const { floor } = await params;
   const plate = await getPlateForEdit(floor);
   const units = getUnits();
-  const floors = getFloors();
+  // Todos los pisos CON PLANO (incluye subsuelo, PB y azotea), no sólo los que
+  // tienen unidades: en la azotea se trazan las terrazas privadas del 7°.
+  const floors = await getPlateFloors();
 
   // Pisos ordenados → flechas anterior/siguiente, igual que el editor de stops.
   const pos = floors.indexOf(floor);
@@ -61,7 +63,7 @@ export default async function PlateEditorPage({
                     : "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600",
                 ].join(" ")}
               >
-                {f === "0" ? "PB" : `Piso ${f}`}
+                {f === "SS" ? "Subsuelo" : f === "0" ? "PB" : `Piso ${f}`}
               </Link>
             ))}
             <Link

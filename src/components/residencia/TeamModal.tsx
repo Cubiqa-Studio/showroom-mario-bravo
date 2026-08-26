@@ -12,11 +12,11 @@ import { CloseIcon } from "../gallery/icons";
 /* eslint-disable @next/next/no-img-element */
 
 /**
- * "El Equipo" — modal propio del menú general (Miro 2026-07-15): respaldo
- * institucional con el layout del mockup del cliente — Fluir Desarrollos y
- * Aslan y Ezcurra destacados arriba (tarjetas grandes), el resto en tarjetas
- * chicas debajo. Con logo donde hay archivo en /public; si no, el nombre en
- * texto (indicación de Juani). Los datos viven en t.team.members.
+ * "El Equipo" — modal propio del menú general: respaldo institucional. Los
+ * `featured` van arriba en tarjetas grandes, el resto en tarjetas chicas debajo, y
+ * los `solo` en su propia fila centrada al pie. Con logo donde hay archivo en
+ * /public; si no, el nombre en texto. Los datos viven en t.team.members — hoy, los
+ * tres desarrollos de TIER (Bravo, Avenue y Sinclair), todos con el mismo logotipo.
  */
 export function TeamModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useI18n();
@@ -74,13 +74,13 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
 
                   <div className="team-grid team-grid--featured">
                     {featured.map((m) => (
-                      <TeamCard key={m.role} m={m} featured />
+                      <TeamCard key={m.name} m={m} featured />
                     ))}
                   </div>
 
                   <div className="team-grid">
                     {rest.map((m) => (
-                      <TeamCard key={m.role} m={m} />
+                      <TeamCard key={m.name} m={m} />
                     ))}
                   </div>
 
@@ -89,7 +89,7 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
                       {solo.map((m) => (
                         // `featured`: la tarjeta de RE/MAX va del MISMO tamaño que las
                         // destacadas (logo 56px, padding y nombre grandes) — pedido 21/07.
-                        <TeamCard key={m.role} m={m} featured />
+                        <TeamCard key={m.name} m={m} featured />
                       ))}
                     </div>
                   ) : null}

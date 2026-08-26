@@ -145,6 +145,18 @@ export async function getPlates(): Promise<FloorPlate[]> {
 }
 
 /**
+ * Pisos TRAZABLES = los que tienen plano, en el orden en que están en `plates.json`
+ * (de abajo hacia arriba). Es lo que lista el menú del editor.
+ *
+ * NO es `getFloors()`: ese devuelve los prefijos de unidad (1 a 7) y dejaba afuera
+ * plantas que SÍ hay que poder trazar aunque no tengan unidades propias — la azotea
+ * del 8°, donde van las terrazas privadas de las unidades del 7°, es el caso.
+ */
+export async function getPlateFloors(): Promise<string[]> {
+  return (await readPlatesFile()).plates.map((p) => p.floor);
+}
+
+/**
  * Plate CRUDA de un piso para el EDITOR (aunque no tenga polígonos todavía, así
  * hay imagen sobre la cual trazar). Si el piso no está en el archivo, devuelve
  * una plate por defecto con la imagen placeholder para empezar a digitalizar.
@@ -163,13 +175,18 @@ export function getFloors(): string[] {
   // importar units.json sin arrastrarlo entero al bundle). Si alguien agrega un
   // piso en units.json y se olvida de site.ts, el selector queda incompleto en
   // silencio: acá se avisa en dev, donde el error todavía es barato.
+  //
+  // Es un chequeo de SUPERCONJUNTO, no de igualdad: `SITE.floors` incluye a propósito
+  // plantas SIN unidades (subsuelo, planta baja, azotea) que igual se muestran. Lo que
+  // no puede pasar es que falte un piso que SÍ tiene unidades.
   if (process.env.NODE_ENV !== "production") {
-    const declared = SITE.floors.join(",");
-    const real = floors.join(",");
-    if (declared !== real) {
+    const declared = new Set(SITE.floors);
+    const faltan = floors.filter((f) => !declared.has(f));
+    if (faltan.length) {
       console.warn(
-        `[data] SITE.floors (${declared || "vacío"}) no coincide con los pisos de units.json (${real}). ` +
-          `Actualizá src/data/site.ts — el selector de "Planta del piso" usa SITE.floors.`,
+        `[data] SITE.floors (${SITE.floors.join(",") || "vacío"}) no incluye ${faltan.join(",")}, ` +
+          `que sí tienen unidades en units.json. Actualizá src/data/site.ts — el selector ` +
+          `de "Planta del piso" usa SITE.floors.`,
       );
     }
   }

@@ -12,8 +12,12 @@ export type UnitStatus = "available" | "reserved";
 /** Superficies de una unidad, en m² (Fase 3 — landing de detalle). */
 export interface UnitAreas {
   total?: number;
+  /** Superficie CUBIERTA (Airtable: "Superficie Cubierta"). */
   interior?: number;
+  /** Semicubierta + descubierta (Airtable: "Superficie Semi/Desc"). */
   exterior?: number;
+  /** Proporcional de espacios comunes (Airtable: "Superficie Común"). */
+  comun?: number;
 }
 
 /** Un grupo de especificaciones (un acordeón colapsable en la landing). */
@@ -41,6 +45,15 @@ export interface Unit {
    * (violeta) y aparece tanto en el plano de su piso como en el de arriba.
    */
   duplex?: boolean;
+  /**
+   * A qué da la unidad: `"frente"` = a la calle Mario Bravo, `"contrafrente"` = al
+   * pulmón de manzana (pileta, deck y parque). Sale de las plantas generales, NO de
+   * Airtable —el cliente no tiene esa columna—, así que vive en `units.json`.
+   *
+   * Es opcional a propósito: una unidad que da a los DOS lados (las de retiro que
+   * cruzan la planta) se deja sin valor y no muestra chip, antes que etiquetarla mal.
+   */
+  exposure?: "frente" | "contrafrente";
   /**
    * Cantidad de AMBIENTES (Airtable, columna "Ambientes"). Distinto de `beds`
    * (dormitorios): en convención AR un 1 dormitorio = 2 ambientes. Opcional: sólo

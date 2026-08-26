@@ -20,6 +20,18 @@ export const FILL_ALPHA = 0.45;
  *  queda en el StatusPill del tooltip). Es un canal distinto: "ocupa dos niveles". */
 export const DUPLEX_COLOR = "#8b5cf6";
 
+/** Grafito del chip de EXPOSICIÓN (frente / contrafrente).
+ *
+ *  UN SOLO color para los dos valores, a propósito: el texto ya dice cuál es, y
+ *  pintarlos distinto sugeriría que uno vale más que el otro. Acá no es así — el
+ *  contrafrente da al pulmón de manzana, con la pileta y el parque, y para mucha
+ *  gente es el lado bueno. La jerarquía de color de la tarjeta queda para el
+ *  ESTADO (verde/ámbar), que es lo que de verdad hay que ver de un vistazo.
+ *
+ *  Tampoco entra en `unitFillColor`: el relleno del polígono comunica
+ *  disponibilidad, y meter la exposición ahí la rompería. */
+export const EXPOSURE_COLOR = "#3F3F46";
+
 export function statusColor(status: UnitStatus): string {
   return STATUS_STYLES[status].color;
 }

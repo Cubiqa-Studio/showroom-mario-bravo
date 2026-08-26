@@ -61,6 +61,8 @@ export interface LiveUnitFields {
   superficieExterior?: number;
   /** Superficie total en m² (→ areas.total). */
   superficieTotal?: number;
+  /** Proporcional de espacios comunes en m² (→ areas.comun). */
+  superficieComun?: number;
   /** Vistas (texto, columna "Vistas" de Airtable): "Montaña", "Parcial al lago"… */
   vistas?: string;
   piso?: string;
@@ -245,6 +247,7 @@ export async function fetchAirtableUnits(): Promise<Record<string, LiveUnitField
         superficieCubierta: toNum(pick(f, "Superficie Cubierta")),
         superficieExterior: toNum(pick(f, "Superficie Semi/Desc", "Superficie Semicubierta", "Superficie Descubierta")),
         superficieTotal: toNum(pick(f, "Superficie Total")),
+        superficieComun: toNum(pick(f, "Superficie Común", "Superficie Comun")),
         vistas: str(pick(f, "Vistas")),
         piso: str(pick(f, "Piso")),
       };
@@ -271,6 +274,7 @@ export function mergeLiveUnits(base: Units, live: Record<string, LiveUnitFields>
     if (f.superficieTotal != null) areas.total = f.superficieTotal;
     if (f.superficieCubierta != null) areas.interior = f.superficieCubierta;
     if (f.superficieExterior != null) areas.exterior = f.superficieExterior;
+    if (f.superficieComun != null) areas.comun = f.superficieComun;
     out[id] = {
       ...u,
       status: f.status ?? u.status,

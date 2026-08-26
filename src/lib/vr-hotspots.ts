@@ -51,12 +51,19 @@ export const AMENITIES_360: string | null = null;
  * distinto ángulo—. Las vistas 3 y 4 (contrafrente) no lo ven: no llevan bolita.
  */
 export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
-  // Stop 0 (landing, fachada de frente) — CENTRADA en el vano vidriado del hall, que
-  // en el render extendido (5000×2250) va de x≈2050 a x≈2400 y de y≈1770 (soffit) a
-  // y≈1985 (vereda), entre el café (izquierda) y el local de indumentaria (derecha).
+  // Stop 0 (landing, fachada de frente). ⚠ Espacio 4999×2812 — el render de 5k que
+  // reemplazó al recorte extendido de 5000×2250 el 25-08. NO es el mismo encuadre: la
+  // cámara quedó más lejos, así que las coordenadas viejas NO se convierten con una
+  // regla de tres. Medido sobre `public/stops/stop-0.jpg` con grilla:
+  //   café          x≈1450-1780
+  //   VANO DEL HALL x≈1990-2260 · y≈2220 (dintel) → 2480 (piso), hoja en x≈2020-2140
+  //   local         x≈2250-2900
+  // 2040 la deja apenas a la izquierda de la hoja y 2400 abajo, a la altura del
+  // picaporte. Más abajo se la come el recorte de una ventana maximizada: con el bias
+  // de esta vista se pierden los últimos ~143px nativos (ver `stop-framing.ts`).
   0: {
-    x: 2225,
-    y: 1878,
+    x: 2040,
+    y: 2400,
     scale: 0.85,
     kuulaUrl: ENTRANCE_HALL_360 ?? undefined,
     previewImage: "/gallery/optimized/05-lobby.webp",

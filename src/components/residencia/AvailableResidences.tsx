@@ -97,6 +97,10 @@ export function AvailableResidences({ others }: { others: UnitWithId[] }) {
                 )}
                 {/* Vistas EN VIVO (Airtable), ej. "Montaña". Sólo si la unidad la trae. */}
                 {u.vistas ? ` · ${u.vistas}` : ""}
+                {/* Exposición: va en la línea de stats y no como pill (el dúplex
+                    tampoco tiene pill acá). Esta lista es para BARRER con la vista,
+                    y frente/contrafrente es justo lo que se busca al barrer. */}
+                {u.exposure ? ` · ${t.status[u.exposure]}` : ""}
               </div>
               {/* Miro 2026-07-15: sin precio en la fila (se sacaron los precios). */}
               <div className="rr-badge">

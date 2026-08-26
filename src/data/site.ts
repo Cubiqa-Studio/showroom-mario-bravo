@@ -19,7 +19,11 @@ export const SITE: SiteConfig = {
   addressBase: "Mario Bravo 955, Ciudad Autónoma de Buenos Aires",
   // Pisos con unidades. La planta baja (amenities), el subsuelo (cochera) y la
   // azotea del 8° NO tienen unidades → no son pisos navegables del selector.
-  floors: ["1", "2", "3", "4", "5", "6", "7"],
+  // SS y 0 y 8 NO tienen unidades: son la cochera, los amenities y la azotea. Se
+  // muestran igual (es lo que pregunta el que compra) y simplemente no llevan
+  // polígonos clicables. El orden es el de recorrido, de abajo hacia arriba, y
+  // tiene que coincidir con FLOOR_ORDER en scripts/make-plates.mjs.
+  floors: ["SS", "0", "1", "2", "3", "4", "5", "6", "7", "8"],
   // PLACEHOLDER — coordenadas APROXIMADAS de la altura 900 de Mario Bravo (CABA).
   // Pedile al cliente el pin exacto (link de Google Maps) y reemplazalas: esto es
   // lo que posiciona el marker del mapa de Ubicación y el GeoCoordinates del JSON-LD.

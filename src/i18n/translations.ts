@@ -69,6 +69,9 @@ const es = {
     reserved: "Reservada",
     duplex: "Dúplex",
     duplexTwoLevels: "Dúplex (dos niveles)",
+    /** Chip de exposición (mismo lugar que el de dúplex). */
+    frente: "Frente",
+    contrafrente: "Contrafrente",
   },
 
   orientations: {
@@ -134,9 +137,6 @@ const es = {
     /** Texto entre las flechas de navegación (rotar la vista del edificio). */
     rotateLabel: "Girar",
     home: "Volver al inicio",
-    /** Ayuda fija sobre las flechas: invita a interactuar con las unidades. */
-    hoverHintDesktop: "Pasá el cursor sobre una unidad para verla y entrar",
-    hoverHintMobile: "Tocá una unidad para verla y entrar",
   },
 
   /** Modal "Avance de obra" (% general + fecha, en vivo desde Airtable). */
@@ -210,6 +210,8 @@ const es = {
     baths: "Baños",
     /** Vistas (Camila 2026-07-16): chips con los valores crudos de Airtable. */
     vistas: "Vistas",
+    /** Frente / contrafrente (pedido del cliente, 25-08). */
+    exposure: "Exposición",
     floor: "Piso",
     duplex: "Dúplex",
     /** Filtro por unidades que tienen recorrido 360° propio (units.json → tour360). */
@@ -268,12 +270,16 @@ const es = {
       floor: string;
       duplex?: boolean;
       vistas?: string;
+      exposure?: "frente" | "contrafrente";
     }) => {
       const que =
         u.beds >= 1
           ? `Departamento de ${u.beds} ${u.beds === 1 ? "dormitorio" : "dormitorios"}`
           : "Monoambiente";
       const dup = u.duplex ? " en dos niveles (dúplex)" : "";
+      // "al frente" / "al contrafrente" es como se busca en un aviso; suma un
+      // diferenciador real al blurb, que si no queda casi igual entre unidades.
+      const expo = u.exposure ? ` ${u.exposure === "frente" ? "al frente" : "al contrafrente"}` : "";
       const piso = u.floor === "0" ? "en planta baja" : `en el ${u.floor}° piso`;
       // "2 baños, toilette y 100 m² totales" — lista con "y" sólo antes del último.
       const partes = [
@@ -286,7 +292,7 @@ const es = {
           ? `${partes.slice(0, -1).join(", ")} y ${partes[partes.length - 1]}`
           : partes[0];
       const vistas = u.vistas ? ` Vistas: ${u.vistas}.` : "";
-      return `${que}${dup} ${piso} de TIER Bravo, en Mario Bravo 955, Ciudad de Buenos Aires. Cuenta con ${detalle}.${vistas}`;
+      return `${que}${dup}${expo} ${piso} de TIER Bravo, en Mario Bravo 955, Ciudad de Buenos Aires. Cuenta con ${detalle}.${vistas}`;
     },
   },
 
@@ -311,22 +317,32 @@ const es = {
     totalArea: "Superficie total",
     interior: "Interior",
     exterior: "Exterior",
+    /** Desglose de superficies del resumen (pedido del cliente, 26-08). */
+    covered: "Superficie cubierta",
+    uncovered: "Superficie descubierta",
+    common: "Superficie común",
+    /** Tipología por ambientes. 1 ambiente = monoambiente (convención AR). */
+    rooms: "Ambientes",
+    roomsValue: (n: number) => (n <= 1 ? "Monoambiente" : `${n} ambientes`),
     bedrooms: "Dormitorios",
     bathrooms: "Baños",
     orientation: "Orientación",
     // Resumen de la unidad completo (Camila 2026-06-30).
     toilette: "Toilette",
     vistas: "Vistas",
+    exposure: "Exposición",
     floor: "Piso",
     /** "0" → PB, resto → "1°"… */
     floorValue: (f: string) => (f === "0" ? "PB" : `${f}°`),
     amenities: "Amenities",
-    amenitiesValue: "Spa, Piscina y Gimnasio",
+    amenitiesValue: "Gimnasio, cowork, SUM, parrillas, juegos, solárium y pileta",
     seePdf: "Ver PDF",
   },
 
   plate: {
     groundFloor: "Planta Baja",
+    /** Subsuelo (cochera): planta navegable, sin unidades. */
+    basement: "Subsuelo",
     floor: (f: string) => `Piso ${f}`,
     yourResidence: "Tu departamento",
     yourResidenceUpper: "TU DEPARTAMENTO",
@@ -351,35 +367,25 @@ const es = {
     financingTitle: "Financiación",
   },
 
-  /** "El Equipo" — modal propio del menú general (Miro 2026-07-15). Fluir
-   *  Desarrollos y Aslan y Ezcurra van destacados (featured); donde no hay logo
-   *  en /public va el nombre en texto (indicación de Juani). */
+  /** "El Equipo" — modal propio del menú general. */
   team: {
     eyebrow: "Respaldo institucional",
     title: "Un equipo con trayectoria",
     intro:
-      "Maihuenia es el resultado de un equipo con trayectoria detrás de cada etapa: arquitectura de autor, una estructura de inversión transparente y una comercialización profesional.",
+      "TIER es la marca de desarrollos de CCM. Bravo, Avenue y Sinclair conforman su portfolio; este showroom es el de TIER Bravo, en Mario Bravo 955.",
     close: "Cerrar",
-    // Espejo del BROCHURE (pedido Camila 21/07): mismo orden, sin el estudio
-    // jurídico, RE/MAX solo al pie (`solo`) y logos NEGROS de la tanda del drive
-    // (public/logos/, recortados+comprimidos; crudos en _media-src/logos-2026-07-21).
+    // Los tres desarrollos de TIER (pedido del cliente, 26-08). Los tres llevan el
+    // MISMO logotipo TIER, en su variante TINTA (`/logo_b_n.png`) porque las tarjetas
+    // son claras (`--bg-2`). Éste es Bravo, así que va destacado arriba.
     members: [
       {
-        role: "Desarrollador",
-        name: "Fluir Desarrollos Inmobiliarios",
-        logo: "/logos/fluir.png",
+        role: "Este desarrollo",
+        name: "TIER Bravo",
+        logo: "/logo_b_n.png",
         featured: true,
       },
-      {
-        role: "Estudio de arquitectura",
-        name: "Aslan y Ezcurra Arquitectos",
-        logo: "/logos/aslan-ezcurra.png",
-        featured: true,
-      },
-      { role: "Agente fiduciario", name: "Fiduciaria Profesional S.A.", logo: "/logos/fiduciaria-profesional.png" },
-      { role: "Escribanía", name: "Dr. Francisco Puiggari", logo: "/logos/puiggari.png" },
-      { role: "Estudio contable", name: "Miguel A. Monti y Asociados", logo: "/logos/estudio-monti.png" },
-      { role: "Comercialización", name: "RE/MAX Oportunidades (Neuquén)", logo: "/logos/remax.png", solo: true },
+      { role: "También de TIER", name: "TIER Avenue", logo: "/logo_b_n.png" },
+      { role: "También de TIER", name: "TIER Sinclair", logo: "/logo_b_n.png" },
     ] as TeamMember[],
   },
 
@@ -462,20 +468,20 @@ const es = {
       "Un detalle completo de la arquitectura, las terminaciones y los servicios que definen el edificio y cada departamento.",
     panels: [
       {
-        // Miro 2026-07-15: título "Arquitectura y el Edificio" → sólo "Arquitectura";
-        // párrafo introductorio reemplazado por el texto del cliente.
         title: "Arquitectura",
         body:
-          "Arquitectura contemporánea de identidad patagónica, desarrollada con materiales nobles como piedra y madera en una propuesta de alta calidad constructiva. Integrada naturalmente con el paisaje para privilegiar las vistas al Lago Agrio y a la Cordillera.",
+          "Arquitectura contemporánea de identidad urbana, desarrollada con materiales nobles como la madera y el hormigón en una propuesta de alta calidad constructiva y tecnológica. El diálogo entre el hormigón visto, la calidez de la madera y las grandes superficies vidriadas define un lenguaje sobrio y actual, integrado al ritmo de Palermo.",
         lists: [
           {
             heading: "Terminaciones",
             items: [
-              "Pisos de porcelanato símil madera 0,20 × 1,20 m en estar, comedor, cocina y dormitorios; baños en porcelanato 60 × 60.",
-              "Cocinas con muebles en melamina / laqueado con detalles de madera y mesada de Silestone con pileta de acero inoxidable.",
-              "Placares de hojas corredizas, doble altura, melamina símil madera con perfilería de aluminio.",
-              "Carpinterías exteriores de PVC negro con DVH (doble vidriado hermético).",
-              "Puertas de acceso de doble chapa F30 (cortafuego).",
+              "Pisos de PVC símil madera de primera calidad en estar, comedor, cocina y dormitorios.",
+              "Carpinterías exteriores negras con DVH (doble vidriado hermético), de piso a techo y de primera calidad.",
+              "Cielorrasos de hormigón visto, paredes blancas e iluminación con spots negros embutidos.",
+              "Cocinas con muebles superiores en melamina blanca y bajo mesada en melamina símil madera, mesada de granito, grifería Ferrum, pileta de acero inoxidable y extractor.",
+              "Baños con revestimiento tipo Silestone 60 × 60, sanitarios Ferrum, mampara y armarios en melamina blanca.",
+              "Balcones con parapetos de vidrio y carpintería vidriada.",
+              "Cerradura inteligente en el acceso a cada unidad.",
             ],
           },
         ],
@@ -483,39 +489,31 @@ const es = {
       {
         title: "Los Departamentos",
         body:
-          "Unidades de 2 a 4 ambientes, con opciones de entrepiso y unidades de vista panorámica con doble orientación al lago y la montaña. Desde el 2 ambientes funcional hasta los 130 m² del nivel superior, cada unidad está pensada para habitar o para una renta turística de categoría, entregada con terminaciones de primera calidad preparadas para el clima de montaña.",
+          "Unidades funcionales de 1 a 4 ambientes, pensadas tanto para habitar como para una renta de categoría. Desde monoambientes eficientes de 34 m² hasta amplios semipisos con terrazas de más de 250 m² en el nivel superior, cada departamento se entrega con terminaciones de primera calidad: hormigón visto, revestimientos en madera, carpinterías de piso a techo y aberturas de doble vidriado hermético. Los pisos superiores suman balcones y grandes terrazas propias, aprovechando la mejor orientación y las visuales abiertas de Palermo.",
         lists: [
           {
-            heading: "Planta baja",
+            heading: "Tipologías",
             items: [
-              "2 ambientes — 60 m²",
-              "3 ambientes — 90 m²",
-              "Locales comerciales — 60 m² con vista al lago",
+              "Monoambientes — desde 34 m² (cubiertos) · 39 a 41 m² totales",
+              "2 ambientes — desde 51 m² (cubiertos) · 60 a 68 m² totales con balcón",
+              "3 ambientes — desde 77 m² (cubiertos) · 86 a 113 m² totales con balcón",
+              "4 ambientes — desde 93 m² (cubiertos), en pisos altos, con terrazas de gran superficie",
             ],
           },
           {
-            heading: "Primer piso",
+            heading: "La distribución",
             items: [
-              "2 ambientes — 60 m²",
-              "3 ambientes — 90 m²",
-              "2 ambientes vista panorámica — 100 m²",
+              "Pisos 1° a 5° — Planta de 10 unidades: monoambientes, 2 y 3 ambientes, todos con balcón al frente o al contrafrente.",
+              "6° piso — Suma unidades de 4 ambientes de más de 160 m², ideales para vivienda familiar.",
+              "7° piso — Semipisos exclusivos de 4 ambientes con terrazas propias de entre 124 y 129 m², de 217 a 258 m² totales. El nivel más aspiracional del edificio.",
             ],
           },
-          {
-            heading: "Segundo piso con entrepiso",
-            items: [
-              "3 ambientes + entrepiso — 85 m²",
-              "4 ambientes + entrepiso — 115 m²",
-              "3 ambientes vista panorámica — 130 m²",
-            ],
-          },
-          // Miro 2026-07-15: "Orientaciones y vistas" pasa de la grilla (mucho aire)
-          // a una lista compacta — toda la info en 2 renglones. El panel "Las Unidades
-          // Panorámicas" se eliminó (pedido del cliente: sacarlo del menú).
           {
             heading: "Orientaciones y vistas",
             items: [
-              "Montaña (cordillera y bosque andino) · Parcial al lago · Plena al lago · Panorámica (doble orientación lago + montaña).",
+              "Frente a Mario Bravo, con balcones sobre la arboleda de la calle.",
+              "Contrafrente con vista al pulmón verde: jardín, pileta y expansión de amenities.",
+              "Unidades superiores con terrazas y visuales abiertas sobre Palermo.",
             ],
           },
         ],
@@ -524,27 +522,30 @@ const es = {
         title: "Amenities",
         id: "amenities",
         home: true,
-        // Miro 2026-07-15: texto reemplazado por el nuevo del cliente (dos párrafos;
-        // el \n se respeta vía white-space: pre-line en el CSS).
+        // Dos párrafos; el \n se respeta vía white-space: pre-line en el CSS.
         body:
-          "Una pileta climatizada íntegramente vidriada, con vista directa al lago, acompañada de dos jacuzzis que permite vivir una experiencia para disfrutar todo el año, ya sea viendo nevar en invierno o disfrutando el sol de la montaña en verano.\nUn gimnasio completa la propuesta de bienestar teniendo en cuenta tu calidad de vida.",
+          "Una pileta al aire libre con deck de madera, rodeada de verde, invita a desconectar y disfrutar del sol sin salir de casa. A su alrededor, un solárium, una zona de parrillas con comedor exterior y un jardín con juegos para los más chicos completan una expansión pensada para vivir todo el año, en familia o entre amigos.\nUn gimnasio totalmente equipado, un cowork y una sauna completan la propuesta de bienestar, teniendo en cuenta tu calidad de vida.",
         lists: [
           {
             heading: "Amenities",
             items: [
-              "Pileta climatizada totalmente vidriada, con vista al lago",
-              "Dos jacuzzi",
-              "Gimnasio",
-              "2 locales comerciales con vista al lago",
-              "Bauleras",
+              "Pileta exterior con deck de madera y solárium",
+              "Zona de parrillas con comedor al aire libre",
+              "Jardín con juegos para niños",
+              "Gimnasio totalmente equipado",
+              "SUM amplio para eventos y encuentros",
+              "Cowork",
+              "Lavadero",
             ],
           },
           {
             heading: "Servicios e infraestructura",
             items: [
               "Ascensores de primera marca: puertas automáticas, cabina en acero inoxidable, piso de granito y espejo",
-              "2 grupos electrógenos para servicios comunes básicos",
+              "Grupo electrógeno para servicios comunes básicos",
               "Sistema de CCTV",
+              "Cochera cubierta y bicicletero",
+              "Bauleras",
               "Calefacción central por radiadores (Peisa o similar), con calderas por piso",
             ],
           },
@@ -554,45 +555,42 @@ const es = {
         title: "Calidad y Tecnología",
         home: true,
         body:
-          "Cada decisión constructiva responde a una premisa: durar y rendir en la montaña. Estructura antisísmica según normas CIRSOC, aislación térmica reforzada y carpinterías con rotura de puente térmico y doble vidriado hermético para sostener el confort interior frente al frío patagónico. Climatización frío-calor por ambiente, conectividad completa y respaldo energético hacen de Maihuenia un edificio preparado para la exigencia del destino.",
+          "Cada decisión constructiva responde a una premisa: durar y rendir en el tiempo. Estructura de hormigón armado, aislaciones térmica y acústica, y carpinterías con doble vidriado hermético para sostener el confort interior durante todo el año. Climatización frío-calor por ambiente, conectividad completa y respaldo energético hacen de TIER Bravo un edificio preparado para la exigencia de la vida urbana.",
         lists: [
           {
             heading: "Detalle técnico",
             items: [
-              "Estructura de hormigón armado antisísmica (CIRSOC); fundaciones, columnas, vigas y losas.",
-              "Aislación térmica reforzada para clima de montaña.",
-              "Carpinterías exteriores de PVC negro con DVH y rotura de puente térmico.",
-              "Climatización: cañerías embutidas para equipos split frío-calor por cada ambiente.",
+              "Estructura de hormigón armado según normas CIRSOC; fundaciones, columnas, vigas y losas.",
+              "Aislación térmica y acústica reforzada.",
+              "Carpinterías exteriores de PVC negro con DVH (doble vidriado hermético) y ruptura de puente térmico.",
+              "Climatización: cañerías embutidas para equipos split frío-calor en cada ambiente.",
               "Calefacción central por radiadores marca Peisa o similar.",
               "Instalación eléctrica con tableros individuales, telefonía, TV/cable y CCTV; alimentación para cocina eléctrica.",
-              "Respaldo: 2 grupos electrógenos para servicios comunes.",
+              "Respaldo: grupo electrógeno para servicios comunes.",
             ],
           },
         ],
       },
-      // Miro 2026-07-15: el panel "El Equipo" se reemplazó por la sección propia
-      // "Un equipo con trayectoria" (t.team) con item en el menú general.
       {
         title: "Financiación",
         id: "financing",
         home: true,
         body:
-          "Una estructura de pagos transparente y por hitos, desde la reserva hasta la escritura, con financiación directa del desarrollo y tu asesor acompañándote en cada etapa.",
+          "Una estructura de pagos transparente y por etapas, desde el anticipo hasta la entrega, con financiación directa del desarrollo y tu asesor acompañándote en cada paso.",
         lists: [
           {
             heading: "El plan, paso a paso",
             items: [
-              "Reserva · USD 5.000 — Bloqueás tu unidad al precio de pre-venta.",
-              "Boleto · 30% — Al firmar el boleto de compraventa.",
-              "Saldo · 70% — En 24 cuotas mensuales en pesos, ajustables por índice CAC.",
+              "Anticipo · 40% — Asegurás tu unidad al precio de pre-venta.",
+              "Saldo · 60% — En 40 cuotas mensuales hasta la finalización de la obra.",
             ],
           },
           {
             heading: "Entrega y condiciones",
             items: [
-              "Entrega de los apartamentos: 24 a 30 meses.",
               "Financiación directa del desarrollo, sin intermediación bancaria.",
-              "Ajuste por índice CAC (Cámara Argentina de la Construcción).",
+              "Cuotas mensuales ajustables por índice CAC (Cámara Argentina de la Construcción).",
+              "Plan de pagos acompañando el avance de obra hasta la entrega.",
             ],
           },
         ],
@@ -606,17 +604,56 @@ const es = {
         lists: [
           {
             heading: "Incluido en el edificio",
-            items: ["Laundry de uso común para todos los residentes."],
+            items: [
+              "Bicicletero en planta baja, de uso común para todos los residentes.",
+              "Lavadero de uso común para todos los residentes.",
+            ],
           },
           {
             heading: "Disponibles para sumar",
             items: [
-              "Bauleras: espacios de guardado adicionales, disponibles para comprar junto con tu unidad.",
+              "Cocheras para autos: 26 unidades disponibles para comprar junto con tu departamento.",
+              "Espacios para motos: 45 plazas en subsuelo, disponibles para adquirir con tu unidad.",
             ],
           },
         ],
       },
     ] as SpecPanel[],
+  },
+
+  /**
+   * Hoja "Amenities" del menú del showroom. Es un TEXTO PROPIO, no el panel de
+   * Amenities de "El Proyecto": el cliente entregó dos versiones distintas (26-08),
+   * una más narrativa para esta hoja y otra más corta para el acordeón del proyecto.
+   */
+  amenitiesSheet: {
+    body:
+      "Cada espacio de TIER Bravo fue pensado para que la vida puertas adentro sea tan rica como la del barrio que lo rodea. En el corazón de Palermo, el edificio propone un modo de habitar donde el bienestar, el encuentro y el descanso conviven en armonía.\nUna pileta con deck de madera al aire libre, rodeada de verde, invita a desconectar sin salir de casa. A su alrededor, un solárium, una zona de parrillas con comedor exterior y un jardín con juegos para los más chicos completan una expansión pensada para disfrutar todo el año, en familia o entre amigos.\nPuertas adentro, un gimnasio totalmente equipado, un cowork luminoso y un SUM amplio acompañan tu día a día: entrenar, trabajar o recibir, cada momento tiene su lugar. Una sauna suma ese detalle de spa que transforma la rutina en un ritual.",
+    lists: [
+      {
+        heading: "Amenities",
+        items: [
+          "Pileta exterior con deck de madera y solárium",
+          "Zona de parrillas con mesas al aire libre",
+          "Jardín con juegos para niños",
+          "Gimnasio totalmente equipado",
+          "SUM amplio para eventos y encuentros",
+          "Cowork luminoso e integrado al verde",
+          "2 locales comerciales sobre Mario Bravo",
+        ],
+      },
+      {
+        heading: "Servicios e infraestructura",
+        items: [
+          "Cochera cubierta con múltiples plazas de estacionamiento",
+          "Bicicletero",
+          "Ascensores de primera marca",
+          "Sistema de CCTV en espacios comunes",
+          "Grupo electrógeno para servicios comunes",
+          "Calefacción y terminaciones de categoría (hormigón visto, revestimientos en madera y carpinterías de piso a techo)",
+        ],
+      },
+    ],
   },
 
   timeline: {
@@ -648,7 +685,8 @@ const es = {
     sectionTitle: "Ubicación",
     intro: "Explorá los alrededores",
     addressLabel: "La Dirección",
-    skiNote: "A 5 min del centro de esquí",
+    /** Nota bajo la dirección, en el mapa de la ficha. */
+    skiNote: "En el corazón de Palermo",
     directions: "Cómo llegar",
     exploreArea: "Explorar la zona",
     clickZoom: "Clic para zoom",
@@ -707,7 +745,7 @@ const es = {
       const dorms = u.beds === 1 ? "1 dormitorio" : `${u.beds} dormitorios`;
       const banos = u.baths === 1 ? "1 baño" : `${u.baths} baños`;
       const orient = u.orientation ? `, orientación ${u.orientation}` : "";
-      return `Departamento ${u.residence}: ${dorms}, ${banos} y ${area}${orient}. Diseño contemporáneo con terminaciones de categoría y vistas al entorno de Caviahue.`;
+      return `Departamento ${u.residence}: ${dorms}, ${banos} y ${area}${orient}. Diseño contemporáneo con terminaciones de categoría, en el corazón de Palermo.`;
     },
   },
 };
@@ -755,6 +793,10 @@ const en: Dict = {
     reserved: "Reserved",
     duplex: "Duplex",
     duplexTwoLevels: "Duplex (two levels)",
+    // "Street-facing" / "Rear-facing": lo que usa un aviso inmobiliario en inglés.
+    // "Front"/"Back" a secas se lee como frente/dorso del edificio, no como vista.
+    frente: "Street-facing",
+    contrafrente: "Rear-facing",
   },
 
   orientations: {
@@ -815,8 +857,6 @@ const en: Dict = {
     stillAlt: (id: number) => `Render of the TIER Bravo building — view ${id}`,
     rotateLabel: "Rotate",
     home: "Back to start",
-    hoverHintDesktop: "Hover over a unit to preview and enter it",
-    hoverHintMobile: "Tap a unit to preview and enter it",
   },
 
   avance: {
@@ -876,6 +916,7 @@ const en: Dict = {
     baths: "Baths",
     /** Chip values come raw from Airtable (Spanish), as everywhere else. */
     vistas: "Views",
+    exposure: "Exposure",
     floor: "Floor",
     duplex: "Duplex",
     /** Filter for units that ship their own 360° tour (units.json → tour360). */
@@ -923,14 +964,20 @@ const en: Dict = {
       floor: string;
       duplex?: boolean;
       vistas?: string;
+      exposure?: "frente" | "contrafrente";
     }) => {
       const what = u.beds >= 1 ? `${u.beds}-bedroom apartment` : "Studio apartment";
       const dup = u.duplex ? " on two levels (duplex)" : "";
+      const expo = u.exposure
+        ? u.exposure === "frente"
+          ? ", street-facing,"
+          : ", facing the quiet inner courtyard,"
+        : "";
       const floor = u.floor === "0" ? "on the ground floor" : `on floor ${u.floor}`;
       const baths = `${u.baths} ${u.baths === "1" ? "bathroom" : "bathrooms"}${u.toilette ? " plus a guest toilet" : ""}`;
       const area = u.area ? ` and ${u.area} m² in total` : "";
       const views = u.vistas ? ` Views: ${u.vistas}.` : "";
-      return `${what}${dup} ${floor} at TIER Bravo, Mario Bravo 955, City of Buenos Aires. It offers ${baths}${area}.${views}`;
+      return `${what}${dup}${expo} ${floor} at TIER Bravo, Mario Bravo 955, City of Buenos Aires. It offers ${baths}${area}.${views}`;
     },
   },
 
@@ -953,20 +1000,27 @@ const en: Dict = {
     totalArea: "Total area",
     interior: "Interior",
     exterior: "Exterior",
+    covered: "Covered area",
+    uncovered: "Open-air area",
+    common: "Share of common areas",
+    rooms: "Layout",
+    roomsValue: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
     bedrooms: "Bedrooms",
     bathrooms: "Bathrooms",
     orientation: "Orientation",
     toilette: "Toilette",
     vistas: "Views",
+    exposure: "Exposure",
     floor: "Floor",
     floorValue: (f: string) => (f === "0" ? "Ground" : `Floor ${f}`),
     amenities: "Amenities",
-    amenitiesValue: "Spa, Pool & Gym",
+    amenitiesValue: "Gym, coworking, multipurpose room, barbecues, playground, solarium and pool",
     seePdf: "View PDF",
   },
 
   plate: {
     groundFloor: "Ground Floor",
+    basement: "Basement",
     floor: (f: string) => `Floor ${f}`,
     yourResidence: "Your apartment",
     yourResidenceUpper: "YOUR APARTMENT",
@@ -995,25 +1049,17 @@ const en: Dict = {
     eyebrow: "Institutional backing",
     title: "A team with a track record",
     intro:
-      "Maihuenia is the work of an experienced team behind every stage: signature architecture, a transparent investment structure and professional sales management.",
+      "TIER is CCM's development brand. Bravo, Avenue and Sinclair make up its portfolio; this showroom is TIER Bravo, at Mario Bravo 955.",
     close: "Close",
     members: [
       {
-        role: "Developer",
-        name: "Fluir Desarrollos Inmobiliarios",
-        logo: "/logos/fluir.png",
+        role: "This development",
+        name: "TIER Bravo",
+        logo: "/logo_b_n.png",
         featured: true,
       },
-      {
-        role: "Architecture studio",
-        name: "Aslan y Ezcurra Arquitectos",
-        logo: "/logos/aslan-ezcurra.png",
-        featured: true,
-      },
-      { role: "Trustee", name: "Fiduciaria Profesional S.A.", logo: "/logos/fiduciaria-profesional.png" },
-      { role: "Notary", name: "Dr. Francisco Puiggari", logo: "/logos/puiggari.png" },
-      { role: "Accounting", name: "Miguel A. Monti y Asociados", logo: "/logos/estudio-monti.png" },
-      { role: "Sales", name: "RE/MAX Oportunidades (Neuquén)", logo: "/logos/remax.png", solo: true },
+      { role: "Also by TIER", name: "TIER Avenue", logo: "/logo_b_n.png" },
+      { role: "Also by TIER", name: "TIER Sinclair", logo: "/logo_b_n.png" },
     ],
   },
 
@@ -1096,16 +1142,18 @@ const en: Dict = {
       {
         title: "Architecture",
         body:
-          "Contemporary architecture with a Patagonian identity, developed with noble materials such as stone and wood in a proposal of high construction quality. Naturally integrated with the landscape to make the most of the views over Lake Agrio and the Andes.",
+          "Contemporary architecture with an urban identity, developed with noble materials such as wood and concrete in a proposal of high construction and technical quality. The dialogue between exposed concrete, the warmth of wood and large glazed surfaces defines a restrained, current language, at home in the rhythm of Palermo.",
         lists: [
           {
             heading: "Finishes",
             items: [
-              "Wood-look porcelain tile flooring, 0.20 × 1.20 m, in living, dining, kitchen and bedrooms; bathrooms in 60 × 60 porcelain tile.",
-              "Kitchens with melamine / lacquered cabinetry with wood details and Silestone countertop with stainless-steel sink.",
-              "Double-height sliding-door wardrobes in wood-look melamine with aluminum profiles.",
-              "Black PVC exterior window frames with double glazing (DVH).",
-              "F30 fire-rated double-sheet entrance doors.",
+              "First-quality wood-look PVC flooring in living, dining, kitchen and bedrooms.",
+              "First-quality black exterior frames with double glazing (DVH), floor to ceiling.",
+              "Exposed concrete ceilings, white walls and recessed black spotlights.",
+              "Kitchens with white melamine upper cabinets and wood-look melamine base units, granite countertop, Ferrum fittings, stainless-steel sink and extractor.",
+              "Bathrooms clad in 60 × 60 Silestone-type surfacing, Ferrum sanitaryware, shower screen and white melamine cabinets.",
+              "Balconies with glass parapets and glazed frames.",
+              "Smart lock at the entrance to every unit.",
             ],
           },
         ],
@@ -1113,36 +1161,31 @@ const en: Dict = {
       {
         title: "The Apartments",
         body:
-          "Two- to four-room layouts, with mezzanine options and panoramic units enjoying dual lake-and-mountain orientation. From the efficient two-room apartment to the 130 m² of the top level, every unit is designed for living or for premium vacation rental, delivered with first-class finishes built for mountain weather.",
+          "Functional units of one to four rooms, designed both to live in and as premium rental stock. From efficient 34 m² studios to generous half-floor apartments with terraces of over 250 m² on the top level, every apartment is delivered with first-class finishes: exposed concrete, wood cladding, floor-to-ceiling frames and double-glazed openings. The upper floors add balconies and large private terraces, making the most of the best orientation and the open views over Palermo.",
         lists: [
           {
-            heading: "Ground floor",
+            heading: "Layouts",
             items: [
-              "2 rooms — 60 m²",
-              "3 rooms — 90 m²",
-              "Retail units — 60 m² with lake views",
+              "Studios — from 34 m² (covered) · 39 to 41 m² total",
+              "2 rooms — from 51 m² (covered) · 60 to 68 m² total with balcony",
+              "3 rooms — from 77 m² (covered) · 86 to 113 m² total with balcony",
+              "4 rooms — from 93 m² (covered), on the upper floors, with large terraces",
             ],
           },
           {
-            heading: "First floor",
+            heading: "The distribution",
             items: [
-              "2 rooms — 60 m²",
-              "3 rooms — 90 m²",
-              "2 rooms, panoramic view — 100 m²",
-            ],
-          },
-          {
-            heading: "Second floor with mezzanine",
-            items: [
-              "3 rooms + mezzanine — 85 m²",
-              "4 rooms + mezzanine — 115 m²",
-              "3 rooms, panoramic view — 130 m²",
+              "Floors 1 to 5 — Ten units per floor: studios, 2- and 3-room apartments, all with a balcony facing the street or the rear.",
+              "Floor 6 — Adds 4-room units of over 160 m², ideal for family living.",
+              "Floor 7 — Exclusive 4-room half-floor apartments with private terraces of 124 to 129 m², 217 to 258 m² in total. The building's most aspirational level.",
             ],
           },
           {
             heading: "Orientations & views",
             items: [
-              "Mountain (Andes range and native forest) · Partial lake view · Full lake view · Panoramic (dual lake + mountain orientation).",
+              "Facing Mario Bravo, with balconies over the street's tree canopy.",
+              "Rear-facing, overlooking the green courtyard: garden, pool and the amenities expansion.",
+              "Upper units with terraces and open views over Palermo.",
             ],
           },
         ],
@@ -1152,24 +1195,28 @@ const en: Dict = {
         id: "amenities",
         home: true,
         body:
-          "A fully glazed heated pool with direct lake views, joined by two jacuzzis — an experience to enjoy all year round, whether watching the snow fall in winter or soaking up the mountain sun in summer.\nA gym completes the wellness offering with your quality of life in mind.",
+          "An outdoor pool with a wooden deck, surrounded by greenery, invites you to unwind and enjoy the sun without leaving home. Around it, a solarium, a barbecue area with outdoor dining and a garden with a children's playground complete an expansion designed to be lived in all year round, with family or friends.\nA fully equipped gym, a coworking space and a sauna round out the wellness offering, with your quality of life in mind.",
         lists: [
           {
             heading: "Amenities",
             items: [
-              "Fully glazed heated pool with lake views",
-              "Two jacuzzis",
-              "Gym",
-              "2 retail units with lake views",
-              "Storage units",
+              "Outdoor pool with wooden deck and solarium",
+              "Barbecue area with outdoor dining",
+              "Garden with a children's playground",
+              "Fully equipped gym",
+              "Spacious multipurpose room for events and gatherings",
+              "Coworking space",
+              "Laundry room",
             ],
           },
           {
             heading: "Services & infrastructure",
             items: [
               "Top-brand elevators: automatic doors, stainless-steel cabin, granite floor and mirror",
-              "2 backup generators for essential common services",
+              "Backup generator for essential common services",
               "CCTV system",
+              "Covered parking and bicycle storage",
+              "Storage units",
               "Central heating by radiators (Peisa or similar), with boilers on each floor",
             ],
           },
@@ -1179,18 +1226,18 @@ const en: Dict = {
         title: "Quality & Technology",
         home: true,
         body:
-          "Every construction decision answers one premise: endure and perform in the mountains. Seismic-resistant structure built to CIRSOC standards, reinforced thermal insulation, and window frames with thermal-break and double glazing to hold indoor comfort against the Patagonian cold. Per-room heating and cooling, full connectivity and backup power make Maihuenia a building ready for the demands of the destination.",
+          "Every construction decision answers one premise: endure and perform over time. Reinforced-concrete structure, thermal and acoustic insulation, and double-glazed window frames to hold indoor comfort all year round. Per-room heating and cooling, full connectivity and backup power make TIER Bravo a building ready for the demands of city living.",
         lists: [
           {
             heading: "Technical detail",
             items: [
-              "Seismic-resistant reinforced-concrete structure (CIRSOC); foundations, columns, beams and slabs.",
-              "Reinforced thermal insulation for mountain climate.",
-              "Black PVC exterior frames with double glazing and thermal break.",
+              "Reinforced-concrete structure built to CIRSOC standards; foundations, columns, beams and slabs.",
+              "Reinforced thermal and acoustic insulation.",
+              "Black PVC exterior frames with double glazing (DVH) and thermal break.",
               "Climate control: concealed piping for split heating/cooling units in every room.",
               "Central heating by Peisa (or similar) radiators.",
               "Electrical installation with individual panels, telephony, TV/cable and CCTV; supply for electric kitchen.",
-              "Backup: 2 generators for common services.",
+              "Backup: generator for common services.",
             ],
           },
         ],
@@ -1200,22 +1247,21 @@ const en: Dict = {
         id: "financing",
         home: true,
         body:
-          "A transparent, milestone-based payment structure, from booking to deed, with direct developer financing and your advisor by your side at every stage.",
+          "A transparent, staged payment structure, from the down payment to delivery, with direct developer financing and your advisor by your side at every step.",
         lists: [
           {
             heading: "The plan, step by step",
             items: [
-              "Booking · USD 5,000 — Lock in your unit at the pre-sale price.",
-              "Purchase agreement · 30% — Upon signing the deed of sale.",
-              "Balance · 70% — In 24 monthly instalments in pesos, indexed to the CAC index.",
+              "Down payment · 40% — Secure your unit at the pre-sale price.",
+              "Balance · 60% — In 40 monthly instalments through to completion of the works.",
             ],
           },
           {
             heading: "Delivery & terms",
             items: [
-              "Delivery of the apartments: 24 to 30 months.",
               "Direct developer financing, with no bank involved.",
-              "Adjusted by the CAC (Argentine Construction Chamber) index.",
+              "Monthly instalments indexed to the CAC (Argentine Construction Chamber) index.",
+              "Payment plan tracking construction progress through to delivery.",
             ],
           },
         ],
@@ -1229,14 +1275,48 @@ const en: Dict = {
         lists: [
           {
             heading: "Included in the building",
-            items: ["A shared laundry room for all residents."],
+            items: [
+              "Bicycle storage on the ground floor, shared by all residents.",
+              "A shared laundry room for all residents.",
+            ],
           },
           {
             heading: "Available to add",
             items: [
-              "Storage units: additional storage spaces, available to purchase with your unit.",
+              "Car parking spaces: 26 available to purchase alongside your apartment.",
+              "Motorcycle spaces: 45 in the basement, available to purchase with your unit.",
             ],
           },
+        ],
+      },
+    ],
+  },
+
+  amenitiesSheet: {
+    body:
+      "Every space at TIER Bravo was designed so that life indoors is as rich as the neighbourhood around it. In the heart of Palermo, the building proposes a way of living where wellbeing, gathering and rest coexist in balance.\nAn outdoor pool with a wooden deck, surrounded by greenery, invites you to unwind without leaving home. Around it, a solarium, a barbecue area with outdoor dining and a garden with a children's playground complete an expansion designed to be enjoyed all year round, with family or friends.\nIndoors, a fully equipped gym, a light-filled coworking space and a spacious multipurpose room support your day to day: training, working or hosting — every moment has its place. A sauna adds that spa touch that turns routine into ritual.",
+    lists: [
+      {
+        heading: "Amenities",
+        items: [
+          "Outdoor pool with wooden deck and solarium",
+          "Barbecue area with outdoor tables",
+          "Garden with a children's playground",
+          "Fully equipped gym",
+          "Spacious multipurpose room for events and gatherings",
+          "Light-filled coworking space opening onto the greenery",
+          "2 retail units on Mario Bravo",
+        ],
+      },
+      {
+        heading: "Services & infrastructure",
+        items: [
+          "Covered parking with multiple spaces",
+          "Bicycle storage",
+          "Top-brand elevators",
+          "CCTV system in common areas",
+          "Backup generator for common services",
+          "Premium heating and finishes (exposed concrete, wood cladding and floor-to-ceiling frames)",
         ],
       },
     ],
@@ -1271,7 +1351,7 @@ const en: Dict = {
     sectionTitle: "Location",
     intro: "Explore the surroundings",
     addressLabel: "The Address",
-    skiNote: "5 min from the ski resort",
+    skiNote: "In the heart of Palermo",
     directions: "Get directions",
     exploreArea: "Explore the area",
     clickZoom: "Click to zoom",

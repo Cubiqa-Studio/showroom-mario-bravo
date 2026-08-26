@@ -35,10 +35,15 @@ const QUALITY = 90;
 /**
  * Piso → archivo fuente en `_media-src/plantas/`. Varios pisos pueden apuntar al
  * mismo archivo (planta tipo); en ese caso comparten también la imagen servida.
- * Los archivos con guion bajo adelante (subsuelo, planta baja, azotea) NO son
- * plates: no tienen unidades. Quedan en `_media-src` como referencia.
+ *
+ * LAS CLAVES SON LAS DEL SELECTOR, no sólo prefijos de unidad. El subsuelo, la
+ * planta baja y el 8° NO tienen unidades —y por eso no llevan polígonos—, pero sí
+ * se muestran: son la cochera, los amenities y la azotea, que es justo lo que
+ * pregunta el que compra.
  */
 const FLOOR_SOURCES = {
+  SS: "subsuelo-cochera.png",
+  "0": "planta-baja-amenities.png",
   "1": "piso-1.png",
   "2": "piso-tipo-2-5.png",
   "3": "piso-tipo-2-5.png",
@@ -46,7 +51,25 @@ const FLOOR_SOURCES = {
   "5": "piso-tipo-2-5.png",
   "6": "piso-6.png",
   "7": "piso-7.png",
+  "8": "azotea-8vo.png",
 };
+
+/**
+ * Orden de recorrido del edificio, de abajo hacia arriba. Va APARTE y explícito
+ * porque `Object.keys` NO respeta el orden de escritura: las claves que parecen
+ * enteros ("0", "1", …) salen primero y en orden numérico, y las de texto ("SS")
+ * después — o sea que el subsuelo terminaba arriba del 8°.
+ *
+ * Tiene que coincidir con `SITE.floors` (src/data/site.ts), que es lo que consume
+ * el selector de "Planta del piso".
+ */
+const FLOOR_ORDER = ["SS", "0", "1", "2", "3", "4", "5", "6", "7", "8"];
+
+const faltantes = Object.keys(FLOOR_SOURCES).filter((f) => !FLOOR_ORDER.includes(f));
+if (faltantes.length) {
+  console.error(`✗ FLOOR_ORDER no incluye: ${faltantes.join(", ")} — agregalos y volvé a correr.`);
+  process.exit(1);
+}
 
 if (!existsSync(SRC_DIR)) {
   console.error(`No existe ${SRC_DIR} — dejá ahí los planos por piso.`);
@@ -68,7 +91,8 @@ const kb = (n) => `${Math.round(n / 1024)} KB`;
 const encoded = new Map();
 const plates = [];
 
-for (const [floor, source] of Object.entries(FLOOR_SOURCES)) {
+for (const floor of FLOOR_ORDER) {
+  const source = FLOOR_SOURCES[floor];
   const input = join(SRC_DIR, source);
   if (!existsSync(input)) {
     console.warn(`⚠ piso ${floor}: falta ${source} — se saltea (se conservan sus polígonos).`);
@@ -140,7 +164,7 @@ for (const [floor, source] of Object.entries(FLOOR_SOURCES)) {
   });
 }
 
-plates.sort((a, b) => a.floor.localeCompare(b.floor, undefined, { numeric: true }));
+plates.sort((a, b) => FLOOR_ORDER.indexOf(a.floor) - FLOOR_ORDER.indexOf(b.floor));
 writeFileSync(PLATES_JSON, JSON.stringify({ plates }, null, 2) + "\n");
 
 const traced = plates.filter((p) => p.polygons.length > 0);

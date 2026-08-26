@@ -92,6 +92,7 @@ export function ResidenciaLanding({
             floor: unit.residence.length > 2 ? unit.residence.slice(0, -2) : unit.residence,
             duplex: unit.duplex,
             vistas: unit.vistas,
+            exposure: unit.exposure,
           })}
         </p>
 

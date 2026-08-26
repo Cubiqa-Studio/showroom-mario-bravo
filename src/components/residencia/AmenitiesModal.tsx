@@ -7,7 +7,6 @@ import "./residencia.css";
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
-import type { SpecPanel } from "@/lib/types";
 import { AMENITIES_360 } from "@/lib/vr-hotspots";
 import { kuulaEmbedUrl } from "@/lib/kuula";
 import { useI18n } from "@/i18n/LanguageProvider";
@@ -15,21 +14,23 @@ import { useIsTouch } from "@/hooks/useIsTouch";
 import { CloseIcon } from "../gallery/icons";
 
 /**
- * "Amenities" — recorrido 360° de Kuula de los amenities ARRIBA + TODAS las
- * especificaciones de amenities ABAJO, con scroll interno en la hoja. `panel` es el
- * SpecPanel `id:"amenities"` (su body + listas). El iframe ocupa una altura fija para
- * que las specs queden visibles/alcanzables debajo (incluso en mobile).
+ * "Amenities" — recorrido 360° de Kuula de los amenities ARRIBA + el detalle de
+ * amenities ABAJO, con scroll interno en la hoja. El iframe ocupa una altura fija para
+ * que el texto quede visible/alcanzable debajo (incluso en mobile).
+ *
+ * El texto sale de `t.amenitiesSheet`, NO del panel de Amenities de "El Proyecto":
+ * el cliente entregó dos versiones distintas (26-08), una narrativa para esta hoja y
+ * otra más corta para el acordeón del proyecto.
  */
 export function AmenitiesModal({
   open,
   onClose,
-  panel,
 }: {
   open: boolean;
   onClose: () => void;
-  panel: SpecPanel | null;
 }) {
   const { t } = useI18n();
+  const sheet = t.amenitiesSheet;
   const isTouch = useIsTouch();
 
   useEffect(() => {
@@ -94,14 +95,14 @@ export function AmenitiesModal({
                   </div>
                 )}
 
-                {panel && (
+                {sheet && (
                   <div className="sheet-amenities-specs">
                     {/* `.spec-panel active` para heredar el estilo scopeado de listas. */}
                     <div className="spec-panel active">
-                      <p className="am-lead">{panel.body}</p>
-                      {panel.lists?.length ? (
+                      <p className="am-lead">{sheet.body}</p>
+                      {sheet.lists?.length ? (
                         <div className="amenities-lists">
-                          {panel.lists.map((list, i) => (
+                          {sheet.lists.map((list, i) => (
                             <div className="spec-list" key={list.heading ?? i}>
                               {list.heading ? <h4>{list.heading}</h4> : null}
                               <ul>
