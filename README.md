@@ -110,6 +110,29 @@ Cargado: `residence`, `beds`, `ambientes`, `areas`, `sqft`, `status`, `exposure`
   ver [Baños: lo que muestran los planos](#baños-lo-que-muestran-los-planos).
 - `floorPlan`: cargado en 60 de las 61 unidades. Ver [Los planos de unidad](#los-planos-de-unidad).
 
+### La galería y el hero de cada unidad
+
+`_media-src/gallery/` (14 renders, gitignored) → `npm run gallery:optimize` →
+`public/gallery/optimized/` (full + thumb de cada uno) + el manifiesto
+`src/data/gallery.json`, que es lo que consume el lightbox del menú.
+
+**Los nombres de archivo son el orden de exhibición**: el script ordena por nombre, así
+que van numerados `01`…`14` de exterior a interior (fachada, esquina, contrafrente,
+jardín · pileta, solárium, parrilla, gimnasio, lobby, coworking, SUM · living, cocina,
+dormitorio).
+
+**El hero de una unidad** sale de `unitGallery()` (`src/lib/residencia.ts`):
+
+- Con `tour360` (las 50 de los pisos 1 a 5) → el recorrido de Kuula embebido, sin fotos.
+- Sin `tour360` (las 11 del 6° y 7°) → `DEFAULT_HERO_VIEWS`: la **fachada** grande y
+  **cocina, dormitorio y living** en los tres mosaicos del header. Lo eligió el cliente
+  el 26-08.
+- Una unidad puede traer su propia `gallery` en `units.json` y pisa el default.
+
+⚠ `DEFAULT_HERO_VIEWS` y los `previewImage` de `vr-hotspots.ts` son rutas **escritas a
+mano** a archivos que genera el script. Si se renombra un original en `_media-src`, hay
+que actualizarlas — una ruta rota no rompe el build, sólo deja una imagen fantasma.
+
 ### Exposición: frente y contrafrente
 
 `unit.exposure` (`"frente"` | `"contrafrente"`). Pedido del cliente el 25-08: el mismo
@@ -455,7 +478,7 @@ y Jost ya está cargada en el sitio — pero confirmalo con el cliente antes de 
 _media-src/          Masters crudos del cliente — GITIGNOREADO, no deploya.
   stops/             Los 4 exteriores (+ _v1-2026-08-24/ con los de la 1ª entrega)
   plantas/           Las 7 plantas generales
-  gallery/           Los 10 renders de amenities e interiores
+  gallery/           Los 14 renders: 4 exteriores + amenities + interiores
   tipologias/        Los 9 planos de unidad (con el nombre original del cliente)
   tipology/          Los 5 PDF de tipología de la 1ª entrega (los reemplazan los de arriba)
   planos/            El PDF de plantas CAD de la 1ª entrega

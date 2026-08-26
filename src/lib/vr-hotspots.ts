@@ -3,14 +3,14 @@
 //
 // Las coordenadas van en el ESPACIO NATIVO del render del stop —igual que los
 // polígonos—, así la bolita trackea la imagen al hacer object-cover en cualquier
-// viewport. OJO: cada stop tiene SU espacio, y desde el render extendido a lo ancho
-// ya no coinciden — la vista 0 es **5000×2250** y las vistas 1-3 siguen en 4000×2250
-// (ver `stops.json`).
+// viewport. OJO: cada stop tiene SU espacio y NO coinciden entre sí — la vista 0 es
+// **4999×2812** (el render de 5k del 25-08) y las vistas 1-3 siguen en 4000×2250.
+// La fuente de verdad es `imageWidth`/`imageHeight` de `stops.json`.
 //
 // Para reubicar una bolita: abrí `public/stops/stop-<n>.jpg`, mirá en qué píxel cae
 // el punto y escribilo acá. Ojo: el visor va con "cover", así que en un viewport más
 // ancho que el propio render se recorta alto arriba y abajo — un punto muy al ras de
-// un borde puede quedar fuera de cuadro.
+// un borde puede quedar fuera de cuadro (ver `stop-framing.ts`).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface VrHotspotConfig {
@@ -66,7 +66,7 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
     y: 2400,
     scale: 0.85,
     kuulaUrl: ENTRANCE_HALL_360 ?? undefined,
-    previewImage: "/gallery/optimized/05-lobby.webp",
+    previewImage: "/gallery/optimized/09-lobby.webp",
     previewKind: "hall",
   },
   // Stop 1 (esquina) — la MISMA puerta, vista de costado: el paño oscuro sobre el
@@ -77,7 +77,7 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
     y: 1520,
     scale: 0.8,
     kuulaUrl: ENTRANCE_HALL_360 ?? undefined,
-    previewImage: "/gallery/optimized/05-lobby.webp",
+    previewImage: "/gallery/optimized/09-lobby.webp",
     previewKind: "hall",
   },
 };
