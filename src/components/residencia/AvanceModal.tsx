@@ -66,7 +66,7 @@ export function AvanceModal({
           aria-label={t.avance.close}
           onClick={onClose}
           tabIndex={open ? 0 : -1}
-          className="absolute inset-0 h-full w-full cursor-default bg-stone-900/50 backdrop-blur-sm"
+          className="absolute inset-0 h-full w-full cursor-default bg-black/70 backdrop-blur-sm"
           initial={false}
           animate={{ opacity: open ? 1 : 0 }}
           transition={{ duration: 0.2 }}
@@ -81,7 +81,7 @@ export function AvanceModal({
           // max-h + scroll interno: en mobile ACOSTADO (viewport bajito) el contenido
           // no entra y antes se cortaba arriba/abajo; ahora la tarjeta se limita al alto
           // disponible y scrollea adentro.
-          className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white shadow-2xl ring-1 ring-black/10"
+          className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-paper shadow-2xl ring-1 ring-line"
         >
           <div className="px-7 pb-7 pt-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
@@ -94,7 +94,7 @@ export function AvanceModal({
                 {avance ? (
                   <>
                     <div className="mt-6 flex items-end justify-between">
-                      <span className="text-sm font-medium text-stone-500">
+                      <span className="text-sm font-medium text-muted">
                         {t.avance.progress}
                       </span>
                       <span className="font-serif text-4xl leading-none text-ink tabular-nums">
@@ -103,7 +103,7 @@ export function AvanceModal({
                       </span>
                     </div>
 
-                    <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-stone-200">
+                    <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-line">
                       <motion.div
                         className="h-full rounded-full bg-gold"
                         initial={{ width: 0 }}
@@ -114,19 +114,19 @@ export function AvanceModal({
 
                     <div className="mt-5 space-y-1.5 text-sm">
                       {avance.milestone && (
-                        <p className="text-stone-500">
+                        <p className="text-muted">
                           {t.avance.milestone}:{" "}
                           <span className="font-medium text-ink">{avance.milestone}</span>
                         </p>
                       )}
                       {deliveryFmt && (
-                        <p className="text-stone-500">
+                        <p className="text-muted">
                           {t.avance.delivery}:{" "}
                           <span className="font-medium text-ink">{deliveryFmt}</span>
                         </p>
                       )}
                       {dateFmt && (
-                        <p className="text-stone-500">
+                        <p className="text-muted">
                           {t.avance.lastUpdate}:{" "}
                           <span className="font-medium text-ink">{dateFmt}</span>
                         </p>
@@ -134,18 +134,18 @@ export function AvanceModal({
                     </div>
 
                     {avance.note && (
-                      <p className="mt-3 text-sm leading-relaxed text-stone-600">{avance.note}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-muted">{avance.note}</p>
                     )}
                   </>
                 ) : (
-                  <p className="mt-6 text-sm leading-relaxed text-stone-500">{t.avance.empty}</p>
+                  <p className="mt-6 text-sm leading-relaxed text-muted">{t.avance.empty}</p>
                 )}
 
                 <div className="mt-7 flex justify-end">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-full bg-ink px-5 py-2 text-sm font-semibold text-cream transition hover:opacity-90 active:scale-95"
+                    className="rounded-full bg-ink px-5 py-2 text-sm font-semibold text-tier-dark transition hover:opacity-90 active:scale-95"
                   >
                     {t.avance.close}
                   </button>

@@ -16,15 +16,15 @@ export function AvailabilityToggle({ value, onChange }: AvailabilityToggleProps)
         role="switch"
         aria-checked={value}
         onClick={() => onChange(!value)}
-        className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1.5 text-sm font-medium text-stone-700 shadow-sm transition hover:border-gold/50"
+        className="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-3 py-1.5 text-sm font-medium text-ink shadow-sm transition hover:border-gold/50"
       >
         <span
           className={`relative h-5 w-9 rounded-full transition-colors ${
-            value ? "bg-gold" : "bg-stone-300"
+            value ? "bg-gold" : "bg-line"
           }`}
         >
           <span
-            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${
+            className={`absolute top-0.5 h-4 w-4 rounded-full bg-ink shadow transition-all ${
               value ? "left-4" : "left-0.5"
             }`}
           />

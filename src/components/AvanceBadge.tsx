@@ -64,8 +64,8 @@ export function AvanceBadge({ className = "" }: { className?: string }) {
           justifyContent: "center",
           gap: 8,
           padding: "8px 16px",
-          background: "#0F0F11",
-          color: "#F5F1E8",
+          background: "var(--mist)",
+          color: "var(--cream)",
           fontSize: 12,
           fontWeight: 600,
         }}
@@ -76,20 +76,20 @@ export function AvanceBadge({ className = "" }: { className?: string }) {
           <span
             className="animate-pulse"
             aria-hidden
-            style={{ height: 10, width: 28, borderRadius: 9999, background: "rgba(251,248,241,.3)" }}
+            style={{ height: 10, width: 28, borderRadius: 9999, background: "color-mix(in srgb, var(--cream) 30%, transparent)" }}
           />
         ) : (
           <span
             className="tabular-nums"
             style={{ display: "inline-flex", alignItems: "baseline", gap: 6, lineHeight: 1 }}
           >
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#A07F46" }}>{pct}%</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--gold-bright)" }}>{pct}%</span>
             {/* "Avance de obra" es más largo que el viejo "Obra": nowrap para que nunca
                 parta el badge en dos líneas; en el nav de la landing (768-1180px, banda
                 cargada) residencia.css oculta esta etiqueta vía .avance-short. */}
             <span
               className="avance-short hidden sm:inline"
-              style={{ color: "rgba(251,248,241,.7)", whiteSpace: "nowrap" }}
+              style={{ color: "color-mix(in srgb, var(--cream) 70%, transparent)", whiteSpace: "nowrap" }}
             >
               {t.avance.short}
             </span>

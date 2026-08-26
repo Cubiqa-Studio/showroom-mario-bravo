@@ -76,10 +76,10 @@ export function DetailOverlay({ unit, unitId, others, site, floorUnits }: Detail
   return (
     <motion.div
       ref={scrollRef}
-      className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-white"
+      className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-tier-dark"
       // Opaco desde el primer frame: el detalle entra SIN demora artificial — apenas
-      // llega el RSC se ve. El fondo blanco hace el handoff sin parpadeo desde el
-      // shell de carga (también blanco). Sólo anima al CERRAR (fade-out → navegar a "/").
+      // llega el RSC se ve. El lienzo oscuro hace el handoff sin parpadeo desde el
+      // shell de carga (también oscuro). Sólo anima al CERRAR (fade-out → navegar a "/").
       initial={false}
       animate={{ opacity: closing ? 0 : 1 }}
       transition={{ duration: reduce ? 0 : closing ? 0.25 : 0.3, ease: "easeOut" }}

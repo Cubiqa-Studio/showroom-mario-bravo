@@ -69,11 +69,11 @@ export function ZoomLayer({ children }: { children: ReactNode }) {
         {children}
       </motion.div>
 
-      {/* Velo CLARO translúcido que acompaña el zoom (encima del home, debajo del
-          detalle). Blanco —no negro— para que "lave" hacia la ficha clara, no oscurezca. */}
+      {/* Velo translúcido que acompaña el zoom (encima del home, debajo del detalle).
+          En el negro de marca: "lava" hacia la ficha oscura a la que se entra. */}
       <motion.div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-30 bg-white"
+        className="pointer-events-none fixed inset-0 z-30 bg-tier-dark"
         initial={false}
         animate={{ opacity: open && !reduce ? 0.5 : 0 }}
         transition={reduce ? { duration: 0 } : { duration: open ? 1.0 : 0.45, ease: "easeOut" }}

@@ -108,6 +108,11 @@ export function SideMenu({
   const amenitiesPanel =
     t.specs.panels.find((p) => p.id === "amenities") ?? null;
 
+  // Copias locales: TS no arrastra el narrowing de un import `string | null` adentro
+  // del callback del onClick, y sobre un const local sí.
+  const hallTour = ENTRANCE_HALL_360;
+  const amenitiesTour = AMENITIES_360;
+
   // Abrí el tour en el modal grande y cerrá el panel del menú detrás.
   const openTour = (url: string) => {
     setTourUrl(url);
@@ -146,7 +151,7 @@ export function SideMenu({
                 type="button"
                 aria-label={t.sideMenu.close}
                 onClick={onClose}
-                className="absolute inset-0 h-full w-full cursor-default bg-stone-900/40"
+                className="absolute inset-0 h-full w-full cursor-default bg-black/70"
               />
 
               {/* Panel */}
@@ -157,7 +162,7 @@ export function SideMenu({
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", stiffness: 360, damping: 38 }}
-                className="absolute right-0 top-0 flex h-full w-[300px] max-w-[85vw] flex-col bg-white shadow-2xl ring-1 ring-black/10"
+                className="absolute right-0 top-0 flex h-full w-[300px] max-w-[85vw] flex-col bg-paper shadow-2xl ring-1 ring-line"
               >
                 <header className="flex items-center justify-between px-5 py-4">
                   <div>
@@ -171,7 +176,7 @@ export function SideMenu({
                     type="button"
                     aria-label={t.sideMenu.close}
                     onClick={onClose}
-                    className="grid h-9 w-9 place-items-center rounded-xl text-stone-500 transition hover:bg-stone-100 hover:text-ink"
+                    className="grid h-9 w-9 place-items-center rounded-xl text-muted transition hover:bg-white/10 hover:text-ink"
                   >
                     <CloseIcon width={20} height={20} />
                   </button>
@@ -277,15 +282,15 @@ export function SideMenu({
                     type="button"
                     onClick={() => setToursOpen((v) => !v)}
                     aria-expanded={toursOpen}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold uppercase tracking-wide text-stone-700 transition hover:bg-stone-100"
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-white/10"
                   >
-                    <span className="text-stone-500">
+                    <span className="text-muted">
                       <CompassIcon width={20} height={20} />
                     </span>
                     <span className="flex-1 text-left">{t.sideMenu.tours}</span>
                     <motion.span
                       animate={{ rotate: toursOpen ? 180 : 0 }}
-                      className="text-stone-400"
+                      className="text-faint"
                     >
                       <ChevronDownIcon width={18} height={18} />
                     </motion.span>
@@ -299,16 +304,20 @@ export function SideMenu({
                         className="overflow-hidden"
                       >
                         <div className="ml-4 border-l border-line pl-3">
-                          <SubItem
-                            onClick={() => openTour(ENTRANCE_HALL_360)}
-                          >
-                            {t.sideMenu.toursHall}
-                          </SubItem>
-                          <SubItem
-                            onClick={() => openTour(AMENITIES_360)}
-                          >
-                            {t.sideMenu.toursAmenities}
-                          </SubItem>
+                          {/* Hall y Amenities sólo si EXISTE el recorrido: TIER Bravo
+                              todavía no tiene 360° de espacios comunes (ver
+                              src/lib/vr-hotspots.ts). Sin gate, el item abriría un
+                              modal vacío. */}
+                          {hallTour && (
+                            <SubItem onClick={() => openTour(hallTour)}>
+                              {t.sideMenu.toursHall}
+                            </SubItem>
+                          )}
+                          {amenitiesTour && (
+                            <SubItem onClick={() => openTour(amenitiesTour)}>
+                              {t.sideMenu.toursAmenities}
+                            </SubItem>
+                          )}
 
                           {/* Unidades (anidado): 360° de cada unidad, agrupadas por
                             piso. Sólo aparece si hay al menos una unidad con tour. */}
@@ -318,14 +327,14 @@ export function SideMenu({
                                 type="button"
                                 onClick={() => setUnitsOpen((v) => !v)}
                                 aria-expanded={unitsOpen}
-                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-stone-600 transition hover:bg-stone-100 hover:text-ink"
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-muted transition hover:bg-white/10 hover:text-ink"
                               >
                                 <span className="flex-1">
                                   {t.sideMenu.toursUnits}
                                 </span>
                                 <motion.span
                                   animate={{ rotate: unitsOpen ? 180 : 0 }}
-                                  className="text-stone-400"
+                                  className="text-faint"
                                 >
                                   <ChevronDownIcon width={16} height={16} />
                                 </motion.span>
@@ -344,7 +353,7 @@ export function SideMenu({
                                           key={group.floor}
                                           className="pt-1.5"
                                         >
-                                          <p className="px-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                                          <p className="px-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-faint">
                                             {t.sideMenu.floor(group.floor)}
                                           </p>
                                           <div className="flex flex-wrap gap-1.5 px-1.5 pb-1.5">
@@ -355,7 +364,7 @@ export function SideMenu({
                                                 onClick={() =>
                                                   openTour(u.url)
                                                 }
-                                                className="rounded-md px-2.5 py-1 text-xs font-medium tabular-nums text-stone-600 ring-1 ring-line transition hover:bg-stone-100 hover:text-ink hover:ring-gold/50"
+                                                className="rounded-md px-2.5 py-1 text-xs font-medium tabular-nums text-muted ring-1 ring-line transition hover:bg-white/10 hover:text-ink hover:ring-gold/50"
                                               >
                                                 {u.residence}
                                               </button>
@@ -474,7 +483,7 @@ export function SideMenu({
                     <a
                       href={polygonEditorHref}
                       onClick={onClose}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-stone-400 transition hover:bg-stone-100 hover:text-stone-600"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-faint transition hover:bg-white/10 hover:text-ink"
                     >
                       <PolygonEditIcon width={16} height={16} />
                       {t.sideMenu.polygonEditor}
@@ -546,9 +555,9 @@ function MenuButton({
       type="button"
       onClick={onClick}
       title={soon ? t.sideMenu.soonTitle : undefined}
-      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold uppercase tracking-wide text-stone-700 transition hover:bg-stone-100"
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-white/10"
     >
-      <span className="text-stone-500">{icon}</span>
+      <span className="text-muted">{icon}</span>
       <span className="flex-1 text-left">{children}</span>
       {soon && <SoonTag />}
     </button>
@@ -576,9 +585,9 @@ function MenuLink({
       rel="noopener noreferrer"
       download={download || undefined}
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold uppercase tracking-wide text-stone-700 transition hover:bg-stone-100"
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-white/10"
     >
-      <span className="text-stone-500">{icon}</span>
+      <span className="text-muted">{icon}</span>
       <span className="flex-1 text-left">{children}</span>
     </a>
   );
@@ -599,7 +608,7 @@ function SubItem({
       type="button"
       onClick={onClick}
       title={soon ? t.sideMenu.soonTitle : undefined}
-      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-stone-600 transition hover:bg-stone-100 hover:text-ink"
+      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-muted transition hover:bg-white/10 hover:text-ink"
     >
       <span className="flex-1">{children}</span>
       {soon && <SoonTag />}

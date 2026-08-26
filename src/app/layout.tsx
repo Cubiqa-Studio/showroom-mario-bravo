@@ -86,11 +86,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#A07F46",
-  // "only light" (no "light" a secas): es el ÚNICO valor que el auto-oscurecido
-  // de Chrome/Android ("Oscurecer sitios web") respeta como opt-out — con "light"
-  // igual invertía la página en los teléfonos del cliente. Espejado en globals.css.
-  colorScheme: "only light",
+  // Barra del navegador en el negro de marca (= --tier-dark), que ahora es el lienzo.
+  themeColor: "#0B0B0B",
+  // Declara que la página YA es oscura (controles de formulario, scrollbars y el
+  // auto-oscurecido de Chrome/Android se alinean solos). El tipo `Viewport` de Next
+  // no admite el `only`, así que el opt-out duro va en el :root de globals.css
+  // (`color-scheme: only dark`), que es la declaración que manda sobre el documento.
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

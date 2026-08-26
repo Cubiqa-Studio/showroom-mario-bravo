@@ -91,10 +91,10 @@ export function GalleryModal({
         {open && (
           <motion.div
             className="fixed inset-0 z-[160] flex flex-col"
-            // Mismo lenguaje translúcido que el Masterplan (NO oscuro): deja ver
-            // el render/landing de atrás difuminado.
+            // Mismo lenguaje translúcido que el Masterplan: deja ver el render/
+            // landing de atrás difuminado, sobre el negro de marca.
             style={{
-              background: "rgba(255,255,255,0.72)",
+              background: "var(--glass)",
               backdropFilter: "blur(14px) saturate(115%)",
               WebkitBackdropFilter: "blur(14px) saturate(115%)",
             }}
@@ -116,7 +116,7 @@ export function GalleryModal({
                 type="button"
                 aria-label={t.galleryModal.close}
                 onClick={onClose}
-                className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-white/80 text-stone-500 transition hover:border-gold hover:text-gold"
+                className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-tier-dark/80 text-muted transition hover:border-gold hover:text-gold"
               >
                 <CloseIcon width={20} height={20} />
               </button>
@@ -161,7 +161,7 @@ export function GalleryModal({
                     className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-md transition ${
                       idx === i
                         ? "ring-2 ring-gold ring-offset-2 ring-offset-white"
-                        : "opacity-60 ring-1 ring-black/10 hover:opacity-100"
+                        : "opacity-60 ring-1 ring-line hover:opacity-100"
                     }`}
                   >
                     <img
@@ -197,7 +197,7 @@ function NavArrow({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`absolute top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/80 text-ink shadow-lg ring-1 ring-black/10 backdrop-blur transition hover:bg-white ${
+      className={`absolute top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-tier-dark/80 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:bg-tier-dark ${
         dir === "left" ? "left-3 sm:left-6" : "right-3 sm:right-6"
       }`}
     >

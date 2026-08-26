@@ -86,7 +86,7 @@ export function Vr360Modal({
                 type="button"
                 aria-label={t.vr.close}
                 onClick={onClose}
-                className="absolute right-3 top-10 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-ink shadow-lg ring-1 ring-black/10 backdrop-blur transition hover:bg-white"
+                className="absolute right-3 top-10 z-10 grid h-10 w-10 place-items-center rounded-full bg-tier-dark/85 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:bg-tier-dark"
               >
                 <CloseIcon width={20} height={20} />
               </button>

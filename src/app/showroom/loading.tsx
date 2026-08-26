@@ -5,7 +5,7 @@
 // continuo, sin salto de color. Server component: sólo CSS, sin JS de cliente.
 export default function Loading() {
   return (
-    <div className="grid h-[100dvh] w-full place-items-center bg-stone-950">
+    <div className="grid h-[100dvh] w-full place-items-center bg-tier-dark">
       <svg
         className="h-8 w-8 animate-spin text-white/70"
         viewBox="0 0 24 24"

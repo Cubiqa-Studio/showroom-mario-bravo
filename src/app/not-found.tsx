@@ -18,7 +18,7 @@ export default function NotFound() {
   const { t } = useI18n();
 
   return (
-    <main className="relative flex min-h-[100dvh] items-center justify-center bg-cream px-5 py-8 sm:py-14">
+    <main className="relative flex min-h-[100dvh] items-center justify-center bg-tier-dark px-5 py-8 sm:py-14">
       {/* Fondo FIJO al viewport (aéreo del proyecto, atenuado). Fijo = no crece con el
           contenido ni fuerza scroll; `overflow-hidden` clipa el halo de scale-105. En
           mobile ACOSTADO el contenido puede superar el alto → la página scrollea y la
@@ -33,9 +33,9 @@ export default function NotFound() {
       </div>
 
       {/* Tarjeta: frosted glass (translúcida + blur) para camuflarse con el aéreo.
-          Se mantiene clara (white/40) para que los logos y textos oscuros se lean.
-          Más ancha (max-w-3xl) para que no quede tan alta, y blur más fuerte. */}
-      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-white/40 px-8 py-10 text-center shadow-2xl ring-1 ring-white/50 backdrop-blur-3xl sm:px-14 sm:py-12">
+          Va en el negro de marca para que el texto claro y el logo se lean sobre el
+          aéreo. Más ancha (max-w-3xl) para que no quede tan alta, y blur más fuerte. */}
+      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-tier-dark/45 px-8 py-10 text-center shadow-2xl ring-1 ring-white/15 backdrop-blur-3xl sm:px-14 sm:py-12">
         <img
           src="/logo.png"
           alt="TIER Bravo"
@@ -62,14 +62,14 @@ export default function NotFound() {
           </Link>
           <Link
             href="/showroom"
-            className="w-full rounded-full bg-white/30 px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-ink ring-1 ring-black/15 transition hover:bg-white/60 active:scale-95 sm:w-auto"
+            className="w-full rounded-full bg-white/10 px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-ink ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95 sm:w-auto"
           >
             {t.notFound.showroom}
           </Link>
         </div>
 
         {/* Crédito CUBIQA */}
-        <div className="mt-11 flex flex-col items-center gap-2.5 border-t border-black/10 pt-6">
+        <div className="mt-11 flex flex-col items-center gap-2.5 border-t border-line pt-6">
           <span className="text-[10px] font-medium uppercase tracking-[0.24em] text-ink/55">
             {t.notFound.credit}
           </span>

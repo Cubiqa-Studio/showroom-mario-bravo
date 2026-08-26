@@ -14,7 +14,7 @@ export function CubiqaBadge() {
       rel="noopener noreferrer"
       aria-label="Sitio de CUBIQA Studio"
       title="Por CUBIQA Studio"
-      className="fixed bottom-3 right-3 z-40 grid h-9 w-9 place-items-center rounded-full bg-white/80 shadow-md ring-1 ring-black/10 backdrop-blur transition hover:bg-white hover:shadow-lg"
+      className="fixed bottom-3 right-3 z-40 grid h-9 w-9 place-items-center rounded-full bg-paper/80 shadow-md ring-1 ring-line backdrop-blur transition hover:bg-paper hover:shadow-lg"
     >
       <img src="/isotipo_cubiqa.png" alt="CUBIQA Studio" className="h-5 w-auto" />
     </a>

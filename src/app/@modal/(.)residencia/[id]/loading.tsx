@@ -13,13 +13,13 @@ import { motion } from "framer-motion";
 export default function ModalLoading() {
   return (
     <motion.div
-      className="fixed inset-0 z-[90] grid place-items-center bg-white"
+      className="fixed inset-0 z-[90] grid place-items-center bg-tier-dark"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
     >
       <span
-        className="h-10 w-10 animate-spin rounded-full border-2 border-[#A07F46]/25 border-t-[#A07F46]"
+        className="h-10 w-10 animate-spin rounded-full border-2 border-gold/25 border-t-gold"
         role="status"
         aria-label="Cargando departamento"
       />

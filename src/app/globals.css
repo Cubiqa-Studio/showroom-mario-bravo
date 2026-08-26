@@ -4,67 +4,84 @@
    SISTEMA PREMIUM — global
    Playfair Display SC (títulos) + Jost (general).
 
-   PALETA TIER (25-08-2026). El key visual de la marca es negro + oro
-   #BF9753, pensado para fondo oscuro. Decisión: se mantiene el lienzo
-   CLARO del template ("lo mismo que Caviahue pero con los tonos más
-   oscuros") y se oscurecen los neutros hacia GRAFITO —no hacia beige—,
-   dejando el oro como único acento cálido, que es como respira la marca.
+   PALETA TIER. El key visual de la marca es NEGRO + oro #BF9753, y el
+   sitio se pinta sobre ese negro: lienzo `--tier-dark`, texto off-white,
+   el oro como único acento cálido. Los neutros son GRAFITO —no beige—,
+   que es como respira la marca.
 
-   El oro crudo #BF9753 sobre blanco da 2.7:1: ilegible. Se usa el mismo
-   tono oscurecido → `--gold` #A07F46 (3.7:1, AA texto grande) y
-   `--gold-soft` #8A6D3C (4.9:1, AA cuerpo). El CRUDO se reserva para
-   superficies oscuras (hero, overlays sobre render), donde da 6.9:1.
+   Contraste sobre --tier-dark (#0B0B0B):
+     --ink #F4F4F6 17.9:1 · --muted #A8A8AE 8.3:1 · --faint #86868A 5.4:1
+     --gold #A07F46 5.3:1 · --gold-soft #937440 4.5:1 · --gold-bright #BF9753 7.3:1
+   Todos AA (4.5:1) o mejor, y también sobre --paper y --mist (las superficies
+   elevadas). --gold-soft, --green y --orange-soft subieron luminancia SIN cambiar
+   de tono (#8A6D3C→#937440, #2F6B3A→#46A057, #A4600F→#C57312): con el valor
+   original no llegaban a AA sobre negro.
 
    El logo no tiene verde: --green/--lime son SEMÁNTICOS (estado
    "disponible"), no de marca.
-   Los tokens viven en :root (CSS plano) y en @theme (utilidades
-   Tailwind: bg-gold, text-ink, text-muted, border-line, font-serif…).
+   ÚNICA fuente de verdad: estas variables de :root. El bloque @theme las
+   re-expone como utilidades Tailwind (bg-gold, text-ink, border-line…)
+   por referencia, no por copia.
    ============================================================ */
 
 :root {
-  /* El sitio es claro SIEMPRE: opt-out del auto-oscurecido de los browsers
-     (Chrome "Oscurecer sitios web", Samsung Internet dark mode). "only light"
-     por elemento en :root cubre toda la página; el meta espejo va en layout.tsx. */
-  color-scheme: only light;
+  /* El sitio es OSCURO siempre: opt-out del auto-oscurecido de los browsers
+     (Chrome "Oscurecer sitios web", Samsung Internet dark mode) declarando que la
+     página YA es oscura. El meta espejo va en layout.tsx. */
+  color-scheme: only dark;
+
+  /* Negro de marca: el lienzo del sitio y las franjas del visor. Único negro base. */
+  --tier-dark: #0b0b0b;
 
   /* base */
-  --background: #ffffff;
-  --foreground: #0f0f11;
+  --background: var(--tier-dark);
+  --foreground: #f4f4f6;
 
   /* brand tokens — espejo de .res-landing */
-  --paper: #ffffff;
-  --mist: #f1f1f3;
-  --ink: #0f0f11;
-  --muted: #56565a;
+  /* superficies, en escalera de elevación sobre el lienzo */
+  --paper: #16161a;
+  /* --mist es la superficie MÁS elevada (inputs, filas hover, tracks): se mantiene
+     en este escalón porque más arriba el oro (--gold) y --faint no llegan a 4.5:1
+     encima. Medido: gold 4.54 · faint 4.68 · muted 7.18 sobre este valor. */
+  --mist: #1c1c20;
+  /* --ink = texto PRIMARIO (off-white, no blanco puro: menos halación sobre negro) */
+  --ink: #f4f4f6;
+  --muted: #a8a8ae;
   --faint: #86868a;
-  --line: #e2e2e4;
+  /* divisores: blanco al 10% (se apoyan en la superficie, no compiten con el texto) */
+  --line: rgba(255, 255, 255, 0.1);
+  /* superficies TRANSLÚCIDAS (nav, pills, scrims, overlays): el lienzo con alpha.
+     Viven en :root —no en .res-landing— porque los overlays portaleados
+     (.sheet-overlay, .masterplan-overlay, la galería) se montan fuera de ese scope. */
+  --glass: color-mix(in srgb, var(--tier-dark) 78%, transparent);
+  --glass-strong: color-mix(in srgb, var(--tier-dark) 92%, transparent);
   --gold: #a07f46;
-  --gold-soft: #8a6d3c;
-  /* Oro CRUDO del key visual — sólo sobre superficies oscuras (6.9:1 sobre grafito). */
+  --gold-soft: #937440;
+  /* Oro CRUDO del key visual — el más brillante, para titulares y acentos grandes. */
   --gold-bright: #bf9753;
-  --green: #2f6b3a;
+  --green: #46a057;
   --lime: #7fa653;
+  /* Cálido CLARO: es color de TEXTO sobre el oro (botones), no una superficie. */
   --cream: #f5f1e8;
 }
 
-@theme {
-  /* colores premium → utilidades Tailwind con modificador de opacidad
-     (bg-gold/10, text-ink, border-line, …) */
-  --color-paper: #ffffff;
-  --color-mist: #f1f1f3;
-  --color-ink: #0f0f11;
-  --color-muted: #56565a;
-  --color-faint: #86868a;
-  --color-line: #e2e2e4;
-  --color-gold: #a07f46;
-  --color-gold-soft: #8a6d3c;
-  --color-gold-bright: #bf9753;
-  --color-green: #2f6b3a;
-  --color-lime: #7fa653;
-  --color-cream: #f5f1e8;
-}
-
 @theme inline {
+  /* colores premium → utilidades Tailwind con modificador de opacidad
+     (bg-gold/10, text-ink, border-line, …). Por REFERENCIA a :root: un solo lugar
+     donde cambiar un color. */
+  --color-tier-dark: var(--tier-dark);
+  --color-paper: var(--paper);
+  --color-mist: var(--mist);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-bright: var(--gold-bright);
+  --color-green: var(--green);
+  --color-lime: var(--lime);
+  --color-cream: var(--cream);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   /* tipografías de marca: sans global = Jost; display/serif = Playfair Display SC */
@@ -207,16 +224,16 @@ body {
     transform: scale(1) translateY(0);
   }
 }
-/* Hover: se frena el ping, la lente pasa a ámbar oscuro y aparece un halo dorado. */
+/* Hover: se frena el ping, la lente sube al oro CRUDO y aparece un halo dorado. */
 .finder-lupa:hover {
-  box-shadow: 0 0 0 4px rgba(184, 125, 9, 0.12);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold-bright) 22%, transparent);
 }
 .finder-lupa:hover .finder-sonar-ring {
   animation: none;
   opacity: 0;
 }
 .finder-lupa:hover .finder-lens {
-  stroke: var(--gold-soft);
+  stroke: var(--gold-bright);
 }
 .finder-lupa:active {
   transform: scale(0.93);

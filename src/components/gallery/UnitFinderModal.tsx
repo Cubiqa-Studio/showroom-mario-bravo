@@ -82,6 +82,8 @@ export function UnitFinderModal({
   // (Miro 2026-07-15: el filtro por tipología se eliminó junto con la tipología en la UI.)
   const [floors, setFloors] = useState<Set<string>>(new Set());
   const [duplex, setDuplex] = useState(false);
+  // Unidades con recorrido 360° propio (units.json → tour360). No todas lo tienen.
+  const [tour, setTour] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("num");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   // Bottom-sheet de filtros (mobile).
@@ -99,6 +101,7 @@ export function UnitFinderModal({
     setVistas(new Set());
     setFloors(new Set());
     setDuplex(false);
+    setTour(false);
   };
 
   // Cerrar con Escape + bloquear el scroll del fondo mientras está abierto. Al cerrar,
@@ -157,6 +160,7 @@ export function UnitFinderModal({
     const vistasSet = new Set<string>();
     const floorSet = new Set<string>();
     let hasDuplex = false;
+    let hasTour = false;
     for (const u of allUnits) {
       roomsSet.add(unitAmbientes(u));
       bathsSet.add(unitTotalBaths(u));
@@ -164,6 +168,7 @@ export function UnitFinderModal({
       if (v) vistasSet.add(v);
       floorSet.add(unitFloorKey(u.id));
       if (u.duplex) hasDuplex = true;
+      if (u.tour360) hasTour = true;
     }
     return {
       rooms: [...roomsSet].sort((a, b) => a - b),
@@ -173,6 +178,7 @@ export function UnitFinderModal({
         a.localeCompare(b, undefined, { numeric: true }),
       ),
       hasDuplex,
+      hasTour,
     };
   }, [allUnits]);
 
@@ -190,8 +196,9 @@ export function UnitFinderModal({
       floors: (u: UnitWithId) =>
         floors.size === 0 || floors.has(unitFloorKey(u.id)),
       duplex: (u: UnitWithId) => !duplex || u.duplex === true,
+      tour: (u: UnitWithId) => !tour || !!u.tour360,
     };
-  }, [q, avail, rooms, baths, vistas, floors, duplex]);
+  }, [q, avail, rooms, baths, vistas, floors, duplex, tour]);
 
   // ¿La unidad pasa todos los filtros MENOS el del grupo `skip`? Base para saber si un
   // chip, al activarse, dejaría resultados (si no, se deshabilita → nunca callejón sin salida).
@@ -243,6 +250,8 @@ export function UnitFinderModal({
   const duplexEnabled =
     duplex ||
     allUnits.some((u) => passesExcept(u, "duplex") && u.duplex === true);
+  const tourEnabled =
+    tour || allUnits.some((u) => passesExcept(u, "tour") && !!u.tour360);
 
   // Helpers de toggle sobre Sets (inmutables → nuevo Set en cada cambio).
   const toggleIn = <T,>(set: Set<T>, v: T, setter: (s: Set<T>) => void) => {
@@ -315,8 +324,14 @@ export function UnitFinderModal({
         violet: true,
         onRemove: () => setDuplex(false),
       });
+    if (tour)
+      chips.push({
+        id: "tour",
+        label: t.finder.tour360,
+        onRemove: () => setTour(false),
+      });
     return chips;
-  }, [q, avail, rooms, baths, vistas, floors, duplex, t]);
+  }, [q, avail, rooms, baths, vistas, floors, duplex, tour, t]);
 
   const activeCount = activeChips.length;
 
@@ -499,6 +514,22 @@ export function UnitFinderModal({
               {t.status.duplex}
             </button>
           )}
+          {facets.hasTour && (
+            <button
+              type="button"
+              className={`finder-toggle${tour ? " active" : ""}`}
+              role="switch"
+              aria-checked={tour}
+              disabled={!tourEnabled}
+              onClick={() => setTour((v) => !v)}
+              style={{ marginTop: 12 }}
+            >
+              <span className="finder-toggle-track">
+                <span className="finder-toggle-knob" />
+              </span>
+              {t.finder.tour360}
+            </button>
+          )}
         </div>
       )}
     </>
@@ -580,7 +611,7 @@ export function UnitFinderModal({
               <header className="sheet-head finder-head">
                 <div className="finder-head-l">
                   <p className="sheet-eyebrow">{t.finder.eyebrow}</p>
-                  <h2 className="sheet-title">{t.finder.title}</h2>
+                  <h2 className="sheet-title">{t.finder.title(total)}</h2>
                 </div>
                 <div className="finder-head-r">
                   <div className="finder-folio" aria-live="polite">

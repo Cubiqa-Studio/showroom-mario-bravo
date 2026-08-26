@@ -57,7 +57,7 @@ export default async function ResidenciaPage({
   if (!unit) notFound(); // id inexistente → 404 real (señal correcta para crawlers)
 
   return (
-    <main className="min-h-[100dvh] bg-white">
+    <main className="min-h-[100dvh] bg-tier-dark">
       {/* JSON-LD por unidad: Apartment (Offer sólo con disponibilidad, sin precio) y
           BreadcrumbList (Inicio › Showroom › Departamento). */}
       <script {...jsonLdScriptProps(residenceGraphLd(id, unit))} />

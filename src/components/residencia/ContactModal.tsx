@@ -87,7 +87,7 @@ export function ContactModal({
   );
 
   const field =
-    "w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20 placeholder:text-faint";
+    "w-full rounded-lg border border-line bg-mist px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20 placeholder:text-faint";
 
   return (
     <FloatingPortal>
@@ -107,7 +107,7 @@ export function ContactModal({
               type="button"
               aria-label={t.contactModal.close}
               onClick={onClose}
-              className="absolute inset-0 h-full w-full cursor-default bg-stone-900/45 backdrop-blur-sm"
+              className="absolute inset-0 h-full w-full cursor-default bg-black/70 backdrop-blur-sm"
             />
 
             <motion.div
@@ -117,13 +117,13 @@ export function ContactModal({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.98 }}
               transition={{ type: "spring", stiffness: 320, damping: 30 }}
-              className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10"
+              className="relative w-full max-w-md overflow-hidden rounded-2xl bg-paper shadow-2xl ring-1 ring-line"
             >
               <button
                 type="button"
                 aria-label={t.contactModal.close}
                 onClick={onClose}
-                className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-xl text-stone-500 transition hover:bg-stone-100 hover:text-ink"
+                className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-xl text-muted transition hover:bg-white/10 hover:text-ink"
               >
                 <CloseIcon width={20} height={20} />
               </button>

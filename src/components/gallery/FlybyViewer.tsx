@@ -1037,7 +1037,7 @@ export function FlybyViewer({
 
   if (!currentStop) {
     return (
-      <div className="grid h-[100dvh] place-items-center bg-stone-950 text-stone-300">
+      <div className="grid h-[100dvh] place-items-center bg-tier-dark text-faint">
         <p>stops.json vacío — sin vistas para mostrar.</p>
       </div>
     );
@@ -1112,7 +1112,7 @@ export function FlybyViewer({
   return (
     <div
       ref={containerRef}
-      className="relative h-[100dvh] w-full touch-none select-none overflow-hidden bg-stone-950"
+      className="relative h-[100dvh] w-full touch-none select-none overflow-hidden bg-tier-dark"
       style={{
         cursor: isTouch
           ? "default"
@@ -1149,7 +1149,7 @@ export function FlybyViewer({
           animación. Es la red de seguridad anti-negro: durante el SCRUB, cuando el
           <img> de frames (recién montado, o re-decodificando al cambiar de src en
           cada pointermove) tarda un tick en pintar, lo que se ve por debajo es este
-          still nítido —NO el bg-stone-950—. Usa el mismo encuadre/clases que el
+          still nítido —NO el bg-tier-dark—. Usa el mismo encuadre/clases que el
           still de arriba, así queda pixel-perfect detrás y NO toca el crossfade de
           aterrizaje (que sigue haciéndose entre la capa de frames y el still de arriba). */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1313,7 +1313,7 @@ export function FlybyViewer({
           }}
           aria-label={t.finder.open}
           title={t.finder.open}
-          className="finder-lupa grid h-9 w-9 place-items-center rounded-xl bg-white/85 text-ink shadow-lg ring-1 ring-black/5 backdrop-blur transition hover:bg-white sm:h-10 sm:w-10"
+          className="finder-lupa grid h-9 w-9 place-items-center rounded-xl bg-tier-dark/80 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:bg-tier-dark sm:h-10 sm:w-10"
         >
           <span className="finder-sonar-ring" aria-hidden />
           <SearchIcon width={20} height={20} className="finder-lupa-glyph" />
@@ -1373,7 +1373,7 @@ export function FlybyViewer({
                 onPrime={() => void ensureDecoded(forwardSeg, "forward")}
               />
             )}
-            <span className="pointer-events-none select-none rounded-full bg-white/85 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-black/5 backdrop-blur">
+            <span className="pointer-events-none select-none rounded-full bg-tier-dark/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-line backdrop-blur">
               {t.flyby.rotateLabel}
             </span>
             {showBack && backwardSeg && (
@@ -1442,7 +1442,7 @@ function FlybyArrow({
       onPointerDown={onPrime}
       aria-label={label}
       title={label}
-      className="grid h-12 w-12 place-items-center rounded-full bg-white/85 text-ink shadow-lg ring-1 ring-black/5 backdrop-blur transition hover:scale-105 hover:bg-white active:scale-95"
+      className="grid h-12 w-12 place-items-center rounded-full bg-tier-dark/80 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:scale-105 hover:bg-tier-dark active:scale-95"
     >
       <svg
         viewBox="0 0 24 24"

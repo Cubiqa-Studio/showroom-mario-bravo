@@ -84,7 +84,7 @@ export function ShowroomToolbar({
         // No dejes que un click en la barra dispare el drag del flyby.
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-1 rounded-2xl bg-white/85 p-1 shadow-lg ring-1 ring-black/5 backdrop-blur sm:gap-1.5 sm:p-1.5">
+        <div className="flex items-center gap-1 rounded-2xl bg-tier-dark/80 p-1 shadow-lg ring-1 ring-line backdrop-blur sm:gap-1.5 sm:p-1.5">
           <motion.a
             href={consultHref}
             target="_blank"
@@ -171,7 +171,7 @@ export function ShowroomToolbar({
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="pointer-events-none absolute right-2 top-full z-50 mt-2 rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-cream shadow-lg"
+              className="pointer-events-none absolute right-2 top-full z-50 mt-2 rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-tier-dark shadow-lg"
             >
               {t.toolbar.linkCopied}
             </motion.div>
@@ -183,7 +183,7 @@ export function ShowroomToolbar({
       {/* Barra 2 — disponibilidad. Desktop: abajo a la izquierda. Mobile: arriba a la
           derecha, DEBAJO de la barra de acciones (abajo-izq pisaba las flechas). */}
       <div
-        className="absolute right-4 top-[84px] z-30 flex items-center gap-2 rounded-2xl bg-white/85 px-2 py-1.5 shadow-lg ring-1 ring-black/5 backdrop-blur min-[560px]:bottom-6 min-[560px]:left-4 min-[560px]:right-auto min-[560px]:top-auto"
+        className="absolute right-4 top-[84px] z-30 flex items-center gap-2 rounded-2xl bg-tier-dark/80 px-2 py-1.5 shadow-lg ring-1 ring-line backdrop-blur min-[560px]:bottom-6 min-[560px]:left-4 min-[560px]:right-auto min-[560px]:top-auto"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <button
@@ -191,15 +191,15 @@ export function ShowroomToolbar({
           role="switch"
           aria-checked={showAvailability}
           onClick={() => onToggleAvailability(!showAvailability)}
-          className="inline-flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+          className="inline-flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-medium text-ink transition hover:bg-white/10"
         >
           <span
             className={`relative h-5 w-9 rounded-full transition-colors ${
-              showAvailability ? "bg-gold" : "bg-stone-300"
+              showAvailability ? "bg-gold" : "bg-line"
             }`}
           >
             <span
-              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${
+              className={`absolute top-0.5 h-4 w-4 rounded-full bg-ink shadow transition-all ${
                 showAvailability ? "left-4" : "left-0.5"
               }`}
             />
@@ -226,7 +226,7 @@ function IconButton({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="relative grid h-9 w-9 place-items-center rounded-xl text-stone-600 transition hover:bg-stone-100 hover:text-ink sm:h-10 sm:w-10"
+      className="relative grid h-9 w-9 place-items-center rounded-xl text-muted transition hover:bg-white/10 hover:text-ink sm:h-10 sm:w-10"
     >
       {children}
     </button>

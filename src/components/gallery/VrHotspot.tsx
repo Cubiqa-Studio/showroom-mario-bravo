@@ -65,6 +65,11 @@ export function VrHotspot({
   const showPreview = isTouch ? revealed : hover;
 
   // Posición en pantalla del punto anclado, recalculada en resize/scroll.
+  //
+  // CLAMP DE SEGURIDAD: el visor va con "cover", así que en un viewport más ancho que
+  // el render se recorta alto arriba y abajo. Si el punto anclado cae dentro de ese
+  // recorte, la bolita quedaría cortada contra el borde; esto la mantiene entera
+  // dentro de la capa visible.
   useEffect(() => {
     const layer = layerRef.current;
     const anchor = anchorRef.current;
@@ -72,9 +77,16 @@ export function VrHotspot({
     const update = () => {
       const a = anchor.getBoundingClientRect();
       const l = layer.getBoundingClientRect();
+      // Radio de la bolita (h-16 = 64px) a la escala de esta vista, + un respiro.
+      const r = 32 * scale + 12;
+      // Abajo, apenas lo justo para que entre entera: el margen grande empujaba la
+      // bolita bien arriba de la puerta y quedaba VOLANDO sobre la fachada.
+      const bottom = 32 * scale + 16;
+      const clamp = (v: number, min: number, max: number) =>
+        max < min ? (min + max) / 2 : Math.min(Math.max(v, min), max);
       setPos({
-        x: a.left + a.width / 2 - l.left,
-        y: a.top + a.height / 2 - l.top,
+        x: clamp(a.left + a.width / 2 - l.left, r, l.width - r),
+        y: clamp(a.top + a.height / 2 - l.top, r, l.height - bottom),
       });
     };
     update();
@@ -87,7 +99,7 @@ export function VrHotspot({
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [x, y, width, height]);
+  }, [x, y, width, height, scale]);
 
   // Si el overlay se apaga (transición), soltá el hover/preview para no dejarlo pegado.
   useEffect(() => {
@@ -138,7 +150,7 @@ export function VrHotspot({
   // Tarjeta del preview (render + etiqueta). Compartida por desktop (informativa) y
   // táctil (envuelta en un botón clickeable).
   const previewCard = (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10">
+    <div className="overflow-hidden rounded-2xl bg-paper shadow-2xl ring-1 ring-line">
       <div className="relative aspect-[16/10] w-full bg-mist">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -216,7 +228,7 @@ export function VrHotspot({
             onBlur={() => !isTouch && setHover(false)}
             animate={{ scale: (showPreview ? 1.1 : 1) * scale }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="relative grid h-16 w-16 cursor-pointer place-items-center rounded-full bg-white/90 text-ink shadow-xl ring-1 ring-black/10 backdrop-blur focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="relative grid h-16 w-16 cursor-pointer place-items-center rounded-full bg-tier-dark/85 text-ink shadow-xl ring-1 ring-line backdrop-blur focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >
             {/* Arco doble que gira mientras el preview está activo. */}
             <motion.svg
@@ -297,7 +309,7 @@ export function VrHotspot({
                   previewCard
                 )}
                 {/* Flechita del tooltip. */}
-                <div className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-white shadow-md" />
+                <div className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-paper shadow-md" />
               </motion.div>
             )}
           </AnimatePresence>

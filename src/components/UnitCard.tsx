@@ -42,22 +42,27 @@ export function UnitCard({ unit }: { unit: Unit }) {
     .join(" · ");
 
   return (
-    <div className="w-56 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/10">
-      <div className="relative bg-mist">
-        {/* El plano define su propia altura (w-full): los dúplex anchos quedan
-            bajos sin franja blanca, los simples más altos. */}
-        <img src={plan} alt={t.unitTooltip.planAlt(unit.residence)} className="block w-full" />
+    <div className="w-56 overflow-hidden rounded-xl bg-paper shadow-2xl ring-1 ring-line">
+      <div className="relative aspect-[4/3] bg-mist">
+        {/* Caja de proporción FIJA + contain: todas las tarjetas miden lo mismo,
+            sin importar si el plano es vertical, apaisado o dúplex. */}
+        <img
+          src={plan}
+          alt={t.unitTooltip.planAlt(unit.residence)}
+          className="absolute inset-0 h-full w-full object-contain"
+          style={{ padding: "10px" }}
+        />
 
         {/* Badges JUNTOS, montados sobre la línea plano/barra negra: la mitad
             queda sobre el plano y la mitad sobre la franja oscura, así no tapan
             tanto el plano. `bottom-0` + translate-50% los centra en el borde; al
-            estar posicionados pintan por encima de la barra `.bg-ink` siguiente. */}
+            estar posicionados pintan por encima de la barra `.bg-mist` siguiente. */}
         <div className="absolute inset-x-2.5 bottom-0 z-10 flex translate-y-1/2 flex-wrap items-center justify-end gap-1.5">
           <span
             className="inline-flex items-center gap-1.5 rounded-full text-[11px] font-semibold text-white shadow"
             style={badgeStyle(STATUS_STYLES[unit.status].color)}
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
+            <span className="h-1.5 w-1.5 rounded-full bg-tier-dark/85" />
             {t.status[unit.status]}
           </span>
           {unit.duplex ? (
@@ -71,12 +76,15 @@ export function UnitCard({ unit }: { unit: Unit }) {
         </div>
       </div>
 
-      <div className="bg-ink" style={{ padding: "12px 16px 14px" }}>
+      <div className="bg-mist" style={{ padding: "12px 16px 14px" }}>
         {/* Miro 2026-07-15: sin precio en la tarjeta (se sacaron los precios). */}
         <h3 className="font-serif text-lg leading-tight tracking-wide text-cream">
           {t.common.residence(unit.residence)}
         </h3>
-        <p className="text-[11px] leading-relaxed text-cream/55" style={{ marginTop: 6 }}>
+        <p
+          className="line-clamp-2 text-[11px] leading-relaxed text-cream/55"
+          style={{ marginTop: 6, minHeight: "2.2rem" }}
+        >
           {stats}
         </p>
       </div>

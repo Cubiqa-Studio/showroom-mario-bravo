@@ -6,43 +6,52 @@
    ============================================================ */
 
 .res-landing {
-  /* surfaces — los paneles siguen en blanco puro (los alterna --bg-2, que sí
-     bajó un escalón: es donde se lee el "más oscuro" sin romper la cohesión) */
-  --bg:        #FFFFFF;
-  --bg-2:      #F1F1F3;
-  --panel:     #FFFFFF;
-  --panel-2:   #FAFAFB;
-  --card:      #FFFFFF;
+  /* surfaces — escalera de elevación sobre el negro de marca: el lienzo es el más
+     profundo y las tarjetas/paneles suben un escalón para despegarse de él.
+     --bg toma `--tier-dark` de :root (globals.css): un solo negro en todo el sitio. */
+  --bg:        var(--tier-dark);
+  --bg-2:      #16161A;
+  --panel:     #16161A;
+  --panel-2:   #1C1C21;
+  --card:      #16161A;
 
-  /* gold — oro TIER (#BF9753 en el key visual) oscurecido para contrastar sobre
-     blanco: crudo 2.7:1 · --gold 3.7:1 (AA texto grande) · --gold-soft 4.9:1 (AA
-     cuerpo). --gold-bright es el crudo, sólo para superficies oscuras. */
+  /* gold — oro TIER. Sobre el negro de marca el CRUDO #BF9753 ya rinde 7.3:1, así
+     que es el acento grande; --gold 5.3:1 y --gold-soft 4.5:1 (subió de #8A6D3C,
+     que sobre negro se quedaba en 4.1:1). Mismo tono, más luminancia. */
   --gold:        #A07F46;
-  --gold-soft:   #8A6D3C;
+  --gold-soft:   #937440;
   --gold-bright: #BF9753;
 
   /* ink + grises neutros, en grafito (la marca es negro + oro, no beige).
      NOTE: --white means primary INK */
-  --white:     #0F0F11;
-  --gray:      #56565A;
+  --white:     #F4F4F6;
+  --gray:      #A8A8AE;
   --gray-dim:  #86868A;
-  --divider:   #E2E2E4;
-  --divider-2: #EEEEF0;
+  /* divisores: blanco translúcido, no un gris sólido — se apoyan en la superficie */
+  --divider:   rgba(255,255,255,.10);
+  --divider-2: rgba(255,255,255,.06);
 
-  /* estados — SEMÁNTICOS (verde = disponible), no de marca: el logo es dorado y negro */
-  --green:        #2F6B3A;
-  --green-glow:   rgba(47,107,58,.12);
+
+  /* estados — SEMÁNTICOS (verde = disponible), no de marca: el logo es dorado y negro.
+     --green y --orange-soft subieron luminancia (mismo tono) para llegar a AA sobre negro. */
+  /* --green NO se redefine acá: se hereda de :root (globals.css) para no tener el
+     mismo color declarado en dos lugares. */
+  --green-glow:   color-mix(in srgb, var(--green) 16%, transparent);
   --sage:         #7FA653;
+  /* violeta del DUPLEX: violet-400, para leer sobre negro (6.6:1) */
+  --violet:       #A78BFA;
   --orange:       #D08206;
-  --orange-soft:  #A4600F;
+  --orange-soft:  #C57312;
 
   --radius:    12px;
   --radius-sm: 8px;
   --radius-lg: 18px;
 
-  --shadow-soft: 0 28px 70px -28px rgba(20,22,40,.16), 0 8px 22px -12px rgba(20,22,40,.07);
-  --shadow-card: 0 18px 44px -22px rgba(20,22,40,.12), 0 2px 8px rgba(20,22,40,.05);
-  --shadow-float: 0 36px 80px -28px rgba(15,17,30,.24), 0 10px 26px -12px rgba(15,17,30,.12);
+  /* sombras: sobre negro sólo pesa el NEGRO puro con alpha alto (un azulado al 12%
+     no se ve). Es lo que despega las tarjetas del lienzo. */
+  --shadow-soft: 0 28px 70px -28px rgba(0,0,0,.72), 0 8px 22px -12px rgba(0,0,0,.5);
+  --shadow-card: 0 18px 44px -22px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4);
+  --shadow-float: 0 36px 80px -28px rgba(0,0,0,.8), 0 10px 26px -12px rgba(0,0,0,.55);
 
   --serif: var(--font-playfair-sc), "Playfair Display SC", Georgia, serif;
   --sans:  var(--font-jost), "Jost", -apple-system, system-ui, sans-serif;
@@ -108,9 +117,9 @@
 /* ---------- placeholder media ---------- */
 .res-landing .ph {
   position: relative;
-  background-color: #F4F4F5;
+  background-color: var(--bg-2);
   background-image:
-    repeating-linear-gradient(45deg, rgba(20,20,25,.045) 0 2px, transparent 2px 11px);
+    repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 2px, transparent 2px 11px);
   border: 1px solid var(--divider);
   display: flex;
   align-items: center;
@@ -118,9 +127,9 @@
   overflow: hidden;
 }
 .res-landing .ph.light {
-  background-color: #FAFAFB;
+  background-color: var(--panel-2);
   background-image:
-    repeating-linear-gradient(45deg, rgba(20,20,25,.04) 0 2px, transparent 2px 11px);
+    repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 2px, transparent 2px 11px);
 }
 .res-landing .ph .ph-label {
   font-family: "SFMono-Regular", ui-monospace, Menlo, monospace;
@@ -132,7 +141,7 @@
   padding: 8px 14px;
   border: 1px solid var(--divider);
   border-radius: 6px;
-  background: rgba(255,255,255,.6);
+  background: var(--glass);
   backdrop-filter: blur(2px);
 }
 
@@ -186,9 +195,9 @@
   border-radius: 999px;
 }
 .res-landing .badge .dot { width: 7px; height: 7px; border-radius: 50%; }
-.res-landing .badge-available { background: var(--green-glow); color: var(--green); border: 1px solid rgba(47,107,58,.4); }
-.res-landing .badge-available .dot { background: var(--green); box-shadow: 0 0 8px rgba(47,107,58,.6); }
-.res-landing .badge-reserved { background: rgba(208,130,6,.12); color: var(--orange-soft); border: 1px solid rgba(208,130,6,.4); }
+.res-landing .badge-available { background: var(--green-glow); color: var(--green); border: 1px solid color-mix(in srgb, var(--green) 45%, transparent); }
+.res-landing .badge-available .dot { background: var(--green); box-shadow: 0 0 8px color-mix(in srgb, var(--green) 60%, transparent); }
+.res-landing .badge-reserved { background: color-mix(in srgb, var(--orange) 16%, transparent); color: var(--orange-soft); border: 1px solid color-mix(in srgb, var(--orange) 45%, transparent); }
 .res-landing .badge-reserved .dot { background: var(--orange); }
 
 /* ---------- brand identity details ---------- */
@@ -205,7 +214,7 @@
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  background: rgba(255,255,255,.8);
+  background: var(--glass);
   backdrop-filter: blur(10px) saturate(140%);
   border-bottom: 1px solid var(--divider);
   transition: background-color .3s ease, backdrop-filter .3s ease, border-color .3s ease;
@@ -253,7 +262,10 @@
 /* Logo = imagen (el mismo /logo.png del home), no wordmark tipográfico.
    Es un botón: click → arriba de todo de la landing. */
 .res-landing .logo { display: flex; align-items: center; flex-shrink: 0; background: none; border: 0; padding: 0; cursor: pointer; }
-.res-landing .logo img { display: block; height: 52px; width: auto; }
+/* 32px de alto, no 52: el wordmark de TIER es una tira MUY ancha (900×172 ≈ 5,2:1),
+   así que cada píxel de alto son 5 de ancho — a 52px se comía 272px de la barra y
+   pisaba los pills. A 32px el logo mide ~167px y la nav respira. */
+.res-landing .logo img { display: block; height: 32px; width: auto; }
 .res-landing .nav-pills { display: flex; gap: 6px; align-items: center; }
 /* "Volver" (flecha al exterior), a la izquierda del pill de la unidad. */
 .res-landing .pill-back { display: inline-flex; align-items: center; gap: 7px; }
@@ -270,7 +282,7 @@
   transition: all .2s ease;
 }
 .res-landing .nav-back-mobile svg { width: 20px; height: 20px; }
-.res-landing .nav-back-mobile:hover { color: var(--gold); border-color: rgba(184,125,9,.4); }
+.res-landing .nav-back-mobile:hover { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
 .res-landing .nav--ghost .nav-back-mobile { border-color: rgba(255,255,255,.32); color: #fff; }
 .res-landing .nav--ghost .nav-back-mobile:hover { border-color: rgba(255,255,255,.7); color: #fff; }
 .res-landing .pill {
@@ -287,8 +299,8 @@
 .res-landing .pill:hover { color: var(--white); }
 .res-landing .pill.active {
   color: var(--gold);
-  border-color: rgba(184,125,9,.4);
-  background: rgba(184,125,9,.08);
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
 }
 .res-landing .nav-right { display: flex; align-items: center; gap: 14px; }
 /* Banda 640-1180px del nav de la landing: la barra va justa (logo + pills + lupa +
@@ -347,11 +359,11 @@
      thumb del medio. Por eso vw + un offset fijo, no vw puro. */
   .res-landing:not(.has-360) .hero-stage { margin-bottom: clamp(110px, calc(7vw + 24px), 152px); }
 }
-.res-landing .hero-main { position: absolute; inset: 0; border-radius: var(--radius); overflow: hidden; background: #e7e7e8; border: 0; padding: 0; cursor: pointer; appearance: none; -webkit-appearance: none; }
+.res-landing .hero-main { position: absolute; inset: 0; border-radius: var(--radius); overflow: hidden; background: var(--bg-2); border: 0; padding: 0; cursor: pointer; appearance: none; -webkit-appearance: none; }
 .res-landing .hero-badge { position: absolute; top: 26px; left: 26px; z-index: 4; }
 .res-landing .see-all {
   position: absolute; bottom: 26px; right: 26px; z-index: 4;
-  background: rgba(255,255,255,.85);
+  background: var(--glass);
   backdrop-filter: blur(8px);
   border: 1px solid var(--divider);
 }
@@ -364,10 +376,10 @@
 }
 .res-landing .hero-thumb {
   width: 19%; max-width: 340px; aspect-ratio: 4 / 3;
-  border-radius: var(--radius); border: 5px solid #fff;
+  border-radius: var(--radius); border: 5px solid var(--panel);
   box-shadow: var(--shadow-float); pointer-events: auto;
   transition: transform .35s cubic-bezier(.22,.61,.36,1);
-  overflow: hidden; background: #e7e7e8;
+  overflow: hidden; background: var(--bg-2);
   padding: 0; cursor: pointer; appearance: none; -webkit-appearance: none;
 }
 .res-landing .hero-thumb:nth-child(1) { transform: translateY(-30px) rotate(-2.2deg); }
@@ -438,7 +450,7 @@
     margin-top: -134px;                       /* asoma ~134px (peek) sobre el 360° */
     border-radius: 22px 22px 0 0;
     background: var(--bg);                     /* opaca: tapa el 360° al subir */
-    box-shadow: 0 -12px 22px rgba(20, 20, 25, 0.32);
+    box-shadow: 0 -12px 22px rgba(0, 0, 0, 0.6);
   }
   /* El peek de 134px muestra el ENCABEZADO (título "DEPARTAMENTO N.º", siempre
      visible: no es .reveal) + el arranque del Plano: esa sección va visible desde
@@ -457,7 +469,7 @@
     transform: translateX(-50%);
     width: 46px; height: 5px;
     border-radius: 999px;
-    background: rgba(20, 20, 25, 0.16);
+    background: rgba(255, 255, 255, 0.22);
     z-index: 2;
   }
 }
@@ -553,7 +565,7 @@
 .res-landing .plan-stage {
   position: relative;
   background:
-    radial-gradient(700px 460px at 50% 40%, rgba(20,22,40,.03), transparent 70%),
+    radial-gradient(700px 460px at 50% 40%, rgba(255,255,255,.04), transparent 70%),
     var(--panel);
   border: 1px solid var(--divider);
   border-radius: var(--radius);
@@ -583,7 +595,12 @@
 /* plano de la unidad como imagen (en vez del SVG falso) + watermark del Nº */
 .res-landing .floorplan-img {
   position: relative; z-index: 1;
-  width: 100%; height: auto; max-height: 480px;
+  /* 620 y no 480: los planos de TIER Bravo son APAISADOS AL REVÉS (verticales,
+     ~0,63:1). Con el tope viejo, `contain` los dejaba en ~305px de ancho dentro
+     de una tarjeta de 557 — el dibujo se leía chico y con aire a los costados.
+     A 620 el plano vertical llega a ~394px y la tarjeta sigue sin dominar la
+     sección (la .plan-stage abraza la altura del plano, no al revés). */
+  width: 100%; height: auto; max-height: 620px;
   object-fit: contain; margin: 0 auto; display: block;
 }
 
@@ -608,7 +625,7 @@
 .res-landing .fp-wall { stroke: var(--white); fill: none; }
 .res-landing .fp-room-name { fill: var(--white); font-family: var(--sans); font-weight: 600; letter-spacing: .12em; }
 .res-landing .fp-room-dim  { fill: var(--gray); font-family: var(--sans); letter-spacing: .04em; }
-.res-landing .fp-terrace { fill: rgba(20,22,40,.04); }
+.res-landing .fp-terrace { fill: rgba(255,255,255,.05); }
 
 /* ---------- floor plate ---------- */
 .res-landing .plate-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
@@ -618,7 +635,7 @@
 .res-landing .plate-stage {
   position: relative;
   background:
-    radial-gradient(560px 400px at 50% 50%, rgba(20,22,40,.03), transparent 70%),
+    radial-gradient(560px 400px at 50% 50%, rgba(255,255,255,.04), transparent 70%),
     var(--panel);
   border: 1px solid var(--divider);
   border-radius: var(--radius);
@@ -639,14 +656,14 @@
 .res-landing .unit-shape { cursor: pointer; transition: all .25s ease; }
 .res-landing .unit-shape:hover { filter: brightness(.94) saturate(1.15); }
 .res-landing .unit-label { fill: var(--white); font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: .1em; pointer-events: none; }
-.res-landing .unit-sub { fill: rgba(29,27,22,.55); font-family: var(--sans); font-size: 10px; letter-spacing: .06em; pointer-events: none; }
+.res-landing .unit-sub { fill: var(--gray); font-family: var(--sans); font-size: 10px; letter-spacing: .06em; pointer-events: none; }
 .res-landing .core-label { fill: var(--gray-dim); font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .14em; pointer-events: none; }
 
 /* floor plate v2 */
 .res-landing .fp2-outer { fill: none; stroke: var(--white); stroke-width: 2; }
 .res-landing .fp2-wall  { fill: none; stroke: var(--white); stroke-width: 1.1; }
-.res-landing .fp2-room  { fill: #56565A; font-family: var(--sans); font-weight: 600; font-size: 12.5px; letter-spacing: .05em; pointer-events: none; }
-.res-landing .fp2-sub   { fill: #8A8A8D; font-family: var(--sans); font-size: 10.5px; letter-spacing: .03em; pointer-events: none; }
+.res-landing .fp2-room  { fill: var(--gray); font-family: var(--sans); font-weight: 600; font-size: 12.5px; letter-spacing: .05em; pointer-events: none; }
+.res-landing .fp2-sub   { fill: var(--gray-dim); font-family: var(--sans); font-size: 10.5px; letter-spacing: .03em; pointer-events: none; }
 .res-landing .tint-neighbor { fill: rgba(201,168,120,.34); transition: fill .25s ease; cursor: pointer; }
 .res-landing .tint-selected { fill: rgba(127,169,140,.42); }
 .res-landing .unit-shape:hover .tint-neighbor,
@@ -700,12 +717,12 @@
 /* Chip "Dúplex" del tooltip + leyenda de colores bajo la planta. */
 .res-landing .ut-duplex {
   margin: 8px 0 2px; padding: 5px 9px; border-radius: 7px;
-  background: rgba(139,92,246,.12); color: #6d28d9;
+  background: color-mix(in srgb, var(--violet) 16%, transparent); color: var(--violet);
   font-size: 11px; font-weight: 600; letter-spacing: .01em; line-height: 1.3;
 }
-.res-landing .core-fill { fill: #FFFFFF; stroke: var(--divider); stroke-width: 1.5; }
-.res-landing .core-room { fill: #FFFFFF; stroke: var(--white); stroke-width: 1; }
-.res-landing .sqft-marker circle { fill: #FFFFFF; stroke: var(--divider); stroke-width: 1.5; }
+.res-landing .core-fill { fill: var(--panel-2); stroke: var(--divider); stroke-width: 1.5; }
+.res-landing .core-room { fill: var(--panel-2); stroke: var(--white); stroke-width: 1; }
+.res-landing .sqft-marker circle { fill: var(--panel-2); stroke: var(--divider); stroke-width: 1.5; }
 .res-landing .sqft-marker .sq-n { fill: var(--white); font-family: var(--sans); font-weight: 700; font-size: 15px; }
 .res-landing .sqft-marker .sq-u { fill: var(--gray); font-family: var(--sans); font-weight: 500; font-size: 10px; letter-spacing: .1em; }
 .res-landing .expand-dot circle { fill: rgba(20,20,22,.9); }
@@ -761,7 +778,7 @@
 .res-landing .building-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .res-landing .bld-card {
   position: absolute; width: 300px;
-  background: rgba(255,255,255,.95);
+  background: var(--glass-strong);
   backdrop-filter: blur(10px);
   border: 1px solid var(--divider);
   border-radius: var(--radius);
@@ -785,7 +802,7 @@
   background: var(--gold); color: var(--cream);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; z-index: 6; border: 0;
-  box-shadow: 0 14px 30px rgba(184,125,9,.35);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--gold) 35%, transparent);
   transition: transform .2s ease;
   flex-direction: column;
   font-size: 9px; font-weight: 700; letter-spacing: .12em;
@@ -838,8 +855,20 @@
 }
 .res-landing #map { position: absolute; inset: 0; width: 100%; height: 100%; }
 .res-landing .map-placeholder { display: flex; align-items: center; justify-content: center; background: var(--bg-2); }
-.res-landing #map .maplibregl-canvas { filter: saturate(.62) sepia(.12) brightness(1.02); }
-.res-landing .map-stage .maplibregl-ctrl-attrib { font-size: 10px; background: rgba(255,255,255,.7); }
+.res-landing #map .maplibregl-canvas { filter: saturate(.75) brightness(1.12) contrast(.92); }
+/* La atribución la pinta maplibre en NEGRO desde su propia hoja: sobre el vidrio
+   oscuro hay que devolverle el color, o queda negro sobre negro (1.2:1). */
+.res-landing .map-stage .maplibregl-ctrl-attrib { font-size: 10px; background: var(--glass); }
+.res-landing .map-stage .maplibregl-ctrl-attrib,
+.res-landing .map-stage .maplibregl-ctrl-attrib-inner,
+.res-landing .map-stage .maplibregl-ctrl-attrib a { color: var(--muted); }
+.res-landing .map-stage .maplibregl-ctrl-attrib a:hover { color: var(--ink); }
+/* El botón "i" trae su glifo OSCURO incrustado como background-image: en vez de
+   invertirlo, se le pone una base clara para que el glifo se siga leyendo. */
+.res-landing .map-stage .maplibregl-ctrl-attrib-button {
+  background-color: color-mix(in srgb, var(--ink) 72%, transparent);
+  border-radius: 50%;
+}
 .res-landing .map-stage .maplibregl-ctrl-bottom-right { z-index: 2; }
 
 /* custom property marker */
@@ -864,7 +893,7 @@
   white-space: nowrap;
   font-family: var(--sans); font-size: 11px; font-weight: 700;
   letter-spacing: .12em; text-transform: uppercase; color: var(--white);
-  background: rgba(255,255,255,.92); border: 1px solid var(--divider);
+  background: var(--glass-strong); border: 1px solid var(--divider);
   padding: 5px 11px; border-radius: 999px; box-shadow: var(--shadow-card);
 }
 .res-landing .poi-marker {
@@ -879,7 +908,7 @@
 /* pointer-events:none → las etiquetas (siempre visibles) no tapan el click/paneo. */
 .res-landing .maplibregl-popup { z-index: 6; pointer-events: none; }
 .res-landing .maplibregl-popup-content {
-  background: rgba(255,255,255,.97) !important;
+  background: var(--glass-strong) !important;
   border: 1px solid var(--divider);
   border-radius: var(--radius) !important;
   padding: 12px 16px !important;
@@ -896,7 +925,7 @@
   display: flex; gap: 12px; z-index: 5;
 }
 .res-landing .map-pill {
-  background: rgba(255,255,255,.86);
+  background: var(--glass);
   backdrop-filter: blur(8px);
   border: 1px solid var(--divider);
   border-radius: 999px;
@@ -907,7 +936,7 @@
   color: var(--white);
 }
 .res-landing .map-pill:hover { border-color: var(--gold); color: var(--gold); }
-.res-landing .map-pill.active { border-color: var(--gold); color: var(--gold); background: rgba(184,125,9,.1); }
+.res-landing .map-pill.active { border-color: var(--gold); color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, transparent); }
 .res-landing .map-pill svg { width: 13px; height: 13px; }
 
 /* Hint de gestos cooperativos (táctil: "usá dos dedos para mover el mapa") — el
@@ -948,7 +977,7 @@
 .res-landing .plan-watermark {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   font-family: var(--serif); font-weight: 500; font-size: clamp(110px, 13vw, 210px);
-  color: rgba(24,24,26,.045); letter-spacing: .02em; line-height: 1;
+  color: rgba(255,255,255,.05); letter-spacing: .02em; line-height: 1;
   pointer-events: none; z-index: 0; user-select: none;
 }
 
@@ -963,48 +992,9 @@
 .res-landing .spec-nav-item.active .n { color: var(--gold); }
 .res-landing .spec-nav-item.active .t { color: var(--gold); }
 
-/* Animación vertical del proyecto: tile con autoplay muteado bajo la lista de
-   Especificaciones (pedido 22/07). El video vertical se muestra recortado
-   (cover) en un marco apaisado discreto; el modal lo abre completo. */
-.res-landing .anim-tile {
-  position: relative; display: block; width: 100%; margin-top: 26px;
-  aspect-ratio: 16 / 10; border-radius: var(--radius); overflow: hidden;
-  border: 1px solid var(--divider); padding: 0; cursor: pointer; background: #0d0d0e;
-}
-.res-landing .anim-tile-video {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  transition: transform 0.5s ease;
-}
-.res-landing .anim-tile:hover .anim-tile-video { transform: scale(1.045); }
-.res-landing .anim-tile-scrim {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 55%);
-}
-.res-landing .anim-tile-label {
-  position: absolute; left: 14px; bottom: 12px; display: inline-flex; align-items: center;
-  gap: 8px; color: #fff; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-}
-
-/* Modal de la animación: overlay oscuro + video vertical entero (9:16) con
-   sonido al 10%, slider de volumen y X. Cierra por backdrop/Escape. */
-.anim-overlay {
-  position: fixed; inset: 0; z-index: 120; display: grid; place-items: center;
-  background: rgba(8, 8, 8, 0.9); backdrop-filter: blur(8px); padding: 18px;
-}
-.anim-frame {
-  position: relative; aspect-ratio: 9 / 16;
-  height: min(92dvh, calc(94vw * 16 / 9));
-}
-.anim-video {
-  width: 100%; height: 100%; object-fit: contain;
-  border-radius: 18px; background: #000;
-}
-.anim-controls {
-  position: absolute; left: 12px; bottom: 14px; display: flex; align-items: center;
-  gap: 10px; padding: 8px 12px; border-radius: 999px;
-  background: rgba(10, 10, 10, 0.55); border: 1px solid rgba(255, 255, 255, 0.22);
-  color: #fff; backdrop-filter: blur(6px);
-}
+/* Controles de sonido sobre un video (mute + slider de volumen). Nacieron con la
+   animación vertical del proyecto —que este showroom no tiene— y hoy los usa el
+   carrusel del entorno (.cvc-controls, ver CaviahueCarousel). */
 .anim-btn {
   display: grid; place-items: center; background: none; border: 0; color: #fff;
   cursor: pointer; padding: 2px;
@@ -1018,17 +1008,6 @@
   border-radius: 50%; background: #fff; border: 0;
 }
 .anim-volume::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: #fff; border: 0; }
-.anim-close {
-  position: absolute; top: 10px; right: 10px; display: grid; place-items: center;
-  width: 40px; height: 40px; border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(10, 10, 10, 0.5);
-  color: #fff; cursor: pointer; backdrop-filter: blur(6px);
-}
-@media (max-width: 720px) {
-  .anim-video { border-radius: 12px; }
-  .anim-controls { left: 8px; bottom: 10px; }
-  .anim-close { top: 6px; right: 6px; }
-}
 .res-landing .spec-pane { position: relative; min-height: 380px; }
 .res-landing .spec-panel { display: none; }
 .res-landing .spec-panel.active { display: block; animation: res-viewIn .45s cubic-bezier(.22,.61,.36,1); }
@@ -1064,7 +1043,7 @@
 .res-landing .tl-ball {
   position: absolute; left: 0; top: 0; width: 16px; height: 16px; margin-top: -8px;
   border-radius: 50%; background: var(--gold);
-  box-shadow: 0 0 0 5px rgba(184,125,9,.15), 0 2px 10px rgba(184,125,9,.45);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--gold) 15%, transparent), 0 2px 10px color-mix(in srgb, var(--gold) 45%, transparent);
 }
 /* Check de llegada (final del riel): 30px centrado sobre la línea (x=8). */
 .res-landing .tl-check {
@@ -1075,14 +1054,14 @@
 .res-landing .tl-check::after { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: 0; }
 .res-landing .tl-check.done::after { animation: res-checkPulse .8s ease-out .15s; }
 @keyframes res-checkPulse {
-  0% { opacity: 1; box-shadow: 0 0 0 0 rgba(73,99,12,.4); }
-  100% { opacity: 0; box-shadow: 0 0 0 20px rgba(73,99,12,0); }
+  0% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 40%, transparent); }
+  100% { opacity: 0; box-shadow: 0 0 0 20px transparent; }
 }
 .res-landing .tl-item { position: relative; padding: 0 0 72px 72px; }
 .res-landing .tl-item:last-child { padding-bottom: 0; }
 .res-landing .tl-item::before { content: ""; position: absolute; left: 0; top: 16px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 2px solid var(--gold); transition: background-color .3s ease, box-shadow .3s ease; }
 /* El nodo se enciende cuando la bolita lo alcanza (clase .hit desde useInView). */
-.res-landing .tl-item.hit::before { background: var(--gold); box-shadow: 0 0 0 4px rgba(184,125,9,.14); }
+.res-landing .tl-item.hit::before { background: var(--gold); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 14%, transparent); }
 .res-landing .tl-content { transition: transform .3s ease; }
 .res-landing .tl-pct { font-family: var(--serif); font-size: clamp(50px, 5.4vw, 88px); color: var(--gold); line-height: .88; letter-spacing: .02em; }
 .res-landing .tl-when { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--gray); margin-top: 16px; }
@@ -1093,7 +1072,7 @@
 
 .res-landing .map-info-card {
   position: absolute; top: 24px; left: 24px; z-index: 6;
-  width: 290px; background: rgba(255,255,255,.95); backdrop-filter: blur(12px);
+  width: 290px; background: var(--glass-strong); backdrop-filter: blur(12px);
   border: 1px solid var(--divider); border-radius: var(--radius);
   padding: 22px 24px; box-shadow: var(--shadow-float);
 }
@@ -1182,7 +1161,7 @@
 .res-landing .res-more-count {
   font-family: ui-monospace, Menlo, monospace; font-size: 11px;
   letter-spacing: .04em; color: var(--gold);
-  background: rgba(184,125,9,.1); border: 1px solid rgba(184,125,9,.32);
+  background: color-mix(in srgb, var(--gold) 10%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 32%, transparent);
   padding: 2px 8px; border-radius: 999px;
 }
 
@@ -1385,7 +1364,7 @@
    ≤ 400px — celulares chicos (iPhone SE y similares).
    ========================================================= */
 @media (max-width: 400px) {
-  .res-landing .logo img { height: 36px; }
+  .res-landing .logo img { height: 24px; }
   /* CTA sólo-ícono: libera ~60px para que el logo entre sin recortarse. */
   .res-landing .nav-right .btn { padding: 11px 13px; gap: 0; }
   .res-landing .nav-right .btn .btn-label { display: none; }
@@ -1408,7 +1387,7 @@
   position: fixed; inset: 0; z-index: 150;
   /* Semi-transparente + blur fuerte: deja entrever el render/landing de atrás
      sin restarle legibilidad a la planta (que va sobre su tarjeta blanca). */
-  background: rgba(255, 255, 255, .72);
+  background: var(--glass);
   backdrop-filter: blur(14px) saturate(115%);
   overflow-y: auto; overscroll-behavior: contain;
 }
@@ -1457,7 +1436,7 @@
    ========================================================= */
 .sheet-overlay {
   position: fixed; inset: 0; z-index: 150;
-  background: rgba(255, 255, 255, .9);
+  background: var(--glass-strong);
   backdrop-filter: blur(16px) saturate(118%);
   display: flex;
   overflow: hidden; /* el scroll vive en .sheet-body, no en la página */
@@ -1498,7 +1477,7 @@
 .cvc-stage {
   position: relative; overflow: hidden; aspect-ratio: 16 / 9;
   border-radius: var(--radius); border: 1px solid var(--divider);
-  background: #0d0d0e; box-shadow: 0 14px 44px rgba(0, 0, 0, 0.18);
+  background: var(--tier-dark); box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
 }
 .cvc-slide { position: absolute; inset: 0; }
 .cvc-bg {
@@ -1514,7 +1493,7 @@
 .res-landing .cvc-arrow {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
   display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px;
-  border: 0; background: rgba(255, 255, 255, 0.92); color: var(--white);
+  border: 0; background: rgba(255, 255, 255, 0.92); color: var(--tier-dark);
   cursor: pointer; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -1526,7 +1505,7 @@
 .res-landing .cvc-paused {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;
   display: grid; place-items: center; width: 64px; height: 64px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9); color: var(--white);
+  background: rgba(255, 255, 255, 0.9); color: var(--tier-dark);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3); pointer-events: none;
 }
 /* Controles de sonido de los videos del carrusel: misma píldora que el modal
@@ -1715,11 +1694,11 @@
   min-height: 56px;
   padding: 8px clamp(16px, 4vw, 48px);
   border-bottom: 1px solid var(--divider);
-  background: rgba(255, 255, 255, .72);
+  background: var(--glass);
   backdrop-filter: blur(8px) saturate(118%);
   transition: box-shadow .25s ease;
 }
-.res-landing .finder-subbar.scrolled { box-shadow: 0 6px 12px rgba(0, 0, 0, .04); }
+.res-landing .finder-subbar.scrolled { box-shadow: 0 6px 12px rgba(0, 0, 0, .45); }
 .res-landing .finder-activebar {
   flex: 1 1 auto; min-width: 0;
   display: flex; align-items: center; gap: 8px;
@@ -1732,11 +1711,11 @@
 .res-landing .finder-active-chip {
   display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
   height: 30px; padding: 0 8px 0 13px; border-radius: 999px;
-  background: var(--white); color: var(--cream);
+  background: var(--white); color: var(--tier-dark);
   font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: .01em;
   cursor: pointer; transition: background .2s ease;
 }
-.res-landing .finder-active-chip.violet { background: #6d28d9; }
+.res-landing .finder-active-chip.violet { background: var(--violet); }
 .res-landing .finder-active-chip svg { width: 13px; height: 13px; opacity: .7; transition: color .2s ease, opacity .2s ease; }
 .res-landing .finder-active-chip:hover svg { color: var(--gold); opacity: 1; }
 .res-landing .finder-clear-all {
@@ -1766,7 +1745,7 @@
   transition: all .2s ease;
 }
 .res-landing .finder-sort-opt:hover { color: var(--white); border-color: var(--gray-dim); }
-.res-landing .finder-sort-opt.active { color: var(--gold); border-color: rgba(184, 125, 9, .5); background: rgba(184, 125, 9, .07); }
+.res-landing .finder-sort-opt.active { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 50%, transparent); background: color-mix(in srgb, var(--gold) 7%, transparent); }
 .res-landing .finder-sort-opt svg { transition: transform .25s ease; }
 
 /* Botón "Filtros" (sólo mobile) */
@@ -1832,7 +1811,7 @@
 .res-landing .finder-group-h::before { content: ""; width: 2px; height: 11px; background: var(--gold); border-radius: 1px; }
 .res-landing .finder-group-count {
   display: inline-grid; place-items: center; min-width: 16px; height: 16px; padding: 0 4px;
-  border-radius: 999px; background: rgba(184, 125, 9, .12); color: var(--gold);
+  border-radius: 999px; background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold);
   font-size: 10px; font-weight: 700; letter-spacing: 0;
 }
 
@@ -1841,16 +1820,16 @@
   display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
   height: 34px; min-width: 34px; padding: 0 15px; border-radius: 999px;
   border: 1px solid var(--divider); background: transparent;
-  font-family: var(--sans); font-size: 13px; font-weight: 500; color: #3A3A3C; letter-spacing: .02em;
+  font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--gray); letter-spacing: .02em;
   transition: border-color .18s ease, background .18s ease, color .18s ease, transform .09s ease;
 }
 .res-landing .finder-chip.serif { font-family: var(--serif); font-size: 15px; letter-spacing: .04em; }
 .res-landing .finder-chip:hover:not(:disabled):not(.active) {
-  border-color: rgba(184, 125, 9, .4); background: var(--bg-2); color: var(--white);
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent); background: var(--bg-2); color: var(--white);
 }
 .res-landing .finder-chip.active {
   background: var(--gold); border-color: var(--gold); color: var(--cream);
-  box-shadow: 0 2px 8px -3px rgba(184, 125, 9, .5);
+  box-shadow: 0 2px 8px -3px color-mix(in srgb, var(--gold) 50%, transparent);
 }
 .res-landing .finder-chip:active:not(:disabled) { transform: scale(.96); }
 .res-landing .finder-chip:disabled { opacity: .32; cursor: default; }
@@ -1889,23 +1868,23 @@
 }
 .res-landing .finder-toggle-knob {
   position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); transition: left .22s ease;
+  background: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .5); transition: left .22s ease;
 }
 .res-landing .finder-toggle.active .finder-toggle-track { background: var(--gold); }
 .res-landing .finder-toggle.active .finder-toggle-knob { left: 19px; }
-.res-landing .finder-toggle--violet.active .finder-toggle-track { background: #8b5cf6; }
+.res-landing .finder-toggle--violet.active .finder-toggle-track { background: var(--violet); }
 
 /* ---- Tarjeta "plancha de catálogo" ---- */
 .res-landing .finder-card {
   display: flex; flex-direction: column; text-align: left; cursor: pointer; width: 100%;
   background: var(--panel); border: 1px solid var(--divider); border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 30px rgba(0, 0, 0, .05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 12px 30px rgba(0, 0, 0, .45);
   transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease, border-color .3s ease;
 }
 .res-landing .finder-card:hover {
-  transform: translateY(-4px); border-color: rgba(184, 125, 9, .35);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, .09);
+  transform: translateY(-4px); border-color: color-mix(in srgb, var(--gold) 35%, transparent);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .6);
 }
 .res-landing .finder-card:active { transform: translateY(-4px) scale(.99); }
 
@@ -1915,7 +1894,7 @@
 }
 .res-landing .finder-plate::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(24, 24, 26, .04));
+  background: radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(0, 0, 0, .22));
 }
 .res-landing .finder-plan {
   width: 100%; height: 100%; object-fit: contain; padding: 16px; display: block;
@@ -1923,7 +1902,7 @@
 }
 .res-landing .finder-card:hover .finder-plan { transform: scale(1.045); }
 .res-landing .finder-card.is-reserved .finder-plan { opacity: .9; filter: saturate(.85); }
-.res-landing .finder-duplex-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #8b5cf6; z-index: 2; }
+.res-landing .finder-duplex-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--violet); z-index: 2; }
 /* Vidrio blanco (como el sello de tipología): el badge lee sobre CUALQUIER plano
    —las tipologías tipo A llenan el marco 4:3 y el verde translúcido dejaba pasar el
    mobiliario oscuro ("pisado"). El estado se comunica por el punto + el color del texto. */
@@ -1932,24 +1911,24 @@
   display: inline-flex; align-items: center; gap: 7px; height: 24px; padding: 0 11px;
   border-radius: 999px; font-family: var(--sans); font-size: 11px; font-weight: 600;
   letter-spacing: .06em; text-transform: uppercase;
-  background: rgba(255, 255, 255, .92);
+  background: var(--glass-strong);
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  box-shadow: 0 1px 5px rgba(24, 24, 26, .12);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .5);
 }
 .res-landing .finder-status-dot { width: 7px; height: 7px; border-radius: 50%; }
 .res-landing .finder-status--available { color: var(--green); }
-.res-landing .finder-status--available .finder-status-dot { background: var(--green); box-shadow: 0 0 6px rgba(47, 107, 58, .55); }
+.res-landing .finder-status--available .finder-status-dot { background: var(--green); box-shadow: 0 0 6px color-mix(in srgb, var(--green) 55%, transparent); }
 .res-landing .finder-status--reserved { color: var(--orange-soft); }
 .res-landing .finder-status--reserved .finder-status-dot { background: var(--orange); }
 .res-landing .finder-duplex-label {
   position: absolute; top: 42px; left: 14px; z-index: 2;
   font-family: var(--sans); font-size: 9px; font-weight: 700; letter-spacing: .14em;
-  text-transform: uppercase; color: #7c3aed;
+  text-transform: uppercase; color: var(--violet);
 }
 .res-landing .finder-seal {
   position: absolute; top: 12px; right: 12px; z-index: 2;
   display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
-  border: 1px solid var(--divider); background: rgba(255, 255, 255, .82);
+  border: 1px solid var(--divider); background: var(--glass-strong);
   backdrop-filter: blur(4px);
   font-family: var(--serif); font-size: 15px; color: var(--white); line-height: 1;
 }
@@ -1990,7 +1969,7 @@
 .res-landing .finder-plate-skeleton {
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    linear-gradient(100deg, transparent 28%, rgba(255, 255, 255, .62) 50%, transparent 72%),
+    linear-gradient(100deg, transparent 28%, rgba(255, 255, 255, .09) 50%, transparent 72%),
     var(--bg-2);
   background-size: 220% 100%, 100% 100%;
   background-repeat: no-repeat;
@@ -2009,20 +1988,20 @@
    DESPUÉS de :hover/:active para ganarles por orden de fuente. */
 .res-landing .finder-card.is-navigating {
   transform: scale(1.045); z-index: 4;
-  border-color: rgba(184, 125, 9, .5);
-  box-shadow: 0 24px 52px rgba(0, 0, 0, .16);
+  border-color: color-mix(in srgb, var(--gold) 50%, transparent);
+  box-shadow: 0 24px 52px rgba(0, 0, 0, .7);
   pointer-events: none;
 }
 .res-landing .finder-card.is-dimmed { pointer-events: none; }
 .res-landing .finder-card-loading {
   position: absolute; inset: 0; z-index: 5;
   display: grid; place-items: center;
-  background: rgba(255, 255, 255, .55);
+  background: var(--glass);
   backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
 .res-landing .finder-spinner {
   width: 30px; height: 30px; border-radius: 50%;
-  border: 2.5px solid rgba(184, 125, 9, .25); border-top-color: var(--gold);
+  border: 2.5px solid color-mix(in srgb, var(--gold) 25%, transparent); border-top-color: var(--gold);
   animation: finder-spin .7s linear infinite;
 }
 @keyframes finder-spin { to { transform: rotate(360deg); } }
@@ -2041,12 +2020,12 @@
 .res-landing .finder-empty-clear:hover::after { transform: scaleX(1); }
 
 /* ---- Bottom-sheet de filtros (mobile) ---- */
-.res-landing .finder-sheet-scrim { position: fixed; inset: 0; z-index: 5; background: rgba(24, 24, 26, .4); cursor: default; }
+.res-landing .finder-sheet-scrim { position: fixed; inset: 0; z-index: 5; background: rgba(0, 0, 0, .6); cursor: default; }
 .res-landing .finder-sheet {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
   display: flex; flex-direction: column; max-height: 88vh;
   background: var(--panel); border-radius: 18px 18px 0 0;
-  box-shadow: 0 -18px 44px rgba(0, 0, 0, .18);
+  box-shadow: 0 -18px 44px rgba(0, 0, 0, .6);
 }
 .res-landing .finder-sheet-handle { width: 40px; height: 4px; border-radius: 999px; background: var(--divider); margin: 12px auto 4px; flex-shrink: 0; }
 .res-landing .finder-sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px 12px; border-bottom: 1px solid var(--divider); flex-shrink: 0; }

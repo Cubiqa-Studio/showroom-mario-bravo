@@ -6,7 +6,7 @@ import type { Map as MapLibreMap, LngLatBounds, Popup } from "maplibre-gl";
 import type { SiteConfig } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
 
-const POSITRON = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+const DARK_MATTER = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 /**
@@ -49,7 +49,7 @@ export function LocationMap({ site }: { site: SiteConfig }) {
 
       const map = new maplibregl.Map({
         container: containerRef.current,
-        style: POSITRON,
+        style: DARK_MATTER,
         center: PROP,
         zoom: 12.4,
         pitch: HOME.pitch,

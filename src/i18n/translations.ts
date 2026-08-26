@@ -189,13 +189,13 @@ const es = {
     baths: (n: number) => (n === 1 ? "1 baño" : `${n} baños`),
   },
 
-  /** Buscador de unidades — modal con la lista filtrable de los 44 departamentos.
+  /** Buscador de unidades — modal con la lista filtrable de todas las unidades.
    *  Se abre desde la lupa del chrome (showroom + nav de unidad) y desde el menú. */
   finder: {
     /** Etiqueta del disparador (lupa) y del item del menú lateral. */
     open: "Buscar unidades",
     eyebrow: "Buscador de unidades",
-    title: "Los 44 Departamentos",
+    title: (total: number) => `Los ${total} Departamentos`,
     /** Línea bajo el número grande de resultados: "Resultados · de 44". */
     countCaption: (total: number) => `Resultados · de ${total}`,
     // Búsqueda por número
@@ -212,6 +212,8 @@ const es = {
     vistas: "Vistas",
     floor: "Piso",
     duplex: "Dúplex",
+    /** Filtro por unidades que tienen recorrido 360° propio (units.json → tour360). */
+    tour360: "Con tour 360°",
     sort: "Orden",
     sortNumber: "N.º",
     sortArea: "m²",
@@ -381,11 +383,8 @@ const es = {
     ] as TeamMember[],
   },
 
-  /** Animación vertical del proyecto: tile en Especificaciones + modal ampliado. */
+  /** Controles de sonido de un video (los usa el carrusel del entorno). */
   anim: {
-    open: "Ver el video del proyecto en grande",
-    label: "Ver video",
-    close: "Cerrar",
     volume: "Volumen",
     mute: "Silenciar",
     unmute: "Activar sonido",
@@ -866,7 +865,7 @@ const en: Dict = {
   finder: {
     open: "Search units",
     eyebrow: "Unit finder",
-    title: "The 44 Apartments",
+    title: (total: number) => `The ${total} Apartments`,
     countCaption: (total: number) => `Results · of ${total}`,
     searchPlaceholder: "Unit no.",
     searchAria: "Search by unit number",
@@ -879,6 +878,8 @@ const en: Dict = {
     vistas: "Views",
     floor: "Floor",
     duplex: "Duplex",
+    /** Filter for units that ship their own 360° tour (units.json → tour360). */
+    tour360: "With 360° tour",
     sort: "Sort",
     sortNumber: "No.",
     sortArea: "m²",
@@ -1017,9 +1018,6 @@ const en: Dict = {
   },
 
   anim: {
-    open: "Watch the project video full size",
-    label: "Watch video",
-    close: "Close",
     volume: "Volume",
     mute: "Mute",
     unmute: "Unmute",
