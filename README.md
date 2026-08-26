@@ -113,8 +113,18 @@ Cargado: `residence`, `beds`, `ambientes`, `areas`, `sqft`, `status`, `exposure`
 ### La galería y el hero de cada unidad
 
 `_media-src/gallery/` (14 renders, gitignored) → `npm run gallery:optimize` →
-`public/gallery/optimized/` (full + thumb de cada uno) + el manifiesto
-`src/data/gallery.json`, que es lo que consume el lightbox del menú.
+`public/gallery/optimized/` + el manifiesto `src/data/gallery.json`, que es lo que
+consume el lightbox del menú. De cada render salen **tres tamaños**, y cada uno tiene
+su lugar:
+
+| Variante | Ancho | Peso | Dónde se usa |
+|---|---|---|---|
+| `<slug>.webp` | 2400px | ~517 KB | el visor grande del lightbox |
+| `<slug>-mid.webp` | 800px | ~61 KB | los 3 mosaicos del hero de la ficha (miden ≤340px) |
+| `<slug>-thumb.webp` | 320px | ~11 KB | la tira de miniaturas del lightbox |
+
+Los originales del cliente pesan **108 MB**; los 14 full optimizados, 7,1 MB. Abrir la
+galería del menú baja 147 KB (los thumbs) y recién el full de la foto que se mira.
 
 **Los nombres de archivo son el orden de exhibición**: el script ordena por nombre, así
 que van numerados `01`…`14` de exterior a interior (fachada, esquina, contrafrente,
@@ -319,26 +329,26 @@ editor cerrado, o revisá el diff después.
 
 ### El encuadre del render
 
-**El render llena la pantalla (`cover`), nunca hay franjas.** Lo que sobra se recorta, y
-`STOP_CROP_BIAS` (`src/lib/stop-framing.ts`) elige de qué lado.
+**El render llena la pantalla (`cover`), nunca hay franjas.** Lo que sobra se recorta,
+hoy **centrado**: mitad arriba y mitad abajo.
 
 La cuenta, que conviene tener a mano porque se la van a preguntar:
 
-| | Ancho × alto | Aspecto | Recorte sobre un render 4000×2250 |
+| | Ancho × alto | Aspecto | Recorte sobre el render de la vista 0 (4999×2812) |
 |---|---|---|---|
 | Monitor 1920×1080 | 1920 × 1080 | 1,78 | **cero** |
 | Navegador en **pantalla completa** (F11 o el botón ⛶) | 1920 × 1080 | 1,78 | **cero** |
-| Navegador **maximizado** (pestañas + barra de direcciones + favoritos + barra de tareas ≈ 175px) | 1903 × 903 | **2,11** | **352px nativos de alto (15,6%)** |
+| Navegador **maximizado** (pestañas + barra de direcciones + favoritos + barra de tareas ≈ 175px) | 1903 × 903 | **2,11** | **440px nativos de alto**, 220 arriba (cielo) y 220 abajo (asfalto) |
 
 O sea: el render y la pantalla SÍ son los dos 16:9; el que no lo es es el viewport del
 navegador cuando la ventana está maximizada. Un 16:9 no llena un 2,1:1 sin recortar —
 la única alternativa es dejar franjas al costado, que se ve peor.
 
-Por eso el recorte va **corrido hacia arriba** en las dos vistas frontales
-(`bias 0.35`): se pierden ~240px nativos de cielo y sólo ~115 de asfalto, así que
-sobreviven la vereda, los autos, las vidrieras y la puerta con su punto 360°. Más que
-0,35 empieza a comerse el parapeto del 7°, que es piso vendible y tiene que poder
-clickearse.
+> **Pendiente.** Hubo un ancla (`STOP_CROP_BIAS`) para correr el recorte hacia arriba en
+> las dos vistas frontales y perder cielo en vez de vereda: se perdió antes de commitear
+> y **no está en el código**. Con el render de 5k del 25-08 el asunto es menor —la puerta
+> y su punto 360° quedan holgados—, pero se recuperarían ~77px nativos de calle. Si vuelve
+> un render más ajustado, hay que reponerlo.
 
 **El arreglo de fondo es el encuadre del render, no el código.** Si el 3D entrega estas
 mismas cámaras con ~175px menos de alto —4000×1900 en vez de 4000×2250— una ventana

@@ -9,8 +9,8 @@
 //
 // Para reubicar una bolita: abrí `public/stops/stop-<n>.jpg`, mirá en qué píxel cae
 // el punto y escribilo acá. Ojo: el visor va con "cover", así que en un viewport más
-// ancho que el propio render se recorta alto arriba y abajo — un punto muy al ras de
-// un borde puede quedar fuera de cuadro (ver `stop-framing.ts`).
+// ancho que el propio render se recorta alto arriba y abajo, CENTRADO (mitad y mitad)
+// — un punto muy al ras de un borde puede quedar fuera de cuadro.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface VrHotspotConfig {
@@ -59,8 +59,8 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
   //   VANO DEL HALL x≈1990-2260 · y≈2220 (dintel) → 2480 (piso), hoja en x≈2020-2140
   //   local         x≈2250-2900
   // 2040 la deja apenas a la izquierda de la hoja y 2400 abajo, a la altura del
-  // picaporte. Más abajo se la come el recorte de una ventana maximizada: con el bias
-  // de esta vista se pierden los últimos ~143px nativos (ver `stop-framing.ts`).
+  // picaporte. Más abajo se la come el recorte de una ventana maximizada, que en esta
+  // vista se lleva los últimos ~220px nativos (ver README § El encuadre del render).
   0: {
     x: 2040,
     y: 2400,

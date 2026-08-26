@@ -35,6 +35,16 @@
   [headers.values]
     Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
 
+# Renders de la galería. Faltaban acá: `next.config.ts > headers()` declara la regla
+# pero en Netlify NO se aplica a /public (los estáticos los sirve el CDN, no el server
+# de Next — está verificado por curl, ver el comentario de arriba), así que se servían
+# con `max-age=0, must-revalidate`. Son 14 renders (~7 MB) y CUATRO de ellos se bajan
+# en el hero de cada unidad sin recorrido 360°, en cada visita.
+[[headers]]
+  for = "/gallery/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
+
 # Assets de la INTRO (portada "/"): viven en /public root, así que sin esto caen al
 # default de Netlify (max-age=0, must-revalidate) y Safari (más estricto revalidando)
 # rechequea el video en cada visita y en cada back desde /showroom. Misma cache larga

@@ -193,6 +193,9 @@ export interface GalleryImage {
   full: string;
   /** Miniatura liviana para la tira de thumbnails (no se carga el full). */
   thumb: string;
+  /** Intermedio (800px) para los mosaicos del hero de la ficha, que miden ≤340px:
+   *  el full de 2400 ahí eran ~1 MB de más por unidad. Lo emite `gallery:optimize`. */
+  mid?: string;
   /** Tamaño natural del `full` (para aspect-ratio / evitar layout shift). */
   width?: number;
   height?: number;

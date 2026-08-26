@@ -2,84 +2,98 @@
   "images": [
     {
       "full": "/gallery/optimized/01-fachada.webp",
+      "mid": "/gallery/optimized/01-fachada-mid.webp",
       "thumb": "/gallery/optimized/01-fachada-thumb.webp",
       "width": 2400,
       "height": 1350
     },
     {
       "full": "/gallery/optimized/02-esquina.webp",
+      "mid": "/gallery/optimized/02-esquina-mid.webp",
       "thumb": "/gallery/optimized/02-esquina-thumb.webp",
       "width": 2400,
       "height": 1350
     },
     {
       "full": "/gallery/optimized/03-contrafrente-pileta.webp",
+      "mid": "/gallery/optimized/03-contrafrente-pileta-mid.webp",
       "thumb": "/gallery/optimized/03-contrafrente-pileta-thumb.webp",
       "width": 2400,
       "height": 1350
     },
     {
       "full": "/gallery/optimized/04-jardin.webp",
+      "mid": "/gallery/optimized/04-jardin-mid.webp",
       "thumb": "/gallery/optimized/04-jardin-thumb.webp",
       "width": 2400,
       "height": 1350
     },
     {
       "full": "/gallery/optimized/05-pileta.webp",
+      "mid": "/gallery/optimized/05-pileta-mid.webp",
       "thumb": "/gallery/optimized/05-pileta-thumb.webp",
       "width": 2400,
       "height": 1600
     },
     {
       "full": "/gallery/optimized/06-solarium-juegos.webp",
+      "mid": "/gallery/optimized/06-solarium-juegos-mid.webp",
       "thumb": "/gallery/optimized/06-solarium-juegos-thumb.webp",
       "width": 2400,
       "height": 1600
     },
     {
       "full": "/gallery/optimized/07-parrilla-terraza.webp",
+      "mid": "/gallery/optimized/07-parrilla-terraza-mid.webp",
       "thumb": "/gallery/optimized/07-parrilla-terraza-thumb.webp",
       "width": 2400,
       "height": 1501
     },
     {
       "full": "/gallery/optimized/08-gimnasio.webp",
+      "mid": "/gallery/optimized/08-gimnasio-mid.webp",
       "thumb": "/gallery/optimized/08-gimnasio-thumb.webp",
       "width": 2400,
       "height": 1350
     },
     {
       "full": "/gallery/optimized/09-lobby.webp",
+      "mid": "/gallery/optimized/09-lobby-mid.webp",
       "thumb": "/gallery/optimized/09-lobby-thumb.webp",
       "width": 2400,
       "height": 1600
     },
     {
       "full": "/gallery/optimized/10-coworking-lounge.webp",
+      "mid": "/gallery/optimized/10-coworking-lounge-mid.webp",
       "thumb": "/gallery/optimized/10-coworking-lounge-thumb.webp",
       "width": 2400,
       "height": 1350
     },
     {
       "full": "/gallery/optimized/11-sum-vista-pileta.webp",
+      "mid": "/gallery/optimized/11-sum-vista-pileta-mid.webp",
       "thumb": "/gallery/optimized/11-sum-vista-pileta-thumb.webp",
       "width": 2400,
       "height": 1368
     },
     {
       "full": "/gallery/optimized/12-living-comedor.webp",
+      "mid": "/gallery/optimized/12-living-comedor-mid.webp",
       "thumb": "/gallery/optimized/12-living-comedor-thumb.webp",
       "width": 1920,
       "height": 2400
     },
     {
       "full": "/gallery/optimized/13-cocina.webp",
+      "mid": "/gallery/optimized/13-cocina-mid.webp",
       "thumb": "/gallery/optimized/13-cocina-thumb.webp",
       "width": 1920,
       "height": 2400
     },
     {
       "full": "/gallery/optimized/14-dormitorio.webp",
+      "mid": "/gallery/optimized/14-dormitorio-mid.webp",
       "thumb": "/gallery/optimized/14-dormitorio-thumb.webp",
       "width": 2400,
       "height": 1845

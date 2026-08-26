@@ -11,6 +11,19 @@ import { StatusPill } from "./StatusPill";
 /* eslint-disable @next/next/no-img-element */
 
 /**
+ * Variante de tamaño de un render de la galería. `gallery:optimize` emite tres por
+ * imagen con el mismo slug: `<slug>.webp` (2400px), `-mid.webp` (800px) y
+ * `-thumb.webp` (320px). Acá sólo se cambia el sufijo.
+ *
+ * Antes el hero usaba el FULL en los tres mosaicos chicos y en la tira del lightbox:
+ * ~1,5 MB por ficha para mostrarlos a 340px y a 96px. Si algún día cambia el naming
+ * del script, hay que tocar esto — por eso cae al full si el path no matchea.
+ */
+function variant(full: string, size: "mid" | "thumb"): string {
+  return full.endsWith(".webp") ? full.replace(/\.webp$/, `-${size}.webp`) : full;
+}
+
+/**
  * Hero (sección 2 de la referencia): imagen principal full-bleed, badge de
  * estado, botón "Ver las N fotos" (N dinámico = tamaño de la galería) y 3 thumbs
  * superpuestos. Imágenes desde unitGallery(unit).
@@ -28,12 +41,10 @@ export function HeroGallery({ unit }: { unit: Unit }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   // unitGallery devuelve una ref estable (gallery de la unidad o el const default),
-  // así que el adaptador a GalleryImage se memoiza bien. Usamos el `full` también
-  // como thumb: son las MISMAS imágenes que ya muestra el hero (cacheadas), y la
-  // galería de una unidad es chica.
+  // así que el adaptador a GalleryImage se memoiza bien.
   const gallery = unitGallery(unit);
   const lightboxImages = useMemo(
-    () => gallery.map((src) => ({ full: src, thumb: src })),
+    () => gallery.map((src) => ({ full: src, thumb: variant(src, "thumb") })),
     [gallery],
   );
 
@@ -100,7 +111,12 @@ export function HeroGallery({ unit }: { unit: Unit }) {
                 onClick={() => setLightbox(th.idx)}
                 aria-label={t.hero.photoAltN(unit.residence, i + 2)}
               >
-                <img src={th.src} alt={t.hero.photoAltN(unit.residence, i + 2)} />
+                {/* Los mosaicos miden 340px como mucho → alcanza el intermedio. */}
+                <img
+                  src={variant(th.src, "mid")}
+                  alt={t.hero.photoAltN(unit.residence, i + 2)}
+                  loading="lazy"
+                />
               </button>
             ))}
           </div>

@@ -1,14 +1,19 @@
-# Cache-Control GARANTIZADO para los assets del flyby (Netlify-nativo).
+# Cache-Control GARANTIZADO para los assets pesados (Netlify-nativo).
 # El next.config.ts > headers() NO se aplica a /public en el runtime de Netlify
 # (los estáticos los sirve el CDN), así que sin esto el browser recibe
 # `max-age=0, must-revalidate` y, tras un rato idle, re-baja los ~30 frames por red
 # al disparar la transición → lag/teletransporte. El prefijo `!` fuerza el override
 # del default de Netlify. Sin `immutable` (las URLs no tienen hash): stale-while-
-# revalidate deja que un deploy con frames nuevos se propague en segundo plano.
+# revalidate deja que un deploy con assets nuevos se propague en segundo plano.
 /frames/*
   ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
 
 /stops/*
+  ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
+
+# Galería: 14 renders (~7 MB), y cuatro de ellos se bajan en el hero de cada unidad
+# sin recorrido 360°. Sin esta regla se revalidaban en cada visita.
+/gallery/*
   ! Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
 
 # Intro (portada "/"): video + poster viven en /public root → sin esto se sirven con

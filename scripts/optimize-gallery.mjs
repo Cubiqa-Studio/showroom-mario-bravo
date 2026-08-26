@@ -28,6 +28,11 @@ const MANIFEST = join(ROOT, "src", "data", "gallery.json");
 
 const MAX_FULL = 2400; // long-edge del full (cubre full-screen retina sin engordar)
 const FULL_Q = 80; // calidad WebP del full
+// Tamaño INTERMEDIO para los 3 mosaicos del hero de la ficha: se muestran a 19% de
+// ancho, con tope de 340px (ver `.hero-thumb` en residencia.css). 800px los cubre a
+// 2× sin traer el full de 2400 — que es lo que hacían antes, ~1 MB de más por ficha.
+const MID_W = 800;
+const MID_Q = 78;
 const THUMB_W = 320; // ancho de la miniatura (display 96×64 → ok hasta 3×)
 const THUMB_Q = 70; // calidad WebP de la miniatura
 
@@ -96,6 +101,13 @@ for (const file of files) {
     .webp({ quality: FULL_Q })
     .toFile(join(OUT_DIR, fullName));
 
+  // Intermedio (mosaicos del hero).
+  const midName = `${slug}-mid.webp`;
+  await sharp(input)
+    .resize({ width: MID_W, withoutEnlargement: true })
+    .webp({ quality: MID_Q })
+    .toFile(join(OUT_DIR, midName));
+
   // Miniatura.
   const thumbName = `${slug}-thumb.webp`;
   await sharp(input)
@@ -105,6 +117,7 @@ for (const file of files) {
 
   images.push({
     full: `/gallery/optimized/${fullName}`,
+    mid: `/gallery/optimized/${midName}`,
     thumb: `/gallery/optimized/${thumbName}`,
     width: fullInfo.width,
     height: fullInfo.height,
