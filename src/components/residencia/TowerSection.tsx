@@ -1,30 +1,22 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useI18n } from "@/i18n/LanguageProvider";
+import { SITE } from "@/data/site";
 import { scrollToTop } from "./landing-dom";
 
+/* eslint-disable @next/next/no-img-element */
+
 /**
- * "El Edificio — vista aérea" (sección 07, la ÚLTIMA de la landing): full-bleed.
- * Antes era una imagen aérea; ahora es el video de animación del edificio
- * (autoplay muteado en bucle), igual para todas las landings. El poster (frame del
- * propio video) se ve al instante mientras decodea, y queda de red de seguridad si
- * el navegador no reproduce. El FAB "ARRIBA" se mantiene.
+ * "El Edificio" (sección 07, la ÚLTIMA de la landing): full-bleed, a PANTALLA
+ * COMPLETA (100dvh, `object-fit: cover`), con el render de la vista 01 — la fachada
+ * sobre Mario Bravo, que es la misma con la que abre el showroom. Sale de
+ * `SITE.aerialImage` para no hardcodear la ruta acá.
+ *
+ * Antes era un `<video>` de animación aérea; en TIER Bravo ese video no existe, así
+ * que la sección se veía negra. El FAB "ARRIBA" se mantiene.
  */
 export function TowerSection() {
   const { t } = useI18n();
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    // `muted` por PROPIEDAD: React no lo aplica confiable con SSR/hydration y un
-    // <video> no realmente muteado tiene el autoplay bloqueado.
-    v.muted = true;
-    // Respeta "reduce motion": sin autoplay (queda el poster).
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reduce) v.play().catch(() => {});
-  }, []);
 
   return (
     <section className="frame" id="building" aria-labelledby="tower-heading">
@@ -36,22 +28,16 @@ export function TowerSection() {
       {/* Miro 2026-07-15: sin el número de sección ("07 /") — quedó sólo la etiqueta. */}
       <div className="frame-tag">{t.tower.tag}</div>
       <div className="building-stage">
-        <video
-          ref={videoRef}
+        {/* Última sección de la página → lazy: no compite con el hero ni con el
+            plano por el ancho de banda de la primera pantalla. */}
+        <img
           className="building-aerial"
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/landing-aerial-poster.jpg"
-          aria-label={t.tower.aerialAlt}
-          onError={(e) => {
-            e.currentTarget.style.visibility = "hidden";
-          }}
-        >
-          <source src="/landing-aerial.webm" type="video/webm" />
-          <source src="/landing-aerial.mp4" type="video/mp4" />
-        </video>
+          src={SITE.aerialImage}
+          alt={t.tower.aerialAlt}
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
 
         <button type="button" className="fab" title={t.tower.backToTop} onClick={scrollToTop}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4}>

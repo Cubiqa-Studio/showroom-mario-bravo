@@ -81,7 +81,9 @@ export const SITE: SiteConfig = {
 
   // PLACEHOLDER — el aéreo del footer/404 usa un render exterior hasta que llegue
   // la toma aérea real del edificio.
-  aerialImage: "/stops/stop-2.webp",
+  // Vista 01 (`stop-0`): la fachada sobre Mario Bravo, la misma con la que abre el
+  // showroom. Cierra la landing a pantalla completa (TowerSection) y es el fondo del 404.
+  aerialImage: "/stops/stop-0.webp",
 
   // Galería del menú — renders del cliente optimizados a WebP por
   // `scripts/optimize-gallery.mjs`. Para sumar/actualizar imágenes: dejá los

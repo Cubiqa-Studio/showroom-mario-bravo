@@ -375,17 +375,17 @@ const es = {
       "TIER es la marca de desarrollos de CCM. Bravo, Avenue y Sinclair conforman su portfolio; este showroom es el de TIER Bravo, en Mario Bravo 955.",
     close: "Cerrar",
     // Los tres desarrollos de TIER (pedido del cliente, 26-08). Los tres llevan el
-    // MISMO logotipo TIER, en su variante TINTA (`/logo_b_n.png`) porque las tarjetas
-    // son claras (`--bg-2`). Éste es Bravo, así que va destacado arriba.
+    // MISMO logotipo TIER, en su variante DORADA (`/logo.png`): la hoja es oscura y
+    // la variante tinta desaparecía contra el fondo. Éste es Bravo, va destacado.
     members: [
       {
         role: "Este desarrollo",
         name: "TIER Bravo",
-        logo: "/logo_b_n.png",
+        logo: "/logo.png",
         featured: true,
       },
-      { role: "También de TIER", name: "TIER Avenue", logo: "/logo_b_n.png" },
-      { role: "También de TIER", name: "TIER Sinclair", logo: "/logo_b_n.png" },
+      { role: "También de TIER", name: "TIER Avenue", logo: "/logo.png" },
+      { role: "También de TIER", name: "TIER Sinclair", logo: "/logo.png" },
     ] as TeamMember[],
   },
 
@@ -731,9 +731,10 @@ const es = {
   },
 
   tower: {
-    tag: "EL EDIFICIO — VISTA AÉREA",
-    aerialAlt: "Render aéreo del edificio",
-    placeholder: "RENDER AÉREO · EDIFICIO SOBRE EL LAGO CAVIAHUE",
+    // Ya no es una vista aérea: es el render de la fachada (vista 01).
+    tag: "EL EDIFICIO",
+    aerialAlt: "TIER Bravo — fachada sobre Mario Bravo",
+    placeholder: "RENDER · TIER BRAVO",
     backToTop: "Volver arriba",
     up: "ARRIBA",
   },
@@ -1055,11 +1056,11 @@ const en: Dict = {
       {
         role: "This development",
         name: "TIER Bravo",
-        logo: "/logo_b_n.png",
+        logo: "/logo.png",
         featured: true,
       },
-      { role: "Also by TIER", name: "TIER Avenue", logo: "/logo_b_n.png" },
-      { role: "Also by TIER", name: "TIER Sinclair", logo: "/logo_b_n.png" },
+      { role: "Also by TIER", name: "TIER Avenue", logo: "/logo.png" },
+      { role: "Also by TIER", name: "TIER Sinclair", logo: "/logo.png" },
     ],
   },
 
@@ -1395,9 +1396,9 @@ const en: Dict = {
   },
 
   tower: {
-    tag: "THE BUILDING — AERIAL VIEW",
-    aerialAlt: "Aerial render of the building",
-    placeholder: "AERIAL RENDER · TIER BRAVO",
+    tag: "THE BUILDING",
+    aerialAlt: "TIER Bravo — façade on Mario Bravo",
+    placeholder: "RENDER · TIER BRAVO",
     backToTop: "Back to top",
     up: "TOP",
   },
