@@ -67,10 +67,11 @@ export default async function Showroom() {
               // se pierde ahí. Ver scripts/make-brand-assets.mjs.
               src="/logo_blanco.png"
               alt="TIER Bravo"
-              // 52px = altura del logo en la nav de /residencia/:id (.res-landing .logo img).
-              // En mobile lo achicamos (h-9) para que entre prolijo en la fila del switch
-              // "Disponibilidad" sin chocarlo (incluso en pantallas de ~360px).
-              className="h-9 w-auto drop-shadow-md sm:h-[52px]"
+              // h-8 (32px) = misma altura que el logo de la nav de /residencia/:id
+              // (.res-landing .logo img). El wordmark es una tira 5,2:1, así que 32px
+              // de alto ya son ~167px de ancho. En mobile, h-7 para que entre prolijo
+              // en la fila del switch "Disponibilidad" (incluso a ~360px).
+              className="h-7 w-auto drop-shadow-md sm:h-8"
             />
           }
         />

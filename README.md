@@ -106,8 +106,9 @@ de Camila— `tipologia` + `tour360` en los pisos 1 a 5. Pendiente:
 - `price` en `units.json` queda en `"Consultar"`: los precios reales llegan EN VIVO
   desde Airtable (ver más abajo), no hardcodeados. Sin Airtable el sitio no muestra precio.
 - `baths` está puesto por convención (1 para mono y 2 amb., 2 para 3 y 4 amb.). **No sale
-  de ningún documento del cliente** — verificalo contra los planos de tipología.
-- `floorPlan` apunta a un placeholder hasta procesar las tipologías.
+  de ningún documento del cliente**, y los planos que llegaron el 25-08 dicen otra cosa:
+  ver [Baños: lo que muestran los planos](#baños-lo-que-muestran-los-planos).
+- `floorPlan`: cargado en 60 de las 61 unidades. Ver [Los planos de unidad](#los-planos-de-unidad).
 
 ### Tipologías y recorridos 360°
 
@@ -229,6 +230,109 @@ El subsuelo (cochera), la planta baja (amenities) y el 8° (azotea común) **no 
 unidades**, así que no son plates. Quedan en `_media-src/plantas/` con `_` adelante por
 si algún día se muestran como contexto.
 
+### El encuadre del render
+
+**El render llena la pantalla (`cover`), nunca hay franjas.** Lo que sobra se recorta, y
+`STOP_CROP_BIAS` (`src/lib/stop-framing.ts`) elige de qué lado.
+
+La cuenta, que conviene tener a mano porque se la van a preguntar:
+
+| | Ancho × alto | Aspecto | Recorte sobre un render 4000×2250 |
+|---|---|---|---|
+| Monitor 1920×1080 | 1920 × 1080 | 1,78 | **cero** |
+| Navegador en **pantalla completa** (F11 o el botón ⛶) | 1920 × 1080 | 1,78 | **cero** |
+| Navegador **maximizado** (pestañas + barra de direcciones + favoritos + barra de tareas ≈ 175px) | 1903 × 903 | **2,11** | **352px nativos de alto (15,6%)** |
+
+O sea: el render y la pantalla SÍ son los dos 16:9; el que no lo es es el viewport del
+navegador cuando la ventana está maximizada. Un 16:9 no llena un 2,1:1 sin recortar —
+la única alternativa es dejar franjas al costado, que se ve peor.
+
+Por eso el recorte va **corrido hacia arriba** en las dos vistas frontales
+(`bias 0.35`): se pierden ~240px nativos de cielo y sólo ~115 de asfalto, así que
+sobreviven la vereda, los autos, las vidrieras y la puerta con su punto 360°. Más que
+0,35 empieza a comerse el parapeto del 7°, que es piso vendible y tiene que poder
+clickearse.
+
+**El arreglo de fondo es el encuadre del render, no el código.** Si el 3D entrega estas
+mismas cámaras con ~175px menos de alto —4000×1900 en vez de 4000×2250— una ventana
+maximizada las muestra ENTERAS, sin recortar nada. Y son *menos* píxeles: no cuesta más
+tiempo de render. Mientras tanto, para mostrárselo al cliente, el botón ⛶ del sitio pone
+el navegador en pantalla completa de verdad y ahí no se pierde un solo píxel.
+
+En **táctil** es al revés: el stage se sobre-dimensiona (`cover` + paneo) porque en un
+celular vertical la imagen entraría como una tira finita; ahí el dedo recorre el render.
+
+### El punto 360° del exterior
+
+La "bolita" que flota sobre el render del showroom. Vive en `src/lib/vr-hotspots.ts`,
+con las coordenadas en **píxeles nativos del render** (4000×2250), igual que los polígonos.
+
+El cliente marcó **un solo punto** (Miro "Division showroom", 25-08): la puerta del hall,
+entre el café y el local. Se ve desde las dos vistas frontales, así que va en las dos —es
+el mismo punto desde otro ángulo—. Las vistas 3 y 4 son de contrafrente: no llevan bolita.
+
+Ojo con el borde de abajo: en una ventana maximizada se recortan los últimos ~115px
+nativos (ver [El encuadre del render](#el-encuadre-del-render)), así que un `y` por
+debajo de ~2100 queda fuera de cuadro. Por eso la bolita va en 2050 y no pegada al piso.
+El clamp de `VrHotspot` es sólo la red de seguridad para contenedores muy bajos.
+
+⚠ **`ENTRANCE_HALL_360` y `AMENITIES_360` están en `null`**: TIER Bravo todavía no tiene
+360° de espacios comunes. Todo lo que los consume se esconde solo (los items del submenú
+Tours y el iframe del modal de Amenities); la bolita se sigue viendo —el cliente la
+pidió— pero no abre nada hasta que lleguen. **No reusar las colecciones de otro
+proyecto**: son otro edificio.
+
+### Los planos de unidad
+
+Es la imagen de "Plano de la unidad" en la ficha (`unit.floorPlan`). Los renders del
+cliente están en `_media-src/tipologias/` con **su nombre original**, que es el que dice
+a qué unidades va cada uno: `"PLANTA DEL 1 AL 5TO - 8 Y 5"` = unidades 05 y 08 de los
+pisos 1 a 5. Los pares caen exactos sobre el mapeo de recorridos 360° del Miro, que es
+la validación cruzada:
+
+| Plano | Unidades | Tipología |
+|---|---|---|
+| `tipologia-A.webp` | 03 y 10 de los pisos 1-5 | A — monoambiente 34 m² |
+| `tipologia-B.webp` | 04 y 09 de los pisos 1-5 | B — monoambiente 34 m² |
+| `tipologia-C.webp` | 05 y 08 de los pisos 1-5 | C — 2 amb. 51-52 m² |
+| `tipologia-D.webp` | 01 y 07 de los pisos 1-5 | D — 3 amb. 77-82 m² |
+| `tipologia-E.webp` | 02 y 06 de los pisos 1-5 | E — 2 amb. 57-58 m² |
+| `piso-6-01.webp` / `piso-6-06.webp` | 601 y 606 | 4 amb. de retiro |
+| `piso-7-01.webp` / `piso-7-06.webp` | 701 y 706 | 4 amb. de retiro |
+
+Se regeneran con `npm run plans:units` (recorta el lienzo, escala a 1400 px de lado
+mayor y reescribe el `floorPlan` de cada unidad). El mapeo vive en `PLANS`, arriba de
+`scripts/make-unit-plans.mjs`.
+
+**El 6° reusa las tipologías del piso tipo, con la numeración corrida.** En el 6° las
+unidades 01 y 06 son las grandes de retiro y se comen la numeración, así que las seis
+chicas quedan un número atrás: `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`.
+Se verifica por dos caminos independientes que dan lo mismo — la posición de los rótulos
+en `piso-6.png` vs `piso-tipo-2-5.png`, y la superficie cubierta de la planilla de venta.
+Igual **el cliente no las nombró: lo dedujimos nosotros**, así que conviene que Camila lo
+confirme. Está en `INFERRED`, en el mismo script.
+
+**Falta el plano de la 702** (la unidad de arriba a la izquierda del 7°): el cliente
+mandó sólo el 01 y el 06 de ese piso. Es la única de las 61 que sigue con el placeholder.
+
+#### Baños: lo que muestran los planos
+
+Los planos del 25-08 y los rótulos `BAÑO` / `TOIL.` de las plantas generales coinciden
+entre sí, y **no** con el `baths` de `units.json` (que está por convención). Lo que dicen
+los documentos, para las tipologías del piso tipo:
+
+| Tipología | Documentos | `units.json` hoy |
+|---|---|---|
+| A, B (monoambientes) | 1 baño | `baths: 1` ✔ |
+| C (2 amb.) | 1 baño + 1 toilette | `baths: 1` |
+| D (3 amb.) | 2 baños + 1 toilette | `baths: 2` |
+| E (2 amb.) | 1 baño + 1 toilette | `baths: 1` |
+
+El modelo ya tiene `toilette` aparte de `baths` (`unitTotalBaths()` los suma para el
+"N baños" del resumen y la tarjeta desglosa "2 baños · toilette"). **No se aplicó todavía**:
+es dato comercial que se publica en la ficha, así que va con el OK del cliente. Los del
+6° y 7° hay que contarlos aparte.
+
 ### Los frames del flyby son PROVISORIOS
 
 Las flechas del showroom reproducen los frames pre-renderizados del tramo entre dos
@@ -288,7 +392,8 @@ _media-src/          Masters crudos del cliente — GITIGNOREADO, no deploya.
   stops/             Los 4 exteriores (+ _v1-2026-08-24/ con los de la 1ª entrega)
   plantas/           Las 7 plantas generales
   gallery/           Los 10 renders de amenities e interiores
-  tipology/          Los 5 PDF de tipología
+  tipologias/        Los 9 planos de unidad (con el nombre original del cliente)
+  tipology/          Los 5 PDF de tipología de la 1ª entrega (los reemplazan los de arriba)
   planos/            El PDF de plantas CAD de la 1ª entrega
   comercial/         El listado de unidades en venta
   logos/  marca/     El wordmark TIER y el key visual de la marca
@@ -318,13 +423,13 @@ faltantes) y de dónde salió cada asset.
 | `npm run stops:stills` | `_media-src/stops/` → stills servidos + `stops.json` (conserva polígonos). |
 | `npm run plates:images` | `_media-src/plantas/` → plantas WebP + `plates.json` (conserva polígonos). |
 | `npm run plates:clone -- 2 3 4 5` | Clona los polígonos de un piso a otros, remapeando el `unitId`. |
+| `npm run plans:units` | `_media-src/tipologias/` → planos de unidad WebP + el `floorPlan` de cada unidad. |
 | `npm run brand:logos` | Wordmark TIER → las tres variantes de color de `public/`. |
 | `npm run og:generate` | `og.jpg` + todo el set de iconos. |
 | `npm run flyby:frames -- <mp4> <from> <to>` | Extrae los frames de un tramo y los cablea en `flyby.json` (+ PSNR). |
 | `npm run gallery:optimize` | `_media-src/gallery/` → WebP + `gallery.json`. |
 | `npm run video:mario-bravo` | Comprime un master de video a mp4 + webm + poster. |
 | `node scripts/make-placeholder-frames.mjs` | ⚠ Provisorio — los fundidos entre vistas. |
-| `node scripts/apply-new-tipologias.mjs` | Recorta planos de tipología a cards. Hay que ajustarle el mapeo m²→letra. |
 
 ---
 
@@ -335,6 +440,7 @@ faltantes) y de dónde salió cada asset.
 | Qué | Bloquea |
 |---|---|
 | **Columna `Estado` en Airtable** | Sin ella el contorno de las unidades no refleja disponibilidad: todo se ve libre. Es el pedido más urgente. |
+| **Renders con ~175px menos de alto** (4000×1900) | Con 16:9 se recorta el 15,6% del alto en una ventana maximizada. Ver [El encuadre del render](#el-encuadre-del-render) — son *menos* píxeles, no cuesta más tiempo de render. |
 | **Dominio de producción** | `PROD_SITE_URL` (`src/lib/seo.ts`), el redirect www→apex de `next.config.ts` y `netlify.toml`, y `NEXT_PUBLIC_SITE_URL`. Hoy tienen un placeholder con la dirección; **desde el rebranding probablemente sea un dominio TIER**. No deployar así. |
 | **Tipografía del logotipo** | Camila se lo preguntó al cliente. Sin eso no se pueden armar lockups tipográficos coherentes con el wordmark. |
 | **Teléfonos de ventas** | `WHATSAPP_NUMBER` (`src/lib/contact.ts`) está vacío → los CTA abren el selector de contacto. |
@@ -343,12 +449,14 @@ faltantes) y de dónde salió cada asset.
 | **Token de Airtable definitivo** | El actual lo pasó el cliente para probar y va a ser rotado. |
 | **Pin exacto del edificio** | `SITE.location` tiene coordenadas aproximadas de la altura 900 de Mario Bravo. |
 | **POIs del barrio** | `SITE.pois` está vacío a propósito (inventarlos publica datos falsos). |
+| **360° del hall y de los amenities** | Sólo llegaron los 5 de departamento. La bolita del exterior está en su lugar pero **no abre nada**, y los items "Hall"/"Amenities" del menú están ocultos. Ver [El punto 360° del exterior](#el-punto-360-del-exterior). |
 | **Recorrido 360° del 6° y 7°** | 11 unidades sin `tour360`. ¿Reusan A–E o llevan el suyo? |
 | **View 02b** | Juani la está preparando. Ver [El stop intermedio](#el-stop-intermedio-view-02b). |
 | **Los 4 tramos mp4 del flyby** | Reemplazar los fundidos provisorios por la órbita real. |
 | **Video de intro** | La portada `/` está en modo still. Con `public/intro.mp4` + `intro-mobile.mp4` poné `INTRO_VIDEO_READY = true` en `IntroScreen.tsx`. |
-| **Identificar las tipologías B y C** | Están como `tipologia-B-o-C-{1,2}.pdf`. Se resuelve mirándolas: **B es un monoambiente de 34 m²** y **C un 2 ambientes de 51-52 m²**. |
-| **Baños por tipología** | Hoy están por convención, no por documento. |
+| **Plano de la unidad 702** | Del 7° mandaron sólo el 01 y el 06. Es la única de las 61 sin plano. |
+| **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Ver [Los planos de unidad](#los-planos-de-unidad). |
+| **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
 | **Brochure comercial** | `BROCHURE_URL` es `null` → el item del menú y el botón "Ver PDF" están ocultos. |
 | **Logo de Estudio Mizraji** | Va en "El Equipo". El drop sólo trajo el de CCM. |
 | **Media del barrio** | La sección de entorno del menú está oculta (`HAS_DESTINATION_MEDIA`). |
@@ -356,11 +464,7 @@ faltantes) y de dónde salió cada asset.
 ### Del lado nuestro
 
 1. **Trazar los polígonos**: las 4 vistas + el piso 2 (y clonar a 3-5) + los pisos 1, 6 y 7.
-2. **Tipologías**: procesar los PDF con `apply-new-tipologias.mjs` y apuntar el `floorPlan`
-   de cada unidad a la suya. El mapeo tipología → unidades ya está en `units.json`.
-3. **Airtable**: base propia del proyecto, tabla de unidades con la columna `Unidad` en
-   TEXTO matcheando estas 61 keys.
-4. **`src/i18n/translations.ts` todavía tiene prosa editorial de Caviahue** — el equipo, la
+2. **`src/i18n/translations.ts` todavía tiene prosa editorial de Caviahue** — el equipo, la
    narrativa constructiva y el namespace de destino. Todo lo que se RENDERIZA ya está
    migrado (las tres rutas principales dan cero menciones); lo que queda sale en los
    modales "El Proyecto" y "El Equipo" y necesita reescritura real, no find/replace.

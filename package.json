@@ -15,7 +15,8 @@
     "brand:logos": "node scripts/make-brand-assets.mjs",
     "og:generate": "node scripts/make-og.mjs",
     "plates:images": "node scripts/make-plates.mjs",
-    "plates:clone": "node scripts/clone-plate-polygons.mjs"
+    "plates:clone": "node scripts/clone-plate-polygons.mjs",
+    "plans:units": "node scripts/make-unit-plans.mjs"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.19",

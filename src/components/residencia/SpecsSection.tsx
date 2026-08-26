@@ -3,7 +3,6 @@
 import { useState } from "react";
 import type { SpecPanel } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
-import { AnimationTile } from "./AnimationTile";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -49,9 +48,6 @@ export function SpecsSection({
               <span className="t">{panel.title}</span>
             </div>
           ))}
-          {/* Animación vertical del proyecto bajo la lista (pedido 22/07) — sólo
-              en la landing; la hoja "El Proyecto" del showroom no la lleva. */}
-          {!embedded && <AnimationTile />}
         </div>
 
         <div className="spec-pane">

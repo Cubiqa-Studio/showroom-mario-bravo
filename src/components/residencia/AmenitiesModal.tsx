@@ -77,17 +77,22 @@ export function AmenitiesModal({
               </header>
 
               <div className="sheet-body">
-                <div className="sheet-amenities-360">
-                  {/* Sin giroscopio/acelerómetro: inclinar el celular no mueve el 360°
-                      (sólo se mira arrastrando). Se conserva `fullscreen`. En táctil,
-                      `withKuulaTouchGate` fuerza la pantalla de título (anti-lag iOS). */}
-                  <iframe
-                    src={kuulaEmbedUrl(AMENITIES_360, isTouch)}
-                    title={t.vr.virtualTour}
-                    allow="fullscreen"
-                    allowFullScreen
-                  />
-                </div>
+                {/* El 360 de amenities sólo si existe: TIER Bravo todavía no lo tiene
+                    (ver src/lib/vr-hotspots.ts) y un iframe sin src queda en blanco.
+                    Mientras tanto la hoja muestra sólo las specs. */}
+                {AMENITIES_360 && (
+                  <div className="sheet-amenities-360">
+                    {/* Sin giroscopio/acelerómetro: inclinar el celular no mueve el 360°
+                        (sólo se mira arrastrando). Se conserva `fullscreen`. En táctil,
+                        `withKuulaTouchGate` fuerza la pantalla de título (anti-lag iOS). */}
+                    <iframe
+                      src={kuulaEmbedUrl(AMENITIES_360, isTouch)}
+                      title={t.vr.virtualTour}
+                      allow="fullscreen"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
 
                 {panel && (
                   <div className="sheet-amenities-specs">

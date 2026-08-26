@@ -134,7 +134,54 @@ function str(v: unknown): string | undefined {
   return undefined;
 }
 
-/** Trae TODOS los registros de una tabla (pagina por `offset`; 44 unidades entran
+/** Techo de espera de UNA llamada a Airtable. */
+const TIMEOUT_MS = 5000;
+
+/** Última respuesta BUENA por tabla, en memoria del proceso.
+ *
+ *  Sin esto, cualquier hipo de Airtable (un timeout, un 503) tira la capa en vivo
+ *  entera y el showroom pinta con units.json: precios "Consultar" y superficies
+ *  viejas, hasta el próximo render. Con esto, un fallo aislado sirve la última
+ *  copia buena y el usuario no ve el bajón.
+ *
+ *  Vive lo que vive el proceso (en dev, hasta el próximo reload del server; en
+ *  Netlify, lo que dure el lambda tibio) y es sólo un COLCHÓN: el cacheo real lo
+ *  hace el Data Cache de Next vía `next: { revalidate: 60 }`. Por eso no expira:
+ *  servir data de hace unos minutos siempre es mejor que servir el fallback. */
+const lastGood = new Map<string, { records: AirtableRecord[]; at: number }>();
+
+/** `fetchTable` + colchón: ante un fallo devuelve la última copia buena de ESA
+ *  tabla si la hay; si nunca hubo una, propaga el error (→ fallback a units.json). */
+async function fetchTableResilient(cfg: AirtableConfig, table: string): Promise<AirtableRecord[]> {
+  try {
+    const records = await fetchTable(cfg, table);
+    lastGood.set(table, { records, at: Date.now() });
+    return records;
+  } catch (err) {
+    const cached = lastGood.get(table);
+    if (!cached) throw err;
+    const mins = Math.round((Date.now() - cached.at) / 60000);
+    console.warn(
+      `[airtable] "${table}" falló (${reason(err)}) — sirvo la última copia buena ` +
+        `(${cached.records.length} filas, hace ${mins} min).`,
+    );
+    return cached.records;
+  }
+}
+
+/** Motivo en UNA línea. Un AbortError de `AbortSignal.timeout` es un DOMException:
+ *  logueado entero escupe la tabla de constantes INDEX_SIZE_ERR…DATA_CLONE_ERR y
+ *  tapa la consola sin decir nada útil. */
+function reason(err: unknown): string {
+  if (err instanceof Error) {
+    return err.name === "TimeoutError" || err.name === "AbortError"
+      ? `sin respuesta en ${TIMEOUT_MS} ms`
+      : err.message;
+  }
+  return String(err);
+}
+
+/** Trae TODOS los registros de una tabla (pagina por `offset`; 61 unidades entran
  *  en una página, pero paginamos por las dudas). Lanza si el HTTP no es 2xx. */
 async function fetchTable(cfg: AirtableConfig, table: string): Promise<AirtableRecord[]> {
   const records: AirtableRecord[] = [];
@@ -150,9 +197,13 @@ async function fetchTable(cfg: AirtableConfig, table: string): Promise<AirtableR
       next: { revalidate: 60 },
       // Corta una Airtable lenta (cold cache / latencia de región): /showroom es
       // force-dynamic y ESPERA este fetch antes de emitir HTML. El try/catch de
-      // abajo convierte el AbortError en el fallback {} → el showroom pinta con
-      // units.json en ≤2.5 s en vez de colgar el reveal tras "Descubrir".
-      signal: AbortSignal.timeout(2500),
+      // arriba convierte el AbortError en la última copia buena (o en units.json)
+      // en vez de colgar el reveal tras "Descubrir".
+      //
+      // 5 s y no 2,5: el primer hit de un proceso frío paga DNS + TLS + el cold
+      // start de la tabla, y con 2,5 s abortaba de rutina en dev. Como el Data
+      // Cache deja pasar ≤1 request/min, este techo sólo se toca en esa revalidación.
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
       const body = await res.text().catch(() => "");
@@ -173,7 +224,7 @@ export async function fetchAirtableUnits(): Promise<Record<string, LiveUnitField
   const cfg = readConfig();
   if (!cfg) return {};
   try {
-    const recs = await fetchTable(cfg, cfg.unitsTable);
+    const recs = await fetchTableResilient(cfg, cfg.unitsTable);
     const map: Record<string, LiveUnitFields> = {};
     for (const r of recs) {
       const f = r.fields ?? {};
@@ -200,7 +251,7 @@ export async function fetchAirtableUnits(): Promise<Record<string, LiveUnitField
     }
     return map;
   } catch (err) {
-    console.error("[airtable] fallo al traer unidades:", err);
+    console.error(`[airtable] unidades: ${reason(err)} — sigo con units.json.`);
     return {};
   }
 }
@@ -248,7 +299,7 @@ export async function fetchAvance(): Promise<AvanceObra | null> {
   const cfg = readConfig();
   if (!cfg || !cfg.avanceTable) return null;
   try {
-    const recs = await fetchTable(cfg, cfg.avanceTable);
+    const recs = await fetchTableResilient(cfg, cfg.avanceTable);
     if (!recs.length) return null;
     const rows = recs
       .map((r) => {
@@ -280,7 +331,7 @@ export async function fetchAvance(): Promise<AvanceObra | null> {
       .sort((a, b) => dateTs(b.date) - dateTs(a.date));
     return rows[0];
   } catch (err) {
-    console.error("[airtable] fallo al traer avance de obra:", err);
+    console.error(`[airtable] avance de obra: ${reason(err)} — el modal queda vacío.`);
     return null;
   }
 }
