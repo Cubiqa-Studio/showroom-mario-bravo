@@ -152,7 +152,11 @@ export function LandingNav({
               onClick={backClick}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt={brand} />
+              <img src="/logo.png" alt="TIER" />
+              {/* Mismo lockup de dos líneas que el showroom (pedido del cliente,
+                  26-08): el logotipo es un archivo sin tipografía embebida, así que
+                  "BRAVO" va tipografiado en Jost. La barra mide 78px: entra holgado. */}
+              <span className="logo-sub">{brand.replace(/^TIER\s*/i, "") || "BRAVO"}</span>
             </a>
 
             <div className="nav-pills">

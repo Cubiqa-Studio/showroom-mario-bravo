@@ -65,7 +65,7 @@ export default async function Showroom() {
             // tipografía embebida) y "BRAVO" va tipografiado en Jost —la sans del
             // sitio, la que más se le parece— con tracking suficiente para que las
             // dos líneas midan casi lo mismo.
-            <span className="flex flex-col items-stretch">
+            <span className="flex flex-col items-start">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 // Variante BLANCA: el wordmark va sobre el render del flyby (cielo,
@@ -77,11 +77,15 @@ export default async function Showroom() {
                 // En mobile, h-7 para que entre prolijo (incluso a ~360px).
                 className="h-7 w-auto drop-shadow-md sm:h-8"
               />
-              {/* `marginRight` negativo = el tracking agrega un espacio DESPUÉS de la
-                  última letra; sin compensarlo, el centrado queda corrido a la izquierda. */}
+              {/* Alineado a la IZQUIERDA con el logotipo. El PNG está recortado exacto
+                  (la tinta arranca en x=0), así que las cajas ya coinciden: el
+                  `marginLeft` es una sangría ÓPTICA. La "T" apoya el ojo en su travesaño
+                  y la "B" en un asta llena, así que sin ella BRAVO se lee corrido a la
+                  izquierda. Va en `em` para que acompañe si cambia el tamaño; es el
+                  único número a tocar si hay que ajustarlo. */}
               <span
-                className="mt-[3px] text-center font-sans text-[9px] font-light leading-none tracking-[0.44em] text-white drop-shadow-md sm:mt-1 sm:text-[11px]"
-                style={{ marginRight: "-0.44em" }}
+                className="mt-[3px] font-sans text-[13px] font-light leading-none tracking-[0.28em] text-white drop-shadow-md sm:mt-[6px] sm:text-[17px]"
+                style={{ marginLeft: "0.14em" }}
               >
                 BRAVO
               </span>

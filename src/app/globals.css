@@ -72,8 +72,8 @@
      y pills); los títulos ya estaban bien y no se tocan.
      La line-height de Tailwind es una RAZÓN, no un valor fijo, así que acompaña sola.
      Es una sola palanca: si quedó grande, se baja acá y vuelve todo. */
-  --text-xs: 13px; /* Tailwind: 12px */
-  --text-sm: 15px; /* Tailwind: 14px */
+  --text-xs: 14px; /* Tailwind: 12px */
+  --text-sm: 16px; /* Tailwind: 14px */
 
   /* colores premium → utilidades Tailwind con modificador de opacidad
      (bg-gold/10, text-ink, border-line, …). Por REFERENCIA a :root: un solo lugar
