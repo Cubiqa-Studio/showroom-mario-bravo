@@ -65,6 +65,16 @@ const COMMIT_PROGRESS = 0.1;
  *  animación corre (el decoder rinde ~10-20ms/frame y el consumo es ~22ms/frame,
  *  así que nunca lo alcanza). Gatear los 30 metía ~150-300ms mudos tras el tap. */
 const RUN_GATE_FRAMES = 6;
+/** Cuánto tiene que DURAR la espera de los frames para que valga la pena explicarla con
+ *  el pill "Cargando recorrido…". `warmSegs` arranca vacío en cada montaje, así que la
+ *  condición se cumple SIEMPRE por un instante — incluso con todo en la cache del disco
+ *  (F5, volver de una ficha) o viniendo del precalentado de la intro, donde los frames
+ *  resuelven en decenas de ms. Sin este retardo el pill parpadeaba en cada carga,
+ *  siempre en "0%", que es exactamente cuando no tenía nada para informar. */
+const NAV_PILL_DELAY_MS = 600;
+/** Y si llegó a mostrarse, se queda al menos esto. Un cartel que aparece y se va en
+ *  100ms se lee como un glitch, no como información. */
+const NAV_PILL_MIN_MS = 500;
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 const clampN = (n: number, min: number, max: number) =>
@@ -1037,6 +1047,60 @@ export function FlybyViewer({
     ],
   );
 
+  // ── Disponibilidad de las flechas y el pill de carga.
+  //
+  // Va ANTES del early return de abajo porque de acá cuelga un hook, y los hooks tienen
+  // que correr siempre en el mismo orden. Nada de esto depende de `currentStop`.
+
+  // Una flecha "existe" si su segmento tiene frames (datos sanos).
+  const expectBack = !!backwardSeg && backwardSeg.frames.length > 0;
+  const expectForward = !!forwardSeg && forwardSeg.frames.length > 0;
+  // Las flechas del stop aparecen JUNTAS recién cuando sus segmentos están BAJADOS y
+  // con el head decodificado (`warmSegs`, sin timeouts de seguridad: mentían en redes
+  // lentas). Mientras tanto el pill "Cargando recorrido… %" es el feedback honesto.
+  //
+  // El gate era SÓLO táctil (`!isTouch ||`). En desktop las flechas salían apenas
+  // decodificaba el still inicial —el reveal gatea 0,4 MB— con los ~3,9 MB de frames
+  // del tramo todavía bajando: un click apenas entrás a /showroom caía en ese hueco y
+  // se comía medio segundo de "Preparando la vista…" esperando la RED (reportado el
+  // 27-08 en el 0→1, que es justo el caso: primera vista, primer click). Ahora aplica
+  // en los dos: flecha visible ⇒ frames locales y head caliente ⇒ arranque instantáneo.
+  const navWarm =
+    (!expectBack || warmSegs.has(segKey(backwardSeg!))) &&
+    (!expectForward || warmSegs.has(segKey(forwardSeg!)));
+  const navLoading =
+    phase === "parked" && ready && (expectBack || expectForward) && !navWarm;
+
+  // El pill sale recién si la espera DURA (ver NAV_PILL_DELAY_MS), y una vez visible se
+  // queda un mínimo. `navLoading` es la condición CRUDA —true por un instante en cada
+  // montaje, porque `warmSegs` arranca vacío, incluso con todo en la cache del disco—;
+  // `navPill` es la que se pinta.
+  const [navPill, setNavPill] = useState(false);
+  const navPillAtRef = useRef(0);
+  useEffect(() => {
+    let id: ReturnType<typeof setTimeout>;
+    if (navLoading) {
+      id = setTimeout(() => {
+        navPillAtRef.current = Date.now();
+        setNavPill(true);
+      }, NAV_PILL_DELAY_MS);
+    } else {
+      // Si nunca llegó a aparecer (`navPillAtRef` en 0) se apaga ya, sin parpadeo.
+      const visibleDesde = navPillAtRef.current;
+      const resto = visibleDesde
+        ? NAV_PILL_MIN_MS - (Date.now() - visibleDesde)
+        : 0;
+      id = setTimeout(
+        () => {
+          navPillAtRef.current = 0;
+          setNavPill(false);
+        },
+        Math.max(0, resto),
+      );
+    }
+    return () => clearTimeout(id);
+  }, [navLoading]);
+
   if (!currentStop) {
     return (
       <div className="grid h-[100dvh] place-items-center bg-tier-dark text-faint">
@@ -1080,26 +1144,6 @@ export function FlybyViewer({
   // Hotspot 360° de la vista actual (si tiene). Se apaga durante el movimiento.
   const hotspot = VR_HOTSPOTS[currentStop.id];
 
-  // Flechas invertidas a pedido del cliente: el chevron IZQUIERDO avanza a la vista
-  // SIGUIENTE (forward) y el DERECHO vuelve a la ANTERIOR (back), sin importar hacia
-  // dónde panea la cámara.
-
-  // Una flecha "existe" si su segmento tiene frames (datos sanos).
-  const expectBack = !!backwardSeg && backwardSeg.frames.length > 0;
-  const expectForward = !!forwardSeg && forwardSeg.frames.length > 0;
-  // Las flechas del stop aparecen JUNTAS recién cuando sus segmentos están BAJADOS y
-  // con el head decodificado (`warmSegs`, sin timeouts de seguridad: mentían en redes
-  // lentas). Mientras tanto el pill "Cargando recorrido… %" es el feedback honesto.
-  //
-  // El gate era SÓLO táctil (`!isTouch ||`). En desktop las flechas salían apenas
-  // decodificaba el still inicial —el reveal gatea 0,4 MB— con los ~3,9 MB de frames
-  // del tramo todavía bajando: un click apenas entrás a /showroom caía en ese hueco y
-  // se comía medio segundo de "Preparando la vista…" esperando la RED (reportado el
-  // 27-08 en el 0→1, que es justo el caso: primera vista, primer click). Ahora aplica
-  // en los dos: flecha visible ⇒ frames locales y head caliente ⇒ arranque instantáneo.
-  const navWarm =
-    (!expectBack || warmSegs.has(segKey(backwardSeg!))) &&
-    (!expectForward || warmSegs.has(segKey(forwardSeg!)));
   const showBack = parked && ready && expectBack && navWarm;
   const showForward = parked && ready && expectForward && navWarm;
   const canDrag = showBack || showForward;
@@ -1113,8 +1157,6 @@ export function FlybyViewer({
       (expectBack ? (warmCounts.get(segKey(backwardSeg!)) ?? 0) : 0),
   );
   const navPct = navTotal > 0 ? Math.round((100 * navDone) / navTotal) : 100;
-  const navLoading =
-    parked && ready && (expectBack || expectForward) && !navWarm;
 
   // ── Hacia qué lado apunta cada flecha.
   //
@@ -1440,7 +1482,7 @@ export function FlybyViewer({
       {/* Los frames del stop todavía están BAJANDO: progreso donde van las flechas.
           Cuando llega a 100 aparecen las flechas, listas para arrancar al toque — así
           el click nunca cae en el "Preparando la vista…" esperando la red. */}
-      {navLoading && !preparing && (
+      {navPill && !preparing && (
         <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-6">
           <span className="rounded-full bg-black/60 px-4 py-2 text-xs font-medium text-white backdrop-blur">
             {t.flyby.loadingRoute(navPct)}

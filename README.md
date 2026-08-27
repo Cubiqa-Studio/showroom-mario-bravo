@@ -521,6 +521,15 @@ El reveal de la vista gatea sólo el still inicial (~0,4 MB), no los ~15 MB de f
 eso el showroom aparece rápido y los tramos siguen bajando atrás. Este gate es lo que
 evita que esa asimetría se note.
 
+⚠ **El pill tiene retardo de aparición y duración mínima** (`NAV_PILL_DELAY_MS` 600 ms /
+`NAV_PILL_MIN_MS` 500 ms), y esto NO es cosmético. `warmSegs` arranca vacío en cada
+montaje, así que la condición cruda se cumple **siempre** por un instante — incluso con
+todo en la cache del disco (F5, volver de una ficha) o viniendo del precalentado de la
+intro, donde los frames resuelven en decenas de milisegundos. Sin el retardo el pill
+parpadeaba en cada carga y **siempre decía "0%"**, que es exactamente cuando no tenía
+nada para informar. Con él, sólo aparece cuando de verdad hay una descarga esperando — y
+para entonces el porcentaje ya es un número real.
+
 Hasta el 27-08 el gate era **sólo táctil**: en desktop las flechas salían apenas
 decodificaba el still, con los 3,9 MB del tramo 0→1 todavía en vuelo, así que un click
 apenas entrabas a `/showroom` esperaba la red y a los 350ms mostraba "Preparando la
