@@ -3,9 +3,9 @@
 //
 // Las coordenadas van en el ESPACIO NATIVO del render del stop —igual que los
 // polígonos—, así la bolita trackea la imagen al hacer object-cover en cualquier
-// viewport. OJO: cada stop tiene SU espacio y NO coinciden entre sí — la vista 0 es
-// **4999×2812** (el render de 5k del 25-08) y las vistas 1-3 siguen en 4000×2250.
-// La fuente de verdad es `imageWidth`/`imageHeight` de `stops.json`.
+// viewport. Desde el drop del 27-08 las CINCO vistas comparten espacio (**4999×2812**);
+// antes la 0 iba a 5k y las 1-3 a 4000×2250. Igual, la fuente de verdad sigue siendo
+// `imageWidth`/`imageHeight` de `stops.json`, no este comentario.
 //
 // Para reubicar una bolita: abrí `public/stops/stop-<n>.jpg`, mirá en qué píxel cae
 // el punto y escribilo acá. Ojo: el visor va con "cover", así que en un viewport más
@@ -47,8 +47,10 @@ export const AMENITIES_360: string | null = null;
  *
  * El cliente marcó UN solo punto 360° (Miro "Division showroom", 25-08): la puerta
  * de entrada del edificio, entre el café y el local de indumentaria. Se ve desde
- * las dos vistas frontales, así que va en las dos —es el mismo punto, mirado desde
- * distinto ángulo—. Las vistas 3 y 4 (contrafrente) no lo ven: no llevan bolita.
+ * las dos vistas a nivel de calle, así que va en las dos —es el mismo punto, mirado
+ * desde distinto ángulo—. Las otras tres no la ven y no llevan bolita: la 2 (View 02b)
+ * es un primer plano de los balcones que deja la planta baja fuera de cuadro, y la 3
+ * y la 4 son contrafrente.
  */
 export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
   // Stop 0 (landing, fachada de frente). ⚠ Espacio 4999×2812 — el render de 5k que
@@ -72,9 +74,13 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
   // Stop 1 (esquina) — la MISMA puerta, vista de costado: el paño oscuro sobre el
   // muro de listones de madera. Acá queda a media altura del render, así que no la
   // toca ningún recorte.
+  // Con el re-render del 27-08 esta vista pasó de 4000×2250 a 4999×2812 SIN cambiar
+  // el encuadre (39,6 dB de PSNR entre los dos masters remuestreados), así que el
+  // punto se convirtió por escala pura —1390×4999/4000, 1520×2812/2250— y se verificó
+  // sobre el JPG nuevo: cae sobre el paño de madera, entre el café y el local.
   1: {
-    x: 1390,
-    y: 1520,
+    x: 1737,
+    y: 1900,
     scale: 0.8,
     kuulaUrl: ENTRANCE_HALL_360 ?? undefined,
     previewImage: "/gallery/optimized/09-lobby.webp",

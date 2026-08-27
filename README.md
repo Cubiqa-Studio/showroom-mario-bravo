@@ -60,8 +60,9 @@ JSON es la fuente de verdad**. Después de trazar: revisá el diff y commiteá.
 
 **Reglas del trazado:**
 
-- Los puntos van en **píxeles nativos** de cada imagen (`4000×2250` los stops; cada
-  planta tiene los suyos, ver la tabla de más abajo). El editor ya trabaja en ese espacio.
+- Los puntos van en **píxeles nativos** de cada imagen (`4999×2812` las cinco vistas del
+  showroom; cada planta tiene los suyos, ver la tabla de más abajo). El editor ya trabaja
+  en ese espacio.
 - El `unitId` tiene que existir como key de `units.json` — el editor avisa con un ⚠ si no.
   El desplegable trae las 61.
 - Polígonos **pegados** (bordes compartidos, sin huecos): si quedan gaps, el hover
@@ -245,36 +246,45 @@ Sin polígonos, el showroom muestra las vistas y las plantas pero no hay nada cl
 encima. Todo lo demás (la ficha, el zoom, el overlay, la data en vivo) ya funciona: se
 puede comprobar entrando directo a `/residencia/205`.
 
-### Los 4 stops
+### Los 5 stops
 
-`public/stops/stop-{0..3}.jpg` (nativo, 4000×2250) + `.webp` (2560×1440, el que se sirve):
+`public/stops/stop-{0..4}.jpg` (nativo, 4999×2812) + `.webp` (2560×1440, el que se sirve):
 
-| Stop | Vista | Render |
+| Stop | Vista | Render del cliente |
 |---|---|---|
-| 0 | Fachada frontal sobre Mario Bravo, atardecer | `View 01` |
+| 0 | Fachada frontal sobre Mario Bravo, atardecer | `View 01_02` |
 | 1 | Esquina a nivel de calle, locales de PB | `View 02` |
-| 2 | Contrafrente ancho con pileta | `View 03` |
-| 3 | Contrafrente cerca desde el jardín | `View 04` |
+| 2 | Primer plano de los balcones (punto intermedio) | `View 02b` |
+| 3 | Contrafrente ancho con pileta | `View 03` |
+| 4 | Contrafrente cerca desde el jardín | `View 04` |
 
 Se regeneran con `npm run stops:stills` (lee `_media-src/stops/stop-N-src.jpg`,
-**conserva los polígonos ya trazados**).
+**conserva los polígonos ya trazados**, indexados por id de stop).
 
-**Desviación del estándar:** el runbook de CUBIQA lockea los stops en 5000×2812; el
-cliente entrega 4000×2250. Los dos son 16:9 exacto, así que se respeta el nativo en vez
-de upscalear. `imageWidth`/`imageHeight` reflejan el tamaño real, que es lo único que
-importa para que los polígonos caigan donde deben.
+El drop del 27-08 re-renderizó las cuatro vistas originales a 4999×2812 (antes la 0 ya
+iba a 5k y las otras tres a 4000×2250) y sumó la `View 02b` en el medio. Las cinco
+comparten espacio de coordenadas: **los polígonos y los hotspots se trazan sobre
+4999×2812**, y `imageWidth`/`imageHeight` de `stops.json` son la fuente de verdad.
 
-### El stop intermedio (View 02b)
+#### Por qué los ids se renumeraron
 
-Juani está preparando un stop entre `View 02` y `View 03` —o sea entre `stop-1` y
-`stop-2`— para que la transición no fuerce tanto. **Cuando llegue entra como `stop-4`, no
-como "2b"**: el viewer resuelve los segmentos por `from`/`to` y no le importa el orden de
-los ids, así que agregarlo al final evita renumerar 2 y 3 — y renumerar obligaría a
-**re-trazar todos sus polígonos**.
+La `View 02b` entra en el medio del recorrido, así que el stop 2 viejo (`View 03`) pasó a
+ser el 3 y el 3 (`View 04`) pasó a ser el 4.
 
-Pasos: dejar el render en `_media-src/stops/stop-4-src.jpg` → `npm run stops:stills` →
-poner `const RING = [0, 1, 4, 2, 3];` en `scripts/make-placeholder-frames.mjs` (o generar
-los tramos reales con `flyby:frames` respetando esa cadena).
+La nota anterior de este README recomendaba lo contrario —meterla al final como `stop-4`
+para no renumerar— porque **renumerar obliga a re-trazar los polígonos** del stop movido.
+Esa razón dejó de aplicar: cuando llegó el drop, los stops 1, 2 y 3 tenían **cero
+polígonos** (el único trazado es el stop 0, que no se movió y conservó sus 24). Contra
+eso, mantener el orden tiene dos ventajas concretas:
+
+- los labels son **visibles**: `aria-label="Avanzar a la vista N"` y el `alt` de cada
+  still. Con ids salteados un lector de pantalla anunciaría 1 → 4 → 2 → 3;
+- los chips y las flechas del editor de polígonos ordenan por id, así que el orden de
+  edición coincide con el del recorrido.
+
+Si en el futuro entra otro stop intermedio **y ya hay polígonos trazados**, vuelve a
+convenir el append: el viewer resuelve los segmentos por `from`/`to` y le da igual el
+orden de los ids.
 
 ### Las 10 plantas
 
@@ -334,7 +344,7 @@ hoy **centrado**: mitad arriba y mitad abajo.
 
 La cuenta, que conviene tener a mano porque se la van a preguntar:
 
-| | Ancho × alto | Aspecto | Recorte sobre el render de la vista 0 (4999×2812) |
+| | Ancho × alto | Aspecto | Recorte sobre el render de cualquier vista (4999×2812) |
 |---|---|---|---|
 | Monitor 1920×1080 | 1920 × 1080 | 1,78 | **cero** |
 | Navegador en **pantalla completa** (F11 o el botón ⛶) | 1920 × 1080 | 1,78 | **cero** |
@@ -351,7 +361,7 @@ la única alternativa es dejar franjas al costado, que se ve peor.
 > un render más ajustado, hay que reponerlo.
 
 **El arreglo de fondo es el encuadre del render, no el código.** Si el 3D entrega estas
-mismas cámaras con ~175px menos de alto —4000×1900 en vez de 4000×2250— una ventana
+mismas cámaras con ~440px menos de alto —5000×2375 en vez de 4999×2812— una ventana
 maximizada las muestra ENTERAS, sin recortar nada. Y son *menos* píxeles: no cuesta más
 tiempo de render. Mientras tanto, para mostrárselo al cliente, el botón ⛶ del sitio pone
 el navegador en pantalla completa de verdad y ahí no se pierde un solo píxel.
@@ -362,15 +372,21 @@ celular vertical la imagen entraría como una tira finita; ahí el dedo recorre 
 ### El punto 360° del exterior
 
 La "bolita" que flota sobre el render del showroom. Vive en `src/lib/vr-hotspots.ts`,
-con las coordenadas en **píxeles nativos del render** (4000×2250), igual que los polígonos.
+con las coordenadas en **píxeles nativos del render** (4999×2812), igual que los polígonos.
 
 El cliente marcó **un solo punto** (Miro "Division showroom", 25-08): la puerta del hall,
-entre el café y el local. Se ve desde las dos vistas frontales, así que va en las dos —es
-el mismo punto desde otro ángulo—. Las vistas 3 y 4 son de contrafrente: no llevan bolita.
+entre el café y el local. Se ve desde las dos vistas a nivel de calle, así que va en las
+dos —es el mismo punto desde otro ángulo—. Las otras tres no llevan bolita: la 2 es un
+primer plano de balcones que deja la planta baja fuera de cuadro, y la 3 y la 4 son
+contrafrente.
 
-Ojo con el borde de abajo: en una ventana maximizada se recortan los últimos ~115px
-nativos (ver [El encuadre del render](#el-encuadre-del-render)), así que un `y` por
-debajo de ~2100 queda fuera de cuadro. Por eso la bolita va en 2050 y no pegada al piso.
+Con el re-render del 27-08 la vista 1 pasó de 4000×2250 a 4999×2812 **sin cambiar el
+encuadre** (39,6 dB de PSNR entre los dos masters remuestreados), así que su punto se
+convirtió por escala pura: `1390,1520` → `1737,1900`, verificado sobre el JPG nuevo.
+
+Ojo con el borde de abajo: en una ventana maximizada se recortan los últimos ~220px
+nativos (ver [El encuadre del render](#el-encuadre-del-render)), así que un `y` muy pegado
+al piso queda fuera de cuadro. Por eso la bolita de la vista 0 va en 2400 y no más abajo.
 El clamp de `VrHotspot` es sólo la red de seguridad para contenedores muy bajos.
 
 ⚠ **`ENTRANCE_HALL_360` y `AMENITIES_360` están en `null`**: TIER Bravo todavía no tiene
@@ -430,25 +446,93 @@ El modelo ya tiene `toilette` aparte de `baths` (`unitTotalBaths()` los suma par
 es dato comercial que se publica en la ficha, así que va con el OK del cliente. Los del
 6° y 7° hay que contarlos aparte.
 
-### Los frames del flyby son PROVISORIOS
+### Los frames del flyby
 
 Las flechas del showroom reproducen los frames pre-renderizados del tramo entre dos
-vistas. Todavía no llegaron los mp4 del 3D, y sin frames el `FlybyViewer` no dibuja las
-flechas. Así que hay un andamio: `scripts/make-placeholder-frames.mjs` genera un
-**cross-dissolve** entre vistas consecutivas (14 frames, 720p, ~8 MB el set).
-
-**No es una órbita: la cámara no se mueve, las vistas se funden.** Sirve para que la
-navegación exista y se puedan trazar los polígonos.
-
-Cuando lleguen los tramos:
+vistas, y son también lo que se arrastra al hacer scrub. Desde el drop del 27-08 son
+**reales**: el cliente entregó los cuatro tramos en mp4 (1920×1080, 30 fps, 1 s cada uno)
+y reemplazaron a los fundidos provisorios.
 
 ```bash
-npm run flyby:frames -- "_media-src/flyby/tramo-0-1.mp4" 0 1   # ×N
+npm run flyby:frames -- "_media-src/flyby/tramo-0-1.mp4" 0 1
+npm run flyby:frames -- "_media-src/flyby/tramo-1-2.mp4" 1 2
+npm run flyby:frames -- "_media-src/flyby/tramo-2-3.mp4" 2 3
+npm run flyby:frames -- "_media-src/flyby/tramo-3-4.mp4" 3 4
 ```
 
-y borrá `make-placeholder-frames.mjs` + su línea de `package.json`. Es drop-in: mismas
-rutas, cero cambios de código. El script imprime el PSNR del empalme — el último frame
-tiene que dar **≥30 dB** contra la vista destino.
+**Sale exactamente lo que trae el video, frame por frame** (`-fps_mode passthrough`): 30
+entran, 30 salen. Nada se agrega ni se descarta.
+
+El script regenera el segmento en `flyby.json` **leyendo el disco**, así el conteo nunca
+se desincroniza, e imprime el PSNR de empalme contra los stills de los dos extremos. El
+aterrizaje tiene que dar **≥30 dB** o se ve un salto al estacionar. Hoy:
+
+| Tramo | Frames | Arranque | Aterrizaje | Peso |
+|---|---|---|---|---|
+| 0→1 | 30 | 37,39 dB | 33,17 dB | 3,9 MB |
+| 1→2 | 30 | 38,12 dB | 35,13 dB | 3,0 MB |
+| 2→3 | 30 | 32,44 dB | **16,60 dB** ⚠ | 2,3 MB |
+| 3→4 | 30 | 33,79 dB | 33,77 dB | 5,9 MB |
+
+15,5 MB en total. Pesan más que los de Caviahue (9,2 MB con los mismos 30 frames a 1080p y
+la misma calidad) porque las escenas son mucho más densas —calle urbana, follaje, ladrillo
+texturado—. Bajar la calidad de WebP 78 → 70 ahorra sólo un 15%, así que no vale la pena
+moverse del baseline. Los frames no bloquean nada: el preload es en dos fases y sólo
+"gatea" la vista inicial.
+
+**El recorrido es lineal, no un anillo.** No hay tramo de vuelta del 4 al 0, así que el
+stop 0 no tiene flecha de retroceso y el 4 no tiene de avance. Sale solo: el viewer
+deriva las flechas de los segmentos que existen (`segments.find(s => s.from === id)`).
+
+#### Cuándo aparece una flecha
+
+Una flecha se muestra **sólo cuando su tramo está bajado entero y con el head
+decodificado** (`warmSegs` en `FlybyViewer`). Mientras tanto, en su lugar va el pill
+"Cargando recorrido… %". La regla es: **flecha visible ⇒ arranque instantáneo**, nunca un
+control que al tocarlo se queda esperando la red.
+
+El reveal de la vista gatea sólo el still inicial (~0,4 MB), no los ~15 MB de frames — por
+eso el showroom aparece rápido y los tramos siguen bajando atrás. Este gate es lo que
+evita que esa asimetría se note.
+
+Hasta el 27-08 el gate era **sólo táctil**: en desktop las flechas salían apenas
+decodificaba el still, con los 3,9 MB del tramo 0→1 todavía en vuelo, así que un click
+apenas entrabas a `/showroom` esperaba la red y a los 350ms mostraba "Preparando la
+vista…". Ahora aplica en los dos.
+
+#### ⚠ El tramo 2→3 no llega al stop 3
+
+`Transicion 60-90.mp4` **corta en pleno movimiento**: no desacelera y su último frame queda
+a **16,60 dB** del still del stop 3 (los otros tres tramos aterrizan entre 33 y 35 dB). Al
+estacionar en el stop 3 se ve un salto.
+
+Se puede confirmar mirando el propio clip: el frame 1 del `90-120` —que es la posición
+exacta del stop 3, empalma a 33,79 dB— no es contiguo con el último frame del `60-90`.
+
+Es un problema del render, no del pipeline: **hay que pedir ese tramo de nuevo**, completo
+hasta el stop. El script tiene una opción `--land <mp4-del-tramo-siguiente>` que le pega el
+frame 1 del clip siguiente como cierre y lo lleva a 33,79 dB, pero agrega un frame y **hoy
+no se usa**: los cuatro tramos salen tal cual vienen.
+
+#### Otras opciones del script (hoy sin usar)
+
+Ninguna se aplica a lo que se sirve; están para diagnosticar un clip.
+
+| Flag | Qué hace |
+|---|---|
+| `--land <mp4>` | Agrega el frame 1 de ese clip como frame de cierre del tramo (ver arriba). |
+| `--drop-stalls` | Descarta los frames sin movimiento. Dos clips del 27-08 traen tiras de frames idénticos —43-48 dB entre consecutivos, o sea la misma imagen— al principio del `0-30` y en los dos extremos del `90-120`. Como el visor mapea el progreso linealmente al índice de frame (`frameAtProgress`, sin easing), esos frames se comen ~20% de la transición sin mover la cámara. El criterio se calibra contra el propio clip (`STALL_FLOOR`, 8% del movimiento mediano). |
+
+#### ⚠ El tramo 2→3 tiene marca de agua
+
+`Transicion 60-90.mp4` viene con el logo **KlingAI** abajo a la derecha, en los 30/30
+frames (bbox `x 1688..1885 · y 1007..1054` del frame de 1920×1080). Los otros tres clips
+están limpios — se verificó con la mediana temporal de cada uno.
+
+**Se dejó a propósito** (27-08): el hermano de Joaquim pidió probar así primero y mandar
+el reemplazo limpio si el resultado gusta. Cuando llegue, es sólo volver a correr esa
+línea con `--land`; conviene revisar el PSNR de aterrizaje porque el re-export puede
+traer también el frame que falta.
 
 ### Marca y paleta
 
@@ -523,10 +607,9 @@ faltantes) y de dónde salió cada asset.
 | `npm run plans:units` | `_media-src/tipologias/` → planos de unidad WebP + el `floorPlan` de cada unidad. |
 | `npm run brand:logos` | Wordmark TIER → las tres variantes de color de `public/`. |
 | `npm run og:generate` | `og.jpg` + todo el set de iconos. |
-| `npm run flyby:frames -- <mp4> <from> <to>` | Extrae los frames de un tramo y los cablea en `flyby.json` (+ PSNR). |
+| `npm run flyby:frames -- <mp4> <from> <to> [--land <mp4>]` | Extrae los frames de un tramo y los cablea en `flyby.json` (+ PSNR de empalme). |
 | `npm run gallery:optimize` | `_media-src/gallery/` → WebP + `gallery.json`. |
 | `npm run video:mario-bravo` | Comprime un master de video a mp4 + webm + poster. |
-| `node scripts/make-placeholder-frames.mjs` | ⚠ Provisorio — los fundidos entre vistas. |
 
 ---
 
@@ -537,7 +620,7 @@ faltantes) y de dónde salió cada asset.
 | Qué | Bloquea |
 |---|---|
 | **Columna `Estado` en Airtable** | Sin ella el contorno de las unidades no refleja disponibilidad: todo se ve libre. Es el pedido más urgente. |
-| **Renders con ~175px menos de alto** (4000×1900) | Con 16:9 se recorta el 15,6% del alto en una ventana maximizada. Ver [El encuadre del render](#el-encuadre-del-render) — son *menos* píxeles, no cuesta más tiempo de render. |
+| **Renders con ~440px menos de alto** (5000×2375) | Con 16:9 se recorta el 15,6% del alto en una ventana maximizada. Ver [El encuadre del render](#el-encuadre-del-render) — son *menos* píxeles, no cuesta más tiempo de render. |
 | **Dominio de producción** | `PROD_SITE_URL` (`src/lib/seo.ts`), el redirect www→apex de `next.config.ts` y `netlify.toml`, y `NEXT_PUBLIC_SITE_URL`. Hoy tienen un placeholder con la dirección; **desde el rebranding probablemente sea un dominio TIER**. No deployar así. |
 | **Tipografía del logotipo** | Camila se lo preguntó al cliente. Sin eso no se pueden armar lockups tipográficos coherentes con el wordmark. |
 | **Teléfonos de ventas** | `WHATSAPP_NUMBER` (`src/lib/contact.ts`) está vacío → los CTA abren el selector de contacto. |
@@ -548,8 +631,7 @@ faltantes) y de dónde salió cada asset.
 | **POIs del barrio** | `SITE.pois` está vacío a propósito (inventarlos publica datos falsos). |
 | **360° del hall y de los amenities** | Sólo llegaron los 5 de departamento. La bolita del exterior está en su lugar pero **no abre nada**, y los items "Hall"/"Amenities" del menú están ocultos. Ver [El punto 360° del exterior](#el-punto-360-del-exterior). |
 | **Recorrido 360° del 6° y 7°** | 11 unidades sin `tour360`. ¿Reusan A–E o llevan el suyo? |
-| **View 02b** | Juani la está preparando. Ver [El stop intermedio](#el-stop-intermedio-view-02b). |
-| **Los 4 tramos mp4 del flyby** | Reemplazar los fundidos provisorios por la órbita real. |
+| **`Transicion 60-90.mp4` sin la marca KlingAI** | Es el tramo 2→3. Se dejó con marca a pedido del cliente para probar; el reemplazo limpio queda pendiente. Ver [Los frames del flyby](#los-frames-del-flyby). |
 | **Video de intro** | La portada `/` está en modo still. Con `public/intro.mp4` + `intro-mobile.mp4` poné `INTRO_VIDEO_READY = true` en `IntroScreen.tsx`. |
 | **Copy de "Un equipo con trayectoria"** | El cliente pidió dejar los tres logos TIER (Bravo, Avenue, Sinclair). El texto que los acompaña lo escribimos nosotros y conviene que lo apruebe. |
 | **¿Cómo etiquetar la 706?** | Es pasante (dormitorios al contrafrente, estar a la calle). Hoy no muestra chip de exposición. Si la quieren rotulada, decidir si va como "Frente", "Contrafrente" o si sumamos un valor "Pasante". |
@@ -562,7 +644,8 @@ faltantes) y de dónde salió cada asset.
 
 ### Del lado nuestro
 
-1. **Trazar los polígonos**: las 4 vistas + el piso 2 (y clonar a 3-5) + los pisos 1, 6 y 7.
+1. **Trazar los polígonos**: las vistas 1 a 4 (la 0 ya tiene sus 24) + el piso 2 (y
+   clonar a 3-5) + los pisos 1, 6 y 7.
 2. **Copy del cliente cargado el 26-08.** Especificaciones (Arquitectura y Los
    Departamentos), los cuatro paneles de "El Proyecto" (Amenities, Calidad y Tecnología,
    Financiación, Beneficios), la hoja de Amenities, el resumen de la unidad y "Hablemos",

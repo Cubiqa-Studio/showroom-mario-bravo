@@ -1085,14 +1085,19 @@ export function FlybyViewer({
   // Una flecha "existe" si su segmento tiene frames (datos sanos).
   const expectBack = !!backwardSeg && backwardSeg.frames.length > 0;
   const expectForward = !!forwardSeg && forwardSeg.frames.length > 0;
-  // En táctil, las flechas del stop aparecen JUNTAS recién cuando sus segmentos están
-  // BAJADOS (warmSegs, sin timeouts): tocar antes esperaba la RED → "Preparando la
-  // vista…". Mientras tanto, el pill "Cargando recorrido… %" es el feedback honesto.
-  // En desktop no hay gate (comportamiento intacto).
+  // Las flechas del stop aparecen JUNTAS recién cuando sus segmentos están BAJADOS y
+  // con el head decodificado (`warmSegs`, sin timeouts de seguridad: mentían en redes
+  // lentas). Mientras tanto el pill "Cargando recorrido… %" es el feedback honesto.
+  //
+  // El gate era SÓLO táctil (`!isTouch ||`). En desktop las flechas salían apenas
+  // decodificaba el still inicial —el reveal gatea 0,4 MB— con los ~3,9 MB de frames
+  // del tramo todavía bajando: un click apenas entrás a /showroom caía en ese hueco y
+  // se comía medio segundo de "Preparando la vista…" esperando la RED (reportado el
+  // 27-08 en el 0→1, que es justo el caso: primera vista, primer click). Ahora aplica
+  // en los dos: flecha visible ⇒ frames locales y head caliente ⇒ arranque instantáneo.
   const navWarm =
-    !isTouch ||
-    ((!expectBack || warmSegs.has(segKey(backwardSeg!))) &&
-      (!expectForward || warmSegs.has(segKey(forwardSeg!))));
+    (!expectBack || warmSegs.has(segKey(backwardSeg!))) &&
+    (!expectForward || warmSegs.has(segKey(forwardSeg!)));
   const showBack = parked && ready && expectBack && navWarm;
   const showForward = parked && ready && expectForward && navWarm;
   const canDrag = showBack || showForward;
@@ -1399,9 +1404,9 @@ export function FlybyViewer({
         </div>
       )}
 
-      {/* Los frames del stop todavía están BAJANDO (táctil): progreso donde van las
-          flechas. Cuando llega a 100 aparecen las flechas, listas para arrancar al
-          toque — así el tap nunca cae en el "Preparando la vista…" esperando la red. */}
+      {/* Los frames del stop todavía están BAJANDO: progreso donde van las flechas.
+          Cuando llega a 100 aparecen las flechas, listas para arrancar al toque — así
+          el click nunca cae en el "Preparando la vista…" esperando la red. */}
       {navLoading && !preparing && (
         <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-6">
           <span className="rounded-full bg-black/60 px-4 py-2 text-xs font-medium text-white backdrop-blur">

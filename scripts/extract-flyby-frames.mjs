@@ -20,7 +20,7 @@
 // Uso:  node scripts/extract-flyby-frames.mjs "_media-src/flyby/tramo-0-1.mp4" 0 1
 //       npm run flyby:frames -- "_media-src/flyby/tramo-0-1.mp4" 0 1
 import sharp from "sharp";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -34,10 +34,42 @@ const FLYBY_JSON = join(ROOT, "src", "data", "flyby.json");
 const FRAME_Q = 78;
 /** Umbral de aceptación del empalme frame-final ↔ still destino. */
 const PSNR_MIN = 30;
+/** Piso de movimiento de un frame, como fracción del movimiento MEDIANO de su propio
+ *  clip. Por debajo de esto el frame no aporta: se descarta. Se mide contra el clip y no
+ *  en dB absolutos porque cada tramo tiene su velocidad; un umbral fijo o no toca al que
+ *  está mal o desarma al que está bien. Calibrado con los cuatro clips del 27-08: el paso
+ *  más lento de los que se ven BIEN está en 10% y 32% de su mediana, mientras que los
+ *  frames congelados de los que se ven mal están en 1,8-5,3%. 8% cae en ese hueco. */
+const STALL_FLOOR = 0.08;
+/** Tope de deriva acumulada, en múltiplos de la mediana: si de tanto descartar el salto
+ *  se hizo grande, se conserva el frame igual. Red de seguridad para que una tira larga
+ *  de pasos apenas-bajo-el-piso no colapse en un tirón. */
+const STALL_CEIL = 1.0;
 
-const [input, fromArg, toArg] = process.argv.slice(2);
-if (!input || fromArg === undefined || toArg === undefined) {
-  console.error("Uso: node scripts/extract-flyby-frames.mjs <input.mp4> <from> <to>");
+// `--land <mp4>` (opcional): agrega el PRIMER frame de ese video como frame de CIERRE
+// del tramo. Por qué existe: el cliente entrega el flyby cortado en clips de 30 frames
+// (0-30, 30-60, 60-90, 90-120) y el corte se lleva el frame del stop — el clip N termina
+// UNO ANTES y la posición exacta del stop destino es el frame 1 del clip N+1. En los
+// tramos que desaceleran al final la diferencia es invisible (empalman a 31-34 dB); en
+// los que cortan todavía en movimiento se ve un salto al estacionar. Mirá el PSNR de
+// empalme que este script imprime al terminar: si el aterrizaje da bajo, probá con --land.
+const argv = process.argv.slice(2);
+// Por defecto salen EXACTAMENTE los frames que trae el video, uno a uno. `--drop-stalls`
+// es opt-in y descarta los frames sin movimiento (ver el paso 2); está sólo para
+// diagnosticar un clip, no se usa para lo que se sirve.
+const dropDupes = argv.includes("--drop-stalls");
+const flags = argv.filter((a) => a !== "--drop-stalls");
+let land;
+const landAt = flags.indexOf("--land");
+if (landAt >= 0) {
+  land = flags[landAt + 1];
+  flags.splice(landAt, 2);
+}
+const [input, fromArg, toArg] = flags;
+if (!input || fromArg === undefined || toArg === undefined || (landAt >= 0 && land === undefined)) {
+  console.error(
+    "Uso: node scripts/extract-flyby-frames.mjs <input.mp4> <from> <to> [--land <mp4-del-tramo-siguiente>] [--drop-stalls]",
+  );
   process.exit(1);
 }
 const from = Number(fromArg);
@@ -48,6 +80,10 @@ if (!Number.isInteger(from) || !Number.isInteger(to)) {
 }
 if (!existsSync(input)) {
   console.error(`No existe el input: ${input}`);
+  process.exit(1);
+}
+if (land && !existsSync(land)) {
+  console.error(`No existe el video de --land: ${land}`);
   process.exit(1);
 }
 
@@ -70,6 +106,14 @@ const tmp = mkdtempSync(join(tmpdir(), "flyby-"));
 console.log(`Extrayendo frames de ${input} …`);
 ff(["-y", "-loglevel", "error", "-i", input, "-fps_mode", "passthrough", "-q:v", "2", "-start_number", "1", join(tmp, "%04d.jpg")]);
 
+// Frame de cierre (--land). Se numera a continuación del último para que caiga al final
+// del orden natural, y de ahí en adelante es un frame más: entra al WebP y al JSON solo.
+if (land) {
+  const n = readdirSync(tmp).filter((f) => f.endsWith(".jpg")).length;
+  ff(["-y", "-loglevel", "error", "-i", land, "-frames:v", "1", "-q:v", "2", join(tmp, `${String(n + 1).padStart(4, "0")}.jpg`)]);
+  console.log(`+ frame de cierre tomado de ${land} (= la posición exacta del stop ${to})`);
+}
+
 const jpgs = readdirSync(tmp)
   .filter((f) => f.endsWith(".jpg"))
   .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
@@ -79,19 +123,75 @@ if (jpgs.length === 0) {
   process.exit(1);
 }
 
-// 2 · JPG → WebP.
+// 2 · Descartar los frames SIN MOVIMIENTO.
+//
+// El visor mapea el progreso LINEALMENTE al índice de frame (`frameAtProgress`, sin
+// curva de easing), así que la velocidad que se ve es la del clip. Los clips que entrega
+// el 3D vienen con "stalls": tiras de frames IDÉNTICOS al principio y/o al final —no un
+// ease-in, frames repetidos: 43-48 dB entre consecutivos es ruido de compresión—. Con
+// 7 frames muertos de 30, la transición se pasa el 24% del tiempo clavada y después mete
+// todo el movimiento junto: se ve como un tirón. Arrastrando es peor, porque un cuarto
+// del recorrido del dedo no mueve nada.
+//
+// El primero y el último NUNCA se tocan: son los anclas que empalman con los stills, y
+// el último además es el que mide el PSNR de aterrizaje.
+const thumb = (p) => sharp(p).resize(480, 270, { fit: "fill" }).removeAlpha().raw().toBuffer();
+/** Desplazamiento RMS entre dos frames, normalizado a 0-1. Es 10^(-PSNR/20). */
+const motion = (a, b) => {
+  let se = 0;
+  for (let i = 0; i < a.length; i++) {
+    const d = a[i] - b[i];
+    se += d * d;
+  }
+  return Math.sqrt(se / a.length) / 255;
+};
+
+const kept = [];
+let dropped = 0;
+if (dropDupes && jpgs.length > 2) {
+  const px = [];
+  for (const jpg of jpgs) px.push(await thumb(join(tmp, jpg)));
+  const pasos = [];
+  for (let i = 0; i < px.length - 1; i++) pasos.push(motion(px[i], px[i + 1]));
+  const mediana = [...pasos].sort((a, b) => a - b)[Math.floor(pasos.length / 2)];
+
+  kept.push(jpgs[0]);
+  let acc = 0;
+  for (let i = 1; i < jpgs.length; i++) {
+    acc += pasos[i - 1];
+    const esUltimo = i === jpgs.length - 1;
+    if (esUltimo || pasos[i - 1] >= STALL_FLOOR * mediana || acc >= STALL_CEIL * mediana) {
+      kept.push(jpgs[i]);
+      acc = 0;
+    }
+  }
+  dropped = jpgs.length - kept.length;
+  if (dropped > 0) {
+    console.log(
+      `− ${dropped} frame(s) sin movimiento descartado(s) (bajo el ${Math.round(STALL_FLOOR * 100)}% del paso mediano): ` +
+        `comían ${Math.round((100 * dropped) / jpgs.length)}% de la transición sin mover la cámara`,
+    );
+  }
+} else {
+  kept.push(...jpgs);
+}
+
+// 3 · JPG → WebP, RENUMERANDO 0001..N para que no queden huecos.
 let bytes = 0;
 let heaviest = 0;
-for (const jpg of jpgs) {
-  const info = await sharp(join(tmp, jpg)).webp({ quality: FRAME_Q }).toFile(join(outDir, jpg.replace(/\.jpg$/, ".webp")));
+const webps = [];
+for (let i = 0; i < kept.length; i++) {
+  const name = `${String(i + 1).padStart(4, "0")}.webp`;
+  const info = await sharp(join(tmp, kept[i])).webp({ quality: FRAME_Q }).toFile(join(outDir, name));
+  webps.push(name);
   bytes += info.size;
   heaviest = Math.max(heaviest, info.size);
 }
 rmSync(tmp, { recursive: true, force: true });
 
-const first = await sharp(join(outDir, jpgs[0].replace(/\.jpg$/, ".webp"))).metadata();
+const first = await sharp(join(outDir, webps[0])).metadata();
 console.log(
-  `${jpgs.length} frames → public/frames/${segName}/  ` +
+  `${webps.length} frames → public/frames/${segName}/  ` +
     `${first.width}×${first.height}  ·  ${Math.round(bytes / 1024)} KB total  ` +
     `·  más pesado ${Math.round(heaviest / 1024)} KB`,
 );
@@ -116,32 +216,39 @@ writeFileSync(FLYBY_JSON, JSON.stringify({ segments }, null, 2) + "\n");
 console.log(`✓ flyby.json: segmento ${from}→${to} con ${frames.length} frames`);
 
 // 4 · PSNR de empalme contra los stills de los extremos.
+/** PSNR entre dos imágenes, o `null` si no se pudo medir (motivo en `psnrWhy`). */
+let psnrWhy = null;
 function psnr(a, b) {
-  if (!existsSync(a) || !existsSync(b)) return null;
-  try {
-    // El filtro `psnr` escribe a stderr; execFileSync lo tira si no lo capturamos.
-    const out = execFileSync(
-      "ffmpeg",
-      ["-hide_banner", "-i", a, "-i", b, "-filter_complex", "[0:v]scale=960:540[x];[1:v]scale=960:540[y];[x][y]psnr", "-f", "null", "-"],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
-    );
-    const m = /average:([\d.]+)/.exec(out);
-    return m ? Number(m[1]) : null;
-  } catch (err) {
-    const m = /average:([\d.]+)/.exec(String(err.stderr ?? ""));
-    return m ? Number(m[1]) : null;
+  psnrWhy = null;
+  if (!existsSync(a) || !existsSync(b)) {
+    psnrWhy = "falta el still";
+    return null;
   }
+  // El filtro `psnr` reporta por STDERR y ffmpeg sale con código 0 — o sea que no
+  // lanza y `execFileSync` (que devuelve SÓLO stdout) leía vacío: la medición daba
+  // null siempre y el chequeo de empalme quedaba mudo, rotulado como "falta el still".
+  // `spawnSync` sí expone stderr sin depender de que el proceso falle.
+  const r = spawnSync(
+    "ffmpeg",
+    ["-hide_banner", "-i", a, "-i", b, "-filter_complex", "[0:v]scale=960:540[x];[1:v]scale=960:540[y];[x][y]psnr", "-f", "null", "-"],
+    { encoding: "utf8" },
+  );
+  const m = /average:([\d.]+)/.exec(`${r.stdout ?? ""}${r.stderr ?? ""}`);
+  if (!m) psnrWhy = "ffmpeg no devolvió PSNR";
+  return m ? Number(m[1]) : null;
 }
 
 const stopWebp = (id) => join(ROOT, "public", "stops", `stop-${id}.webp`);
-const firstFrame = join(outDir, jpgs[0].replace(/\.jpg$/, ".webp"));
-const lastFrame = join(outDir, jpgs.at(-1).replace(/\.jpg$/, ".webp"));
+const firstFrame = join(outDir, webps[0]);
+const lastFrame = join(outDir, webps.at(-1));
 
+const fmt = (v) => (v === null ? `n/d (${psnrWhy})` : `${v.toFixed(2)} dB`);
 const head = psnr(firstFrame, stopWebp(from));
+const headTxt = fmt(head);
 const tail = psnr(lastFrame, stopWebp(to));
-const fmt = (v) => (v === null ? "n/d (falta el still)" : `${v.toFixed(2)} dB`);
-console.log(`\nEmpalme  frame 0001 ↔ stop-${from}: ${fmt(head)}`);
-console.log(`Empalme  frame ${jpgs.length.toString().padStart(4, "0")} ↔ stop-${to}: ${fmt(tail)}`);
+const tailTxt = fmt(tail);
+console.log(`\nEmpalme  frame 0001 ↔ stop-${from}: ${headTxt}`);
+console.log(`Empalme  frame ${webps.length.toString().padStart(4, "0")} ↔ stop-${to}: ${tailTxt}`);
 if (tail !== null && tail < PSNR_MIN) {
   console.warn(
     `\n⚠ El aterrizaje está por debajo de ${PSNR_MIN} dB: se va a ver un salto al parar en el stop ${to}.\n` +

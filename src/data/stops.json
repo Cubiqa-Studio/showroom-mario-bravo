@@ -109,24 +109,32 @@
       "id": 1,
       "frame": 1,
       "image": "/stops/stop-1.webp",
-      "imageWidth": 4000,
-      "imageHeight": 2250,
+      "imageWidth": 4999,
+      "imageHeight": 2812,
       "polygons": []
     },
     {
       "id": 2,
       "frame": 2,
       "image": "/stops/stop-2.webp",
-      "imageWidth": 4000,
-      "imageHeight": 2250,
+      "imageWidth": 4999,
+      "imageHeight": 2812,
       "polygons": []
     },
     {
       "id": 3,
       "frame": 3,
       "image": "/stops/stop-3.webp",
-      "imageWidth": 4000,
-      "imageHeight": 2250,
+      "imageWidth": 4999,
+      "imageHeight": 2812,
+      "polygons": []
+    },
+    {
+      "id": 4,
+      "frame": 4,
+      "image": "/stops/stop-4.webp",
+      "imageWidth": 4999,
+      "imageHeight": 2812,
       "polygons": []
     }
   ]
