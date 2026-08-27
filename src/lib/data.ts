@@ -211,3 +211,36 @@ export function getFlyby(): FlybySegment[] {
 export function getSegment(from: number, to: number): FlybySegment | undefined {
   return flybyFile.segments.find((s) => s.from === from && s.to === to);
 }
+
+/**
+ * Los assets pesados del showroom (stills + frames del flyby), en el ORDEN en que se
+ * tocan. Lo consume la INTRO para irlos bajando mientras el visitante mira la portada,
+ * así al apretar "Descubrir" ya están en la cache del navegador y el showroom no tiene
+ * que esperar nada: sin "Cargando recorrido… %" y con las flechas listas de entrada.
+ *
+ * Es SINCRÓNICA a propósito — no usa `getStops()` porque eso leería el Blob y
+ * convertiría la intro en dinámica, que es lo último que querés en la primera pantalla
+ * del sitio. Las rutas de imagen son estables aunque cambie la geometría: el editor de
+ * polígonos edita puntos, no agrega ni quita vistas.
+ *
+ * El orden es el mismo criterio que usa el preload del `FlybyViewer`: primero lo que
+ * destraba la pantalla, después lo que destraba el primer click, y al final el resto.
+ */
+export function getShowroomPreloadSrcs(): string[] {
+  const segments = getFlyby();
+  const first = seedStops[0];
+  // El tramo que sale de la primera vista (lo que gatea la primera flecha) y el
+  // siguiente: el flujo dominante es seguir avanzando.
+  const fwd = first ? segments.find((s) => s.from === first.id) : undefined;
+  const nextFwd = fwd ? segments.find((s) => s.from === fwd.to) : undefined;
+  // El Set dedup-ea conservando el orden de inserción.
+  return Array.from(
+    new Set([
+      ...(first ? [first.image] : []),
+      ...(fwd?.frames ?? []),
+      ...(nextFwd?.frames ?? []),
+      ...seedStops.map((s) => s.image),
+      ...segments.flatMap((s) => s.frames),
+    ]),
+  );
+}

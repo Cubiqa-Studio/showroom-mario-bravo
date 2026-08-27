@@ -56,13 +56,13 @@ export default function NotFound() {
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/"
-            className="w-full rounded-full bg-gold px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-cream shadow-md transition hover:brightness-110 active:scale-95 sm:w-auto"
+            className="w-full rounded-full bg-gold px-7 py-3 text-[16.5px] font-semibold uppercase tracking-[0.18em] text-cream shadow-md transition hover:brightness-110 active:scale-95 sm:w-auto"
           >
             {t.notFound.home}
           </Link>
           <Link
             href="/showroom"
-            className="w-full rounded-full bg-white/10 px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-ink ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95 sm:w-auto"
+            className="w-full rounded-full bg-white/10 px-7 py-3 text-[16.5px] font-semibold uppercase tracking-[0.18em] text-ink ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95 sm:w-auto"
           >
             {t.notFound.showroom}
           </Link>
@@ -70,7 +70,7 @@ export default function NotFound() {
 
         {/* Crédito CUBIQA */}
         <div className="mt-11 flex flex-col items-center gap-2.5 border-t border-line pt-6">
-          <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-ink/55">
+          <span className="text-[14px] font-medium uppercase tracking-[0.24em] text-ink/55">
             {t.notFound.credit}
           </span>
           <a

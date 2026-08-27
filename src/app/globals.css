@@ -66,14 +66,29 @@
 }
 
 @theme inline {
-  /* ESCALA TIPOGRÁFICA. El cliente pidió todo un punto más grande (26-08: "lo vemos
-     todo muy chiquito"). Subimos SÓLO los dos escalones chicos, que son los que carga
-     el chrome del showroom (72 usos de text-xs/text-sm entre toolbar, menú, buscador
-     y pills); los títulos ya estaban bien y no se tocan.
-     La line-height de Tailwind es una RAZÓN, no un valor fijo, así que acompaña sola.
-     Es una sola palanca: si quedó grande, se baja acá y vuelve todo. */
-  --text-xs: 14px; /* Tailwind: 12px */
-  --text-sm: 16px; /* Tailwind: 14px */
+  /* ESCALA TIPOGRÁFICA — reescrita ENTERA, no sólo los escalones chicos.
+     Motivo (27-08, reunión con el cliente vía Juani): el grueso del público son
+     compradores grandes con la vista cansada, y ya lo marcaron varias veces. Pidieron
+     "20-30% más" sobre lo que ya habíamos subido.
+     Crece más abajo que arriba: los tamaños de lectura suben ~25% y los títulos ~15%,
+     porque un display de 36px un 30% más grande grita y rompe el layout, y el problema
+     que están reportando es leer, no ver los títulos.
+     HAY QUE DEFINIR TODA LA ESCALA, no sólo xs/sm: los defaults de Tailwind (base 16,
+     lg 18…) no se mueven, así que subir sólo los chicos deja text-sm MÁS GRANDE que
+     text-base y se invierte la jerarquía.
+     La line-height de Tailwind es una RAZÓN (calc(1.25 / 0.875)), no un valor fijo, así
+     que acompaña sola. Es una sola palanca: si quedó grande, se baja acá y vuelve todo. */
+  --text-xs: 17.5px; /* Tailwind: 12px · antes 14px */
+  --text-sm: 20px; /* Tailwind: 14px · antes 16px */
+  --text-base: 20px; /* Tailwind: 16px */
+  --text-lg: 22px; /* Tailwind: 18px */
+  --text-xl: 24.5px; /* Tailwind: 20px */
+  --text-2xl: 29px; /* Tailwind: 24px */
+  --text-3xl: 35px; /* Tailwind: 30px */
+  --text-4xl: 41px; /* Tailwind: 36px */
+  --text-5xl: 52px; /* Tailwind: 48px */
+  --text-6xl: 63.5px; /* Tailwind: 60px */
+  --text-7xl: 76.5px; /* Tailwind: 72px */
 
   /* colores premium → utilidades Tailwind con modificador de opacidad
      (bg-gold/10, text-ink, border-line, …). Por REFERENCIA a :root: un solo lugar

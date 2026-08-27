@@ -352,7 +352,7 @@ export function PolygonEditor({ surface, units }: { surface: EditorSurface; unit
         </div>
 
         {/* Hint */}
-        <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-slate-900/70 px-2 py-1 text-[11px] text-slate-300 backdrop-blur">
+        <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-slate-900/70 px-2 py-1 text-[14px] text-slate-300 backdrop-blur">
           Rueda: zoom · Espacio o botón del medio + arrastrar: mover
         </div>
       </div>

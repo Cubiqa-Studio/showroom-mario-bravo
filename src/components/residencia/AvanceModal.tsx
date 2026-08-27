@@ -84,7 +84,7 @@ export function AvanceModal({
           className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-paper shadow-2xl ring-1 ring-line"
         >
           <div className="px-7 pb-7 pt-6">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-gold">
+                <p className="text-[15px] font-semibold uppercase tracking-[0.22em] text-gold">
                   {t.avance.eyebrow}
                 </p>
                 <h2 className="mt-1 font-serif text-2xl tracking-wide text-ink">

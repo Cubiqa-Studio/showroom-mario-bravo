@@ -592,6 +592,55 @@ el `.svg` traen las letras vectorizadas, sin fuente embebida ni metadata. Por la
 (sans geométrica monolínea, "E" en tres barras) se parece mucho a **Futura / Jost Light**,
 y Jost ya está cargada en el sitio — pero confirmalo con el cliente antes de armar lockups.
 
+### La escala tipográfica
+
+**El público de estos showrooms son compradores grandes con la vista cansada**, y el
+cliente lo marcó tres veces. No es una preferencia estética: es el requisito de
+accesibilidad que manda en este proyecto. Ante la duda, más grande.
+
+Se subió en tres rondas (26-08 dos veces, 27-08 la definitiva pidiendo "20-30% más").
+Hoy los tamaños de lectura están **~25% por encima** de donde arrancaron y los títulos
+~15%: crece más abajo que arriba, porque un display de 36px un 30% más grande grita y
+rompe el layout, y lo que cuesta leer es el cuerpo, no los títulos.
+
+Dos palancas, y nada más:
+
+| Dónde | Qué cubre |
+|---|---|
+| `--text-*` en el `@theme inline` de `src/app/globals.css` | Todo el chrome: showroom, menú, buscador, pills, tarjetas |
+| `font-size` en `src/components/residencia/residencia.css` | La ficha de unidad (147 reglas) |
+
+⚠ **Hay que definir la escala ENTERA en `@theme`, no sólo `xs`/`sm`.** Los defaults de
+Tailwind no se mueven, así que tocar sólo los escalones chicos deja `text-sm` más grande
+que `text-base` y **se invierte la jerarquía**. Las `line-height` de Tailwind 4 son
+RAZONES (`calc(1.25 / 0.875)`), no valores fijos, así que acompañan solas.
+
+**El lockup TIER/BRAVO del showroom queda afuera a propósito**: es una marca calibrada
+contra el alto del logotipo (un PNG), no copy. Crecer sólo el texto rompería la
+alineación. Si hay que agrandarlo, se agrandan las dos cosas juntas.
+
+### El precalentado desde la intro
+
+Los assets pesados del showroom (5 stills + 120 frames, ~18 MB) se empiezan a bajar
+**mientras el visitante mira la portada `/`**, no al entrar a `/showroom`. Así, cuando
+aprieta "Descubrir", los bytes ya están en la cache del navegador: sin
+"Cargando recorrido… %" y con las flechas listas de entrada.
+
+`getShowroomPreloadSrcs()` (`src/lib/data.ts`) arma la lista en el orden en que se toca
+—primer still, tramo 0→1, tramo 1→2, el resto— y `IntroScreen` dispara un `Image()` por
+cada una en prioridad **baja**. Dos detalles que importan:
+
+- la función es **sincrónica** y lee el JSON commiteado, no `getStops()`: eso leería el
+  Blob y convertiría `/` en dinámica, que es lo último que querés en la primera pantalla.
+  Las rutas de imagen son estables aunque cambie la geometría (el editor edita puntos, no
+  agrega vistas);
+- los `Image()` viven a **nivel de módulo**, no en el componente: la intro se desmonta al
+  navegar y con las referencias morirían las descargas a medio camino.
+
+Hoy la intro no tiene video (`INTRO_VIDEO_READY = false`), así que el precalentado tiene
+la red para él solo. **Cuando llegue el video de intro hay que volver a medir**: van a
+competir, y quizá convenga arrancar el precalentado recién con el `canplay` del video.
+
 ### Estructura de carpetas
 
 ```

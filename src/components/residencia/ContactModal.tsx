@@ -179,7 +179,7 @@ export function ContactModal({
                   </div>
                 ) : (
                   <>
-                    <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-gold">
+                    <p className="text-[15px] font-semibold uppercase tracking-[0.2em] text-gold">
                       {t.contactModal.eyebrow}
                     </p>
                     <h2 className="mt-1.5 font-serif text-2xl leading-tight tracking-wide text-ink">

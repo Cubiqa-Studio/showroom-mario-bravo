@@ -67,11 +67,36 @@ function DiscoverContent({ cta }: { cta: string }) {
  */
 const INTRO_VIDEO_READY = false;
 
-export function IntroScreen() {
+/**
+ * Los Image() del precalentado viven a NIVEL DE MÓDULO, no en el componente: cuando el
+ * visitante aprieta "Descubrir" la intro se desmonta, y si las referencias murieran con
+ * ella el navegador podría abortar las descargas a medio camino — justo el momento en
+ * que más las necesitamos. Acá sobreviven a la navegación y terminan de llenar la cache.
+ * No se llama `decode()`: lo que hace falta es tener los BYTES locales; los 249 MB de
+ * bitmap por tramo los maneja el visor con su propio ciclo de decode.
+ */
+const precalentados: HTMLImageElement[] = [];
+
+export function IntroScreen({ preload = [] }: { preload?: string[] }) {
   const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
   const [ready, setReady] = useState(false); // entrada suave del botón
+
+  // Precalentado del showroom mientras se mira la portada. Corre una sola vez por carga
+  // de página (si ya hay algo en `precalentados`, esta visita ya lo disparó). Van en
+  // prioridad BAJA: no tienen que competir con el poster ni con el JS de la propia
+  // intro, sólo aprovechar la red ociosa mientras el visitante lee.
+  useEffect(() => {
+    if (precalentados.length > 0 || preload.length === 0) return;
+    for (const src of preload) {
+      const img = new Image();
+      img.fetchPriority = "low";
+      img.decoding = "async";
+      img.src = src;
+      precalentados.push(img);
+    }
+  }, [preload]);
 
   useEffect(() => {
     linkRef.current?.focus(); // el teclado puede entrar directo al CTA
@@ -181,7 +206,7 @@ export function IntroScreen() {
           // casi instantáneo. (Antes probamos prefetch={false} para no robarle ancho de
           // banda al video; pero el video mobile ya pesa ~1.8 MB y el costo real era el
           // spinner largo al bajar el chunk recién en el click → se revierte.)
-          className={`group inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/5 px-10 py-4 font-sans text-[13px] uppercase tracking-[0.28em] text-white shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-500 ease-out hover:border-gold hover:bg-gold hover:tracking-[0.32em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black motion-reduce:transition-none ${
+          className={`group inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/5 px-10 py-4 font-sans text-[16.5px] uppercase tracking-[0.28em] text-white shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-500 ease-out hover:border-gold hover:bg-gold hover:tracking-[0.32em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black motion-reduce:transition-none ${
             ready ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >

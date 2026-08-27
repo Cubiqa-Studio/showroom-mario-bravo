@@ -1419,7 +1419,7 @@ export function FlybyViewer({
         <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex items-center justify-center px-4">
           <div className="pointer-events-auto flex items-center gap-4">
             {arrowSlots.left}
-            <span className="pointer-events-none select-none rounded-full bg-tier-dark/80 px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-line backdrop-blur">
+            <span className="pointer-events-none select-none rounded-full bg-tier-dark/80 px-3 py-1.5 text-[15px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-line backdrop-blur">
               {t.flyby.rotateLabel}
             </span>
             {arrowSlots.right}
