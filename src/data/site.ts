@@ -24,10 +24,11 @@ export const SITE: SiteConfig = {
   // polígonos clicables. El orden es el de recorrido, de abajo hacia arriba, y
   // tiene que coincidir con FLOOR_ORDER en scripts/make-plates.mjs.
   floors: ["SS", "0", "1", "2", "3", "4", "5", "6", "7", "8"],
-  // PLACEHOLDER — coordenadas APROXIMADAS de la altura 900 de Mario Bravo (CABA).
-  // Pedile al cliente el pin exacto (link de Google Maps) y reemplazalas: esto es
-  // lo que posiciona el marker del mapa de Ubicación y el GeoCoordinates del JSON-LD.
-  location: { lat: -34.5985, lng: -58.4215 },
+  // Mario Bravo 955, Almagro (CABA). Geocodificado contra OpenStreetMap con match a
+  // nivel de ALTURA (no de calle) y CP 1190. Las anteriores eran aproximadas y caían
+  // ~510m al oeste. Posiciona el marker del mapa y el GeoCoordinates del JSON-LD, así
+  // que vale que el cliente lo confirme con un link de Google Maps.
+  location: { lat: -34.598543, lng: -58.415929 },
   brandName: "TIER Bravo",
   // Nombre del edificio — se muestra en el marker del mapa de Ubicación.
   buildingName: "TIER Bravo",
@@ -74,10 +75,20 @@ export const SITE: SiteConfig = {
   // El contenido EDITORIAL (specNarrative, paymentPlan, deliveryNote) vive en
   // src/i18n/translations.ts (es/en) — texto por-idioma, no config del sitio.
 
-  // PLACEHOLDER — vacío A PROPÓSITO. Los POIs pintan pines en el mapa de Ubicación;
-  // inventarlos publica datos falsos sobre el entorno del edificio. Cargá los reales
-  // (subte, parques, universidades, gastronomía del barrio) con coords verificadas.
-  pois: [],
+  // Los otros dos desarrollos de TIER (pedido de Camila y Juani, 26-08): el mapa de
+  // Ubicación muestra el portfolio completo de la desarrolladora, no puntos del barrio.
+  // El pin principal (`location`, arriba) es Bravo; estos dos son los hermanos.
+  //
+  // Coordenadas geocodificadas contra OpenStreetMap con match A NIVEL DE ALTURA (no
+  // de calle) y código postal de CABA. Conviene que el cliente las mire una vez:
+  //   Sinclair 3087            → Palermo Pacífico, C1425GMN
+  //   Av. Estado de Israel 4338 → Almagro, C1430BXU
+  // ⚠ Que "Avenue" sea el de Estado de Israel es deducción por descarte (TIER tiene
+  // tres desarrollos, Bravo es éste y Sinclair coincide con su calle). Confirmarlo.
+  pois: [
+    { name: "TIER Sinclair", cat: "Sinclair 3087", lat: -34.574206, lng: -58.422938 },
+    { name: "TIER Avenue", cat: "Av. Estado de Israel 4338", lat: -34.598167, lng: -58.427095 },
+  ],
 
   // PLACEHOLDER — el aéreo del footer/404 usa un render exterior hasta que llegue
   // la toma aérea real del edificio.

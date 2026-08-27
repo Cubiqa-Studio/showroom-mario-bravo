@@ -1273,7 +1273,9 @@ export function FlybyViewer({
         // El logo va ARRIBA A LA IZQUIERDA siempre que entre al lado de la barra de
         // acciones (≥560px: tablets/desktop). Sólo en pantallas angostas (teléfonos),
         // donde la barra ocuparía su lugar, baja a la fila del switch "Disponibilidad".
-        <div className="absolute left-2 top-[84px] z-20 max-w-[58vw] min-[560px]:left-4 min-[560px]:top-4 min-[560px]:max-w-[80vw]">
+        // `top-7` y no `top-4` (pedido del cliente, 26-08: "un poco más bajo"): el
+        // lockup quedaba pegado al borde y desalineado con la barra de acciones.
+        <div className="absolute left-2 top-[84px] z-20 max-w-[58vw] min-[560px]:left-4 min-[560px]:top-7 min-[560px]:max-w-[80vw]">
           {/* El logo SIEMPRE vuelve al inicio (primera vista, centrada). */}
           <button
             type="button"
@@ -1372,7 +1374,7 @@ export function FlybyViewer({
                 onPrime={() => void ensureDecoded(forwardSeg, "forward")}
               />
             )}
-            <span className="pointer-events-none select-none rounded-full bg-tier-dark/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-line backdrop-blur">
+            <span className="pointer-events-none select-none rounded-full bg-tier-dark/80 px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-line backdrop-blur">
               {t.flyby.rotateLabel}
             </span>
             {showBack && backwardSeg && (

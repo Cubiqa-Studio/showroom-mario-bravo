@@ -66,6 +66,15 @@
 }
 
 @theme inline {
+  /* ESCALA TIPOGRÁFICA. El cliente pidió todo un punto más grande (26-08: "lo vemos
+     todo muy chiquito"). Subimos SÓLO los dos escalones chicos, que son los que carga
+     el chrome del showroom (72 usos de text-xs/text-sm entre toolbar, menú, buscador
+     y pills); los títulos ya estaban bien y no se tocan.
+     La line-height de Tailwind es una RAZÓN, no un valor fijo, así que acompaña sola.
+     Es una sola palanca: si quedó grande, se baja acá y vuelve todo. */
+  --text-xs: 13px; /* Tailwind: 12px */
+  --text-sm: 15px; /* Tailwind: 14px */
+
   /* colores premium → utilidades Tailwind con modificador de opacidad
      (bg-gold/10, text-ink, border-line, …). Por REFERENCIA a :root: un solo lugar
      donde cambiar un color. */

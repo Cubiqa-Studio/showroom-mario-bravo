@@ -158,7 +158,7 @@ export function VrHotspot({
           alt={t.vr.tour}
           className="h-full w-full object-cover"
         />
-        <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-white">
+        <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[12px] font-semibold text-white">
           360°
         </span>
       </div>

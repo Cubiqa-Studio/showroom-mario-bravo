@@ -59,7 +59,7 @@ export function UnitCard({ unit }: { unit: Unit }) {
             estar posicionados pintan por encima de la barra `.bg-mist` siguiente. */}
         <div className="absolute inset-x-2.5 bottom-0 z-10 flex translate-y-1/2 flex-wrap items-center justify-end gap-1.5">
           <span
-            className="inline-flex items-center gap-1.5 rounded-full text-[11px] font-semibold text-white shadow"
+            className="inline-flex items-center gap-1.5 rounded-full text-[12px] font-semibold text-white shadow"
             style={badgeStyle(STATUS_STYLES[unit.status].color)}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-tier-dark/85" />
@@ -67,7 +67,7 @@ export function UnitCard({ unit }: { unit: Unit }) {
           </span>
           {unit.duplex ? (
             <span
-              className="rounded-full text-[11px] font-semibold text-white shadow"
+              className="rounded-full text-[12px] font-semibold text-white shadow"
               style={badgeStyle(DUPLEX_COLOR)}
             >
               {t.status.duplex}
@@ -78,7 +78,7 @@ export function UnitCard({ unit }: { unit: Unit }) {
               y no muestran chip. */}
           {unit.exposure ? (
             <span
-              className="rounded-full text-[11px] font-semibold text-white shadow"
+              className="rounded-full text-[12px] font-semibold text-white shadow"
               style={badgeStyle(EXPOSURE_COLOR)}
             >
               {t.status[unit.exposure]}
@@ -93,7 +93,7 @@ export function UnitCard({ unit }: { unit: Unit }) {
           {t.common.residence(unit.residence)}
         </h3>
         <p
-          className="line-clamp-2 text-[11px] leading-relaxed text-cream/55"
+          className="line-clamp-2 text-[12px] leading-relaxed text-cream/55"
           style={{ marginTop: 6, minHeight: "2.2rem" }}
         >
           {stats}

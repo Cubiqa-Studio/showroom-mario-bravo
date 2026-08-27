@@ -70,7 +70,7 @@ export default function NotFound() {
 
         {/* Crédito CUBIQA */}
         <div className="mt-11 flex flex-col items-center gap-2.5 border-t border-line pt-6">
-          <span className="text-[10px] font-medium uppercase tracking-[0.24em] text-ink/55">
+          <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-ink/55">
             {t.notFound.credit}
           </span>
           <a

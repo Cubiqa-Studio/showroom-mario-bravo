@@ -349,7 +349,7 @@ export function SideMenu({
                                           key={group.floor}
                                           className="pt-1.5"
                                         >
-                                          <p className="px-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-faint">
+                                          <p className="px-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-faint">
                                             {t.sideMenu.floor(group.floor)}
                                           </p>
                                           <div className="flex flex-wrap gap-1.5 px-1.5 pb-1.5">
@@ -611,7 +611,7 @@ function SubItem({
 function SoonTag() {
   const { t } = useI18n();
   return (
-    <span className="rounded-full bg-gold/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-gold-soft">
+    <span className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-soft">
       {t.sideMenu.soon}
     </span>
   );

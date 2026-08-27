@@ -60,19 +60,32 @@ export default async function Showroom() {
           units={units}
           segments={segments}
           branding={
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              // Variante BLANCA: el wordmark va sobre el render del flyby (cielo,
-              // árboles, fachada) y el oro de la paleta —calibrado contra blanco—
-              // se pierde ahí. Ver scripts/make-brand-assets.mjs.
-              src="/logo_blanco.png"
-              alt="TIER Bravo"
-              // h-8 (32px) = misma altura que el logo de la nav de /residencia/:id
-              // (.res-landing .logo img). El wordmark es una tira 5,2:1, así que 32px
-              // de alto ya son ~167px de ancho. En mobile, h-7 para que entre prolijo
-              // en la fila del switch "Disponibilidad" (incluso a ~360px).
-              className="h-7 w-auto drop-shadow-md sm:h-8"
-            />
+            // Lockup en DOS líneas (pedido del cliente, 26-08): el logotipo TIER y
+            // debajo "BRAVO". El logotipo es un archivo (trazos vectorizados, sin
+            // tipografía embebida) y "BRAVO" va tipografiado en Jost —la sans del
+            // sitio, la que más se le parece— con tracking suficiente para que las
+            // dos líneas midan casi lo mismo.
+            <span className="flex flex-col items-stretch">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                // Variante BLANCA: el wordmark va sobre el render del flyby (cielo,
+                // árboles, fachada) y el oro de la paleta —calibrado contra blanco—
+                // se pierde ahí. Ver scripts/make-brand-assets.mjs.
+                src="/logo_blanco.png"
+                alt="TIER"
+                // El wordmark es una tira 5,2:1: 32px de alto ya son ~167px de ancho.
+                // En mobile, h-7 para que entre prolijo (incluso a ~360px).
+                className="h-7 w-auto drop-shadow-md sm:h-8"
+              />
+              {/* `marginRight` negativo = el tracking agrega un espacio DESPUÉS de la
+                  última letra; sin compensarlo, el centrado queda corrido a la izquierda. */}
+              <span
+                className="mt-[3px] text-center font-sans text-[9px] font-light leading-none tracking-[0.44em] text-white drop-shadow-md sm:mt-1 sm:text-[11px]"
+                style={{ marginRight: "-0.44em" }}
+              >
+                BRAVO
+              </span>
+            </span>
           }
         />
       </ZoomLayer>

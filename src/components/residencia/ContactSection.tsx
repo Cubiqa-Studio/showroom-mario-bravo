@@ -63,10 +63,12 @@ export function ContactSection({
       </div>
 
       <div className="contact-grid">
-        {/* Columna izquierda: argumento de inversión + marca en blanco y negro. */}
+        {/* Columna izquierda: argumento de inversión + la marca. */}
         <aside className="contact-aside">
           <p className="ca-copy">{t.contact.asideCopy}</p>
-          <img className="ca-logo" src="/logo_b_n.png" alt={brand} />
+          {/* Variante BLANCA. La tinta (`logo_b_n.png`) es #0F0F11 y esta sección va
+              sobre el negro de marca: el logotipo desaparecía contra el fondo. */}
+          <img className="ca-logo" src="/logo_blanco.png" alt={brand} />
         </aside>
 
         {state === "ok" ? (

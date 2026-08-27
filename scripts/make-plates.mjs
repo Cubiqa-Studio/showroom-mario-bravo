@@ -114,10 +114,12 @@ for (const floor of FLOOR_ORDER) {
       // alfa deja la caja real del dibujo. Va ANTES del flatten (después ya no hay
       // alfa que recortar).
       .trim({ threshold: 1 })
-      // 2 · sobre fondo blanco, para que no se vea el damero del navegador ni herede
-      // el color de la tarjeta que lo contiene.
-      .flatten({ background: "#ffffff" })
-      .webp({ quality: QUALITY })
+      // 2 · SIN flatten: el plano conserva su transparencia (el cliente los exporta en
+      //     PNG justamente para eso) y apoya sobre el fondo oscuro de la tarjeta. Con
+      //     `flatten({background:"#ffffff"})` aparecía un rectángulo BLANCO alrededor
+      //     del dibujo, que es lo que se veía en el Plan Maestro.
+      //     `alphaQuality: 100` para que el borde del alfa no se degrade.
+      .webp({ quality: QUALITY, alphaQuality: 100 })
       .toFile(join(OUT_DIR, name));
     // Cuánto se recortó de cada lado (sharp los devuelve negativos).
     const offset = { left: -(info.trimOffsetLeft ?? 0), top: -(info.trimOffsetTop ?? 0) };
