@@ -60,11 +60,15 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
   //   café          x≈1450-1780
   //   VANO DEL HALL x≈1990-2260 · y≈2220 (dintel) → 2480 (piso), hoja en x≈2020-2140
   //   local         x≈2250-2900
-  // 2040 la deja apenas a la izquierda de la hoja y 2400 abajo, a la altura del
-  // picaporte. Más abajo se la come el recorte de una ventana maximizada, que en esta
-  // vista se lleva los últimos ~220px nativos (ver README § El encuadre del render).
+  // 27-08: estaba en x=2040, que cae sobre la MACETA y el paño de listones a la
+  // izquierda del vano, no sobre la puerta. La puerta de verdad son las dos hojas de
+  // vidrio con los tiradores verticales: medido sobre `public/stops/stop-0.jpg` con
+  // grilla, van de x≈2200 a x≈2260, así que el centro es 2230.
+  // La `y` no se movió: 2400 es la altura de los tiradores. Más abajo se la come el
+  // recorte de una ventana maximizada, que en esta vista se lleva los últimos ~220px
+  // nativos (ver README § El encuadre del render).
   0: {
-    x: 2040,
+    x: 2230,
     y: 2400,
     scale: 0.85,
     kuulaUrl: ENTRANCE_HALL_360 ?? undefined,
