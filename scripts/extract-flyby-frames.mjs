@@ -208,7 +208,12 @@ const frames = readdirSync(outDir)
 const flyby = existsSync(FLYBY_JSON) ? JSON.parse(readFileSync(FLYBY_JSON, "utf8")) : { segments: [] };
 const segments = flyby.segments ?? [];
 const at = segments.findIndex((s) => s.from === from && s.to === to);
-const segment = { from, to, dir: at >= 0 ? segments[at].dir ?? "left" : "left", frames };
+// `dir` = hacia qué lado manda la CÁMARA este movimiento. Decide el chevron de la flecha
+// Y el sentido del arrastre, así que no es cosmético. Re-extraer CONSERVA el que ya está;
+// un segmento nuevo arranca en "right", que es como avanza todo el recorrido de este
+// edificio — si alguna vez entra un tramo que gire al otro lado, corregilo a mano acá.
+const DEFAULT_DIR = "right";
+const segment = { from, to, dir: at >= 0 ? (segments[at].dir ?? DEFAULT_DIR) : DEFAULT_DIR, frames };
 if (at >= 0) segments[at] = segment;
 else segments.push(segment);
 segments.sort((a, b) => a.from - b.from || a.to - b.to);

@@ -258,7 +258,9 @@ export function FlybyViewer({
   const preloadSrcs = useMemo(() => {
     const first = stops[0];
     const fwd = first ? segments.find((s) => s.from === first.id) : undefined; // 0→1
-    const back = first ? segments.find((s) => s.to === first.id) : undefined; // 3→0
+    // Con la cadena LINEAL del 27-08 no hay tramo que vuelva al primer stop, así que
+    // esto queda undefined; se conserva porque el motor sí soporta anillo.
+    const back = first ? segments.find((s) => s.to === first.id) : undefined;
     // El próximo avance tras el primer salto (1→2): el flujo dominante es seguir
     // girando hacia adelante, así que va ANTES que los stills lejanos y el resto de
     // segmentos — si no, al aterrizar en el stop 1 con red lenta la flecha de avanzar
@@ -307,7 +309,7 @@ export function FlybyViewer({
       : Promise.resolve();
   }, []);
   // Gate de REVELADO: la UI se habilita apenas la VISTA INICIAL está decodificada,
-  // NO tras los ~11 MB completos. El resto (stills lejanos + 120 frames) se precarga
+  // NO tras los ~18 MB completos. El resto (stills lejanos + 120 frames) se precarga
   // en segundo plano. El gate por-transición de run() (ensureDecoded + "Preparando")
   // cubre cualquier segmento aún frío al tocar una flecha, así que revelar antes es
   // seguro y NO reintroduce el "teletransporte".
@@ -1114,6 +1116,51 @@ export function FlybyViewer({
   const navLoading =
     parked && ready && (expectBack || expectForward) && !navWarm;
 
+  // ── Hacia qué lado apunta cada flecha.
+  //
+  // El chevron sale del `dir` del SEGMENTO —hacia dónde manda la cámara ese movimiento—,
+  // que es el mismo dato que decide el sentido del arrastre. Antes el chevron estaba
+  // HARDCODEADO (forward siempre "left") e ignoraba `dir`, así que podía contradecir al
+  // drag; ahora los dos leen lo mismo y no pueden desincronizarse.
+  //
+  // En TIER Bravo avanzar mueve la cámara a la DERECHA, así que avanzar es la flecha
+  // derecha (corrección de Juani, 27-08). La prueba está en el propio render: al pasar
+  // de la vista 1 a la 2 quedás por DETRÁS de la puerta del garaje, no por delante —si
+  // la cámara fuera hacia la izquierda sería al revés—, y medido sobre los frames el
+  // contenido barre hacia la izquierda, que es lo mismo dicho al revés.
+  const fwdChevron: "left" | "right" =
+    forwardSeg?.dir === "right" ? "right" : "left";
+  // Volver es reproducir su segmento AL REVÉS: la cámara va al lado contrario de su `dir`.
+  const backChevron: "left" | "right" =
+    backwardSeg?.dir === "right" ? "left" : "right";
+  const arrowFwd =
+    showForward && forwardSeg ? (
+      <FlybyArrow
+        dir={fwdChevron}
+        label={t.flyby.forwardToView(forwardSeg.to)}
+        onClick={() => run(forwardSeg, "forward")}
+        onPrime={() => void ensureDecoded(forwardSeg, "forward")}
+      />
+    ) : null;
+  const arrowBack =
+    showBack && backwardSeg ? (
+      <FlybyArrow
+        dir={backChevron}
+        label={t.flyby.backToView(backwardSeg.from)}
+        onClick={() => run(backwardSeg, "reverse")}
+        onPrime={() => void ensureDecoded(backwardSeg, "reverse")}
+      />
+    ) : null;
+  // Y la POSICIÓN acompaña al chevron: la que apunta a la izquierda va a la izquierda
+  // del rótulo "Girar". Se reparte por slot y no por rol (avanzar/volver) porque en las
+  // puntas de la cadena hay una sola flecha y tiene que caer del lado que mira.
+  const arrowSlots: Record<"left" | "right", ReactNode> = {
+    left: null,
+    right: null,
+  };
+  if (arrowFwd) arrowSlots[fwdChevron] = arrowFwd;
+  if (arrowBack) arrowSlots[backChevron] = arrowBack;
+
   return (
     <div
       ref={containerRef}
@@ -1371,25 +1418,11 @@ export function FlybyViewer({
         // reactiva los eventos, que es donde de verdad hay controles.
         <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex items-center justify-center px-4">
           <div className="pointer-events-auto flex items-center gap-4">
-            {showForward && forwardSeg && (
-              <FlybyArrow
-                dir="left"
-                label={t.flyby.forwardToView(forwardSeg.to)}
-                onClick={() => run(forwardSeg, "forward")}
-                onPrime={() => void ensureDecoded(forwardSeg, "forward")}
-              />
-            )}
+            {arrowSlots.left}
             <span className="pointer-events-none select-none rounded-full bg-tier-dark/80 px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-line backdrop-blur">
               {t.flyby.rotateLabel}
             </span>
-            {showBack && backwardSeg && (
-              <FlybyArrow
-                dir="right"
-                label={t.flyby.backToView(backwardSeg.from)}
-                onClick={() => run(backwardSeg, "reverse")}
-                onPrime={() => void ensureDecoded(backwardSeg, "reverse")}
-              />
-            )}
+            {arrowSlots.right}
           </div>
         </div>
       )}

@@ -32,7 +32,7 @@ de video/frames.
 | Ruta | Qué es |
 |---|---|
 | `/` | Intro — portada a pantalla completa con el CTA "Descubrir". Hoy es un still (falta el video). |
-| `/showroom` | Las 4 vistas del edificio, flechas para girar, polígonos clicables por unidad. |
+| `/showroom` | Las 5 vistas del edificio, flechas para girar, polígonos clicables por unidad. |
 | `/residencia/[id]` | Ficha de la unidad. Como overlay sobre el showroom o como página propia. |
 | `/admin/polygon-editor` | Editor de polígonos — herramienta interna, apagada por defecto. |
 | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Metadata routes. |
@@ -51,8 +51,8 @@ ENABLE_POLYGON_EDITOR=true
 
 | URL | Qué edita |
 |---|---|
-| `/admin/polygon-editor/0` … `/3` | Los polígonos de cada una de las 4 vistas del showroom. |
-| `/admin/polygon-editor/plano/1` … `/7` | Los polígonos de cada planta. |
+| `/admin/polygon-editor/0` … `/4` | Los polígonos de cada una de las 5 vistas del showroom. |
+| `/admin/polygon-editor/plano/SS`, `/0`, `/1` … `/8` | Los polígonos de cada planta (incluye subsuelo, PB y azotea). |
 
 **Cómo se guarda.** El editor postea a `/api/admin/*`, que en local escribe directo a
 `src/data/stops.json` / `plates.json`. Eso es lo que se commitea, y en producción **ese
@@ -484,6 +484,32 @@ moverse del baseline. Los frames no bloquean nada: el preload es en dos fases y 
 stop 0 no tiene flecha de retroceso y el 4 no tiene de avance. Sale solo: el viewer
 deriva las flechas de los segmentos que existen (`segments.find(s => s.from === id)`).
 
+#### Hacia dónde apunta cada flecha
+
+Lo decide el campo **`dir` de cada segmento** en `flyby.json`, que es *hacia qué lado manda
+la CÁMARA ese movimiento*. Un solo dato gobierna las tres cosas, así que no pueden
+contradecirse:
+
+- el **chevron** de la flecha de avanzar (el de volver es el opuesto, porque volver
+  reproduce el mismo tramo al revés);
+- la **posición** en la fila: la que mira a la izquierda va a la izquierda de "Girar";
+- el **sentido del arrastre**, con lógica de "agarrá y tirá": tirás la escena para un lado
+  y la cámara va al contrario.
+
+En TIER Bravo los cuatro tramos van en `"right"`: **avanzar es la flecha derecha, y
+arrastrar hacia la izquierda avanza**.
+
+Se había asumido al revés (`"left"`, avanzar con la flecha izquierda) y lo corrigió Juani
+el 27-08. La prueba está en el render: yendo de la vista 1 a la 2 quedás **por detrás** de
+la puerta del garaje, no por delante — si la cámara fuera hacia la izquierda sería al
+revés. Medido sobre los frames, el contenido barre hacia la izquierda, que es lo mismo
+dicho al revés. (El 0→1 es un zoom-in fuerte donde esa lectura es ambigua, pero va
+uniforme con el resto: partir las flechas a mitad del recorrido se siente peor que
+cualquier imprecisión óptica.)
+
+⚠ Antes el chevron estaba **hardcodeado** en el JSX e ignoraba `dir`, así que la flecha y
+el arrastre podían apuntar a lados distintos. Ahora los dos leen el dato.
+
 #### Cuándo aparece una flecha
 
 Una flecha se muestra **sólo cuando su tramo está bajado entero y con el head
@@ -570,7 +596,8 @@ y Jost ya está cargada en el sitio — pero confirmalo con el cliente antes de 
 
 ```
 _media-src/          Masters crudos del cliente — GITIGNOREADO, no deploya.
-  stops/             Los 4 exteriores (+ _v1-2026-08-24/ con los de la 1ª entrega)
+  stops/             Los 5 exteriores (+ _v1…_v5/ con las entregas anteriores)
+  flyby/             Los 4 mp4 de las transiciones (fuente de `npm run flyby:frames`)
   plantas/           Las 7 plantas generales
   gallery/           Los 14 renders: 4 exteriores + amenities + interiores
   tipologias/        Los 9 planos de unidad (con el nombre original del cliente)
