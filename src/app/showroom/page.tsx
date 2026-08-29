@@ -73,9 +73,12 @@ export default async function Showroom() {
                 // se pierde ahí. Ver scripts/make-brand-assets.mjs.
                 src="/logo_blanco.png"
                 alt="TIER"
-                // El wordmark es una tira 5,2:1: 32px de alto ya son ~167px de ancho.
-                // En mobile, h-7 para que entre prolijo (incluso a ~360px).
-                className="h-7 w-auto drop-shadow-md sm:h-8"
+                // El wordmark es una tira 5,2:1, así que el ALTO fija el ancho:
+                // h-8 ≈ 167px · h-7 ≈ 147 · h-6 ≈ 126 · h-5 ≈ 105.
+                // En teléfonos el lockup comparte renglón con la barra de acciones,
+                // así que baja de escalón en 400 y en 560: a h-7 no entraban las dos
+                // cosas en 412px y el logo terminaba en una banda propia sobre el render.
+                className="h-5 w-auto drop-shadow-md min-[401px]:h-6 min-[560px]:h-7 sm:h-8"
               />
               {/* Alineado a la IZQUIERDA con el logotipo. El PNG está recortado exacto
                   (la tinta arranca en x=0), así que las cajas ya coinciden: el
@@ -84,7 +87,7 @@ export default async function Showroom() {
                   izquierda. Va en `em` para que acompañe si cambia el tamaño; es el
                   único número a tocar si hay que ajustarlo. */}
               <span
-                className="mt-[3px] font-sans text-[13px] font-light leading-none tracking-[0.28em] text-white drop-shadow-md sm:mt-[6px] sm:text-[17px]"
+                className="mt-[2px] font-sans text-[10px] font-light leading-none tracking-[0.28em] text-white drop-shadow-md min-[401px]:text-[11.5px] min-[560px]:mt-[3px] min-[560px]:text-[13px] sm:mt-[6px] sm:text-[17px]"
                 style={{ marginLeft: "0.14em" }}
               >
                 BRAVO

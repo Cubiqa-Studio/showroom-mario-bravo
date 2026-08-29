@@ -20,6 +20,13 @@ interface ShowroomToolbarProps {
   consultHref: string;
   /** Abre el menú lateral (hamburguesa). */
   onOpenMenu: () => void;
+  /** Lockup de marca. En TELÉFONOS viaja DENTRO de esta barra (fila única
+   *  logo-izquierda / acciones-derecha); de 560px para arriba lo pinta el
+   *  FlybyViewer arriba a la izquierda y acá no se muestra. */
+  branding?: React.ReactNode;
+  /** Vuelve a la primera vista (el logo es clickeable). */
+  onBrandingClick?: () => void;
+  brandingLabel?: string;
 }
 
 /** Fullscreen del documento, con estado sincronizado al evento del navegador. */
@@ -51,6 +58,9 @@ export function ShowroomToolbar({
   onToggleAvailability,
   consultHref,
   onOpenMenu,
+  branding,
+  onBrandingClick,
+  brandingLabel,
 }: ShowroomToolbarProps) {
   const { isFullscreen, toggle } = useFullscreen();
   const [copied, setCopied] = useState(false);
@@ -78,19 +88,40 @@ export function ShowroomToolbar({
 
   return (
     <>
-      {/* Barra 1 — acciones (arriba a la derecha) */}
+      {/* Barra 1 — acciones.
+          ≥560px: pastilla suelta arriba a la derecha (el logo lo pinta el visor
+          arriba a la izquierda), tal cual la aprobó el cliente.
+          <560px: FILA COMPLETA de borde a borde — logo a la izquierda, acciones a
+          la derecha. Antes el logo vivía en una tercera banda a 84px y la barra,
+          con la tipografía de escritorio, entraba en DOS líneas: entre las tres
+          bandas se comían 168px de render (reporte de Joaquim, 29-08: "quedaron
+          GIGANTES y tapan DEMASIADA IMAGEN, además de que no está centrado").
+          Con los márgenes simétricos (left-3/right-3) la barra deja de quedar
+          corrida contra el borde derecho. */}
       <div
-        className="absolute right-4 top-4 z-30"
+        className="absolute left-3 right-3 top-3 z-30 flex items-center justify-between gap-2 min-[560px]:left-auto min-[560px]:right-4 min-[560px]:top-4"
         // No dejes que un click en la barra dispare el drag del flyby.
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-1 rounded-2xl bg-tier-dark/80 p-1 shadow-lg ring-1 ring-line backdrop-blur sm:gap-1.5 sm:p-1.5">
+        {branding && (
+          <button
+            type="button"
+            onClick={onBrandingClick}
+            aria-label={brandingLabel}
+            title={brandingLabel}
+            className="block min-w-0 shrink cursor-pointer transition active:scale-95 min-[560px]:hidden"
+          >
+            {branding}
+          </button>
+        )}
+
+        <div className="flex shrink-0 items-center gap-0.5 rounded-2xl bg-tier-dark/80 p-1 shadow-lg ring-1 ring-line backdrop-blur min-[560px]:gap-1 sm:gap-1.5 sm:p-1.5">
           <motion.a
             href={consultHref}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => captureCta("whatsapp", "showroom_toolbar")}
-            className="group relative inline-flex items-center overflow-hidden rounded-xl bg-gold px-3 py-1.5 text-xs font-semibold tracking-wide text-cream shadow-sm transition-colors hover:bg-gold-soft sm:px-3.5 sm:py-2 sm:text-sm"
+            className="group relative inline-flex items-center overflow-hidden rounded-xl bg-gold px-2.5 py-2.5 text-xs font-semibold tracking-wide text-cream shadow-sm transition-colors hover:bg-gold-soft min-[401px]:px-3 sm:px-3.5 sm:py-2 sm:text-sm"
             // Vibra TODO el botón (multidirección, sutil, tipo teléfono sonando):
             // ráfaga corta + descanso, en loop. Se FRENA en hover (variante "rest")
             // para no estorbar el click — y ahí entra el shine.
@@ -116,12 +147,16 @@ export function ShowroomToolbar({
               aria-hidden
               className="pointer-events-none absolute inset-0 -translate-x-[150%] skew-x-12 bg-gradient-to-r from-transparent via-white/55 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[150%]"
             />
-            <span className="relative z-10 inline-flex items-center gap-2">
+            <span className="relative z-10 inline-flex items-center gap-1.5 sm:gap-2">
               <PhoneIcon width={18} height={18} />
-              {/* Texto corto en pantallas muy angostas (~<375px) para que la barra
-                  entre en una sola línea y no se amontone. */}
-              <span className="min-[375px]:hidden">{t.toolbar.consultShort}</span>
-              <span className="hidden min-[375px]:inline">{t.toolbar.consultNow}</span>
+              {/* El rótulo se acorta en dos escalones para que la fila (logo +
+                  acciones) entre SIEMPRE en una línea: hasta 400px sólo el ícono
+                  —el dorado ya lee como "llamar", y es lo mismo que hace la navbar
+                  de la landing—, hasta 480px "Consultar", y de ahí el texto completo. */}
+              <span className="hidden min-[401px]:inline min-[481px]:hidden">
+                {t.toolbar.consultShort}
+              </span>
+              <span className="hidden min-[481px]:inline">{t.toolbar.consultNow}</span>
             </span>
           </motion.a>
 
@@ -135,7 +170,7 @@ export function ShowroomToolbar({
                 type="button"
                 onClick={() => setLang(l)}
                 aria-pressed={lang === l}
-                className={`rounded-full px-2.5 py-1 uppercase transition ${
+                className={`rounded-full px-2 py-2 uppercase transition min-[401px]:px-2.5 ${
                   lang === l ? "bg-gold text-cream shadow-sm" : "text-muted hover:text-ink"
                 }`}
               >
@@ -148,16 +183,23 @@ export function ShowroomToolbar({
             <ShareIcon width={20} height={20} />
           </IconButton>
 
-          <IconButton
-            label={isFullscreen ? t.toolbar.exitFullscreen : t.toolbar.fullscreen}
-            onClick={toggle}
-          >
-            {isFullscreen ? (
-              <CompressIcon width={20} height={20} />
-            ) : (
-              <ExpandIcon width={20} height={20} />
-            )}
-          </IconButton>
+          {/* Pantalla completa SÓLO de tablet para arriba. En iOS —o sea, en TODOS
+              los navegadores de iPhone, que van sobre WebKit— `requestFullscreen`
+              no existe para elementos: el botón no hacía nada. Y en Android el
+              propio navegador ya esconde su barra al scrollear. Ocupaba 36px de
+              una fila que no sobra. */}
+          <span className="hidden min-[560px]:contents">
+            <IconButton
+              label={isFullscreen ? t.toolbar.exitFullscreen : t.toolbar.fullscreen}
+              onClick={toggle}
+            >
+              {isFullscreen ? (
+                <CompressIcon width={20} height={20} />
+              ) : (
+                <ExpandIcon width={20} height={20} />
+              )}
+            </IconButton>
+          </span>
 
           <IconButton label={t.toolbar.menu} onClick={onOpenMenu}>
             <MenuIcon width={20} height={20} />
@@ -180,10 +222,15 @@ export function ShowroomToolbar({
 
       </div>
 
-      {/* Barra 2 — disponibilidad. Desktop: abajo a la izquierda. Mobile: arriba a la
-          derecha, DEBAJO de la barra de acciones (abajo-izq pisaba las flechas). */}
+      {/* Barra 2 — disponibilidad. Desktop: abajo a la izquierda. Mobile: segunda
+          (y última) banda, a la IZQUIERDA — la lupa y el avance ocupan la derecha de
+          esa misma fila, así las tres cosas comparten un solo renglón en vez de
+          apilarse en dos. Abajo-izq en celular no sirve: pisa las flechas. */}
       <div
-        className="absolute right-4 top-[84px] z-30 flex items-center gap-2 rounded-2xl bg-tier-dark/80 px-2 py-1.5 shadow-lg ring-1 ring-line backdrop-blur min-[560px]:bottom-6 min-[560px]:left-4 min-[560px]:right-auto min-[560px]:top-auto"
+        // `h-10` fija el alto de la banda en teléfonos para que quede alineada al
+        // píxel con la fila de la lupa/avance (que vive en FlybyViewer y no puede
+        // compartir contenedor: en escritorio cada una va a una esquina distinta).
+        className="absolute left-3 top-[66px] z-30 flex h-10 items-center gap-2 rounded-2xl bg-tier-dark/80 px-1.5 shadow-lg ring-1 ring-line backdrop-blur min-[560px]:bottom-6 min-[560px]:left-4 min-[560px]:h-auto min-[560px]:px-2 min-[560px]:py-1.5 min-[560px]:top-auto"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <button
@@ -191,7 +238,7 @@ export function ShowroomToolbar({
           role="switch"
           aria-checked={showAvailability}
           onClick={() => onToggleAvailability(!showAvailability)}
-          className="inline-flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-medium text-ink transition hover:bg-white/10"
+          className="inline-flex h-full items-center gap-2 rounded-xl px-1.5 text-xs font-medium text-ink transition hover:bg-white/10 min-[560px]:h-auto min-[560px]:px-2 min-[560px]:py-1 min-[560px]:text-sm"
         >
           <span
             className={`relative h-5 w-9 rounded-full transition-colors ${
@@ -226,7 +273,10 @@ function IconButton({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="relative grid h-9 w-9 place-items-center rounded-xl text-muted transition hover:bg-white/10 hover:text-ink sm:h-10 sm:w-10"
+      // 40px de ALTO (no 36) en teléfonos: el objetivo táctil sube sin gastar ancho,
+      // que es el recurso escaso en esta fila. El público del proyecto es grande y
+      // con la vista cansada — el mismo motivo por el que el cliente pidió más letra.
+      className="relative grid h-10 w-9 place-items-center rounded-xl text-muted transition hover:bg-white/10 hover:text-ink sm:h-10 sm:w-10"
     >
       {children}
     </button>

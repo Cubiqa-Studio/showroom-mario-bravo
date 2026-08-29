@@ -3,6 +3,15 @@
    Port fiel de /design-reference/styles.css, scopeado bajo
    `.res-landing` para no filtrar nada al resto de la app.
    Keyframes prefijados `res-*`. Fuentes vía next/font.
+
+   ⚠ TIPOGRAFÍA — TODOS los `font-size` de este archivo van envueltos en
+   `calc(<px> * var(--fs-k))`. Esta hoja no usa utilidades de Tailwind, así que
+   sin eso los ~160 tamaños quedaban clavados en su valor de ESCRITORIO también
+   en el teléfono (que es de dónde salía el "textos gigantes en mobile" del
+   29-08). `--fs-k` se define por breakpoint en globals.css (:root) —1 en
+   escritorio, 0.9 en tablet, 0.85 en celular, 0.81 en celular chico— y escala
+   la landing entera manteniendo las proporciones ya decididas.
+   Al agregar un `font-size` nuevo, envolvelo igual o quedará fuera de escala.
    ============================================================ */
 
 .res-landing {
@@ -63,7 +72,7 @@
   background: var(--bg);
   color: var(--white);
   font-family: var(--sans);
-  font-size: 21px;
+  font-size: calc(21px * var(--fs-k));
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -87,7 +96,7 @@
 .res-landing .serif { font-family: var(--serif); }
 .res-landing .eyebrow {
   font-family: var(--sans);
-  font-size: 17.5px;
+  font-size: calc(17.5px * var(--fs-k));
   letter-spacing: .28em;
   text-transform: uppercase;
   color: var(--gray);
@@ -99,7 +108,7 @@
   text-transform: uppercase;
   letter-spacing: .14em;
   /* Miro 2026-06-10: títulos de sección ~32px (marca amarilla "PLANO DE LA UNIDAD"). */
-  font-size: 37px;
+  font-size: calc(37px * var(--fs-k));
   line-height: 1.04;
 }
 .res-landing .muted { color: var(--gray); }
@@ -133,7 +142,7 @@
 }
 .res-landing .ph .ph-label {
   font-family: "SFMono-Regular", ui-monospace, Menlo, monospace;
-  font-size: 16.5px;
+  font-size: calc(16.5px * var(--fs-k));
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--gray-dim);
@@ -148,7 +157,7 @@
 /* ---------- buttons ---------- */
 .res-landing .btn {
   font-family: var(--sans);
-  font-size: 17.5px;
+  font-size: calc(17.5px * var(--fs-k));
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -172,14 +181,14 @@
 .res-landing .btn-gold::after {
   content: "\2192"; display: inline-block;
   max-width: 0; opacity: 0; margin-left: -10px;
-  transform: translateX(-4px); font-size: 20px; line-height: 1;
+  transform: translateX(-4px); font-size: calc(20px * var(--fs-k)); line-height: 1;
   transition: max-width .3s ease, opacity .3s ease, transform .3s ease, margin-left .3s ease;
 }
 .res-landing .btn-gold:hover::after { max-width: 22px; opacity: 1; margin-left: 0; transform: translateX(0); }
 .res-landing .btn-gold:hover .btn-label { transform: translateX(-3px); }
 .res-landing .btn-outline { background: transparent; color: var(--white); border-color: var(--divider); }
 .res-landing .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-.res-landing .btn-sm { padding: 8px 12px; font-size: 15px; }
+.res-landing .btn-sm { padding: 8px 12px; font-size: calc(15px * var(--fs-k)); }
 .res-landing .btn svg { width: 15px; height: 15px; }
 
 /* badges */
@@ -187,7 +196,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 16.5px;
+  font-size: calc(16.5px * var(--fs-k));
   font-weight: 600;
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -202,7 +211,7 @@
 
 /* ---------- brand identity details ---------- */
 .res-landing .tick { display: block; width: 40px; height: 2px; background: var(--gold); }
-.res-landing .sec-no { font-family: ui-monospace, Menlo, monospace; font-size: 17.5px; letter-spacing: .24em; color: var(--gold); }
+.res-landing .sec-no { font-family: ui-monospace, Menlo, monospace; font-size: calc(17.5px * var(--fs-k)); letter-spacing: .24em; color: var(--gold); }
 .res-landing .sec-kick { display: flex; align-items: center; gap: 16px; }
 .res-landing .spec-head .sec-kick { flex-direction: column; gap: 14px; }
 .res-landing .spec-head .sec-kick .tick { margin: 0 auto; }
@@ -270,7 +279,7 @@
   /* El texto sale de `SITE.brandName` ("TIER Bravo" → "Bravo"), así que la CAJA ALTA
      la pone el CSS: si mañana cambia la marca, no hay que tocar el componente. */
   text-transform: uppercase;
-  font-size: 21px; font-weight: 300; letter-spacing: .28em;
+  font-size: calc(21px * var(--fs-k)); font-weight: 300; letter-spacing: .28em;
   line-height: 1; margin-top: 6px;
   /* Sangría ÓPTICA: el PNG del logotipo está recortado exacto (tinta desde x=0), así
      que las cajas ya alinean — pero la "T" apoya el ojo en su travesaño y la "B" en un
@@ -287,7 +296,14 @@
    así que cada píxel de alto son 5 de ancho — a 52px se comía 272px de la barra y
    pisaba los pills. A 32px el logo mide ~167px y la nav respira. */
 .res-landing .logo img { display: block; height: 32px; width: auto; }
-.res-landing .nav-pills { display: flex; gap: 6px; align-items: center; }
+/* `min-width: 0` + el truncado de abajo: entre 721 y ~1100px (teléfono ACOSTADO,
+   915x412, y tablets angostas) el grupo izquierdo —logo + "Volver" + el pill con
+   el nombre de la unidad— más el derecho no entran juntos, y como ninguno de los
+   dos tenía prohibido encogerse, los BOTONES de la derecha se metían encima del
+   pill ("Departame…" con el badge de avance pisándolo). Ahora encoge sólo el
+   pill, y con puntos suspensivos. */
+.res-landing .nav-pills { display: flex; gap: 6px; align-items: center; min-width: 0; }
+.res-landing .nav-pills .pill { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* "Volver" (flecha al exterior), a la izquierda del pill de la unidad. */
 .res-landing .pill-back { display: inline-flex; align-items: center; gap: 7px; }
 .res-landing .pill-back svg { width: 15px; height: 15px; }
@@ -307,7 +323,7 @@
 .res-landing .nav--ghost .nav-back-mobile { border-color: rgba(255,255,255,.32); color: #fff; }
 .res-landing .nav--ghost .nav-back-mobile:hover { border-color: rgba(255,255,255,.7); color: #fff; }
 .res-landing .pill {
-  font-size: 18.5px;
+  font-size: calc(18.5px * var(--fs-k));
   letter-spacing: .04em;
   padding: 9px 18px;
   border-radius: 999px;
@@ -323,7 +339,7 @@
   border-color: color-mix(in srgb, var(--gold) 40%, transparent);
   background: color-mix(in srgb, var(--gold) 8%, transparent);
 }
-.res-landing .nav-right { display: flex; align-items: center; gap: 14px; }
+.res-landing .nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 /* Banda 640-1180px del nav de la landing: la barra va justa (logo + pills + lupa +
    avance + idioma + consultar) y la etiqueta "Avance de obra" (Miro 2026-07-15) es
    más larga que el viejo "Obra" → se oculta la etiqueta (queda ícono + %). En el
@@ -338,7 +354,7 @@
 }
 .res-landing .lang-opt {
   border: 0; background: none; cursor: pointer;
-  font-size: 16.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  font-size: calc(16.5px * var(--fs-k)); font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
   color: var(--gray); padding: 6px 10px; border-radius: 999px;
   transition: all .2s ease;
 }
@@ -428,7 +444,7 @@
   display: none; /* desktop: 360 interactivo inline, sin chip */
   align-items: center; gap: 7px;
   background: rgba(16,18,24,.55); color: #fff;
-  font-family: var(--sans); font-size: 16.5px; font-weight: 600;
+  font-family: var(--sans); font-size: calc(16.5px * var(--fs-k)); font-weight: 600;
   letter-spacing: .12em; text-transform: uppercase;
   padding: 8px 12px; border-radius: 999px; border: 0; cursor: pointer;
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -509,7 +525,7 @@
   font-family: var(--serif); font-weight: 500;
   text-transform: uppercase; letter-spacing: .02em; line-height: .9;
   /* Mismo tamaño que tenía el título de la vieja DataBar. */
-  font-size: clamp(36px, 4vw, 58px);
+  font-size: calc(clamp(36px, 4vw, 58px) * var(--fs-k));
 }
 
 /* =========================================================
@@ -517,7 +533,7 @@
    ========================================================= */
 .res-landing .tabs { display: flex; justify-content: center; gap: 40px; margin-bottom: 14px; }
 .res-landing .tab {
-  font-size: 20px; letter-spacing: .04em;
+  font-size: calc(20px * var(--fs-k)); letter-spacing: .04em;
   color: var(--gray); cursor: pointer;
   padding: 10px 4px;
   border-bottom: 2px solid transparent;
@@ -556,18 +572,18 @@
 .res-landing .plate-nav-btn svg { width: 18px; height: 18px; }
 .res-landing .plate-nav-label {
   min-width: 180px; text-align: center;
-  font-size: 18.5px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600;
+  font-size: calc(18.5px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase; font-weight: 600;
 }
 .res-landing .plate-nav-label .pn-here {
   display: block; margin-top: 3px;
-  font-size: 15px; letter-spacing: .14em; color: var(--gold);
+  font-size: calc(15px * var(--fs-k)); letter-spacing: .14em; color: var(--gold);
 }
 /* Pills de acceso directo a cada piso (Plan Maestro). */
 .res-landing .plate-pills { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .res-landing .plate-pill {
   padding: 7px 16px; border-radius: 999px; cursor: pointer;
   border: 1px solid var(--divider); background: var(--panel);
-  font-size: 17.5px; font-weight: 600; letter-spacing: .06em; color: var(--gray);
+  font-size: calc(17.5px * var(--fs-k)); font-weight: 600; letter-spacing: .06em; color: var(--gray);
   transition: all .2s ease;
 }
 .res-landing .plate-pill:hover { border-color: var(--gold); color: var(--gold); }
@@ -575,12 +591,12 @@
 .res-landing .stage-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .res-landing .water-banner {
   display: flex; justify-content: center; align-items: center; gap: 10px;
-  color: var(--gray); font-size: 17.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--gray); font-size: calc(17.5px * var(--fs-k)); letter-spacing: .16em; text-transform: uppercase;
   margin: 20px 0 38px;
 }
-.res-landing .water-banner .wave { color: var(--gold); font-size: 20px; }
+.res-landing .water-banner .wave { color: var(--gold); font-size: calc(20px * var(--fs-k)); }
 .res-landing .street-label {
-  text-align: center; font-size: 17.5px; letter-spacing: .24em; text-transform: uppercase;
+  text-align: center; font-size: calc(17.5px * var(--fs-k)); letter-spacing: .24em; text-transform: uppercase;
   color: var(--gray-dim); margin-top: 6px;
 }
 .res-landing .plan-stage {
@@ -603,14 +619,14 @@
 .res-landing .water-label {
   position: absolute; top: 26px; left: 50%; transform: translateX(-50%);
   display: flex; align-items: center; gap: 10px;
-  color: var(--gray); font-size: 17.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gray); font-size: calc(17.5px * var(--fs-k)); letter-spacing: .14em; text-transform: uppercase;
 }
-.res-landing .water-label .wave { color: var(--gold); font-size: 20px; }
+.res-landing .water-label .wave { color: var(--gold); font-size: calc(20px * var(--fs-k)); }
 .res-landing .entry-arrow {
   position: absolute;
   bottom: 36px; left: 30px; /* posición de escritorio (antes inline en PlanSection.tsx) */
   display: flex; align-items: center; gap: 6px;
-  color: var(--orange); font-size: 15px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--orange); font-size: calc(15px * var(--fs-k)); letter-spacing: .1em; text-transform: uppercase;
   z-index: 2;
 }
 /* plano de la unidad como imagen (en vez del SVG falso) + watermark del Nº */
@@ -629,15 +645,27 @@
 .res-landing .overview { background: transparent; border: 0; border-radius: 0; padding: 6px 0 0; display: flex; flex-direction: column; box-shadow: none; }
 .res-landing .overview h3 {
   font-family: var(--sans);
-  font-size: 17.5px; letter-spacing: .24em; text-transform: uppercase;
+  font-size: calc(17.5px * var(--fs-k)); letter-spacing: .24em; text-transform: uppercase;
   color: var(--gray); font-weight: 600; margin-bottom: 28px;
 }
-.res-landing .ov-row { display: flex; align-items: baseline; gap: 8px; padding: 16px 0; font-size: 18.5px; }
+/* `flex-wrap` + un valor que PUEDE partirse: sin esto la fila de Amenities
+   ("Gimnasio, cowork, SUM, parrillas, juegos…", `nowrap`) medía 496px de ancho
+   mínimo y, como el .plan-layout de celular es una sola columna `1fr` (mínimo =
+   contenido), empujaba .overview → .wrap → .res-landing a 605px sobre un viewport
+   de 412. Y como .res-landing es `overflow-x: hidden`, eso NO se veía como una
+   barra de scroll: se veía como que el plano y el resumen quedaban CORTADOS a la
+   derecha, sin forma de llegar a lo que faltaba (reporte de Joaquim, 29-08).
+   El valor de Vistas viene de Airtable (texto libre), así que esto tiene que
+   aguantar cualquier largo, no sólo el de amenities de hoy. */
+.res-landing .ov-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; padding: 16px 0; font-size: calc(18.5px * var(--fs-k)); }
 .res-landing .ov-row + .ov-row { border-top: 1px solid var(--divider-2); }
 .res-landing .ov-row .lbl { color: var(--gray); white-space: nowrap; }
-.res-landing .ov-row .lead { flex: 1; border-bottom: 1px dotted var(--divider); transform: translateY(-3px); }
-.res-landing .ov-row .val { font-weight: 600; white-space: nowrap; }
-.res-landing .ov-row .val.big { font-family: var(--serif); font-size: 24.5px; color: var(--gold); }
+.res-landing .ov-row .lead { flex: 1 1 24px; min-width: 24px; border-bottom: 1px dotted var(--divider); transform: translateY(-3px); }
+/* Si no entra en la línea de la etiqueta, cae entera abajo y se alinea a la
+   derecha (`margin-left:auto`); recién si TAMPOCO entra así, parte por palabras.
+   Los valores cortos con unidad ("68.3 m²", "2") nunca llegan a ese punto. */
+.res-landing .ov-row .val { font-weight: 600; margin-left: auto; text-align: right; overflow-wrap: break-word; min-width: 0; }
+.res-landing .ov-row .val.big { font-family: var(--serif); font-size: calc(24.5px * var(--fs-k)); color: var(--gold); }
 .res-landing .ov-group-gap { height: 18px; }
 .res-landing .overview .btn-gold { margin-top: auto; justify-content: center; }
 
@@ -650,7 +678,7 @@
 
 /* ---------- floor plate ---------- */
 .res-landing .plate-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
-.res-landing .plate-head .section-title { font-size: 37px; }
+.res-landing .plate-head .section-title { font-size: calc(37px * var(--fs-k)); }
 .res-landing .plate-head p { margin-top: 22px; max-width: 440px; line-height: 1.7; }
 
 .res-landing .plate-stage {
@@ -676,15 +704,15 @@
 @keyframes plate-spin { to { transform: rotate(360deg); } }
 .res-landing .unit-shape { cursor: pointer; transition: all .25s ease; }
 .res-landing .unit-shape:hover { filter: brightness(.94) saturate(1.15); }
-.res-landing .unit-label { fill: var(--white); font-family: var(--sans); font-size: 18.5px; font-weight: 600; letter-spacing: .1em; pointer-events: none; }
-.res-landing .unit-sub { fill: var(--gray); font-family: var(--sans); font-size: 15px; letter-spacing: .06em; pointer-events: none; }
-.res-landing .core-label { fill: var(--gray-dim); font-family: ui-monospace, monospace; font-size: 14px; letter-spacing: .14em; pointer-events: none; }
+.res-landing .unit-label { fill: var(--white); font-family: var(--sans); font-size: calc(18.5px * var(--fs-k)); font-weight: 600; letter-spacing: .1em; pointer-events: none; }
+.res-landing .unit-sub { fill: var(--gray); font-family: var(--sans); font-size: calc(15px * var(--fs-k)); letter-spacing: .06em; pointer-events: none; }
+.res-landing .core-label { fill: var(--gray-dim); font-family: ui-monospace, monospace; font-size: calc(14px * var(--fs-k)); letter-spacing: .14em; pointer-events: none; }
 
 /* floor plate v2 */
 .res-landing .fp2-outer { fill: none; stroke: var(--white); stroke-width: 2; }
 .res-landing .fp2-wall  { fill: none; stroke: var(--white); stroke-width: 1.1; }
-.res-landing .fp2-room  { fill: var(--gray); font-family: var(--sans); font-weight: 600; font-size: 18px; letter-spacing: .05em; pointer-events: none; }
-.res-landing .fp2-sub   { fill: var(--gray-dim); font-family: var(--sans); font-size: 15.5px; letter-spacing: .03em; pointer-events: none; }
+.res-landing .fp2-room  { fill: var(--gray); font-family: var(--sans); font-weight: 600; font-size: calc(18px * var(--fs-k)); letter-spacing: .05em; pointer-events: none; }
+.res-landing .fp2-sub   { fill: var(--gray-dim); font-family: var(--sans); font-size: calc(15.5px * var(--fs-k)); letter-spacing: .03em; pointer-events: none; }
 .res-landing .tint-neighbor { fill: rgba(201,168,120,.34); transition: fill .25s ease; cursor: pointer; }
 .res-landing .tint-selected { fill: rgba(127,169,140,.42); }
 .res-landing .unit-shape:hover .tint-neighbor,
@@ -739,13 +767,13 @@
 .res-landing .ut-duplex {
   margin: 8px 0 2px; padding: 5px 9px; border-radius: 7px;
   background: color-mix(in srgb, var(--violet) 16%, transparent); color: var(--violet);
-  font-size: 16.5px; font-weight: 600; letter-spacing: .01em; line-height: 1.3;
+  font-size: calc(16.5px * var(--fs-k)); font-weight: 600; letter-spacing: .01em; line-height: 1.3;
 }
 .res-landing .core-fill { fill: var(--panel-2); stroke: var(--divider); stroke-width: 1.5; }
 .res-landing .core-room { fill: var(--panel-2); stroke: var(--white); stroke-width: 1; }
 .res-landing .sqft-marker circle { fill: var(--panel-2); stroke: var(--divider); stroke-width: 1.5; }
-.res-landing .sqft-marker .sq-n { fill: var(--white); font-family: var(--sans); font-weight: 700; font-size: 20px; }
-.res-landing .sqft-marker .sq-u { fill: var(--gray); font-family: var(--sans); font-weight: 500; font-size: 15px; letter-spacing: .1em; }
+.res-landing .sqft-marker .sq-n { fill: var(--white); font-family: var(--sans); font-weight: 700; font-size: calc(20px * var(--fs-k)); }
+.res-landing .sqft-marker .sq-u { fill: var(--gray); font-family: var(--sans); font-weight: 500; font-size: calc(15px * var(--fs-k)); letter-spacing: .1em; }
 .res-landing .expand-dot circle { fill: rgba(20,20,22,.9); }
 .res-landing .expand-dot path { stroke: #fff; stroke-width: 2; }
 
@@ -777,7 +805,7 @@
 .res-landing .frame-tag {
   position: absolute; top: 34px; left: var(--pad);
   display: flex; align-items: center; gap: 12px;
-  font-family: ui-monospace, monospace; font-size: 16.5px;
+  font-family: ui-monospace, monospace; font-size: calc(16.5px * var(--fs-k));
   letter-spacing: .2em; text-transform: uppercase; color: var(--gray-dim);
 }
 .res-landing .frame-tag .num { color: var(--gold); }
@@ -810,17 +838,22 @@
   z-index: 5;
 }
 .res-landing .bld-card .bc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.res-landing .bld-card .bc-name { font-family: var(--serif); font-size: 25.5px; letter-spacing: .08em; }
+.res-landing .bld-card .bc-name { font-family: var(--serif); font-size: calc(25.5px * var(--fs-k)); letter-spacing: .08em; }
 .res-landing .bld-card .bc-mini { height: 130px; border-radius: var(--radius-sm); margin-bottom: 14px; }
-.res-landing .bld-card .bc-stats { font-size: 17.5px; color: var(--gray); letter-spacing: .03em; margin-bottom: 16px; }
+.res-landing .bld-card .bc-stats { font-size: calc(17.5px * var(--fs-k)); color: var(--gray); letter-spacing: .03em; margin-bottom: 16px; }
 .res-landing .price-pill {
   display: inline-flex; align-items: center;
   background: var(--white); color: var(--bg);
-  font-weight: 700; font-size: 20px; letter-spacing: .01em;
+  font-weight: 700; font-size: calc(20px * var(--fs-k)); letter-spacing: .01em;
   padding: 9px 16px; border-radius: 999px;
 }
+/* `bottom` despejado del crédito de CUBIQA (fixed, bottom-3 right-3, 36px → ocupa
+   los primeros 48px de la esquina y va en z-40, por ENCIMA de este z-6): cuando la
+   sección del edificio llega al pie del viewport —en celular mide 100dvh, así que
+   pasa siempre— el isotipo quedaba pisando la esquina del botón dorado. Subirlo lo
+   deja apilado prolijo sobre el crédito, alineados por la derecha. */
 .res-landing .fab {
-  position: absolute; bottom: 30px; right: 30px;
+  position: absolute; bottom: 60px; right: 30px;
   width: 60px; height: 60px; border-radius: 50%;
   background: var(--gold); color: var(--cream);
   display: flex; align-items: center; justify-content: center;
@@ -828,7 +861,7 @@
   box-shadow: 0 14px 30px color-mix(in srgb, var(--gold) 35%, transparent);
   transition: transform .2s ease;
   flex-direction: column;
-  font-size: 14px; font-weight: 700; letter-spacing: .12em;
+  font-size: calc(14px * var(--fs-k)); font-weight: 700; letter-spacing: .12em;
 }
 .res-landing .fab:hover { transform: translateY(-3px); }
 .res-landing .fab svg { width: 18px; height: 18px; }
@@ -857,9 +890,9 @@
 .res-landing .step { flex: 1; text-align: center; position: relative; padding: 0 20px; }
 .res-landing .step .node { width: 19px; height: 19px; border-radius: 50%; background: var(--bg); border: 2px solid var(--gold); margin: 0 auto 28px; position: relative; z-index: 2; }
 .res-landing .step:first-child .node { background: var(--gold); }
-.res-landing .step .pct { font-family: var(--serif); font-size: 39px; color: var(--gold); letter-spacing: .04em; }
-.res-landing .step .when { font-size: 17.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--gray); margin-top: 12px; }
-.res-landing .timeline-foot { text-align: center; margin-top: 50px; font-size: 22px; font-weight: 600; letter-spacing: .01em; }
+.res-landing .step .pct { font-family: var(--serif); font-size: calc(39px * var(--fs-k)); color: var(--gold); letter-spacing: .04em; }
+.res-landing .step .when { font-size: calc(17.5px * var(--fs-k)); letter-spacing: .16em; text-transform: uppercase; color: var(--gray); margin-top: 12px; }
+.res-landing .timeline-foot { text-align: center; margin-top: 50px; font-size: calc(22px * var(--fs-k)); font-weight: 600; letter-spacing: .01em; }
 
 /* =========================================================
    LOCATION — interactive MapLibre
@@ -881,7 +914,7 @@
 .res-landing #map .maplibregl-canvas { filter: saturate(.75) brightness(1.12) contrast(.92); }
 /* La atribución la pinta maplibre en NEGRO desde su propia hoja: sobre el vidrio
    oscuro hay que devolverle el color, o queda negro sobre negro (1.2:1). */
-.res-landing .map-stage .maplibregl-ctrl-attrib { font-size: 15px; background: var(--glass); }
+.res-landing .map-stage .maplibregl-ctrl-attrib { font-size: calc(15px * var(--fs-k)); background: var(--glass); }
 .res-landing .map-stage .maplibregl-ctrl-attrib,
 .res-landing .map-stage .maplibregl-ctrl-attrib-inner,
 .res-landing .map-stage .maplibregl-ctrl-attrib a { color: var(--muted); }
@@ -914,7 +947,7 @@
 .res-landing .prop-label {
   position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
   white-space: nowrap;
-  font-family: var(--sans); font-size: 16.5px; font-weight: 700;
+  font-family: var(--sans); font-size: calc(16.5px * var(--fs-k)); font-weight: 700;
   letter-spacing: .12em; text-transform: uppercase; color: var(--white);
   background: var(--glass-strong); border: 1px solid var(--divider);
   padding: 5px 11px; border-radius: 999px; box-shadow: var(--shadow-card);
@@ -938,8 +971,8 @@
   box-shadow: var(--shadow-float) !important;
   font-family: var(--sans);
 }
-.res-landing .maplibregl-popup-content .pop-name { font-family: var(--serif); font-size: 22px; letter-spacing: .04em; color: var(--white); }
-.res-landing .maplibregl-popup-content .pop-cat { font-size: 15px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+.res-landing .maplibregl-popup-content .pop-name { font-family: var(--serif); font-size: calc(22px * var(--fs-k)); letter-spacing: .04em; color: var(--white); }
+.res-landing .maplibregl-popup-content .pop-cat { font-size: calc(15px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
 .res-landing .maplibregl-popup-tip { display: none; }
 .res-landing .maplibregl-popup-close-button { display: none; }
 
@@ -953,7 +986,7 @@
   border: 1px solid var(--divider);
   border-radius: 999px;
   padding: 11px 20px;
-  font-size: 17.5px; letter-spacing: .06em;
+  font-size: calc(17.5px * var(--fs-k)); letter-spacing: .06em;
   display: flex; align-items: center; gap: 8px;
   cursor: pointer; transition: all .2s ease;
   color: var(--white);
@@ -968,7 +1001,7 @@
   background: rgba(16,18,24,.3);
   backdrop-filter: blur(2px);
   font-family: var(--sans);
-  font-size: 18.5px; letter-spacing: .04em;
+  font-size: calc(18.5px * var(--fs-k)); letter-spacing: .04em;
 }
 .res-landing .maplibregl-cooperative-gesture-screen .maplibregl-desktop-message,
 .res-landing .maplibregl-cooperative-gesture-screen .maplibregl-mobile-message {
@@ -987,10 +1020,10 @@
 .res-landing .broker-card { background: var(--card); border: 1px solid var(--divider); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); }
 .res-landing .broker-photo { height: 360px; position: relative; }
 .res-landing .broker-info { padding: 32px 34px 38px; }
-.res-landing .broker-info .b-name { font-family: var(--serif); font-size: 37px; letter-spacing: .08em; text-transform: uppercase; }
-.res-landing .broker-info .b-role { color: var(--gold); font-size: 18.5px; letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; }
+.res-landing .broker-info .b-name { font-family: var(--serif); font-size: calc(37px * var(--fs-k)); letter-spacing: .08em; text-transform: uppercase; }
+.res-landing .broker-info .b-role { color: var(--gold); font-size: calc(18.5px * var(--fs-k)); letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; }
 
-.res-landing .form-ok { font-family: var(--serif); font-size: 48.5px; color: var(--gold); margin-bottom: 8px; }
+.res-landing .form-ok { font-family: var(--serif); font-size: calc(48.5px * var(--fs-k)); color: var(--gold); margin-bottom: 8px; }
 
 /* =========================================================
    REDESIGN — identity layer
@@ -999,7 +1032,7 @@
 .res-landing .plan-stage > .entry-arrow { z-index: 1; }
 .res-landing .plan-watermark {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: var(--serif); font-weight: 500; font-size: clamp(110px, 13vw, 210px);
+  font-family: var(--serif); font-weight: 500; font-size: calc(clamp(110px, 13vw, 210px) * var(--fs-k));
   color: rgba(255,255,255,.05); letter-spacing: .02em; line-height: 1;
   pointer-events: none; z-index: 0; user-select: none;
 }
@@ -1008,8 +1041,8 @@
 .res-landing .spec-nav { position: sticky; top: 108px; display: flex; flex-direction: column; }
 .res-landing .spec-nav-item { display: flex; gap: 18px; align-items: baseline; padding: 24px 4px; border-top: 1px solid var(--divider); cursor: pointer; transition: color .25s ease, padding .25s ease; }
 .res-landing .spec-nav-item:last-child { border-bottom: 1px solid var(--divider); }
-.res-landing .spec-nav-item .n { font-family: ui-monospace, Menlo, monospace; font-size: 17.5px; letter-spacing: .2em; color: var(--gray-dim); transition: color .25s ease; }
-.res-landing .spec-nav-item .t { font-family: var(--serif); font-size: 23.5px; letter-spacing: .05em; text-transform: uppercase; line-height: 1.1; color: var(--gray); transition: color .25s ease; }
+.res-landing .spec-nav-item .n { font-family: ui-monospace, Menlo, monospace; font-size: calc(17.5px * var(--fs-k)); letter-spacing: .2em; color: var(--gray-dim); transition: color .25s ease; }
+.res-landing .spec-nav-item .t { font-family: var(--serif); font-size: calc(23.5px * var(--fs-k)); letter-spacing: .05em; text-transform: uppercase; line-height: 1.1; color: var(--gray); transition: color .25s ease; }
 .res-landing .spec-nav-item:hover .t { color: var(--white); }
 .res-landing .spec-nav-item:hover { padding-left: 12px; }
 .res-landing .spec-nav-item.active .n { color: var(--gold); }
@@ -1034,10 +1067,10 @@
 .res-landing .spec-pane { position: relative; min-height: 380px; }
 .res-landing .spec-panel { display: none; }
 .res-landing .spec-panel.active { display: block; animation: res-viewIn .45s cubic-bezier(.22,.61,.36,1); }
-.res-landing .spec-panel .sp-num { font-family: ui-monospace, Menlo, monospace; font-size: 18.5px; letter-spacing: .24em; color: var(--gold); }
-.res-landing .spec-panel h3 { font-family: var(--serif); font-weight: 500; font-size: 33px; letter-spacing: .05em; text-transform: uppercase; margin: 16px 0 28px; line-height: 1.04; }
+.res-landing .spec-panel .sp-num { font-family: ui-monospace, Menlo, monospace; font-size: calc(18.5px * var(--fs-k)); letter-spacing: .24em; color: var(--gold); }
+.res-landing .spec-panel h3 { font-family: var(--serif); font-weight: 500; font-size: calc(33px * var(--fs-k)); letter-spacing: .05em; text-transform: uppercase; margin: 16px 0 28px; line-height: 1.04; }
 /* pre-line: el body de Amenities trae dos párrafos separados por \n (texto del cliente). */
-.res-landing .spec-panel p { color: var(--gray); line-height: 1.9; font-size: 21px; max-width: 660px; white-space: pre-line; }
+.res-landing .spec-panel p { color: var(--gray); line-height: 1.9; font-size: calc(21px * var(--fs-k)); max-width: 660px; white-space: pre-line; }
 .res-landing .spec-panel .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 56px; margin-top: 36px; max-width: 660px; }
 .res-landing .spec-panel .spec-grid strong { color: var(--white); }
 /* Logo dentro de un crédito de la grilla (ej. RE/MAX): tarjeta chica entre el
@@ -1047,9 +1080,9 @@
 .res-landing .spec-panel .spec-grid .sg-logo { display: block; height: 38px; width: auto; max-width: 100%; border-radius: 8px; margin: 10px 0 6px; }
 /* Listas del texto editorial (Terminaciones / Planta baja / Detalle técnico…). */
 .res-landing .spec-panel .spec-list { margin-top: 26px; max-width: 660px; }
-.res-landing .spec-panel .spec-list h4 { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 21px; letter-spacing: .02em; color: var(--white); margin-bottom: 10px; }
+.res-landing .spec-panel .spec-list h4 { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: calc(21px * var(--fs-k)); letter-spacing: .02em; color: var(--white); margin-bottom: 10px; }
 .res-landing .spec-panel .spec-list ul { list-style: none; }
-.res-landing .spec-panel .spec-list li { position: relative; padding-left: 18px; color: var(--gray); font-size: 20px; line-height: 1.7; margin-bottom: 7px; }
+.res-landing .spec-panel .spec-list li { position: relative; padding-left: 18px; color: var(--gray); font-size: calc(20px * var(--fs-k)); line-height: 1.7; margin-bottom: 7px; }
 .res-landing .spec-panel .spec-list li::before { content: ""; position: absolute; left: 2px; top: .72em; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
 
 .res-landing .timeline-v { position: relative; margin: 70px auto 0; max-width: 1180px; padding-left: 0; }
@@ -1086,12 +1119,12 @@
 /* El nodo se enciende cuando la bolita lo alcanza (clase .hit desde useInView). */
 .res-landing .tl-item.hit::before { background: var(--gold); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 14%, transparent); }
 .res-landing .tl-content { transition: transform .3s ease; }
-.res-landing .tl-pct { font-family: var(--serif); font-size: clamp(50px, 5.4vw, 88px); color: var(--gold); line-height: .88; letter-spacing: .02em; }
-.res-landing .tl-when { font-size: 17.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--gray); margin-top: 16px; }
+.res-landing .tl-pct { font-family: var(--serif); font-size: calc(clamp(50px, 5.4vw, 88px) * var(--fs-k)); color: var(--gold); line-height: .88; letter-spacing: .02em; }
+.res-landing .tl-when { font-size: calc(17.5px * var(--fs-k)); letter-spacing: .22em; text-transform: uppercase; color: var(--gray); margin-top: 16px; }
 .res-landing .tl-desc { color: var(--gray); margin-top: 10px; max-width: 440px; line-height: 1.7; }
 /* Cierre de la sección — "Entrega de los apartamentos: 24/30 meses" (Miro 2026-06-10). */
-.res-landing .timeline-delivery { margin-top: 56px; padding-left: 72px; font-family: var(--serif); font-size: 26.5px; color: var(--gold); letter-spacing: .02em; }
-.res-landing .timeline-foot2 { margin-top: 18px; padding-left: 72px; font-size: 22px; font-weight: 600; letter-spacing: .01em; }
+.res-landing .timeline-delivery { margin-top: 56px; padding-left: 72px; font-family: var(--serif); font-size: calc(26.5px * var(--fs-k)); color: var(--gold); letter-spacing: .02em; }
+.res-landing .timeline-foot2 { margin-top: 18px; padding-left: 72px; font-size: calc(22px * var(--fs-k)); font-weight: 600; letter-spacing: .01em; }
 
 .res-landing .map-info-card {
   position: absolute; top: 24px; left: 24px; z-index: 6;
@@ -1099,11 +1132,11 @@
   border: 1px solid var(--divider); border-radius: var(--radius);
   padding: 22px 24px; box-shadow: var(--shadow-float);
 }
-.res-landing .map-info-card .mi-eyebrow { font-size: 16.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
-.res-landing .map-info-card .mi-addr { font-family: var(--serif); font-size: 29px; letter-spacing: .03em; line-height: 1.18; margin-top: 8px; }
-.res-landing .map-info-card .mi-note { display: flex; align-items: center; gap: 9px; color: var(--gray); font-size: 18.5px; margin-top: 14px; }
+.res-landing .map-info-card .mi-eyebrow { font-size: calc(16.5px * var(--fs-k)); letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+.res-landing .map-info-card .mi-addr { font-family: var(--serif); font-size: calc(29px * var(--fs-k)); letter-spacing: .03em; line-height: 1.18; margin-top: 8px; }
+.res-landing .map-info-card .mi-note { display: flex; align-items: center; gap: 9px; color: var(--gray); font-size: calc(18.5px * var(--fs-k)); margin-top: 14px; }
 .res-landing .map-info-card .mi-note .dotg { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-.res-landing .map-info-card .mi-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; color: var(--gold); font-size: 17.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; transition: gap .2s ease; }
+.res-landing .map-info-card .mi-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; color: var(--gold); font-size: calc(17.5px * var(--fs-k)); letter-spacing: .12em; text-transform: uppercase; font-weight: 600; transition: gap .2s ease; }
 .res-landing .map-info-card .mi-cta svg { width: 14px; height: 14px; }
 .res-landing .map-info-card .mi-cta:hover { gap: 13px; }
 
@@ -1117,34 +1150,68 @@
 }
 .res-landing .contact-form { min-width: 0; }
 .res-landing .cf-field { margin-bottom: 24px; }
-.res-landing .cf-field label { display: block; font-size: 16.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--gray); font-weight: 600; margin-bottom: 8px; }
+.res-landing .cf-field label { display: block; font-size: calc(16.5px * var(--fs-k)); letter-spacing: .2em; text-transform: uppercase; color: var(--gray); font-weight: 600; margin-bottom: 8px; }
 .res-landing .cf-field input, .res-landing .cf-phone {
   width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--divider);
-  padding: 10px 2px; color: var(--white); font-family: var(--serif); font-size: 23.5px; letter-spacing: .01em;
+  padding: 10px 2px; color: var(--white); font-family: var(--serif); font-size: calc(23.5px * var(--fs-k)); letter-spacing: .01em;
   transition: border-color .2s ease;
 }
 .res-landing .cf-field input::placeholder { color: var(--gray-dim); }
 .res-landing .cf-field input:focus { outline: none; border-bottom-color: var(--gold); }
 .res-landing .cf-phone { display: flex; align-items: center; gap: 12px; }
-.res-landing .cf-phone .country-sel { border-right: 1px solid var(--divider); padding-right: 12px; font-family: var(--serif); font-size: 21px; color: var(--white); display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+.res-landing .cf-phone .country-sel { border-right: 1px solid var(--divider); padding-right: 12px; font-family: var(--serif); font-size: calc(21px * var(--fs-k)); color: var(--white); display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
 .res-landing .cf-phone .country-sel svg { width: 13px; height: 13px; }
 .res-landing .cf-phone input { border: 0; flex: 1; }
 .res-landing .cf-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 30px; flex-wrap: wrap; }
 .res-landing .cf-foot .btn-gold { padding: 14px 30px; }
-.res-landing .cf-foot .form-disclaimer { color: var(--gray-dim); font-size: 17.5px; max-width: 300px; line-height: 1.6; }
+.res-landing .cf-foot .form-disclaimer { color: var(--gray-dim); font-size: calc(17.5px * var(--fs-k)); max-width: 300px; line-height: 1.6; }
 
 /* Columnas laterales */
 .res-landing .contact-aside { display: flex; flex-direction: column; gap: 30px; min-width: 0; }
-.res-landing .ca-copy { color: var(--gray); font-size: 20px; line-height: 1.75; }
+.res-landing .ca-copy { color: var(--gray); font-size: calc(20px * var(--fs-k)); line-height: 1.75; }
 .res-landing .ca-logo { display: block; width: 180px; max-width: 100%; height: auto; }
-.res-landing .ca-label { display: block; font-size: 16.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--gray); font-weight: 600; margin-bottom: 14px; }
+.res-landing .ca-label { display: block; font-size: calc(16.5px * var(--fs-k)); letter-spacing: .2em; text-transform: uppercase; color: var(--gray); font-weight: 600; margin-bottom: 14px; }
 /* Logo RE/MAX (el archivo viene con fondo negro sólido → tarjeta redondeada). */
 .res-landing .ca-remax { display: block; width: 200px; max-width: 100%; height: auto; border-radius: 10px; }
-.res-landing .ca-wsp p { color: var(--gray); font-size: 20px; line-height: 1.7; margin-bottom: 16px; }
+.res-landing .ca-wsp p { color: var(--gray); font-size: calc(20px * var(--fs-k)); line-height: 1.7; margin-bottom: 16px; }
 .res-landing .ca-wsp .btn svg { flex-shrink: 0; }
+/* "Escribinos por WhatsApp" es el rótulo más largo del sitio: en una línea mide
+   306px y la columna lateral de esta grilla ronda los 250-300px entre 1024 y
+   1180px. Como `.btn` es `white-space: nowrap`, no podía achicarse y empujaba
+   TODA la landing 34px fuera del viewport (medido en iPad apaisado). Es el único
+   botón que necesita poder partirse en dos líneas. */
+.res-landing .ca-wsp .btn { white-space: normal; text-align: left; }
 
-/* Tablet: las 3 columnas no entran → una columna centrada (copy+logo, form, RE/MAX+wsp). */
-@media (max-width: 1000px) {
+/* =========================================================
+   ≤ 1100px — el nav no entra completo. Medido en el navegador:
+     grupo derecho  = 528px  (lupa 42 + avance 78 + idioma 92 + full 42 + CTA 162 +
+                      menú 42 + 5 gaps de 14)
+     grupo izquierdo = 488px con los pills · 235px sin ellos (logo 167 + gap + flecha)
+     descuento fijo  = 64px  (padding 36 + gap 28)
+   Con los pills hacen falta ~1080px; sin ellos, ~827px. Debajo de eso ninguno de los
+   dos grupos tenía prohibido encogerse y el derecho se montaba ENCIMA del pill
+   ("Departame…" con el badge de avance pisándolo) — visible en teléfono ACOSTADO
+   (915x412) y en iPad vertical (768). Truncar el pill lo dejaba en "Depa…", que no
+   dice nada, así que:
+     · los pills se reemplazan por la misma flecha compacta de "volver" del celular;
+     · salen de la barra las dos acciones SECUNDARIAS (lupa y pantalla completa), que
+       liberan los ~110px que todavía faltaban a 768px.
+   La búsqueda sigue a un toque, en el item "Buscar unidades" del menú lateral (igual
+   que en celular). Pantalla completa no funciona en iOS/iPadOS —WebKit no implementa
+   `requestFullscreen` para elementos— y las tablets son justamente eso.
+   El logo se mantiene hasta 720px, donde lo saca el bloque de celular.
+   ========================================================= */
+@media (max-width: 1100px) {
+  .res-landing .nav-pills { display: none; }
+  .res-landing .nav-back-mobile { display: inline-flex; }
+  .res-landing .nav-right .icon-btn { display: none; }
+  .res-landing .nav-right .nav-menu-btn { display: flex; }
+}
+
+/* Tablet: las 3 columnas no entran → una columna centrada (copy+logo, form, RE/MAX+wsp).
+   1100 y no 1000: a 1024 (iPad apaisado / iPad Pro vertical, de los tamaños más
+   comunes) las tres columnas ya quedaban ahogadas. */
+@media (max-width: 1100px) {
   .res-landing .contact-grid { grid-template-columns: 1fr; gap: 44px; max-width: 620px; }
 }
 
@@ -1159,8 +1226,8 @@
   transition: background .25s ease, padding .25s ease;
 }
 .res-landing .res-row:hover { background: var(--bg-2); padding-left: 22px; padding-right: 22px; }
-.res-landing .res-row .rr-name { font-family: var(--serif); font-size: 35px; letter-spacing: .04em; }
-.res-landing .res-row .rr-stats { color: var(--gray); font-size: 18.5px; letter-spacing: .03em; }
+.res-landing .res-row .rr-name { font-family: var(--serif); font-size: calc(35px * var(--fs-k)); letter-spacing: .04em; }
+.res-landing .res-row .rr-stats { color: var(--gray); font-size: calc(18.5px * var(--fs-k)); letter-spacing: .03em; }
 .res-landing .res-row .rr-arrow {
   width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--divider);
   display: flex; align-items: center; justify-content: center; color: var(--white);
@@ -1182,7 +1249,7 @@
 .res-landing .res-more { display: flex; justify-content: center; margin-top: 34px; }
 .res-landing .res-more .btn { gap: 12px; }
 .res-landing .res-more-count {
-  font-family: ui-monospace, Menlo, monospace; font-size: 16.5px;
+  font-family: ui-monospace, Menlo, monospace; font-size: calc(16.5px * var(--fs-k));
   letter-spacing: .04em; color: var(--gold);
   background: color-mix(in srgb, var(--gold) 10%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 32%, transparent);
   padding: 2px 8px; border-radius: 999px;
@@ -1194,7 +1261,7 @@
 
 /* Posiciones restauradas del JSX inline (TowerSection) → así los breakpoints las
    re-ubican sin !important. Eran `style={{ fontSize: 44 }}` y `top:30% left:36%`. */
-.res-landing #building .section-title { font-size: 37px; }
+.res-landing #building .section-title { font-size: calc(37px * var(--fs-k)); }
 .res-landing #building .bld-card { top: 30%; left: 36%; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1240,14 +1307,14 @@
    sólo se compacta su contenido (logo chico, sin bajada, sin íconos secundarios).
    ========================================================= */
 @media (max-width: 720px) {
-  .res-landing { --pad: 16px; font-size: 20px; }
+  .res-landing { --pad: 16px; font-size: calc(20px * var(--fs-k)); }
 
   /* ritmo + títulos */
-  .res-landing .section-title { font-size: clamp(22px, 6.5vw, 28px); letter-spacing: .1em; }
+  .res-landing .section-title { font-size: calc(clamp(22px, 6.5vw, 28px) * var(--fs-k)); letter-spacing: .1em; }
   .res-landing .section-pad { padding: 54px 0; }
   .res-landing .spec-head { margin-bottom: 30px; gap: 14px; }
   .res-landing .spec-head p,
-  .res-landing .muted.center { font-size: 18.5px; }
+  .res-landing .muted.center { font-size: calc(18.5px * var(--fs-k)); }
 
   /* ---- NAVBAR (mobile): [← volver] a la izquierda + acciones a la derecha, 1 línea ---- */
   .res-landing .nav-inner { gap: 12px; }
@@ -1283,24 +1350,24 @@
 
   /* ---- ENCABEZADO (título del depto) ---- */
   .res-landing .unit-head { padding: 40px var(--pad) 0; }
-  .res-landing .unit-title { font-size: clamp(30px, 9vw, 42px); line-height: .94; }
+  .res-landing .unit-title { font-size: calc(clamp(30px, 9vw, 42px) * var(--fs-k)); line-height: .94; }
 
   /* ---- PLANO DE LA UNIDAD: la tarjeta abraza el plano (sin el hueco gigante) ---- */
   .res-landing .tabs { gap: 22px; margin-bottom: 8px; }
-  .res-landing .tab { font-size: 18.5px; padding: 11px 8px; min-height: 44px; }
-  .res-landing .water-banner { margin: 16px 0 26px; font-size: 16.5px; letter-spacing: .12em; }
+  .res-landing .tab { font-size: calc(18.5px * var(--fs-k)); padding: 11px 8px; min-height: 44px; }
+  .res-landing .water-banner { margin: 16px 0 26px; font-size: calc(16.5px * var(--fs-k)); letter-spacing: .12em; }
   .res-landing .plan-layout { gap: 30px; }
   .res-landing .plan-stage { min-height: 0; padding: 16px; overflow: hidden; }
   .res-landing .floorplan-img { max-height: none; }
-  .res-landing .plan-watermark { font-size: clamp(110px, 40vw, 200px); }
+  .res-landing .plan-watermark { font-size: calc(clamp(110px, 40vw, 200px) * var(--fs-k)); }
   /* La flecha "Acceso" se posiciona en px fijos sobre un plano placeholder genérico;
      al achicarse la tarjeta quedaba flotando sobre el dibujo → se oculta en celu. */
   .res-landing .entry-arrow { display: none; }
   .res-landing .street-label { margin-top: 12px; }
   .res-landing .overview { padding-top: 0; }
   .res-landing .overview h3 { margin-bottom: 16px; }
-  .res-landing .ov-row { padding: 13px 0; font-size: 18.5px; }
-  .res-landing .ov-row .val.big { font-size: 22px; }
+  .res-landing .ov-row { padding: 13px 0; font-size: calc(18.5px * var(--fs-k)); }
+  .res-landing .ov-row .val.big { font-size: calc(22px * var(--fs-k)); }
 
   /* ---- PLANTA DEL PISO ---- */
   .res-landing .plate-stage { padding: 12px; }
@@ -1316,28 +1383,28 @@
   .res-landing .spec-2col { gap: 30px; }
   .res-landing .spec-nav-item { padding: 18px 2px; gap: 14px; }
   .res-landing .spec-nav-item:hover { padding-left: 2px; }
-  .res-landing .spec-nav-item .t { font-size: 24.5px; }
-  .res-landing .spec-nav-item .n { font-size: 16.5px; }
-  .res-landing .spec-panel h3 { font-size: 26.5px; margin: 12px 0 20px; }
-  .res-landing .spec-panel p { font-size: 20px; line-height: 1.8; }
+  .res-landing .spec-nav-item .t { font-size: calc(24.5px * var(--fs-k)); }
+  .res-landing .spec-nav-item .n { font-size: calc(16.5px * var(--fs-k)); }
+  .res-landing .spec-panel h3 { font-size: calc(26.5px * var(--fs-k)); margin: 12px 0 20px; }
+  .res-landing .spec-panel p { font-size: calc(20px * var(--fs-k)); line-height: 1.8; }
   .res-landing .spec-panel .spec-grid { grid-template-columns: 1fr; gap: 22px; margin-top: 28px; }
   .res-landing .spec-panel .spec-list { margin-top: 22px; }
-  .res-landing .spec-panel .spec-list li { font-size: 18.5px; }
+  .res-landing .spec-panel .spec-list li { font-size: calc(18.5px * var(--fs-k)); }
 
   /* ---- CRONOGRAMA (timeline vertical) ---- */
   .res-landing .timeline-v { margin-top: 44px; }
   .res-landing .tl-item { padding: 0 0 44px 52px; }
-  .res-landing .tl-pct { font-size: clamp(44px, 13vw, 64px); }
-  .res-landing .tl-when { font-size: 16.5px; letter-spacing: .18em; margin-top: 12px; }
-  .res-landing .tl-desc { font-size: 18.5px; }
-  .res-landing .timeline-delivery { padding-left: 52px; font-size: 22px; margin-top: 40px; }
-  .res-landing .timeline-foot2 { padding-left: 52px; font-size: 21px; margin-top: 14px; }
+  .res-landing .tl-pct { font-size: calc(clamp(44px, 13vw, 64px) * var(--fs-k)); }
+  .res-landing .tl-when { font-size: calc(16.5px * var(--fs-k)); letter-spacing: .18em; margin-top: 12px; }
+  .res-landing .tl-desc { font-size: calc(18.5px * var(--fs-k)); }
+  .res-landing .timeline-delivery { padding-left: 52px; font-size: calc(22px * var(--fs-k)); margin-top: 40px; }
+  .res-landing .timeline-foot2 { padding-left: 52px; font-size: calc(21px * var(--fs-k)); margin-top: 14px; }
 
   /* ---- UBICACIÓN (mapa) ---- */
   .res-landing .map-stage { height: 460px; margin-top: 40px; }
   .res-landing .map-info-card { top: 14px; left: 14px; right: 14px; width: auto; padding: 15px 18px; }
-  .res-landing .map-info-card .mi-addr { font-size: 23.5px; }
-  .res-landing .map-info-card .mi-note { margin-top: 10px; font-size: 17.5px; }
+  .res-landing .map-info-card .mi-addr { font-size: calc(23.5px * var(--fs-k)); }
+  .res-landing .map-info-card .mi-note { margin-top: 10px; font-size: calc(17.5px * var(--fs-k)); }
   .res-landing .map-info-card .mi-cta { margin-top: 14px; }
   /* El control +/- vive en top-right, justo donde ahora está la tarjeta de dirección
      full-width → lo bajamos para que no quede tapado ni intocable. */
@@ -1346,12 +1413,12 @@
      envuelve y se acota para no recortarse contra .map-stage{overflow:hidden}. */
   .res-landing .prop-label { white-space: normal; max-width: 56vw; text-align: center; line-height: 1.22; letter-spacing: .08em; }
   .res-landing .map-pills { bottom: 14px; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; padding: 0 14px; }
-  .res-landing .map-pill { padding: 11px 16px; font-size: 16.5px; min-height: 44px; }
+  .res-landing .map-pill { padding: 11px 16px; font-size: calc(16.5px * var(--fs-k)); min-height: 44px; }
 
   /* ---- CONTACTO ---- */
   .res-landing .contact-grid { margin-top: 36px; gap: 36px; }
   /* 18px ≥ 16px: no dispara el auto-zoom de iOS al enfocar el input. */
-  .res-landing .cf-field input, .res-landing .cf-phone { font-size: 22px; }
+  .res-landing .cf-field input, .res-landing .cf-phone { font-size: calc(22px * var(--fs-k)); }
   .res-landing .cf-foot .btn-gold { width: 100%; justify-content: center; padding: 14px 28px; }
   .res-landing .cf-foot .form-disclaimer { max-width: none; }
   .res-landing .ca-logo { width: 150px; }
@@ -1365,40 +1432,53 @@
     padding: 20px 4px;
   }
   .res-landing .res-row:hover { padding-left: 4px; padding-right: 4px; }
-  .res-landing .res-row .rr-name { grid-area: name; font-size: 25.5px; }
+  .res-landing .res-row .rr-name { grid-area: name; font-size: calc(25.5px * var(--fs-k)); }
   /* Disponible/Reservada es la señal clave del listado: se remuestra (el ≤1100 la oculta). */
   .res-landing .res-row .rr-badge { grid-area: badge; display: block; justify-self: start; margin-top: 4px; }
   .res-landing .res-row .rr-arrow { grid-area: arrow; align-self: center; width: 40px; height: 40px; }
 
   /* ---- EL EDIFICIO (vista aérea) ---- */
-  .res-landing #building .frame-tag { top: 80px; font-size: 15px; white-space: nowrap; }
+  .res-landing #building .frame-tag { top: 80px; font-size: calc(15px * var(--fs-k)); white-space: nowrap; }
   /* También a pantalla completa en mobile (pedido del cliente, 26-08). */
   .res-landing .building-stage { height: 100dvh; min-height: 560px; }
   /* top 116 (no 92): despeja la frame-tag de arriba aunque ésta envuelva en pantallas chicas. */
   .res-landing .building-title { top: 116px; left: var(--pad); right: var(--pad); max-width: none; }
-  .res-landing #building .section-title { font-size: 29px; }
-  .res-landing .building-title .eyebrow { font-size: 16.5px; }
+  .res-landing #building .section-title { font-size: calc(29px * var(--fs-k)); }
+  .res-landing .building-title .eyebrow { font-size: calc(16.5px * var(--fs-k)); }
   .res-landing #building .bld-card { top: auto; bottom: 84px; left: var(--pad); right: var(--pad); width: auto; padding: 16px 18px; }
-  .res-landing .bld-card .bc-name { font-size: 22px; }
+  .res-landing .bld-card .bc-name { font-size: calc(22px * var(--fs-k)); }
   .res-landing .bld-card .bc-mini { height: 96px; }
-  .res-landing .fab { bottom: 18px; right: 18px; width: 52px; height: 52px; }
+  .res-landing .fab { bottom: 58px; right: 18px; width: 52px; height: 52px; }
 }
 
 /* =========================================================
    ≤ 400px — celulares chicos (iPhone SE y similares).
    ========================================================= */
 @media (max-width: 400px) {
+  .res-landing { --pad: 12px; }
   .res-landing .logo img { height: 24px; }
   /* CTA sólo-ícono: libera ~60px para que el logo entre sin recortarse. */
   .res-landing .nav-right .btn { padding: 11px 13px; gap: 0; }
   .res-landing .nav-right .btn .btn-label { display: none; }
-  .res-landing .section-title { font-size: 26.5px; }
+  /* A 320px la barra medía 343 sobre un viewport de 320: la HAMBURGUESA quedaba
+     cortada por el borde derecho, o sea el menú de secciones era inalcanzable.
+     Acá se recupera lo justo apretando separaciones y rellenos —sin sacar ningún
+     control—: gaps 8→5, el badge de avance y el switch de idioma más compactos y
+     los botones a 38px (siguen sobre el mínimo táctil cómodo). */
+  .res-landing .nav-inner { gap: 8px; }
+  .res-landing .nav-right { gap: 5px; }
+  .res-landing .nav-right .btn,
+  .res-landing .nav-right .icon-btn { width: 38px; height: 38px; min-height: 38px; padding: 0; }
+  .res-landing .nav-back-mobile { width: 38px; height: 38px; }
+  .res-landing .lang-opt { padding: 6px 8px; }
+  .res-landing .nav .avance-badge { padding: 7px 10px !important; gap: 5px !important; }
+  .res-landing .section-title { font-size: calc(26.5px * var(--fs-k)); }
   /* el h3 del panel debe quedar por DEBAJO del section-title (22px) → jerarquía. */
-  .res-landing .spec-panel h3 { font-size: 22px; }
-  .res-landing .cf-field input, .res-landing .cf-phone { font-size: 21px; }
-  .res-landing .cf-phone .country-sel { font-size: 20px; }
-  .res-landing .res-row .rr-name { font-size: 23.5px; }
-  .res-landing .map-info-card .mi-addr { font-size: 22px; }
+  .res-landing .spec-panel h3 { font-size: calc(22px * var(--fs-k)); }
+  .res-landing .cf-field input, .res-landing .cf-phone { font-size: calc(21px * var(--fs-k)); }
+  .res-landing .cf-phone .country-sel { font-size: calc(20px * var(--fs-k)); }
+  .res-landing .res-row .rr-name { font-size: calc(23.5px * var(--fs-k)); }
+  .res-landing .map-info-card .mi-addr { font-size: calc(22px * var(--fs-k)); }
 }
 
 /* =========================================================
@@ -1423,8 +1503,8 @@
 /* Encabezado COMPACTO: eyebrow + título en una línea cada uno, chico, para no
    robarle alto a la planta (que es la protagonista). */
 .masterplan-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 0 8px; }
-.masterplan-scope .mp-eyebrow { font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
-.masterplan-scope .mp-title { font-family: var(--serif); font-size: clamp(20px, 2.6vw, 30px); letter-spacing: .04em; line-height: 1; margin-top: 3px; }
+.masterplan-scope .mp-eyebrow { font-size: calc(15px * var(--fs-k)); letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+.masterplan-scope .mp-title { font-family: var(--serif); font-size: calc(clamp(20px, 2.6vw, 30px) * var(--fs-k)); letter-spacing: .04em; line-height: 1; margin-top: 3px; }
 .masterplan-scope .mp-close {
   flex-shrink: 0; width: 40px; height: 40px; border-radius: 11px; cursor: pointer;
   border: 1px solid var(--divider); background: var(--panel); color: var(--gray);
@@ -1476,8 +1556,8 @@
   padding: clamp(14px, 2.4vw, 22px) clamp(16px, 4vw, 48px);
   border-bottom: 1px solid var(--divider);
 }
-.sheet-head .sheet-eyebrow { font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
-.sheet-head .sheet-title { font-family: var(--serif); font-size: clamp(20px, 2.6vw, 30px); letter-spacing: .04em; line-height: 1.05; margin-top: 3px; }
+.sheet-head .sheet-eyebrow { font-size: calc(15px * var(--fs-k)); letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+.sheet-head .sheet-title { font-family: var(--serif); font-size: calc(clamp(20px, 2.6vw, 30px) * var(--fs-k)); letter-spacing: .04em; line-height: 1.05; margin-top: 3px; }
 .sheet-close {
   flex-shrink: 0; width: 40px; height: 40px; border-radius: 11px; cursor: pointer;
   border: 1px solid var(--divider); background: var(--panel); color: var(--gray);
@@ -1544,7 +1624,7 @@
 .res-landing .cvc-controls .anim-volume { width: 90px; }
 .cvc-count {
   position: absolute; left: 16px; bottom: 12px; z-index: 3;
-  font-family: ui-monospace, Menlo, monospace; font-size: 16.5px; letter-spacing: 0.18em;
+  font-family: ui-monospace, Menlo, monospace; font-size: calc(16.5px * var(--fs-k)); letter-spacing: 0.18em;
   color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 }
 .cvc-progress { display: flex; gap: 5px; margin-top: 12px; }
@@ -1579,9 +1659,9 @@
 }
 .caviahue-item:first-child { border-top: 0; }
 .caviahue-item:hover { background: var(--bg-2); border-radius: var(--radius); }
-.caviahue-item .cv-no { font-family: var(--serif); font-size: 45px; line-height: .85; color: var(--gold); }
+.caviahue-item .cv-no { font-family: var(--serif); font-size: calc(45px * var(--fs-k)); line-height: .85; color: var(--gold); }
 .caviahue-item .cv-body h3 {
-  font-family: var(--serif); font-size: clamp(20px, 2.4vw, 26px); letter-spacing: .02em;
+  font-family: var(--serif); font-size: calc(clamp(20px, 2.4vw, 26px) * var(--fs-k)); letter-spacing: .02em;
   line-height: 1.15; position: relative; display: inline-block;
 }
 .caviahue-item .cv-body h3::after {
@@ -1593,7 +1673,7 @@
 @media (max-width: 720px) {
   .caviahue-list { margin-top: 28px; }
   .caviahue-item { grid-template-columns: 46px 1fr; gap: 16px; padding: 24px 6px; }
-  .caviahue-item .cv-no { font-size: 35px; }
+  .caviahue-item .cv-no { font-size: calc(35px * var(--fs-k)); }
 }
 
 /* Mapa de Ubicación dentro de la hoja: llena el cuerpo (sin scroll ni alto fijo). */
@@ -1614,7 +1694,7 @@
 .sheet-amenities-specs { max-width: var(--am-col, 1080px); margin: 0 auto; }
 .sheet-amenities-specs .spec-panel p { max-width: 100%; }
 /* Lead = párrafo de apertura, un toque más presente bajo el tour. */
-.sheet-amenities-specs .spec-panel p.am-lead { font-size: 21px; line-height: 1.85; color: var(--gray); }
+.sheet-amenities-specs .spec-panel p.am-lead { font-size: calc(21px * var(--fs-k)); line-height: 1.85; color: var(--gray); }
 /* Las dos listas (Amenities / Servicios) en DOS columnas, separadas por una
    hairline dorada-neutra → más prolijo y "diseñado" que un stack largo. */
 .sheet-amenities-specs .amenities-lists {
@@ -1626,7 +1706,7 @@
   .sheet-amenities-specs .amenities-lists {
     grid-template-columns: 1fr; gap: 26px; margin-top: 26px; padding-top: 24px;
   }
-  .sheet-amenities-specs .spec-panel p.am-lead { font-size: 20px; line-height: 1.8; }
+  .sheet-amenities-specs .spec-panel p.am-lead { font-size: calc(20px * var(--fs-k)); line-height: 1.8; }
 }
 
 /* "El Equipo" (Miro 2026-07-15): respaldo institucional dentro de la hoja.
@@ -1649,12 +1729,12 @@
 }
 .team-card--featured { padding: 34px 30px; }
 .team-role {
-  font-size: 16.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold);
+  font-size: calc(16.5px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase; color: var(--gold);
 }
-.team-name { font-family: var(--serif); font-size: 23.5px; letter-spacing: .02em; line-height: 1.25; }
-.team-card--featured .team-name { font-size: clamp(22px, 2.4vw, 28px); }
+.team-name { font-family: var(--serif); font-size: calc(23.5px * var(--fs-k)); letter-spacing: .02em; line-height: 1.25; }
+.team-card--featured .team-name { font-size: calc(clamp(22px, 2.4vw, 28px) * var(--fs-k)); }
 /* Con logo, el nombre queda como caption chico debajo (no compite con el logo). */
-.team-name--sub { font-family: var(--sans, inherit); font-size: 18px; color: var(--gray); letter-spacing: .02em; }
+.team-name--sub { font-family: var(--sans, inherit); font-size: calc(18px * var(--fs-k)); color: var(--gray); letter-spacing: .02em; }
 .team-logo { display: block; height: 40px; width: auto; max-width: 100%; object-fit: contain; border-radius: 8px; }
 .team-logo--big { height: 56px; }
 @media (max-width: 720px) {
@@ -1675,7 +1755,7 @@
 }
 .res-landing .spec-pager .sp-arrow:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
 .res-landing .spec-pager .sp-arrow:disabled { opacity: .35; cursor: default; }
-.res-landing .spec-pager .sp-count { font-family: ui-monospace, Menlo, monospace; font-size: 17.5px; letter-spacing: .2em; color: var(--gold); min-width: 76px; text-align: center; }
+.res-landing .spec-pager .sp-count { font-family: ui-monospace, Menlo, monospace; font-size: calc(17.5px * var(--fs-k)); letter-spacing: .2em; color: var(--gold); min-width: 76px; text-align: center; }
 
 @media (max-width: 768px) {
   /* En mobile, la hoja de "El Proyecto" se navega con flechas (no con la lista). */
@@ -1699,11 +1779,11 @@
 .res-landing .finder-head-r { display: flex; align-items: center; gap: clamp(16px, 2.4vw, 26px); flex-shrink: 0; }
 .res-landing .finder-folio { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
 .res-landing .finder-folio-num {
-  font-family: var(--serif); font-size: clamp(28px, 2.6vw, 34px); color: var(--gold);
+  font-family: var(--serif); font-size: calc(clamp(28px, 2.6vw, 34px) * var(--fs-k)); color: var(--gold);
   font-variant-numeric: tabular-nums; letter-spacing: .02em; line-height: 1;
 }
 .res-landing .finder-folio-cap {
-  font-family: var(--sans); font-size: 15px; letter-spacing: .2em; text-transform: uppercase;
+  font-family: var(--sans); font-size: calc(15px * var(--fs-k)); letter-spacing: .2em; text-transform: uppercase;
   color: var(--gray); margin-top: 5px;
 }
 
@@ -1732,7 +1812,7 @@
   display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
   height: 30px; padding: 0 8px 0 13px; border-radius: 999px;
   background: var(--white); color: var(--tier-dark);
-  font-family: var(--sans); font-size: 17.5px; font-weight: 500; letter-spacing: .01em;
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); font-weight: 500; letter-spacing: .01em;
   cursor: pointer; transition: background .2s ease;
 }
 .res-landing .finder-active-chip.violet { background: var(--violet); }
@@ -1740,7 +1820,7 @@
 .res-landing .finder-active-chip:hover svg { color: var(--gold); opacity: 1; }
 .res-landing .finder-clear-all {
   flex-shrink: 0; cursor: pointer; position: relative;
-  font-family: var(--sans); font-size: 17.5px; color: var(--gray); letter-spacing: .02em;
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); color: var(--gray); letter-spacing: .02em;
   padding: 2px 0; margin-left: 4px;
 }
 .res-landing .finder-clear-all::after {
@@ -1754,14 +1834,14 @@
 /* Control de orden (segmentado compacto) */
 .res-landing .finder-sort { display: flex; align-items: center; gap: 8px; }
 .res-landing .finder-sort-label {
-  font-family: var(--sans); font-size: 15px; letter-spacing: .18em; text-transform: uppercase;
+  font-family: var(--sans); font-size: calc(15px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase;
   color: var(--gray); font-weight: 600;
 }
 .res-landing .finder-sort-opt {
   display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
   height: 30px; padding: 0 11px; border-radius: 999px;
   border: 1px solid var(--divider); background: transparent;
-  font-family: var(--sans); font-size: 17.5px; font-weight: 500; color: var(--gray);
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); font-weight: 500; color: var(--gray);
   transition: all .2s ease;
 }
 .res-landing .finder-sort-opt:hover { color: var(--white); border-color: var(--gray-dim); }
@@ -1773,14 +1853,14 @@
   display: none; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0;
   height: 38px; padding: 0 16px; border-radius: 999px;
   border: 1px solid var(--divider); background: var(--panel);
-  font-family: var(--sans); font-size: 17.5px; font-weight: 600; letter-spacing: .04em; color: var(--white);
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); font-weight: 600; letter-spacing: .04em; color: var(--white);
   transition: border-color .2s ease;
 }
 .res-landing .finder-filters-btn:hover { border-color: var(--gold); }
 .res-landing .finder-filters-count {
   display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px;
   border-radius: 999px; background: var(--gold); color: var(--cream);
-  font-size: 16.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+  font-size: calc(16.5px * var(--fs-k)); font-weight: 700; font-variant-numeric: tabular-nums;
 }
 
 /* ---- Cuerpo: riel de filtros + grilla ---- */
@@ -1811,7 +1891,7 @@
 .res-landing .finder-search > svg { color: var(--gold); flex-shrink: 0; }
 .res-landing .finder-search input {
   flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
-  font-family: var(--sans); font-size: 20px; font-variant-numeric: tabular-nums;
+  font-family: var(--sans); font-size: calc(20px * var(--fs-k)); font-variant-numeric: tabular-nums;
   color: var(--white); letter-spacing: .02em;
 }
 .res-landing .finder-search input::placeholder { color: var(--gray-dim); }
@@ -1825,14 +1905,14 @@
 .res-landing .finder-group:first-of-type { border-top: 0; padding-top: 14px; }
 .res-landing .finder-group-h {
   display: flex; align-items: center; gap: 9px; margin-bottom: 14px;
-  font-family: var(--sans); font-size: 16.5px; font-weight: 600; letter-spacing: .18em;
+  font-family: var(--sans); font-size: calc(16.5px * var(--fs-k)); font-weight: 600; letter-spacing: .18em;
   text-transform: uppercase; color: var(--gray);
 }
 .res-landing .finder-group-h::before { content: ""; width: 2px; height: 11px; background: var(--gold); border-radius: 1px; }
 .res-landing .finder-group-count {
   display: inline-grid; place-items: center; min-width: 16px; height: 16px; padding: 0 4px;
   border-radius: 999px; background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold);
-  font-size: 15px; font-weight: 700; letter-spacing: 0;
+  font-size: calc(15px * var(--fs-k)); font-weight: 700; letter-spacing: 0;
 }
 
 .res-landing .finder-chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1840,10 +1920,10 @@
   display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
   height: 34px; min-width: 34px; padding: 0 15px; border-radius: 999px;
   border: 1px solid var(--divider); background: transparent;
-  font-family: var(--sans); font-size: 18.5px; font-weight: 500; color: var(--gray); letter-spacing: .02em;
+  font-family: var(--sans); font-size: calc(18.5px * var(--fs-k)); font-weight: 500; color: var(--gray); letter-spacing: .02em;
   transition: border-color .18s ease, background .18s ease, color .18s ease, transform .09s ease;
 }
-.res-landing .finder-chip.serif { font-family: var(--serif); font-size: 20px; letter-spacing: .04em; }
+.res-landing .finder-chip.serif { font-family: var(--serif); font-size: calc(20px * var(--fs-k)); letter-spacing: .04em; }
 .res-landing .finder-chip:hover:not(:disabled):not(.active) {
   border-color: color-mix(in srgb, var(--gold) 40%, transparent); background: var(--bg-2); color: var(--white);
 }
@@ -1862,7 +1942,7 @@
 .res-landing .finder-seg-opt {
   display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
   height: 30px; padding: 0 13px; border-radius: 999px; border: 0; background: transparent;
-  font-family: var(--sans); font-size: 17.5px; font-weight: 600; color: var(--gray); letter-spacing: .02em;
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); font-weight: 600; color: var(--gray); letter-spacing: .02em;
   transition: all .2s ease;
 }
 .res-landing .finder-seg-opt:hover:not(.active):not(:disabled) { color: var(--white); }
@@ -1876,7 +1956,7 @@
 /* Toggle (toilette / dúplex) */
 .res-landing .finder-toggle {
   display: inline-flex; align-items: center; gap: 11px; cursor: pointer;
-  font-family: var(--sans); font-size: 18.5px; font-weight: 500; color: var(--gray);
+  font-family: var(--sans); font-size: calc(18.5px * var(--fs-k)); font-weight: 500; color: var(--gray);
   transition: color .2s ease;
 }
 .res-landing .finder-toggle:hover:not(:disabled) { color: var(--white); }
@@ -1929,7 +2009,7 @@
 .res-landing .finder-status {
   position: absolute; top: 12px; left: 12px; z-index: 2;
   display: inline-flex; align-items: center; gap: 7px; height: 24px; padding: 0 11px;
-  border-radius: 999px; font-family: var(--sans); font-size: 16.5px; font-weight: 600;
+  border-radius: 999px; font-family: var(--sans); font-size: calc(16.5px * var(--fs-k)); font-weight: 600;
   letter-spacing: .06em; text-transform: uppercase;
   background: var(--glass-strong);
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -1949,7 +2029,7 @@
 }
 .res-landing .finder-duplex-label,
 .res-landing .finder-exposure-label {
-  font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: .14em;
+  font-family: var(--sans); font-size: calc(14px * var(--fs-k)); font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase;
 }
 .res-landing .finder-duplex-label { color: var(--violet); }
@@ -1961,21 +2041,21 @@
   display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
   border: 1px solid var(--divider); background: var(--glass-strong);
   backdrop-filter: blur(4px);
-  font-family: var(--serif); font-size: 20px; color: var(--white); line-height: 1;
+  font-family: var(--serif); font-size: calc(20px * var(--fs-k)); color: var(--white); line-height: 1;
 }
 
 .res-landing .finder-cardbody { padding: 15px 17px 17px; display: flex; flex-direction: column; }
 .res-landing .finder-lot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
 .res-landing .finder-lot-l { display: flex; flex-direction: column; min-width: 0; }
 .res-landing .finder-lot-floor {
-  font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: .18em;
+  font-family: var(--sans); font-size: calc(14px * var(--fs-k)); font-weight: 600; letter-spacing: .18em;
   text-transform: uppercase; color: var(--gray); margin-bottom: 3px;
 }
-.res-landing .finder-lot-num { font-family: var(--serif); font-size: 31px; letter-spacing: .06em; color: var(--white); font-variant-numeric: tabular-nums; line-height: 1; }
-.res-landing .finder-price { font-family: var(--serif); font-size: 20px; color: var(--gold); white-space: nowrap; }
+.res-landing .finder-lot-num { font-family: var(--serif); font-size: calc(31px * var(--fs-k)); letter-spacing: .06em; color: var(--white); font-variant-numeric: tabular-nums; line-height: 1; }
+.res-landing .finder-price { font-family: var(--serif); font-size: calc(20px * var(--fs-k)); color: var(--gold); white-space: nowrap; }
 .res-landing .finder-stats {
   margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--divider);
-  font-family: var(--sans); font-size: 17.5px; line-height: 1.5; color: var(--gray);
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); line-height: 1.5; color: var(--gray);
   font-variant-numeric: tabular-nums;
 }
 .res-landing .finder-area { font-weight: 600; color: var(--white); }
@@ -1983,7 +2063,7 @@
 .res-landing .finder-cta {
   display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; position: relative;
   margin-top: 14px; padding-bottom: 2px;
-  font-family: var(--sans); font-size: 17.5px; font-weight: 600; letter-spacing: .14em;
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); font-weight: 600; letter-spacing: .14em;
   text-transform: uppercase; color: var(--white);
 }
 .res-landing .finder-cta::after {
@@ -2039,12 +2119,12 @@
 
 /* ---- Estado vacío ---- */
 .res-landing .finder-empty { text-align: center; padding: clamp(48px, 10vw, 96px) 20px; display: flex; flex-direction: column; align-items: center; }
-.res-landing .finder-empty-num { font-family: var(--serif); font-size: 52px; color: var(--gold); line-height: 1; opacity: .9; }
-.res-landing .finder-empty-title { font-family: var(--serif); font-size: clamp(20px, 3vw, 26px); letter-spacing: .04em; color: var(--white); margin-top: 18px; }
-.res-landing .finder-empty-body { color: var(--gray); font-size: 20px; margin-top: 10px; }
+.res-landing .finder-empty-num { font-family: var(--serif); font-size: calc(52px * var(--fs-k)); color: var(--gold); line-height: 1; opacity: .9; }
+.res-landing .finder-empty-title { font-family: var(--serif); font-size: calc(clamp(20px, 3vw, 26px) * var(--fs-k)); letter-spacing: .04em; color: var(--white); margin-top: 18px; }
+.res-landing .finder-empty-body { color: var(--gray); font-size: calc(20px * var(--fs-k)); margin-top: 10px; }
 .res-landing .finder-empty-clear {
   margin-top: 22px; cursor: pointer; position: relative;
-  font-family: var(--sans); font-size: 17.5px; font-weight: 600; letter-spacing: .12em;
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); font-weight: 600; letter-spacing: .12em;
   text-transform: uppercase; color: var(--gold); padding-bottom: 3px;
 }
 .res-landing .finder-empty-clear::after { content: ""; position: absolute; left: 0; bottom: 0; height: 1.5px; width: 100%; background: var(--gold); transform: scaleX(.4); transform-origin: left; transition: transform .3s ease; }
@@ -2066,14 +2146,14 @@
 .res-landing .finder-sheet-clear {
   flex-shrink: 0; cursor: pointer; padding: 0 20px; border-radius: var(--radius);
   border: 1px solid var(--divider); background: transparent;
-  font-family: var(--sans); font-size: 17.5px; font-weight: 600; letter-spacing: .06em;
+  font-family: var(--sans); font-size: calc(17.5px * var(--fs-k)); font-weight: 600; letter-spacing: .06em;
   text-transform: uppercase; color: var(--gray); transition: all .2s ease;
 }
 .res-landing .finder-sheet-clear:hover { border-color: var(--gold); color: var(--gold); }
 .res-landing .finder-sheet-apply {
   flex: 1; cursor: pointer; padding: 14px 20px; border-radius: var(--radius);
   background: var(--gold); color: var(--cream); border: 0;
-  font-family: var(--sans); font-size: 18.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  font-family: var(--sans); font-size: calc(18.5px * var(--fs-k)); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   transition: background .2s ease;
 }
 .res-landing .finder-sheet-apply:hover { background: var(--gold-soft); }
@@ -2092,10 +2172,10 @@
   .res-landing .finder-subbar .finder-sort { display: none; }
   .res-landing .finder-filters-btn { display: inline-flex; }
   .res-landing .finder-folio-cap { display: none; }
-  .res-landing .finder-folio-num { font-size: 26.5px; }
+  .res-landing .finder-folio-num { font-size: calc(26.5px * var(--fs-k)); }
   .res-landing .finder-head-r { gap: 14px; }
   /* 16px ≥ 16: evita el auto-zoom de iOS al enfocar el buscador. */
-  .res-landing .finder-search input { font-size: 21px; }
+  .res-landing .finder-search input { font-size: calc(21px * var(--fs-k)); }
 }
 @media (max-width: 640px) {
   .res-landing .finder-grid { column-gap: 16px; row-gap: 20px; }

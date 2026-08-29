@@ -69,7 +69,11 @@ export function AvanceBadge({ className = "" }: { className?: string }) {
           fontSize: 12,
           fontWeight: 600,
         }}
-        className={`rounded-full shadow-lg ring-1 ring-white/15 transition hover:brightness-110 disabled:cursor-default ${className}`}
+        // `avance-badge` es el gancho ESTABLE para las reglas responsive de
+        // residencia.css (en celulares chicos el nav no tiene lugar para el relleno
+        // de escritorio). Las reglas que lo apretan necesitan !important porque acá
+        // el padding va inline, por lo explicado arriba.
+        className={`avance-badge rounded-full shadow-lg ring-1 ring-white/15 transition hover:brightness-110 disabled:cursor-default ${className}`}
       >
         <PickaxeIcon />
         {loading ? (

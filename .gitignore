@@ -67,3 +67,6 @@ next-env.d.ts
 # NO sirven al deploy: lo que se commitea son los derivados web de /public.
 /_media-src/
 .gstack/
+
+# [TEMP-AUDIT] build alternativa del harness responsive
+/.next-audit/

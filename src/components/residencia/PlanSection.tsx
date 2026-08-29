@@ -103,7 +103,7 @@ export function PlanSection({
             <div className="ov-row">
               <span className="lbl">{t.plan.totalArea}</span>
               <span className="lead" />
-              <span className="val big">{a.total} m²</span>
+              <span className="val big">{a.total}&nbsp;m²</span>
             </div>
           ) : null}
           <div className="ov-group-gap" />
@@ -118,21 +118,21 @@ export function PlanSection({
             <div className="ov-row">
               <span className="lbl">{t.plan.covered}</span>
               <span className="lead" />
-              <span className="val">{a.interior} m²</span>
+              <span className="val">{a.interior}&nbsp;m²</span>
             </div>
           ) : null}
           {a?.exterior != null ? (
             <div className="ov-row">
               <span className="lbl">{t.plan.uncovered}</span>
               <span className="lead" />
-              <span className="val">{a.exterior} m²</span>
+              <span className="val">{a.exterior}&nbsp;m²</span>
             </div>
           ) : null}
           {a?.comun != null ? (
             <div className="ov-row">
               <span className="lbl">{t.plan.common}</span>
               <span className="lead" />
-              <span className="val">{a.comun} m²</span>
+              <span className="val">{a.comun}&nbsp;m²</span>
             </div>
           ) : null}
           <div className="ov-row">

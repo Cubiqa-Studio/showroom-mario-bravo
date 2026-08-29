@@ -628,17 +628,46 @@ Hoy los tamaños de lectura están **~25% por encima** de donde arrancaron y los
 ~15%: crece más abajo que arriba, porque un display de 36px un 30% más grande grita y
 rompe el layout, y lo que cuesta leer es el cuerpo, no los títulos.
 
+…pero eso vale para el ESCRITORIO. Un teléfono de 360-412px no es un monitor de 1400:
+el 29-08 Joaquim reportó que en celular la barra del showroom tapaba media foto y los
+textos quedaban gigantes. Así que la escala es **responsive, en cuatro escalones**, y en
+el más chico sigue estando ~8-10% por encima del default de Tailwind (17px de lectura
+contra 16): la pauta del cliente se respeta, lo que se corrige es el tamaño relativo.
+
+| Escalón | Ancho | `--text-base` | `--fs-k` |
+|---|---|---|---|
+| Escritorio | > 1180px | 20px | 1 |
+| Tablet | 721-1180px | 17.5px | 0.9 |
+| Celular | ≤ 720px | 17px | 0.85 |
+| Celular chico | ≤ 400px | 16px | 0.81 |
+
 Dos palancas, y nada más:
 
 | Dónde | Qué cubre |
 |---|---|
-| `--text-*` en el `@theme inline` de `src/app/globals.css` | Todo el chrome: showroom, menú, buscador, pills, tarjetas |
-| `font-size` en `src/components/residencia/residencia.css` | La ficha de unidad (147 reglas) |
+| `--fs-xs … --fs-7xl` en el `:root` de `src/app/globals.css` | Todo el chrome: showroom, menú, buscador, pills, tarjetas |
+| `--fs-k` (mismo `:root`) | La ficha de unidad: `residencia.css` tiene ~160 `font-size` envueltos en `calc(<px> * var(--fs-k))` |
 
-⚠ **Hay que definir la escala ENTERA en `@theme`, no sólo `xs`/`sm`.** Los defaults de
-Tailwind no se mueven, así que tocar sólo los escalones chicos deja `text-sm` más grande
-que `text-base` y **se invierte la jerarquía**. Las `line-height` de Tailwind 4 son
-RAZONES (`calc(1.25 / 0.875)`), no valores fijos, así que acompañan solas.
+⚠ **Los px van en `:root`, NO en `@theme`.** En Tailwind 4, `@theme inline` mete el
+VALOR dentro de la utilidad —emite `.text-xs { font-size: 17.5px }`— así que una media
+query sobre `--text-xs` no cambia nada: es el motivo por el que la escala no era
+responsive hasta el 29-08. Declarando los px en `:root` y dejando en `@theme` sólo la
+referencia (`--text-xs: var(--fs-xs)`), Tailwind emite `font-size: var(--fs-xs)` y los
+bloques por breakpoint sí pegan. Es el mismo truco que ya usaban los colores
+(`--color-gold: var(--gold)`). Se verifica en un segundo:
+
+```bash
+curl -s http://localhost:3000/_next/static/css/app/layout.css | grep -o 'font-size: *var(--fs-[a-z0-9]*)'
+```
+
+⚠ **Hay que definir la escala ENTERA, no sólo `xs`/`sm`.** Los defaults de Tailwind no se
+mueven, así que tocar sólo los escalones chicos deja `text-sm` más grande que `text-base`
+y **se invierte la jerarquía**. Las `line-height` de Tailwind 4 son RAZONES
+(`calc(1.25 / 0.875)`), no valores fijos, así que acompañan solas en los cuatro escalones.
+
+⚠ **Un `font-size` nuevo en `residencia.css` va envuelto en `calc(… * var(--fs-k))`**, o
+queda clavado en su tamaño de escritorio también en el teléfono. Lo mismo con los
+literales tipo `text-[15px]` en TSX: no siguen la escala.
 
 **El lockup TIER/BRAVO del showroom queda afuera a propósito**: es una marca calibrada
 contra el alto del logotipo (un PNG), no copy. Crecer sólo el texto rompería la

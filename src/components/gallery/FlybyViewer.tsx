@@ -1364,12 +1364,13 @@ export function FlybyViewer({
       {/* /stage */}
 
       {branding && (
-        // El logo va ARRIBA A LA IZQUIERDA siempre que entre al lado de la barra de
-        // acciones (≥560px: tablets/desktop). Sólo en pantallas angostas (teléfonos),
-        // donde la barra ocuparía su lugar, baja a la fila del switch "Disponibilidad".
-        // `top-7` y no `top-4` (pedido del cliente, 26-08: "un poco más bajo"): el
-        // lockup quedaba pegado al borde y desalineado con la barra de acciones.
-        <div className="absolute left-2 top-[84px] z-20 max-w-[58vw] min-[560px]:left-4 min-[560px]:top-7 min-[560px]:max-w-[80vw]">
+        // ≥560px (tablets/desktop): el logo va suelto ARRIBA A LA IZQUIERDA, al lado
+        // de la barra de acciones. `top-7` y no `top-4` (pedido del cliente, 26-08:
+        // "un poco más bajo"): el lockup quedaba pegado al borde y desalineado.
+        // <560px NO se pinta acá: viaja DENTRO de la barra de acciones (que en
+        // teléfonos es una fila de borde a borde), así el logo deja de necesitar una
+        // banda propia sobre el render.
+        <div className="absolute left-4 top-7 z-20 hidden max-w-[80vw] min-[560px]:block">
           {/* El logo SIEMPRE vuelve al inicio (primera vista, centrada). */}
           <button
             type="button"
@@ -1387,6 +1388,9 @@ export function FlybyViewer({
         showAvailability={showAvailability}
         onToggleAvailability={setShowAvailability}
         consultHref={whatsappUrl(t.wa.general)}
+        branding={branding}
+        onBrandingClick={goToStart}
+        brandingLabel={t.flyby.home}
         onOpenMenu={() => {
           // Cerrar el hover/selección de unidad (mobile): su tarjeta vive en un portal
           // por encima del panel y, si no, queda tapando el sidebar al abrirlo.
@@ -1395,11 +1399,12 @@ export function FlybyViewer({
         }}
       />
 
-      {/* Fila arriba a la derecha, debajo de la toolbar (en mobile queda bajo la
-          barra de disponibilidad): la LUPA del buscador de unidades + el badge de
-          avance de obra. La lupa va a la IZQUIERDA del avance (pedido del cliente). */}
+      {/* Debajo de la toolbar: la LUPA del buscador de unidades + el badge de avance
+          de obra. La lupa va a la IZQUIERDA del avance (pedido del cliente).
+          En teléfonos comparte renglón con el switch "Disponibilidad" (que va a la
+          izquierda de esa misma banda) en vez de bajar a una tercera fila. */}
       <div
-        className="absolute right-4 top-[132px] z-30 flex items-center gap-2 min-[560px]:top-[76px]"
+        className="absolute right-3 top-[66px] z-30 flex h-10 items-center gap-2 min-[560px]:right-4 min-[560px]:h-auto min-[560px]:top-[76px]"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <button
@@ -1409,7 +1414,7 @@ export function FlybyViewer({
           }}
           aria-label={t.finder.open}
           title={t.finder.open}
-          className="finder-lupa grid h-9 w-9 place-items-center rounded-xl bg-tier-dark/80 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:bg-tier-dark sm:h-10 sm:w-10"
+          className="finder-lupa grid h-full w-9 place-items-center rounded-xl bg-tier-dark/80 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:bg-tier-dark min-[560px]:h-9 sm:h-10 sm:w-10"
         >
           <span className="finder-sonar-ring" aria-hidden />
           <SearchIcon width={20} height={20} className="finder-lupa-glyph" />
