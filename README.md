@@ -255,7 +255,7 @@ puede comprobar entrando directo a `/residencia/205`.
 | 0 | Fachada frontal sobre Mario Bravo, atardecer | `View 01_02` |
 | 1 | Esquina a nivel de calle, locales de PB | `View 02` |
 | 2 | Primer plano de los balcones (punto intermedio) | `View 02b` |
-| 3 | Contrafrente ancho con pileta | `View 03` |
+| 3 | Contrafrente ancho con pileta | `View 03` (v2 del 29-08) |
 | 4 | Contrafrente cerca desde el jardín | `View 04` |
 
 Se regeneran con `npm run stops:stills` (lee `_media-src/stops/stop-N-src.jpg`,
@@ -449,19 +449,17 @@ es dato comercial que se publica en la ficha, así que va con el OK del cliente.
 ### Los frames del flyby
 
 Las flechas del showroom reproducen los frames pre-renderizados del tramo entre dos
-vistas, y son también lo que se arrastra al hacer scrub. Desde el drop del 27-08 son
-**reales**: el cliente entregó los cuatro tramos en mp4 (1920×1080, 30 fps, 1 s cada uno)
-y reemplazaron a los fundidos provisorios.
+vistas, y son también lo que se arrastra al hacer scrub. Desde el drop del 29-08 el
+recorrido es un **ANILLO CERRADO**: llegó el tramo de vuelta (`Transicion 120-150`,
+del stop 4 al 0), así que se puede girar el edificio entero sin fondo de saco.
 
 ```bash
-npm run flyby:frames -- "_media-src/flyby/tramo-0-1.mp4" 0 1
-npm run flyby:frames -- "_media-src/flyby/tramo-1-2.mp4" 1 2
-npm run flyby:frames -- "_media-src/flyby/tramo-2-3.mp4" 2 3
-npm run flyby:frames -- "_media-src/flyby/tramo-3-4.mp4" 3 4
+npm run flyby:frames -- "_media-src/flyby/tramo-0-1.mp4" 0 1 --land "_media-src/flyby/tramo-1-2.mp4"
+npm run flyby:frames -- "_media-src/flyby/tramo-1-2.mp4" 1 2 --land "_media-src/flyby/tramo-2-3.mp4"
+npm run flyby:frames -- "_media-src/flyby/tramo-2-3.mp4" 2 3 --land "_media-src/flyby/tramo-3-4.mp4"
+npm run flyby:frames -- "_media-src/flyby/tramo-3-4.mp4" 3 4 --land "_media-src/flyby/tramo-4-0.mp4"
+npm run flyby:frames -- "_media-src/flyby/tramo-4-0.mp4" 4 0 --land "_media-src/flyby/tramo-0-1.mp4"
 ```
-
-**Sale exactamente lo que trae el video, frame por frame** (`-fps_mode passthrough`): 30
-entran, 30 salen. Nada se agrega ni se descarta.
 
 El script regenera el segmento en `flyby.json` **leyendo el disco**, así el conteo nunca
 se desincroniza, e imprime el PSNR de empalme contra los stills de los dos extremos. El
@@ -469,20 +467,54 @@ aterrizaje tiene que dar **≥30 dB** o se ve un salto al estacionar. Hoy:
 
 | Tramo | Frames | Arranque | Aterrizaje | Peso |
 |---|---|---|---|---|
-| 0→1 | 30 | 37,39 dB | 33,17 dB | 3,9 MB |
-| 1→2 | 30 | 38,12 dB | 35,13 dB | 3,0 MB |
-| 2→3 | 30 | 32,44 dB | **16,60 dB** ⚠ | 2,3 MB |
-| 3→4 | 30 | 33,79 dB | 33,77 dB | 5,9 MB |
+| 0→1 | 31 | 37,39 dB | 38,12 dB | 4,0 MB |
+| 1→2 | 31 | 38,12 dB | 34,61 dB | 3,1 MB |
+| 2→3 | 31 | 34,61 dB | 27,39 dB | 2,6 MB |
+| 3→4 | 31 | 27,39 dB | 30,29 dB | 3,9 MB |
+| 4→0 | 31 | 30,29 dB | 37,39 dB | 2,5 MB |
 
-15,5 MB en total. Pesan más que los de Caviahue (9,2 MB con los mismos 30 frames a 1080p y
-la misma calidad) porque las escenas son mucho más densas —calle urbana, follaje, ladrillo
+Fijate que **el aterrizaje de cada tramo es idéntico al arranque del siguiente**. Esa es la
+firma de un anillo bien armado: cada stop está representado por UN frame, compartido como
+último de un tramo y primero del otro. Si esos dos números dejan de coincidir, algo se
+desincronizó.
+
+Los 27,39 dB del stop 3 son el único valor bajo el umbral y **no son un defecto**: se midió
+el desplazamiento óptimo entre el still y el frame del video y da **0,0 px** — no hay
+corrimiento. Es detalle fino, el render de `View 03` tiene follaje denso y la pileta, y un
+video de 1080p no puede reproducir esa textura. El crossfade de aterrizaje lo tapa; el
+cliente lo probó y no se ve nada.
+
+17 MB en total. Pesan más que los de Caviahue (9,2 MB con 30 frames a 1080p y la misma
+calidad) porque las escenas son mucho más densas —calle urbana, follaje, ladrillo
 texturado—. Bajar la calidad de WebP 78 → 70 ahorra sólo un 15%, así que no vale la pena
-moverse del baseline. Los frames no bloquean nada: el preload es en dos fases y sólo
-"gatea" la vista inicial.
+moverse del baseline. Los frames no bloquean nada: se precargan desde la intro y el
+preload del visor es en dos fases.
 
-**El recorrido es lineal, no un anillo.** No hay tramo de vuelta del 4 al 0, así que el
-stop 0 no tiene flecha de retroceso y el 4 no tiene de avance. Sale solo: el viewer
-deriva las flechas de los segmentos que existen (`segments.find(s => s.from === id)`).
+#### ⚠ El cliente entrega cada clip UN FRAME CORTO — por eso todos llevan `--land`
+
+El master viene cortado en clips de 30 frames (`0-30`, `30-60`, … `120-150`) y **el corte
+se lleva el frame del stop**: el clip N termina uno ANTES y la posición exacta del stop
+destino es el frame 1 del clip N+1.
+
+No es una teoría: se midió en los cinco tramos y el patrón es sistemático. En los cinco, el
+primer frame del clip siguiente empalma con un paso **más suave que el paso mediano del
+propio clip** — o sea que agregarlo no es un salto, es un frame más de movimiento normal.
+Y en los cinco, ese frame matchea el still mucho mejor que el último frame del clip:
+
+| Tramo | Último frame del clip | Frame 1 del siguiente |
+|---|---|---|
+| 0→1 | 33,17 dB | **38,12 dB** |
+| 1→2 | 35,13 dB | 34,61 dB |
+| 2→3 | 20,78 dB | **27,39 dB** |
+| 3→4 | 27,88 dB | **30,29 dB** |
+| 4→0 | 16,94 dB | **37,39 dB** |
+
+El caso que lo hace evidente es el 4→0: sin el frame de cierre, el último frame que se
+sirve todavía tiene la cámara en movimiento —el edificio corrido a la izquierda y el árbol
+barrido— y al estacionar pegaba un tirón al centro. Con `--land` aterriza a 37,39 dB.
+
+El arreglo de fondo es upstream: pedir los clips **incluyendo su frame de destino**. Con
+eso se saca el `--land` de los cinco comandos y cada tramo vuelve a 30 frames.
 
 #### Hacia dónde apunta cada flecha
 
@@ -496,7 +528,7 @@ contradecirse:
 - el **sentido del arrastre**, con lógica de "agarrá y tirá": tirás la escena para un lado
   y la cámara va al contrario.
 
-En TIER Bravo los cuatro tramos van en `"right"`: **avanzar es la flecha derecha, y
+En TIER Bravo los cinco tramos van en `"right"`: **avanzar es la flecha derecha, y
 arrastrar hacia la izquierda avanza**.
 
 Se había asumido al revés (`"left"`, avanzar con la flecha izquierda) y lo corrigió Juani
@@ -535,39 +567,23 @@ decodificaba el still, con los 3,9 MB del tramo 0→1 todavía en vuelo, así qu
 apenas entrabas a `/showroom` esperaba la red y a los 350ms mostraba "Preparando la
 vista…". Ahora aplica en los dos.
 
-#### ⚠ El tramo 2→3 no llega al stop 3
+#### `--drop-stalls`, la otra opción del script (hoy sin usar)
 
-`Transicion 60-90.mp4` **corta en pleno movimiento**: no desacelera y su último frame queda
-a **16,60 dB** del still del stop 3 (los otros tres tramos aterrizan entre 33 y 35 dB). Al
-estacionar en el stop 3 se ve un salto.
+Descarta los frames **sin movimiento**. Los clips del 27-08 traían tiras de frames
+idénticos —43-48 dB entre consecutivos, o sea la misma imagen— al principio del `0-30` y en
+los dos extremos del `90-120`. Como el visor mapea el progreso linealmente al índice de
+frame (`frameAtProgress`, sin easing), esos frames se comían ~20% de la transición sin
+mover la cámara. El criterio se calibra contra el propio clip (`STALL_FLOOR`, 8% del
+movimiento mediano), no en dB absolutos: cada tramo tiene su velocidad.
 
-Se puede confirmar mirando el propio clip: el frame 1 del `90-120` —que es la posición
-exacta del stop 3, empalma a 33,79 dB— no es contiguo con el último frame del `60-90`.
+**Está apagado**: el cliente prefiere que salga tal cual viene el video, y los clips del
+29-08 vienen bastante mejor. Queda para diagnosticar un clip que se vea a los tirones.
 
-Es un problema del render, no del pipeline: **hay que pedir ese tramo de nuevo**, completo
-hasta el stop. El script tiene una opción `--land <mp4-del-tramo-siguiente>` que le pega el
-frame 1 del clip siguiente como cierre y lo lleva a 33,79 dB, pero agrega un frame y **hoy
-no se usa**: los cuatro tramos salen tal cual vienen.
+#### La marca de agua de KlingAI: RESUELTA
 
-#### Otras opciones del script (hoy sin usar)
-
-Ninguna se aplica a lo que se sirve; están para diagnosticar un clip.
-
-| Flag | Qué hace |
-|---|---|
-| `--land <mp4>` | Agrega el frame 1 de ese clip como frame de cierre del tramo (ver arriba). |
-| `--drop-stalls` | Descarta los frames sin movimiento. Dos clips del 27-08 traen tiras de frames idénticos —43-48 dB entre consecutivos, o sea la misma imagen— al principio del `0-30` y en los dos extremos del `90-120`. Como el visor mapea el progreso linealmente al índice de frame (`frameAtProgress`, sin easing), esos frames se comen ~20% de la transición sin mover la cámara. El criterio se calibra contra el propio clip (`STALL_FLOOR`, 8% del movimiento mediano). |
-
-#### ⚠ El tramo 2→3 tiene marca de agua
-
-`Transicion 60-90.mp4` viene con el logo **KlingAI** abajo a la derecha, en los 30/30
-frames (bbox `x 1688..1885 · y 1007..1054` del frame de 1920×1080). Los otros tres clips
-están limpios — se verificó con la mediana temporal de cada uno.
-
-**Se dejó a propósito** (27-08): el hermano de Joaquim pidió probar así primero y mandar
-el reemplazo limpio si el resultado gusta. Cuando llegue, es sólo volver a correr esa
-línea con `--land`; conviene revisar el PSNR de aterrizaje porque el re-export puede
-traer también el frame que falta.
+El `Transicion 60-90.mp4` del 27-08 traía el logo **KlingAI** abajo a la derecha en los
+30/30 frames. El re-export del 29-08 llegó **limpio**, y se verificó con la mediana
+temporal de los cinco clips: cero píxeles blancos fijos en esa esquina en todos.
 
 ### Marca y paleta
 
@@ -716,7 +732,7 @@ faltantes) y de dónde salió cada asset.
 | **POIs del barrio** | `SITE.pois` está vacío a propósito (inventarlos publica datos falsos). |
 | **360° del hall y de los amenities** | Sólo llegaron los 5 de departamento. La bolita del exterior está en su lugar pero **no abre nada**, y los items "Hall"/"Amenities" del menú están ocultos. Ver [El punto 360° del exterior](#el-punto-360-del-exterior). |
 | **Recorrido 360° del 6° y 7°** | 11 unidades sin `tour360`. ¿Reusan A–E o llevan el suyo? |
-| **`Transicion 60-90.mp4` sin la marca KlingAI** | Es el tramo 2→3. Se dejó con marca a pedido del cliente para probar; el reemplazo limpio queda pendiente. Ver [Los frames del flyby](#los-frames-del-flyby). |
+| **Clips que incluyan su frame de destino** | Hoy cada uno corta uno antes y se compensa con `--land`. Ver [Los frames del flyby](#los-frames-del-flyby). |
 | **Video de intro** | La portada `/` está en modo still. Con `public/intro.mp4` + `intro-mobile.mp4` poné `INTRO_VIDEO_READY = true` en `IntroScreen.tsx`. |
 | **Copy de "Un equipo con trayectoria"** | El cliente pidió dejar los tres logos TIER (Bravo, Avenue, Sinclair). El texto que los acompaña lo escribimos nosotros y conviene que lo apruebe. |
 | **¿Cómo etiquetar la 706?** | Es pasante (dormitorios al contrafrente, estar a la calle). Hoy no muestra chip de exposición. Si la quieren rotulada, decidir si va como "Frente", "Contrafrente" o si sumamos un valor "Pasante". |
