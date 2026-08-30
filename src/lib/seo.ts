@@ -36,7 +36,7 @@ export const HTML_LANG = "es-AR";
 
 // Descripción por defecto (150–160 chars) — home / fallback.
 export const DEFAULT_DESCRIPTION =
-  "Descubrí TIER Bravo, en Mario Bravo 955: 61 departamentos de 1 a 4 ambientes en Buenos Aires. Recorré el desarrollo en 360° y mirá plantas, superficies y disponibilidad.";
+  "Descubrí TIER Bravo, en Mario Bravo 955: 63 departamentos de 1 a 4 ambientes en Buenos Aires. Recorré el desarrollo en 360° y mirá plantas, superficies y disponibilidad.";
 
 export const OG_IMAGE = {
   url: "/og.jpg",

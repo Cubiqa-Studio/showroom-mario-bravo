@@ -64,7 +64,7 @@ JSON es la fuente de verdad**. Después de trazar: revisá el diff y commiteá.
   showroom; cada planta tiene los suyos, ver la tabla de más abajo). El editor ya trabaja
   en ese espacio.
 - El `unitId` tiene que existir como key de `units.json` — el editor avisa con un ⚠ si no.
-  El desplegable trae las 61.
+  El desplegable trae las 63.
 - Polígonos **pegados** (bordes compartidos, sin huecos): si quedan gaps, el hover
   parpadea al pasar entre dos unidades.
 - Si se re-renderiza una imagen **a otra resolución, hay que re-trazarla** entera.
@@ -87,18 +87,19 @@ Antes de deployar, sacá `ENABLE_POLYGON_EDITOR` del entorno de producción.
 
 ## Data y assets
 
-### Las 61 unidades
+### Las 63 unidades
 
 `src/data/units.json` — key = `<piso><UF>` como **texto**:
 
 ```
 1° a 5°   101…110, 201…210, 301…310, 401…410, 501…510   (10 c/u)
-6°        601 602 603 604 606 607 608 609               (8 — sin 05 ni 10)
+6°        601…610                                       (10 — ver el aviso de abajo)
 7°        701 702 706                                   (3 — piso de retiro)
 ```
 
 Sale de `MB 955 - UNIDADES EN VENTA.pdf`; las superficies dan exacto contra los TOTALES
-del PDF. Ese `unitId` es **la clave de join de todo**: `polygon.unitId` ↔ key de
+del PDF, **salvo la 605 y la 610**, que no están en ese PDF y las sumó el cliente por
+Airtable el 30-08 (ver el aviso más abajo). Ese `unitId` es **la clave de join de todo**: `polygon.unitId` ↔ key de
 `units.json` ↔ columna `Unidad` de Airtable.
 
 Cargado: `residence`, `beds`, `ambientes`, `areas`, `sqft`, `status`, `exposure`, y
@@ -109,7 +110,21 @@ Cargado: `residence`, `beds`, `ambientes`, `areas`, `sqft`, `status`, `exposure`
 - `baths` está puesto por convención (1 para mono y 2 amb., 2 para 3 y 4 amb.). **No sale
   de ningún documento del cliente**, y los planos que llegaron el 25-08 dicen otra cosa:
   ver [Baños: lo que muestran los planos](#baños-lo-que-muestran-los-planos).
-- `floorPlan`: cargado en 60 de las 61 unidades. Ver [Los planos de unidad](#los-planos-de-unidad).
+- `floorPlan`: cargado en las 63. Ver [Los planos de unidad](#los-planos-de-unidad).
+
+> ⚠ **La 605 y la 610 las agregó el cliente el 30-08 y NO están en su propio plano del 6°.**
+> Ese plano (`6TO PISO.png`, rotulado por ellos) tiene **ocho** departamentos: 01, 02, 03,
+> 04, 06, 07, 08 y 09 — sin 05 ni 10. La aritmética lo confirma: el 601 (161,6 m²) es el
+> 01+02 del piso tipo (95,6 + 68,35) y el 606 (157,6) el 06+07 (69,9 + 86,85), o sea que
+> las dos unidades de retiro **se comen dos departamentos cada una** y por eso la
+> numeración salta. Aun así Juani pidió cargarlas (2 amb. de 60,60 m² y monoambiente de
+> 39,70), así que están, con los valores que él cargó en Airtable.
+>
+> **Consecuencia visible:** la planta del 6° tiene ocho polígonos para diez unidades, así
+> que a la 605 y la 610 se llega por el showroom (vistas 04 y 05, que ya las tienen
+> trazadas), por el buscador y por URL, pero **no se pueden clickear en "Planta del piso"
+> ni en el Plan Maestro**: no hay dónde dibujarlas sin encimarlas a otra. Se destraba con
+> un plano del 6° actualizado.
 
 ### La galería y el hero de cada unidad
 
@@ -154,7 +169,7 @@ orientación**, verificado contra la base— así que vive en `units.json` y se 
 | | Unidades |
 |---|---|
 | **Frente** (Mario Bravo) | 23 — la 01, 02, 06 y 07 de los pisos 1 a 5, más 601, 606 y 701 |
-| **Contrafrente** (pulmón: pileta, deck y parque) | 37 — la 03, 04, 05, 08, 09 y 10 de los pisos 1 a 5, más 602-604, 607-609 y 702 |
+| **Contrafrente** (pulmón: pileta, deck y parque) | 39 — la 03, 04, 05, 08, 09 y 10 de los pisos 1 a 5, más 602-605, 607-610 y 702 |
 | **Sin dato, a propósito** | 1 — la **706 es PASANTE**: los tres dormitorios dan al pulmón y el estar-comedor a la calle. El campo es opcional justamente para esto: sin valor no muestra chip, que es mejor que etiquetarla mal. |
 
 Cómo se dedujo, por tres caminos independientes que dan lo mismo:
@@ -172,7 +187,7 @@ la ficha, el grupo de filtros del buscador, la línea de stats de "Unidades disp
 el blurb sr-only y el `additionalProperty` del JSON-LD.
 
 ⚠ **No meterlo en `unitFillColor`.** El violeta del dúplex es un OVERRIDE que tapa el
-verde/ámbar de disponibilidad; la exposición la tienen las 61 unidades, así que pintaría
+verde/ámbar de disponibilidad; la exposición la tienen las 63 unidades, así que pintaría
 todos los polígonos y borraría el estado. Por eso el chip es sólo textual, en gris.
 
 ### Tipologías y recorridos 360°
@@ -197,7 +212,7 @@ de los A–E o si van a tener el suyo.
 ### Data en vivo (Airtable)
 
 La base **TIER Bravo** (`appVdj9WzBYpKtUcu`) maneja estado, precio, ambientes y
-superficies de las 61 unidades; `units.json` es el fallback si Airtable se cae o tarda
+superficies de las 63 unidades; `units.json` es el fallback si Airtable se cae o tarda
 más de 2,5 s. Las credenciales van en `.env.local` (gitignoreado) — ver `.env.example`.
 
 Los nombres de columna de esta base **no son los del template**, así que
@@ -217,7 +232,7 @@ Los nombres de columna de esta base **no son los del template**, así que
 
 > ⚠️ **Falta la columna `Estado`.** Es la que pinta el contorno de cada unidad (verde
 > disponible / amarillo reservada) y la que alimenta el filtro "Disponibilidad" del
-> buscador. Mientras no exista, las 61 quedan con el estado de `units.json` y **el
+> buscador. Mientras no exista, las 63 quedan con el estado de `units.json` y **el
 > showroom se ve como si estuviera todo disponible**. Hay que pedirle al cliente que la
 > agregue con valores "Disponible" / "Reservada" — el código ya la lee (y también acepta
 > `Estado de la unidad` o `Disponibilidad`).
@@ -239,7 +254,7 @@ Hoy hay tres caminos, y **falta el principal**:
 |---|---|
 | **Buscador de unidades** (la lupa del showroom, el item del menú lateral, y la lupa de la nav de la ficha) | ✅ anda — filtra por ambientes, baños, piso y disponibilidad, con la data en vivo de Airtable |
 | **Carrusel "Unidades Disponibles"** al pie de cada ficha | ✅ anda |
-| **Links crawleables** del bloque SEO del showroom (61 `<a>`, `sr-only`) | ✅ anda |
+| **Links crawleables** del bloque SEO del showroom (63 `<a>`, `sr-only`) | ✅ anda |
 | **Clic en la unidad sobre el render / la planta** | ❌ **falta trazar los polígonos** — es el paso siguiente |
 
 Sin polígonos, el showroom muestra las vistas y las plantas pero no hay nada clicable
@@ -470,6 +485,13 @@ Se verifica por dos caminos independientes que dan lo mismo — la posición de 
 en `piso-6.png` vs `piso-tipo-2-5.png`, y la superficie cubierta de la planilla de venta.
 Igual **el cliente no las nombró: lo dedujimos nosotros**, así que conviene que Camila lo
 confirme. Está en `INFERRED`, en el mismo script.
+
+La **605** y la **610** (altas del 30-08) NO entran en esa lógica —no existen en el plano
+del 6°, ver el aviso de [Las 63 unidades](#las-63-unidades)— y se emparejan por POSICIÓN
+del piso tipo, que es lo que dicen sus superficies: `605↔05` (tipología C, 60,60 m²) y
+`610↔10` (tipología A, 39,70). Van en el mismo `INFERRED`. ⚠ Si algún día llega un plano
+del 6° con diez unidades, **revisá el mapeo entero**: puede que las corridas sean las que
+están mal.
 
 ⚠ **La 702 usa el plano del 701.** El cliente mandó sólo el 01 y el 06 del 7°
 (`_media-src/tipologias/`), así que la 702 quedó con el placeholder hasta el 30-08, que
@@ -818,7 +840,8 @@ faltantes) y de dónde salió cada asset.
 | **Copy de "Un equipo con trayectoria"** | El cliente pidió dejar los tres logos TIER (Bravo, Avenue, Sinclair). El texto que los acompaña lo escribimos nosotros y conviene que lo apruebe. |
 | **¿Cómo etiquetar la 706?** | Es pasante (dormitorios al contrafrente, estar a la calle). Hoy no muestra chip de exposición. Si la quieren rotulada, decidir si va como "Frente", "Contrafrente" o si sumamos un valor "Pasante". |
 | **Plano de la unidad 702** | Del 7° mandaron sólo el 01 y el 06. Hoy la 702 muestra el del 701 (misma tipología, pero espejado y con 11 m² de diferencia). Ver [Los planos de unidad](#los-planos-de-unidad). |
-| **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Ver [Los planos de unidad](#los-planos-de-unidad). |
+| **Plano del 6° con la 605 y la 610** | El plano que mandaron tiene OCHO departamentos (01-04, 06-09) y el cliente sumó dos unidades más por Airtable. Sin un plano actualizado esas dos no pueden tener polígono en "Planta del piso" ni en el Plan Maestro. **Es el pedido más urgente después del `Estado`.** Ver [Las 63 unidades](#las-63-unidades). |
+| **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Con la 605 y la 610 en la mezcla esto hay que confirmarlo sí o sí. Ver [Los planos de unidad](#los-planos-de-unidad). |
 | **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
 | **Brochure comercial** | `BROCHURE_URL` es `null` → el item del menú y el botón "Ver PDF" están ocultos. |
 | **Logo de Estudio Mizraji** | Va en "El Equipo". El drop sólo trajo el de CCM. |

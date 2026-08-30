@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Showroom 360° en Mario Bravo 955",
   description:
-    "Recorré TIER Bravo en 360°: explorá los 61 departamentos de 1 a 4 ambientes de Mario Bravo 955 y mirá planta, superficie, vistas y disponibilidad de cada unidad.",
+    "Recorré TIER Bravo en 360°: explorá los 63 departamentos de 1 a 4 ambientes de Mario Bravo 955 y mirá planta, superficie, vistas y disponibilidad de cada unidad.",
   path: "/showroom",
 });
 

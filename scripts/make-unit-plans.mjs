@@ -146,15 +146,26 @@ const PLANS = [
   { out: "piso-7-06", src: "PLANTA 7MO PISO - 06.png", units: ["706"] },
 ];
 
-/** Las seis chicas del 6°: mismo plano que la tipología del piso tipo, numeración
- *  corrida un lugar (ver el encabezado). Deducido por nosotros, no por el cliente. */
+/** Las chicas del 6°: mismo plano que la tipología del piso tipo. Deducido por
+ *  nosotros, no por el cliente — se empareja por superficie + ambientes, que es lo
+ *  que ve el que compra.
+ *
+ *  Las seis primeras salen de la numeración corrida un lugar (ver el encabezado).
+ *  ⚠ La 605 y la 610 las sumó el cliente el 30-08 y NO entran en esa lógica: el plano
+ *  del 6° que él mismo mandó tiene ocho departamentos rotulados 01-04 y 06-09, sin 05
+ *  ni 10. Se emparejan por POSICIÓN del piso tipo (05 → C de 60,60 m², 10 → A de
+ *  39,70), que es lo que dicen sus superficies en Airtable. Si algún día llega un
+ *  plano del 6° con diez unidades, revisá TODO este mapeo: puede que las corridas
+ *  sean las que están mal. */
 const INFERRED = {
   "602": "tipologia-A",
   "603": "tipologia-B",
   "604": "tipologia-C",
+  "605": "tipologia-C",
   "607": "tipologia-C",
   "608": "tipologia-B",
   "609": "tipologia-A",
+  "610": "tipologia-A",
 };
 
 /** PRESTADOS: el cliente NO mandó el dibujo de esta unidad y se muestra el de otra.

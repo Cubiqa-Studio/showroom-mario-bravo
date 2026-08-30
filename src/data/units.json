@@ -1017,6 +1017,23 @@
     },
     "exposure": "contrafrente"
   },
+  "605": {
+    "residence": "605",
+    "beds": 1,
+    "baths": 1,
+    "sqft": 560,
+    "status": "available",
+    "ambientes": 2,
+    "price": "Consultar",
+    "floorPlan": "/plans/tipologia-C.webp",
+    "areas": {
+      "total": 60.6,
+      "interior": 52,
+      "exterior": 6,
+      "comun": 2.6
+    },
+    "exposure": "contrafrente"
+  },
   "606": {
     "residence": "606",
     "beds": 3,
@@ -1070,6 +1087,23 @@
   },
   "609": {
     "residence": "609",
+    "beds": 0,
+    "baths": 1,
+    "sqft": 366,
+    "status": "available",
+    "ambientes": 1,
+    "price": "Consultar",
+    "floorPlan": "/plans/tipologia-A.webp",
+    "areas": {
+      "total": 39.7,
+      "interior": 34,
+      "exterior": 4,
+      "comun": 1.7
+    },
+    "exposure": "contrafrente"
+  },
+  "610": {
+    "residence": "610",
     "beds": 0,
     "baths": 1,
     "sqft": 366,

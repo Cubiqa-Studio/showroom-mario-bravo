@@ -37,21 +37,21 @@ const es = {
   seo: {
     homeH1: "TIER Bravo — Departamentos en Mario Bravo 955, Buenos Aires",
     homeBody:
-      "TIER Bravo, en Mario Bravo 955, es un desarrollo de 61 departamentos en la Ciudad de Buenos Aires, de monoambiente a 4 ambientes, distribuidos en siete pisos. Amenities de edificio: pileta con solárium, gimnasio, SUM y coworking, parrilla y comedor de terraza, sector de juegos, cochera cubierta y lobby con seguridad. Recorré el edificio en un tour interactivo 360° y consultá plantas, superficies y disponibilidad.",
+      "TIER Bravo, en Mario Bravo 955, es un desarrollo de 63 departamentos en la Ciudad de Buenos Aires, de monoambiente a 4 ambientes, distribuidos en siete pisos. Amenities de edificio: pileta con solárium, gimnasio, SUM y coworking, parrilla y comedor de terraza, sector de juegos, cochera cubierta y lobby con seguridad. Recorré el edificio en un tour interactivo 360° y consultá plantas, superficies y disponibilidad.",
     showroomH1: "Showroom 360° — Recorré TIER Bravo, en Mario Bravo 955",
     showroomBody:
-      "Recorrido interactivo de TIER Bravo, el edificio de Mario Bravo 955, Ciudad de Buenos Aires. Girá la vista en 360°, explorá los 61 departamentos de los pisos 1 a 7 y entrá a cada unidad para ver su planta, superficie y disponibilidad.",
+      "Recorrido interactivo de TIER Bravo, el edificio de Mario Bravo 955, Ciudad de Buenos Aires. Girá la vista en 360°, explorá los 63 departamentos de los pisos 1 a 7 y entrá a cada unidad para ver su planta, superficie y disponibilidad.",
     unitsNavLabel: "Listado de departamentos",
     unitLink: (residence: string, beds: number) =>
       `Departamento ${residence} — ${beds >= 1 ? `${beds} ${beds === 1 ? "dormitorio" : "dormitorios"}` : "monoambiente"} en TIER Bravo, Mario Bravo 955`,
     /** Sección "El proyecto" del bloque SEO del showroom: párrafo auto-contenido
      *  (~120 palabras) con SOLO datos reales del proyecto — también es el bloque
      *  citable para AI search (AI Overviews / Perplexity). */
-    projectTitle: "El proyecto: 61 departamentos en TIER Bravo",
+    projectTitle: "El proyecto: 63 departamentos en TIER Bravo",
     projectBody:
       // Sólo datos verificados contra el listado de unidades del cliente. Sin fecha de
       // entrega ni lista cerrada de terminaciones hasta que las confirme.
-      "TIER Bravo es un desarrollo residencial de CCM Desarrollos en Mario Bravo 955, Ciudad Autónoma de Buenos Aires. El edificio reúne 61 departamentos repartidos en siete pisos: monoambientes y unidades de 2, 3 y 4 ambientes, con superficies totales que van de 39,70 m² a 258,15 m². Los pisos 1 a 5 tienen diez unidades cada uno; el 6° y el 7° son plantas de retiro, con menos unidades y terrazas de mayor superficie. Suma amenities de pileta con solárium, gimnasio, SUM y coworking, parrilla de terraza y cochera cubierta. Cada departamento tiene su ficha con plano, superficies y disponibilidad actualizados, y el edificio se recorre completo en 360° desde este showroom online.",
+      "TIER Bravo es un desarrollo residencial de CCM Desarrollos en Mario Bravo 955, Ciudad Autónoma de Buenos Aires. El edificio reúne 63 departamentos repartidos en siete pisos: monoambientes y unidades de 2, 3 y 4 ambientes, con superficies totales que van de 39,70 m² a 258,15 m². Los pisos 1 a 6 tienen diez unidades cada uno; el 7° es una planta de retiro, con tres unidades y terrazas de mayor superficie. Suma amenities de pileta con solárium, gimnasio, SUM y coworking, parrilla de terraza y cochera cubierta. Cada departamento tiene su ficha con plano, superficies y disponibilidad actualizados, y el edificio se recorre completo en 360° desde este showroom online.",
     homeLink: "Volver a la portada de TIER Bravo",
   },
 
@@ -768,16 +768,16 @@ const en: Dict = {
   seo: {
     homeH1: "TIER Bravo — Apartments at Mario Bravo 955, Buenos Aires",
     homeBody:
-      "TIER Bravo, at Mario Bravo 955, is a development of 61 apartments in the City of Buenos Aires, from studios to 4-room units, across seven floors. Building amenities: pool with sun deck, gym, lounge and coworking, terrace grill and dining area, play area, covered parking and a staffed lobby. Explore the building in an interactive 360° tour and check floor plans, areas and availability.",
+      "TIER Bravo, at Mario Bravo 955, is a development of 63 apartments in the City of Buenos Aires, from studios to 4-room units, across seven floors. Building amenities: pool with sun deck, gym, lounge and coworking, terrace grill and dining area, play area, covered parking and a staffed lobby. Explore the building in an interactive 360° tour and check floor plans, areas and availability.",
     showroomH1: "360° Showroom — Explore TIER Bravo at Mario Bravo 955",
     showroomBody:
-      "Interactive tour of TIER Bravo, the building at Mario Bravo 955, City of Buenos Aires. Rotate the 360° view, explore the 61 apartments on floors 1 to 7, and enter each unit to see its floor plan, area and availability.",
+      "Interactive tour of TIER Bravo, the building at Mario Bravo 955, City of Buenos Aires. Rotate the 360° view, explore the 63 apartments on floors 1 to 7, and enter each unit to see its floor plan, area and availability.",
     unitsNavLabel: "Apartments list",
     unitLink: (residence: string, beds: number) =>
       `Apartment ${residence} — ${beds >= 1 ? `${beds} ${beds === 1 ? "bedroom" : "bedrooms"}` : "studio"} at TIER Bravo, Mario Bravo 955`,
-    projectTitle: "The project: 61 apartments at TIER Bravo",
+    projectTitle: "The project: 63 apartments at TIER Bravo",
     projectBody:
-      "TIER Bravo is a residential development by CCM Desarrollos at Mario Bravo 955, City of Buenos Aires. The building brings together 61 apartments across seven floors: studios and 2-, 3- and 4-room units, with total areas ranging from 39.70 m² to 258.15 m². Floors 1 through 5 hold ten units each; the 6th and 7th are setback floors, with fewer units and larger terraces. Amenities include a pool with sun deck, a gym, a lounge and coworking space, a terrace grill and covered parking. Each apartment has its own page with floor plan, areas and up-to-date availability, and you can tour the entire building in 360° from this online showroom.",
+      "TIER Bravo is a residential development by CCM Desarrollos at Mario Bravo 955, City of Buenos Aires. The building brings together 63 apartments across seven floors: studios and 2-, 3- and 4-room units, with total areas ranging from 39.70 m² to 258.15 m². Floors 1 through 6 hold ten units each; the 7th is a setback floor, with three units and larger terraces. Amenities include a pool with sun deck, a gym, a lounge and coworking space, a terrace grill and covered parking. Each apartment has its own page with floor plan, areas and up-to-date availability, and you can tour the entire building in 360° from this online showroom.",
     homeLink: "Back to the TIER Bravo home page",
   },
 
