@@ -79,7 +79,7 @@
   /* El wordmark es una tira de 900×172 (5,2:1), así que cada píxel de alto son cinco
      de ancho: a 92px mide ~480px, que es un tercio de una pantalla de 1440 — la misma
      proporción que le da el cliente en su afiche. */
-  height: clamp(38px, 6.2vw, 110px);
+  height: clamp(34px, 5vw, 88px);
   width: auto;
   /* Sombra suave: el logotipo cae sobre tres fondos distintos (y sobre un video). */
   filter: drop-shadow(0 2px 18px rgba(0, 0, 0, 0.6));
@@ -458,7 +458,11 @@
    mecánica del hover de escritorio, llevada al extremo — un solo lenguaje de
    movimiento para las dos entradas.
    ========================================================= */
-.portada-grid[data-expandido] .pp {
+/* El `[data-expandido]` de sobra en el hijo NO es decorativo: le sube la especificidad
+   a (0,4,0) para que ninguna regla de hover —presente o futura— pueda ganarle por
+   venir después en la hoja. Todos los paneles llevan el atributo (si/no), así que
+   matchea igual. */
+.portada-grid[data-expandido] .pp[data-expandido] {
   flex-grow: 0;
   opacity: 0;
   pointer-events: none;
@@ -617,12 +621,24 @@
     padding-top: clamp(16px, 2.2vh, 30px);
   }
   /* Apilado, el hover del panel de arriba no debe "abrir" nada: las franjas ya están
-     todas a la vista. Se anula el crecimiento y el apagado de los hermanos. */
-  .portada-grid:hover .pp,
-  .portada-grid .pp:hover,
-  .portada-grid .pp:focus-visible {
-    flex-grow: 1;
-    opacity: 1;
+     todas a la vista. Se anula el crecimiento y el apagado de los hermanos.
+     ⚠ VA GATEADO POR PUNTERO FINO, y esto NO es un detalle. En un teléfono de verdad
+     un tap deja el `:hover` PEGADO al elemento hasta que tocás otra cosa. Sin este
+     gate, la regla —que tiene la misma especificidad que la de la vista ampliada y
+     viene después en la hoja— le ganaba: tocabas un panel, se marcaba como ampliado,
+     aparecía la X… y los tres paneles se quedaban donde estaban. O sea que la
+     animación no existía y quedaba todo a medio dibujar (reporte de Joaquim con
+     captura, 30-08). Con el gate, en táctil no hay NINGUNA regla de hover viva y la
+     vista ampliada manda sola.
+     ⚠ Y no se verifica con un `element.click()` de JS: eso no aplica `:hover`. Hay que
+     tocar de verdad (`touchscreen.tap`), que es como se escapó la primera vez. */
+  @media (hover: hover) and (pointer: fine) {
+    .portada-grid:hover .pp,
+    .portada-grid .pp:hover,
+    .portada-grid .pp:focus-visible {
+      flex-grow: 1;
+      opacity: 1;
+    }
   }
 }
 
@@ -691,8 +707,15 @@
      Se caen los filetes: con dos renglones marcarían una grilla que no existe. */
   .portada-pie {
     flex-wrap: wrap;
-    padding: 12px 14px 14px;
-    row-gap: 9px;
+    justify-content: center;
+    /* El aire lateral no es estético: el badge flotante de CUBIQA vive fijo en la
+       esquina inferior derecha (36px + 12 de margen) y, sin reservarle lugar, se
+       comía el final de "CREAMOS VALOR". Va SIMÉTRICO para que el bloque siga
+       centrado en la pantalla; si las cuatro no entran en un renglón, envuelven
+       centradas de a dos, que se lee bien igual. */
+    padding: 12px 54px 14px;
+    column-gap: 12px;
+    row-gap: 7px;
   }
   .portada-pie > * {
     padding: 0;
@@ -709,12 +732,15 @@
   .pie-ccm img {
     height: 30px;
   }
+  /* Centradas y JUNTAS, no en dos columnas al 50%: repartidas en mitades quedaban
+     con un agujero en el medio y se leían como cuatro cosas sueltas ("quedaron raros,
+     muy separados"). Así fluyen como una sola línea y, si no entran, envuelven
+     centradas como grupo. */
   .pie-virtud {
-    flex: 0 0 50%;
-    text-align: center;
-    font-size: 9.5px;
-    letter-spacing: 0.18em;
-    text-indent: 0.18em;
+    flex: 0 0 auto;
+    font-size: clamp(8.5px, 2.2vw, 10px);
+    letter-spacing: 0.14em;
+    text-indent: 0.14em;
   }
 }
 
