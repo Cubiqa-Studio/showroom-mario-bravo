@@ -11,6 +11,7 @@ import type { SpecPanel } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { CloseIcon } from "../gallery/icons";
 import { SpecsSection } from "./SpecsSection";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /**
  * "El Proyecto" — modal del showroom con las secciones de proyecto que se sacaron
@@ -38,11 +39,10 @@ export function ProjectModal({
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [open, onClose]);
 

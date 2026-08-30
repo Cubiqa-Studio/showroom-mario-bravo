@@ -11,6 +11,7 @@ import { SITE } from "@/data/site";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { CloseIcon } from "../gallery/icons";
 import { LocationMap } from "./LocationMap";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /**
  * "Ubicación" — modal del showroom con el MISMO mapa interactivo de las landings de
@@ -26,11 +27,10 @@ export function LocationModal({ open, onClose }: { open: boolean; onClose: () =>
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [open, onClose]);
 

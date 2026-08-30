@@ -14,6 +14,7 @@ import { useI18n } from "@/i18n/LanguageProvider";
 import { useLiveUnits } from "@/hooks/useLiveUnits";
 import { CloseIcon } from "../gallery/icons";
 import { FloorPlate } from "./FloorPlate";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 // Fallback estático (bundleado, seguro en cliente). El estado/precio EN VIVO sale
 // de Airtable: si el padre nos pasa `units` (el showroom ya las tiene en vivo) las
@@ -51,11 +52,10 @@ export function MasterplanModal({
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [open, onClose]);
 

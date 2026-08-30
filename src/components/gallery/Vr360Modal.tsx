@@ -7,6 +7,7 @@ import { useI18n } from "@/i18n/LanguageProvider";
 import { useIsTouch } from "@/hooks/useIsTouch";
 import { kuulaEmbedUrl } from "@/lib/kuula";
 import { CloseIcon } from "./icons";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /**
  * Modal a (casi) pantalla completa con el recorrido 360° de Kuula embebido. Se abre
@@ -38,11 +39,10 @@ export function Vr360Modal({
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [src, onClose]);
 

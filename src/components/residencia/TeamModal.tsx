@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { CloseIcon } from "../gallery/icons";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -32,11 +33,10 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [open, onClose]);
 

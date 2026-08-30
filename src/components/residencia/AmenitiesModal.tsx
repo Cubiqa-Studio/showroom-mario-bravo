@@ -12,6 +12,7 @@ import { kuulaEmbedUrl } from "@/lib/kuula";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { useIsTouch } from "@/hooks/useIsTouch";
 import { CloseIcon } from "../gallery/icons";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /**
  * "Amenities" — recorrido 360° de Kuula de los amenities ARRIBA + el detalle de
@@ -39,11 +40,10 @@ export function AmenitiesModal({
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [open, onClose]);
 

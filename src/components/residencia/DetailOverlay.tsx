@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { SiteConfig, Unit } from "@/lib/types";
 import type { UnitWithId } from "@/lib/data";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 import { ResidenciaLanding } from "./ResidenciaLanding";
 
 interface DetailOverlayProps {
@@ -47,14 +48,11 @@ export function DetailOverlay({ unit, unitId, others, site, floorUnits }: Detail
     setClosing(true); // el onAnimationComplete dispara la navegación al exterior
   }, [reduce, router]);
 
-  // Bloquear el scroll del body mientras el overlay está abierto.
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, []);
+  // Bloquear el scroll del body mientras el overlay está abierto. Va por el lock
+  // COMPARTIDO (contador): encima del overlay se abren galería/360/buscador, que
+  // bloquean también, y con el save/restore a mano el orden de limpieza dejaba el
+  // body en "hidden" al salir al exterior (showroom sin scroll hasta refrescar).
+  useEffect(() => lockBodyScroll(), []);
 
   // Al SALTAR de unidad (carrusel / plano de la planta) el overlay NO se remonta, así
   // que su scroll quedaba donde venías (p. ej. abajo, en la planta). Lo reseteamos al
@@ -63,6 +61,18 @@ export function DetailOverlay({ unit, unitId, others, site, floorUnits }: Detail
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
   }, [unitId]);
+
+  // FAILSAFE del cierre. `closing` deja el overlay en opacity 0 y recién el
+  // onAnimationComplete hace el router.back(). Si ese back NO nos saca del detalle
+  // —quedó otra /residencia en el historial (buscador y masterplan navegan con push)—
+  // el overlay se queda montado, INVISIBLE y `fixed z-100`: se ve el showroom
+  // apagado por el velo del zoom y no responde a nada. Si a los 1,5 s seguimos acá,
+  // devolvemos el overlay a la vista en vez de dejar ese vidrio.
+  useEffect(() => {
+    if (!closing) return;
+    const t = window.setTimeout(() => setClosing(false), 1500);
+    return () => window.clearTimeout(t);
+  }, [closing]);
 
   // Escape cierra.
   useEffect(() => {
@@ -81,7 +91,9 @@ export function DetailOverlay({ unit, unitId, others, site, floorUnits }: Detail
       // llega el RSC se ve. El lienzo oscuro hace el handoff sin parpadeo desde el
       // shell de carga (también oscuro). Sólo anima al CERRAR (fade-out → navegar a "/").
       initial={false}
-      animate={{ opacity: closing ? 0 : 1 }}
+      // `pointerEvents` acompaña al fade: mientras se va, el overlay no debe comerse
+      // el primer toque sobre el showroom que ya se ve por detrás.
+      animate={{ opacity: closing ? 0 : 1, pointerEvents: closing ? "none" : "auto" }}
       transition={{ duration: reduce ? 0 : closing ? 0.25 : 0.3, ease: "easeOut" }}
       onAnimationComplete={() => {
         // Cerrar con router.back(): es la forma correcta de cerrar una ruta INTERCEPTADA

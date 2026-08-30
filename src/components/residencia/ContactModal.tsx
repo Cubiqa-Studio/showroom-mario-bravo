@@ -7,6 +7,7 @@ import { whatsappUrl } from "@/lib/contact";
 import { captureContactFormSubmitted, captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { CloseIcon } from "../gallery/icons";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -38,11 +39,10 @@ export function ContactModal({
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      unlock();
     };
   }, [open, onClose]);
 

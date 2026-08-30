@@ -43,6 +43,21 @@ export function ZoomLayer({ children }: { children: ReactNode }) {
     }
   }, [pathname, setOpening]);
 
+  // FAILSAFE del velo. `opening` se prende SINCRÓNICO en el click y lo apaga el
+  // bloque de arriba cuando la ruta VUELVE del detalle. Si la navegación nunca llega
+  // —RSC lento o caído en una red móvil floja, el usuario que cancela—, el pathname
+  // nunca fue /residencia, `wasDetail` sigue en false y NADIE apagaba `opening`: el
+  // showroom se quedaba con el velo negro al 50% encima, "todo oscuro", hasta
+  // refrescar (reporte de Joaquim, 30-08). Si a los 8 s seguimos afuera, lo soltamos.
+  // Si la ruta finalmente llega, el velo lo sostiene el pathname (y para entonces el
+  // detalle, opaco, ya está por encima), así que soltarlo acá no se ve.
+  useEffect(() => {
+    if (!opening) return;
+    if (pathname?.startsWith("/residencia")) return;
+    const t = window.setTimeout(() => setOpening(false), 8000);
+    return () => window.clearTimeout(t);
+  }, [opening, pathname, setOpening]);
+
   // Zoom-IN instantáneo: arranca con `opening` (seteado sincrónico en el click),
   // sin esperar a que la ruta interceptada renderice. El pathname lo sostiene abierto.
   const open = opening || (pathname?.startsWith("/residencia") ?? false);

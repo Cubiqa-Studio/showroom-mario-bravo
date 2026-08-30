@@ -9,6 +9,7 @@ import { FloatingPortal } from "@floating-ui/react";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { CloseIcon } from "../gallery/icons";
 import { CaviahueCarousel } from "./CaviahueCarousel";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -29,11 +30,10 @@ export function CaviahueModal({ open, onClose }: { open: boolean; onClose: () =>
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [open, onClose]);
 

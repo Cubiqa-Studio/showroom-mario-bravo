@@ -21,6 +21,7 @@ import {
 } from "@/lib/residencia";
 import { CloseIcon, SearchIcon } from "./icons";
 import { captureUnitSelected } from "@/lib/analytics";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -123,11 +124,10 @@ export function UnitFinderModal({
       }
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [open, onClose, filtersOpen]);
 
