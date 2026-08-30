@@ -537,12 +537,22 @@
    del detalle interceptado). Es el mismo truco que ya usaba el 360°. */
 @media (max-width: 720px) {
   .res-landing:not(.has-360) { overflow-x: clip; }
+  /* ⚠ `svh` y NO `dvh`, por lo mismo que el plano y la planta más abajo. `dvh` es el
+     alto DINÁMICO: CRECE cuando el navegador esconde la barra de direcciones al
+     scrollear (medido en un Galaxy: 830 → 915 px). Y el render es apaisado —2400×1350
+     en una caja de 412 de ancho—, así que con `object-fit: cover` la escala la manda
+     el ALTO: la foto se agrandaba 1,10× sola, en pleno scroll y de forma ANIMADA
+     (Chrome retrae la barra con una animación), que es el "zoom super tosco" que
+     reportó Joaquim el 30-08. `svh` es el alto CHICO, el estable: no se mueve nunca,
+     así que la foto queda quieta. Cuando la barra se esconde, esos 85px de más los
+     tapa la hoja —que es opaca y ya arranca 134px por encima del pie del hero—, no
+     queda ningún hueco. */
   .res-landing:not(.has-360) .hero {
-    position: sticky; top: 0; height: 100dvh; z-index: 0;
+    position: sticky; top: 0; height: 100svh; z-index: 0;
     padding-top: 0;                            /* full-bleed: el nav flota encima */
   }
   .res-landing:not(.has-360) .hero-stage {
-    margin: 0; height: 100dvh; min-height: 0;
+    margin: 0; height: 100svh; min-height: 0;
   }
   /* Sin esquinas redondeadas ni marco: el render llena la pantalla, como el 360°. */
   .res-landing:not(.has-360) .hero-main { border-radius: 0; }
