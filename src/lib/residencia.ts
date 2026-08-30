@@ -6,26 +6,33 @@ import type { Unit } from "./types";
 // hardcodeado a una unidad puntual). Reemplazá poblando units.json.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Renders del hero para las unidades SIN tour 360°: hoy son las 11 del 6° y el 7°
-// (las de los pisos 1 a 5 muestran su recorrido embebido y no pasan por acá).
+// Renders del hero para las unidades SIN tour 360°: las 13 del 6° y el 7° (las de
+// los pisos 1 a 5 muestran su recorrido embebido y no pasan por acá).
 //
-// El cliente eligió el set (26-08): la FACHADA como imagen grande y tres interiores
-// —cocina, dormitorio y living-comedor— en los mosaicos chicos del header. Una
-// unidad puede traer su propia `gallery` en units.json para pisar este default.
+// DROP DEL 30-08. El cliente mandó material propio para estas unidades y reemplaza
+// al set anterior (fachada + cocina/dormitorio/living de la galería del edificio,
+// que eran renders del piso tipo y no de un semipiso con terraza). Ahora:
+//   · grande  → "View 13", el render HORIZONTAL del living-comedor con la terraza
+//               y la vista abierta a Palermo. Era una de las dos vistas que faltaban
+//               de la numeración del cliente (ver _media-src/MANIFIESTO-ENTREGA.md).
+//   · mosaicos → las tres ampliaciones de esa misma escena: el living con la terraza
+//               de fondo, el comedor contra la vista, y la terraza al atardecer.
 //
-// ⚠ Estas rutas las genera `npm run gallery:optimize` desde `_media-src/gallery/`:
-// si se renombran los originales, hay que actualizarlas acá (venían apuntando a
-// `view-07/08/09/04.webp`, nombres de otro showroom, y el hero de esas 11 unidades
-// mostraba cuatro imágenes rotas).
+// Una unidad puede traer su propia `gallery` en units.json para pisar este default.
+//
+// ⚠ Estas rutas las genera `npm run unidades:optimize` desde `_media-src/unidades/`,
+// que es un set aparte del de la galería del proyecto a propósito: son cuatro tomas
+// de la MISMA escena y en el lightbox del menú quedarían repetidas.
 const DEFAULT_HERO_VIEWS = [
-  "/gallery/optimized/01-fachada.webp",
-  "/gallery/optimized/13-cocina.webp",
-  "/gallery/optimized/14-dormitorio.webp",
-  "/gallery/optimized/12-living-comedor.webp",
+  "/unidades/01-living-comedor-terraza.webp",
+  "/unidades/02-living-terraza-familia.webp",
+  "/unidades/03-comedor-vista.webp",
+  "/unidades/04-terraza-atardecer.webp",
 ];
 
-/** Galería del hero: la de la unidad (si la trae), o el set por defecto — la
- *  fachada grande + cocina/dormitorio/living como thumbs. */
+/** Galería del hero: la de la unidad (si la trae), o el set por defecto — el
+ *  living-comedor con la terraza en grande y tres tomas de la misma escena como
+ *  mosaicos. */
 export function unitGallery(unit: Unit): string[] {
   if (unit.gallery && unit.gallery.length) return unit.gallery;
   return DEFAULT_HERO_VIEWS;

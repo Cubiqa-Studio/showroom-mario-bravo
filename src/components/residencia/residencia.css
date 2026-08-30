@@ -403,6 +403,17 @@
 }
 .res-landing .hero-main { position: absolute; inset: 0; border-radius: var(--radius); overflow: hidden; background: var(--bg-2); border: 0; padding: 0; cursor: pointer; appearance: none; -webkit-appearance: none; }
 .res-landing .hero-badge { position: absolute; top: 26px; left: 26px; z-index: 4; }
+/* El badge del HERO va SOBRE el render, no sobre el lienzo oscuro de la ficha. Su
+   fondo normal es el color de estado al 16% —pensado para leerse contra negro— y con
+   el render nuevo del 7° (un living a contraluz, casi blanco) quedaba lavado. Acá le
+   damos el MISMO scrim de vidrio que ya usa "Ver las N fotos" tres líneas más abajo,
+   así se lee sobre cualquier imagen. El borde y el texto de color no se tocan: son
+   los que dicen si está disponible o reservada. */
+.res-landing .hero-badge .badge {
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
 .res-landing .see-all {
   position: absolute; bottom: 26px; right: 26px; z-index: 4;
   background: var(--glass);
@@ -695,9 +706,9 @@
   border-radius: var(--radius);
   /* Sin min-height: la tarjeta abraza la altura del plano (Miro 2026-06-10:
      "croppear el espacio vacío" — los dúplex anchos quedan bajos, los simples
-     más altos). Padding lateral chico → el dibujo aprovecha el ancho; el
-     inferior extra aloja la flecha "Acceso". */
-  padding: 30px 30px 58px;
+     más altos). Padding parejo: los 58px de abajo eran el carril de la flecha
+     "Acceso", que se quitó el 30-08 (ver más abajo) y sólo dejaba aire muerto. */
+  padding: 30px;
   box-shadow: var(--shadow-card);
   display: flex;
   align-items: center;
@@ -709,13 +720,14 @@
   color: var(--gray); font-size: calc(17.5px * var(--fs-k)); letter-spacing: .14em; text-transform: uppercase;
 }
 .res-landing .water-label .wave { color: var(--gold); font-size: calc(20px * var(--fs-k)); }
-.res-landing .entry-arrow {
-  position: absolute;
-  bottom: 36px; left: 30px; /* posición de escritorio (antes inline en PlanSection.tsx) */
-  display: flex; align-items: center; gap: 6px;
-  color: var(--orange); font-size: calc(15px * var(--fs-k)); letter-spacing: .1em; text-transform: uppercase;
-  z-index: 2;
-}
+/* (La flecha "→ ACCESO" se ELIMINÓ el 30-08. Vivía acá, clavada en `bottom: 36px;
+   left: 30px` de la tarjeta, o sea SIEMPRE en la esquina inferior izquierda: no
+   apuntaba al acceso real de cada unidad. Con 9 planos distintos —y espejados entre
+   el 01 y el 07 de cada piso— caía mal en casi todos, y el cliente lo marcó: "en casi
+   todas las plantas donde marcás el acceso está mal, de última no lo marques". Marcarlo
+   bien pediría una coordenada POR PLANO que nadie tiene relevada, así que se saca: es
+   preferible no decir nada a decir algo falso. Si algún día llega ese dato, vuelve como
+   un `access: {x, y}` por plano, no como una posición fija. */
 /* plano de la unidad como imagen (en vez del SVG falso) + watermark del Nº */
 .res-landing .floorplan-img {
   position: relative; z-index: 1;
@@ -1133,7 +1145,6 @@
    REDESIGN — identity layer
    ========================================================= */
 .res-landing .plan-stage > .floorplan { position: relative; z-index: 1; }
-.res-landing .plan-stage > .entry-arrow { z-index: 1; }
 .res-landing .plan-watermark {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   font-family: var(--serif); font-weight: 500; font-size: calc(clamp(110px, 13vw, 210px) * var(--fs-k));
@@ -1466,6 +1477,17 @@
 
   /* ---- PLANO DE LA UNIDAD: la tarjeta abraza el plano (sin el hueco gigante) ---- */
   .res-landing .tabs { gap: 22px; margin-bottom: 8px; }
+  /* Con la TERCERA pestaña (Terraza, sólo las tres del 7°) los rótulos ya no entran
+     en un renglón a 412px y el grupo termina pegado a los dos bordes. Sólo en ese
+     caso apretamos el aire y el cuerpo; con dos pestañas —las otras 60 unidades— la
+     barra queda exactamente como estaba. `:has()` no lo entiende un browser viejo,
+     y ahí simplemente no aplica: se ve como hoy, apretado pero funcional. */
+  .res-landing .tabs:has(.tab:nth-child(3)) { gap: 10px; }
+  .res-landing .tabs:has(.tab:nth-child(3)) .tab {
+    font-size: calc(16.5px * var(--fs-k));
+    padding: 11px 2px;
+    text-align: center;
+  }
   .res-landing .tab { font-size: calc(18.5px * var(--fs-k)); padding: 11px 8px; min-height: 44px; }
   .res-landing .water-banner { margin: 16px 0 26px; font-size: calc(16.5px * var(--fs-k)); letter-spacing: .12em; }
   .res-landing .plan-layout { gap: 30px; }
@@ -1485,9 +1507,6 @@
      celular. Es la palanca: subilo o bajalo acá y se mueve todo. */
   .res-landing .floorplan-img { max-height: min(500px, calc(100svh - 220px)); }
   .res-landing .plan-watermark { font-size: calc(clamp(110px, 40vw, 200px) * var(--fs-k)); }
-  /* La flecha "Acceso" se posiciona en px fijos sobre un plano placeholder genérico;
-     al achicarse la tarjeta quedaba flotando sobre el dibujo → se oculta en celu. */
-  .res-landing .entry-arrow { display: none; }
   .res-landing .street-label { margin-top: 12px; }
   .res-landing .overview { padding-top: 0; }
   .res-landing .overview h3 { margin-bottom: 16px; }
@@ -2402,9 +2421,6 @@
      esconde su barra y el plano daba un salto de tamaño en pleno scroll. */
   .res-landing .plan-stage { min-height: 0; padding: 16px; overflow: hidden; }
   .res-landing .floorplan-img { max-height: min(420px, calc(100svh - 40px)); }
-  /* Misma razón que en celular: la flecha "Acceso" va en px fijos y, con la tarjeta
-     achicada, queda flotando sobre el dibujo. */
-  .res-landing .entry-arrow { display: none; }
 
   /* ---- PLANTA DEL PISO ----
      Al revés que el plano de la unidad: el tope de escritorio es `78vh`, que sobre

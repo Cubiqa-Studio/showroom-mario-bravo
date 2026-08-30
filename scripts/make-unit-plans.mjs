@@ -26,6 +26,14 @@
 // Van marcadas `inferred` y se listan aparte al final: el cliente NO las nombró,
 // las dedujimos. Si Camila confirma otra cosa, se cambia acá y se vuelve a correr.
 //
+// TERRAZAS (30-08). Las tres unidades del 7° tienen su terraza propia en la azotea y
+// el cliente mandó una planta por unidad (`_media-src/terrazas/`). Son PNG del MISMO
+// lienzo de 1810×1309 con TODO transparente salvo la terraza de esa unidad —incluidos
+// los recuadros que se ven negros, que son alfa 0 con RGB negro—, así que el mismo
+// recorte por alfa que usan los planos las deja ajustadas a su dibujo. Salen a
+// `public/plans/terraza-<id>.webp` (WebP CON alfa) y se escriben en `terrazaPlan`,
+// que la ficha muestra en su propia pestaña.
+//
 // Uso:  node scripts/make-unit-plans.mjs      (o `npm run plans:units`)
 import sharp from "sharp";
 import { fileURLToPath } from "node:url";
@@ -36,6 +44,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 
 const SRC_DIR = join(ROOT, "_media-src", "tipologias");
+const TERRAZAS_DIR = join(ROOT, "_media-src", "terrazas");
 const OUT_DIR = join(ROOT, "public", "plans");
 const UNITS_JSON = join(ROOT, "src", "data", "units.json");
 
@@ -182,6 +191,16 @@ const BORROWED = {
   "702": "piso-7-01",
 };
 
+/** PLANTAS DE TERRAZA del 7° (drop del 30-08). Una por unidad, y acá SÍ vino la 02
+ *  —a diferencia del plano interior, que sigue prestado del 01—. Van a una pestaña
+ *  propia de la ficha; si el cliente manda las del 6° (que tienen "balcón terraza",
+ *  no terraza propia), se agregan acá y aparecen solas. */
+const TERRACE_PLANS = [
+  { out: "terraza-701", src: "TERRAZA 7MO - 01.png", units: ["701"] },
+  { out: "terraza-702", src: "TERRAZA 7MO - 02.png", units: ["702"] },
+  { out: "terraza-706", src: "TERRAZA 7MO - 06.png", units: ["706"] },
+];
+
 if (!existsSync(SRC_DIR)) {
   console.error(`No existe ${SRC_DIR} — dejá ahí los planos de tipología del cliente.`);
   process.exit(1);
@@ -247,6 +266,39 @@ for (const plan of PLANS) {
   }
 }
 
+// ── 1b · Plantas de terraza (7° piso) ────────────────────────────────────────
+const assignedTerrace = new Map(); // unitId → ruta pública
+
+for (const plan of TERRACE_PLANS) {
+  const input = join(TERRAZAS_DIR, plan.src);
+  if (!existsSync(input)) {
+    console.warn(`⚠ falta ${plan.src} — se saltea (esa unidad queda sin planta de terraza).`);
+    failed = true;
+    continue;
+  }
+  const box = await contentBox(input);
+  const info = await sharp(input)
+    .extract({ left: box.left, top: box.top, width: box.width, height: box.height })
+    .resize({ width: MAX_SIDE, height: MAX_SIDE, fit: "inside", withoutEnlargement: true })
+    .webp({ quality: QUALITY, alphaQuality: 100 })
+    .toFile(join(OUT_DIR, `${plan.out}.webp`));
+  const { W, H } = box.canvas;
+  const savedCanvas = Math.round((1 - (box.width * box.height) / (W * H)) * 100);
+  console.log(
+    `${plan.src.padEnd(30)} → ${(plan.out + ".webp").padEnd(18)} ` +
+      `${W}×${H} → recorte ${box.width}×${box.height} ` +
+      `(−${savedCanvas}% de lienzo) → ${info.width}×${info.height}  ${kb(info.size)}`,
+  );
+  for (const id of plan.units) {
+    if (!units[id]) {
+      console.error(`✗ ${plan.src}: la unidad ${id} no existe en units.json`);
+      failed = true;
+      continue;
+    }
+    assignedTerrace.set(id, `/plans/${plan.out}.webp`);
+  }
+}
+
 for (const [id, out] of Object.entries({ ...INFERRED, ...BORROWED })) {
   if (!units[id]) {
     console.error(`✗ inferido: la unidad ${id} no existe en units.json`);
@@ -269,11 +321,22 @@ for (const [id, path] of assigned) {
     changed++;
   }
 }
+let changedTerrace = 0;
+for (const [id, path] of assignedTerrace) {
+  if (units[id].terrazaPlan !== path) {
+    units[id].terrazaPlan = path;
+    changedTerrace++;
+  }
+}
 writeFileSync(UNITS_JSON, JSON.stringify(units, null, 2) + "\n");
 
 const all = Object.keys(units);
 const without = all.filter((id) => !assigned.has(id));
 console.log(`\n✓ ${assigned.size}/${all.length} unidades con plano (${changed} actualizadas)`);
+console.log(
+  `✓ ${assignedTerrace.size} unidades con planta de TERRAZA (${changedTerrace} actualizadas): ` +
+    `${[...assignedTerrace.keys()].join(" ")}`,
+);
 console.log(`· inferidas (numeración corrida del 6°): ${Object.keys(INFERRED).join(" ")}`);
 console.log(
   `⚠ prestadas (el cliente no mandó SU plano): ${Object.entries(BORROWED)

@@ -73,7 +73,14 @@ export interface Unit {
   ambientes?: number;
   /** Tipología comercial A–F (Airtable, columna "Tipología"). */
   tipologia?: string;
-  /** Toilette (medio baño), por tipología (units.json). Ausente/0 = no se muestra. */
+  /** Toilette (medio baño), por tipología (units.json). Ausente/0 = no se muestra.
+   *
+   *  Relevado el 30-08 sobre los 9 planos que mandó el cliente (`public/plans/`):
+   *  las tipologías A y B tienen UN solo baño completo, y C, D, E y las cinco
+   *  grandes del 6°/7° suman además un cuarto con inodoro y bacha, sin ducha ni
+   *  bidé — 38 de las 63 unidades. Antes no lo traía NINGUNA y por eso el dato no
+   *  se veía en ningún lado (reporte del cliente vía Joaquim, 30-08).
+   *  ⚠ NO está en Airtable: si cambia un plano, se corrige acá. */
   toilette?: number;
   /** Vistas de la unidad (Airtable, columna "Vistas"): ej. "Montaña", "Parcial al
    *  lago", "Plena al lago". Reemplaza a la vieja "Superficie Descubierta". */
@@ -82,6 +89,13 @@ export interface Unit {
   price: string;
   /** Mini floor plan / apartment image shown in the hover tooltip. */
   floorPlan: string;
+  /**
+   * Planta de la TERRAZA propia (azotea). Sólo las tres del 7°: el cliente mandó una
+   * por unidad el 30-08 —incluida la 702, cuyo plano INTERIOR sigue prestado del 701—.
+   * Cuando existe, la ficha suma una tercera pestaña junto a "Plano de la unidad" y
+   * "Planta del piso". La escribe `npm run plans:units` desde `_media-src/terrazas/`.
+   */
+  terrazaPlan?: string;
   /** Optional secondary image (render/photo) for the tooltip. */
   image?: string;
   /** Phase 2: 360° / VR tour URL for the VR button. */

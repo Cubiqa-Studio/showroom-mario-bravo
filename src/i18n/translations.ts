@@ -188,7 +188,11 @@ const es = {
     rooms: (n: number) => `${n} amb`,
     // (Vistas se muestra con su valor crudo de Airtable, ej. "Montaña".)
     beds: (n: number) => (n === 1 ? "1 dormitorio" : `${n} dormitorios`),
-    baths: (n: number) => (n === 1 ? "1 baño" : `${n} baños`),
+    /** Baños de la tarjeta compacta. `toilette` va PEGADO acá y no como un ítem
+     *  suelto de la línea: la tarjeta mide 224px y clampea en 2 renglones, así que
+     *  un bullet más empujaba la superficie fuera de la vista. */
+    baths: (n: number, toilette = false) =>
+      `${n === 1 ? "1 baño" : `${n} baños`}${toilette ? " + toilette" : ""}`,
   },
 
   /** Buscador de unidades — modal con la lista filtrable de todas las unidades.
@@ -310,10 +314,14 @@ const es = {
     sectionTitle: "Plano de la Unidad",
     tabUnit: "Plano de la unidad",
     tabFloor: "Planta del piso",
+    /** 3.ª pestaña: sólo en las unidades con `terrazaPlan` (hoy las tres del 7°). */
+    tabTerrace: "Terraza",
     // Miro 2026-07-15: se sacaron las leyendas "Lago Caviahue" / "Camino del Volcán"
     // que rodeaban el plano (el cliente preguntó qué eran → "sacarlo directamente").
-    access: "Acceso",
+    // 30-08: se sacó también `access` ("Acceso"), la flecha del plano — estaba clavada
+    // en una esquina fija y caía mal en casi todos los planos (ver residencia.css).
     planAlt: (n: string) => `Plano Departamento ${n}`,
+    terraceAlt: (n: string) => `Planta de la terraza del Departamento ${n}`,
     logoAlt: "TIER Bravo",
     overviewTitle: "Resumen de la Unidad",
     totalArea: "Superficie total",
@@ -473,17 +481,37 @@ const es = {
         title: "Arquitectura",
         body:
           "Arquitectura contemporánea de identidad urbana, desarrollada con materiales nobles como la madera y el hormigón en una propuesta de alta calidad constructiva y tecnológica. El diálogo entre el hormigón visto, la calidez de la madera y las grandes superficies vidriadas define un lenguaje sobrio y actual, integrado al ritmo de Palermo.",
+        // MEMORIA DESCRIPTIVA REAL — la mandó Camila el 30-08 porque lo publicado
+        // estaba mal ("esto es lo correcto"). Lo anterior decía pisos de PVC,
+        // carpinterías con DVH, mesada de granito, grifería/sanitarios Ferrum,
+        // cielorrasos de hormigón visto y cerradura inteligente: nada de eso es así.
+        // Si vuelve a cambiar, se corrige acá y en el bloque EN — no hay otra fuente.
         lists: [
           {
-            heading: "Terminaciones",
+            heading: "Terminaciones por ambiente",
             items: [
-              "Pisos de PVC símil madera de primera calidad en estar, comedor, cocina y dormitorios.",
-              "Carpinterías exteriores negras con DVH (doble vidriado hermético), de piso a techo y de primera calidad.",
-              "Cielorrasos de hormigón visto, paredes blancas e iluminación con spots negros embutidos.",
-              "Cocinas con muebles superiores en melamina blanca y bajo mesada en melamina símil madera, mesada de granito, grifería Ferrum, pileta de acero inoxidable y extractor.",
-              "Baños con revestimiento tipo Silestone 60 × 60, sanitarios Ferrum, mampara y armarios en melamina blanca.",
+              "Pasillos y living: pisos revestidos con porcelanato a elección.",
+              "Cocina: pisos de porcelanato a elección; mueble bajo mesada y alacena en melamina de primera calidad de 18 mm, con diseño a definir; mesada de Silestone o similar, con zócalos y bacha Johnson de acero inoxidable; grifería monocomando modelo Arizona de FV o similar; horno y anafe eléctrico Domec.",
+              "Baños: pisos y paredes revestidos con porcelanato a elección; grifería modelo Logos de Piazza o similar; sanitarios modelo Mónaco de Roca o similar; bañera de acrílico Bagnara o similar; vanitory de diseño en melamina de 18 mm con mesada de mármol o Silestone a definir.",
+              "Dormitorios: porcelánico símil madera, medida a definir; frentes de placard espejados de piso a techo e interiores en melamina de 18 mm de primera calidad.",
+            ],
+          },
+          {
+            heading: "Carpinterías y puertas",
+            items: [
+              "Carpinterías de aluminio línea Modena o Vesta de Aluar, con premarco y cierre por falleba en las hojas activas.",
+              "Vidrios laminados 3+3.",
+              "Puertas placa de MDF molduradas, con cerradura Kallay y herrajes Currao con balancín y bocallave.",
+              "Marcos de puertas interiores en chapa 18; puertas de incendio en chapa según la normativa vigente.",
               "Balcones con parapetos de vidrio y carpintería vidriada.",
-              "Cerradura inteligente en el acceso a cada unidad.",
+            ],
+          },
+          {
+            heading: "Paredes, cielorrasos y pintura",
+            items: [
+              "Yesería: paredes y cielorrasos terminados en yeso aplicado o suspendido, según el espacio.",
+              "Pintura interior: enduido y tres manos de látex en paredes y cielorrasos.",
+              "Pintura exterior: Recuplast o similar.",
             ],
           },
         ],
@@ -491,7 +519,7 @@ const es = {
       {
         title: "Los Departamentos",
         body:
-          "Unidades funcionales de 1 a 4 ambientes, pensadas tanto para habitar como para una renta de categoría. Desde monoambientes eficientes de 34 m² hasta amplios semipisos con terrazas de más de 250 m² en el nivel superior, cada departamento se entrega con terminaciones de primera calidad: hormigón visto, revestimientos en madera, carpinterías de piso a techo y aberturas de doble vidriado hermético. Los pisos superiores suman balcones y grandes terrazas propias, aprovechando la mejor orientación y las visuales abiertas de Palermo.",
+          "Unidades funcionales de 1 a 4 ambientes, pensadas tanto para habitar como para una renta de categoría. Desde monoambientes eficientes de 34 m² hasta amplios semipisos con terrazas de más de 250 m² en el nivel superior, cada departamento se entrega con terminaciones de primera calidad: porcelanato a elección en los pisos, carpinterías de aluminio de piso a techo con vidrios laminados y calefacción central por losa radiante. Los pisos superiores suman balcones y grandes terrazas propias, aprovechando la mejor orientación y las visuales abiertas de Palermo.",
         lists: [
           {
             heading: "Tipologías",
@@ -548,7 +576,7 @@ const es = {
               "Sistema de CCTV",
               "Cochera cubierta y bicicletero",
               "Bauleras",
-              "Calefacción central por radiadores (Peisa o similar), con calderas por piso",
+              "Calefacción central por losa radiante, con termostato individual en cada unidad",
             ],
           },
         ],
@@ -557,17 +585,21 @@ const es = {
         title: "Calidad y Tecnología",
         home: true,
         body:
-          "Cada decisión constructiva responde a una premisa: durar y rendir en el tiempo. Estructura de hormigón armado, aislaciones térmica y acústica, y carpinterías con doble vidriado hermético para sostener el confort interior durante todo el año. Climatización frío-calor por ambiente, conectividad completa y respaldo energético hacen de TIER Bravo un edificio preparado para la exigencia de la vida urbana.",
+          "Cada decisión constructiva responde a una premisa: durar y rendir en el tiempo. Estructura de hormigón armado, carpinterías de aluminio Aluar con vidrios laminados y calefacción central por losa radiante —con termostato individual en cada unidad— para sostener el confort interior durante todo el año. Pre-instalación de frío-calor por ambiente, conectividad completa y respaldo energético hacen de TIER Bravo un edificio preparado para la exigencia de la vida urbana.",
         lists: [
           {
             heading: "Detalle técnico",
+            // Espejo del bloque de Arquitectura: acá va lo TÉCNICO de la misma memoria
+            // del 30-08. Se cayeron los tres datos que estaban mal —PVC con DVH,
+            // radiadores Peisa y una aislación que la memoria no menciona— y entró lo
+            // que sí dice: aluminio Aluar con laminado 3+3 y losa radiante Giacomini.
             items: [
-              "Estructura de hormigón armado según normas CIRSOC; fundaciones, columnas, vigas y losas.",
-              "Aislación térmica y acústica reforzada.",
-              "Carpinterías exteriores de PVC negro con DVH (doble vidriado hermético) y ruptura de puente térmico.",
-              "Climatización: cañerías embutidas para equipos split frío-calor en cada ambiente.",
-              "Calefacción central por radiadores marca Peisa o similar.",
-              "Instalación eléctrica con tableros individuales, telefonía, TV/cable y CCTV; alimentación para cocina eléctrica.",
+              "Estructura de hormigón armado según normas CIRSOC: fundaciones, columnas, vigas y losas.",
+              "Carpinterías de aluminio línea Modena o Vesta de Aluar, con premarco y vidrios laminados 3+3.",
+              "Calefacción central por losa radiante, con termostato individual en cada unidad para regular la temperatura; serpentinas de primera calidad marca Giacomini o similar.",
+              "Aire acondicionado: pre-instalación de cañerías y desagües para equipos tipo split en cada ambiente.",
+              "Portero eléctrico con cámara en planta baja y portero visor en cada unidad.",
+              "Instalación eléctrica con tableros individuales y alimentación para cocina eléctrica.",
               "Respaldo: grupo electrógeno para servicios comunes.",
             ],
           },
@@ -652,7 +684,7 @@ const es = {
           "Ascensores de primera marca",
           "Sistema de CCTV en espacios comunes",
           "Grupo electrógeno para servicios comunes",
-          "Calefacción y terminaciones de categoría (hormigón visto, revestimientos en madera y carpinterías de piso a techo)",
+          "Calefacción central por losa radiante y terminaciones de categoría (porcelanato y carpinterías de aluminio de piso a techo)",
         ],
       },
     ],
@@ -903,7 +935,8 @@ const en: Dict = {
   unitCard: {
     rooms: (n: number) => `${n} rooms`,
     beds: (n: number) => (n === 1 ? "1 bedroom" : `${n} bedrooms`),
-    baths: (n: number) => (n === 1 ? "1 bathroom" : `${n} bathrooms`),
+    baths: (n: number, toilette = false) =>
+      `${n === 1 ? "1 bathroom" : `${n} bathrooms`}${toilette ? " + toilet" : ""}`,
   },
 
   finder: {
@@ -997,8 +1030,9 @@ const en: Dict = {
     sectionTitle: "Unit Floor Plan",
     tabUnit: "Unit floor plan",
     tabFloor: "Full-floor plan",
-    access: "Entrance",
+    tabTerrace: "Terrace",
     planAlt: (n: string) => `Apartment ${n} floor plan`,
+    terraceAlt: (n: string) => `Apartment ${n} terrace plan`,
     logoAlt: "TIER Bravo",
     overviewTitle: "Unit Summary",
     totalArea: "Total area",
@@ -1147,17 +1181,35 @@ const en: Dict = {
         title: "Architecture",
         body:
           "Contemporary architecture with an urban identity, developed with noble materials such as wood and concrete in a proposal of high construction and technical quality. The dialogue between exposed concrete, the warmth of wood and large glazed surfaces defines a restrained, current language, at home in the rhythm of Palermo.",
+        // Espejo EN del bloque ES (ver el comentario largo alla arriba): esta es la
+        // memoria descriptiva real que mando el cliente el 30-08. Si se toca uno de
+        // los dos idiomas hay que tocar el otro.
         lists: [
           {
-            heading: "Finishes",
+            heading: "Finishes by room",
             items: [
-              "First-quality wood-look PVC flooring in living, dining, kitchen and bedrooms.",
-              "First-quality black exterior frames with double glazing (DVH), floor to ceiling.",
-              "Exposed concrete ceilings, white walls and recessed black spotlights.",
-              "Kitchens with white melamine upper cabinets and wood-look melamine base units, granite countertop, Ferrum fittings, stainless-steel sink and extractor.",
-              "Bathrooms clad in 60 × 60 Silestone-type surfacing, Ferrum sanitaryware, shower screen and white melamine cabinets.",
+              "Hallways and living area: porcelain tile floors, finish to be selected.",
+              "Kitchen: porcelain tile floors, finish to be selected; base and wall units in first-quality 18 mm melamine, design to be defined; Silestone (or similar) countertop with splashbacks and a Johnson stainless-steel sink; single-lever Arizona tap by FV or similar; Domec electric oven and hob.",
+              "Bathrooms: porcelain tile floors and walls, finish to be selected; Logos taps by Piazza or similar; Monaco sanitaryware by Roca or similar; Bagnara acrylic bathtub or similar; designer vanity unit in 18 mm melamine with a marble or Silestone top, to be defined.",
+              "Bedrooms: wood-look porcelain tile, size to be defined; floor-to-ceiling mirrored wardrobe fronts with first-quality 18 mm melamine interiors.",
+            ],
+          },
+          {
+            heading: "Frames and doors",
+            items: [
+              "Aluminium frames, Aluar Modena or Vesta line, with sub-frame and espagnolette closing on the operable sashes.",
+              "3+3 laminated glass.",
+              "Moulded MDF panel doors with a Kallay lock and Currao hardware, lever handle and keyhole escutcheon.",
+              "Interior door frames in 18-gauge sheet steel; sheet-steel fire doors to current regulations.",
               "Balconies with glass parapets and glazed frames.",
-              "Smart lock at the entrance to every unit.",
+            ],
+          },
+          {
+            heading: "Walls, ceilings and paint",
+            items: [
+              "Plasterwork: walls and ceilings finished in applied or suspended plaster, depending on the space.",
+              "Interior paint: filler plus three coats of latex on walls and ceilings.",
+              "Exterior paint: Recuplast or similar.",
             ],
           },
         ],
@@ -1165,7 +1217,7 @@ const en: Dict = {
       {
         title: "The Apartments",
         body:
-          "Functional units of one to four rooms, designed both to live in and as premium rental stock. From efficient 34 m² studios to generous half-floor apartments with terraces of over 250 m² on the top level, every apartment is delivered with first-class finishes: exposed concrete, wood cladding, floor-to-ceiling frames and double-glazed openings. The upper floors add balconies and large private terraces, making the most of the best orientation and the open views over Palermo.",
+          "Functional units of one to four rooms, designed both to live in and as premium rental stock. From efficient 34 m² studios to generous half-floor apartments with terraces of over 250 m² on the top level, every apartment is delivered with first-class finishes: porcelain tile floors, floor-to-ceiling aluminium frames with laminated glass and central underfloor heating. The upper floors add balconies and large private terraces, making the most of the best orientation and the open views over Palermo.",
         lists: [
           {
             heading: "Layouts",
@@ -1221,7 +1273,7 @@ const en: Dict = {
               "CCTV system",
               "Covered parking and bicycle storage",
               "Storage units",
-              "Central heating by radiators (Peisa or similar), with boilers on each floor",
+              "Central underfloor heating, with an individual thermostat in every unit",
             ],
           },
         ],
@@ -1230,17 +1282,17 @@ const en: Dict = {
         title: "Quality & Technology",
         home: true,
         body:
-          "Every construction decision answers one premise: endure and perform over time. Reinforced-concrete structure, thermal and acoustic insulation, and double-glazed window frames to hold indoor comfort all year round. Per-room heating and cooling, full connectivity and backup power make TIER Bravo a building ready for the demands of city living.",
+          "Every construction decision answers one premise: endure and perform over time. Reinforced-concrete structure, Aluar aluminium frames with laminated glass, and central underfloor heating with an individual thermostat in every unit to hold indoor comfort all year round. Pre-installation for per-room heating and cooling, full connectivity and backup power make TIER Bravo a building ready for the demands of city living.",
         lists: [
           {
             heading: "Technical detail",
             items: [
-              "Reinforced-concrete structure built to CIRSOC standards; foundations, columns, beams and slabs.",
-              "Reinforced thermal and acoustic insulation.",
-              "Black PVC exterior frames with double glazing (DVH) and thermal break.",
-              "Climate control: concealed piping for split heating/cooling units in every room.",
-              "Central heating by Peisa (or similar) radiators.",
-              "Electrical installation with individual panels, telephony, TV/cable and CCTV; supply for electric kitchen.",
+              "Reinforced-concrete structure built to CIRSOC standards: foundations, columns, beams and slabs.",
+              "Aluminium frames, Aluar Modena or Vesta line, with sub-frame and 3+3 laminated glass.",
+              "Central underfloor heating with an individual thermostat in every unit; first-quality Giacomini (or similar) coils.",
+              "Air conditioning: pre-installed piping and drainage for split units in every room.",
+              "Video door entry with a camera at street level and a monitor in every unit.",
+              "Electrical installation with individual panels and supply for an electric kitchen.",
               "Backup: generator for common services.",
             ],
           },
@@ -1320,7 +1372,7 @@ const en: Dict = {
           "Top-brand elevators",
           "CCTV system in common areas",
           "Backup generator for common services",
-          "Premium heating and finishes (exposed concrete, wood cladding and floor-to-ceiling frames)",
+          "Central underfloor heating and premium finishes (porcelain tile and floor-to-ceiling aluminium frames)",
         ],
       },
     ],

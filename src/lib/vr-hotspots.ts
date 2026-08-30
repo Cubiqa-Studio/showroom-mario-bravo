@@ -50,15 +50,42 @@ export const ENTRANCE_HALL_360: string | null = null;
 export const AMENITIES_360: string | null =
   "https://kuula.co/share/collection/7TyxW?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1";
 
+// AMENITIES DESDE EL JARDÍN — segunda colección, entregada el 30-08 ("recorrido
+// virtual de amenities arrancando desde el jardín"). Es OTRA colección (`7TyRQ`),
+// no la misma con otro punto de partida: la de arriba entra por la puerta de la
+// calle y ésta arranca en el pulmón de manzana. Por eso conviven, y cada una va
+// donde el visitante la está mirando: la de la calle en las vistas de FRENTE (0 y 1)
+// y ésta en las de CONTRAFRENTE (3 y 4), que son las que muestran el jardín.
+//
+// El link que pasó el cliente apunta a un post dentro de la colección
+// (`/post/n1/collection/7TyRQ`); acá va la URL de COLECCIÓN con los mismos
+// parámetros que el resto de los tours, para que el visor arranque en el primer
+// panorama y con el chrome de Kuula ya resuelto.
+export const AMENITIES_GARDEN_360: string | null =
+  "https://kuula.co/share/collection/7TyRQ?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1";
+
+/** Mosaico del preview del recorrido por el JARDÍN: jardín grande arriba, y pileta
+ *  y solárium abajo. Mismos tamaños que el otro mosaico (`-mid` para la grande,
+ *  `-thumb` para las dos chicas), que es lo que pide la caja de <VrHotspot>. */
+const GARDEN_PREVIEW: [string, string, string] = [
+  "/gallery/optimized/04-jardin-mid.webp",
+  "/gallery/optimized/05-pileta-thumb.webp",
+  "/gallery/optimized/06-solarium-juegos-thumb.webp",
+];
+
 /**
  * Hotspots por id de stop.
  *
- * El cliente marcó UN solo punto 360° (Miro "Division showroom", 25-08): la puerta
- * de entrada del edificio, entre el café y el local de indumentaria. Se ve desde
- * las dos vistas a nivel de calle, así que va en las dos —es el mismo punto, mirado
- * desde distinto ángulo—. Las otras tres no la ven y no llevan bolita: la 2 (View 02b)
- * es un primer plano de los balcones que deja la planta baja fuera de cuadro, y la 3
- * y la 4 son contrafrente.
+ * FRENTE (vistas 0 y 1) — la puerta de entrada del edificio, entre el café y el local
+ * de indumentaria (Miro "Division showroom", 25-08). Es el mismo punto mirado desde
+ * dos ángulos, y abre el recorrido de amenities que entra por la calle.
+ *
+ * CONTRAFRENTE (vistas 3 y 4) — el jardín: la expansión vidriada de planta baja detrás
+ * de la pileta. Abre la SEGUNDA colección, la que arranca en el jardín (drop del
+ * 30-08). Otra vez el mismo lugar visto de lejos y de cerca.
+ *
+ * La vista 2 sigue sin bolita: es un primer plano de los balcones que deja la planta
+ * baja entera fuera de cuadro, así que no hay dónde anclarla.
  */
 export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
   // Stop 0 (landing, fachada de frente). ⚠ Espacio 4999×2812 — el render de 5k que
@@ -113,6 +140,32 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
       "/gallery/optimized/08-gimnasio-thumb.webp",
       "/gallery/optimized/11-sum-vista-pileta-thumb.webp",
     ],
+    previewKind: "amenities",
+  },
+  // Stop 3 (contrafrente completo, con la pileta y el jardín). El punto va sobre la
+  // expansión vidriada de planta baja, justo detrás de la pileta: es lo que el cliente
+  // marcó en círculo rojo el 30-08 y es por donde empieza el recorrido.
+  // Medido con grilla sobre `public/stops/stop-3.jpg` (espacio 4999×2812): la franja
+  // de amenities va de x≈1250 a x≈3550 y su antepecho vidriado cae en y≈2200-2400.
+  // La `y` se mantiene MUY por encima del borde de abajo a propósito: en una ventana
+  // apaisada el "cover" se come ~140px nativos arriba y abajo (ver README §El encuadre).
+  3: {
+    x: 2450,
+    y: 2300,
+    scale: 0.8,
+    kuulaUrl: AMENITIES_GARDEN_360 ?? undefined,
+    previewImages: GARDEN_PREVIEW,
+    previewKind: "amenities",
+  },
+  // Stop 4 (contrafrente de cerca, desde el jardín). El MISMO lugar que la 3, pero
+  // acá la cámara está más cerca y corrida: el living de amenities queda a la derecha
+  // de la pileta. Medido sobre `public/stops/stop-4.jpg`.
+  4: {
+    x: 2700,
+    y: 2290,
+    scale: 0.8,
+    kuulaUrl: AMENITIES_GARDEN_360 ?? undefined,
+    previewImages: GARDEN_PREVIEW,
     previewKind: "amenities",
   },
 };

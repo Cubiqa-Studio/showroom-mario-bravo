@@ -33,7 +33,7 @@ export function UnitCard({ unit }: { unit: Unit }) {
     // Miro 2026-07-15: sin tipología (se sacó de toda la UI).
     unit.ambientes != null ? t.unitCard.rooms(unit.ambientes) : "",
     t.unitCard.beds(unit.beds),
-    t.unitCard.baths(unit.baths),
+    t.unitCard.baths(unit.baths, (unit.toilette ?? 0) >= 1),
     `${area.value} ${area.unit}`,
     unit.vistas ?? "",
     orient,

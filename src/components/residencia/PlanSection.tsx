@@ -11,13 +11,14 @@ import { FloorPlate } from "./FloorPlate";
 
 /* eslint-disable @next/next/no-img-element */
 
-type Tab = "plan" | "plate";
+type Tab = "plan" | "plate" | "terraza";
 
 /**
- * Sección "Plano de la unidad / Planta del piso" (sección 4). Tabs in-place. El
- * plano de la unidad es la imagen `floorPlan` con watermark del número; la planta
- * delega en <FloorPlate> (esquemático hoy, polígonos trazados en Fase 6). El
- * aside "Resumen" sale de areas/beds/baths/orientación.
+ * Sección "Plano de la unidad / Planta del piso / Terraza" (sección 4). Tabs
+ * in-place. El plano de la unidad es la imagen `floorPlan` con watermark del número;
+ * la planta delega en <FloorPlate>; la TERRAZA es `terrazaPlan` y su pestaña sólo
+ * existe si la unidad la trae (hoy las tres del 7°). El aside "Resumen" sale de
+ * areas/beds/baths/toilette/orientación.
  */
 export function PlanSection({
   unit,
@@ -57,11 +58,38 @@ export function PlanSection({
         >
           {t.plan.tabFloor}
         </button>
+        {/* Terraza propia: sólo las unidades que traen su planta (hoy el 7°). */}
+        {unit.terrazaPlan ? (
+          <button
+            type="button"
+            className={`tab${tab === "terraza" ? " active" : ""}`}
+            onClick={() => setTab("terraza")}
+          >
+            {t.plan.tabTerrace}
+          </button>
+        ) : null}
       </div>
 
       {/* Se sacaron el banner de orientación al paisaje y la leyenda
           "Camino del Volcán" (el cliente preguntó qué eran → sacarlos directamente). */}
-      {tab === "plate" ? (
+      {tab === "terraza" && unit.terrazaPlan ? (
+        /* La planta de la terraza va a ANCHO COMPLETO, como la del piso: es un dibujo
+           apaisado y no tiene "Resumen" propio que ponerle al lado (las superficies
+           descubiertas ya salen en la pestaña del plano). El watermark con el número
+           se mantiene, así se lee de qué unidad es la azotea. */
+        <div className="plate-col" key="terraza">
+          <div className="plan-view entering">
+            <div className="plan-stage">
+              <div className="plan-watermark">{unit.residence}</div>
+              <img
+                className="floorplan-img"
+                src={unit.terrazaPlan}
+                alt={t.plan.terraceAlt(unit.residence)}
+              />
+            </div>
+          </div>
+        </div>
+      ) : tab === "plate" ? (
         /* Miro 2026-06-10 (2.ª pasada): la planta del piso ocupa el ancho COMPLETO de
            la sección — el que comparten plano + resumen en la otra tab — sin logo ni
            aside (como el FLOOR SELECTOR de la referencia). El remount re-dispara la
@@ -81,12 +109,6 @@ export function PlanSection({
           <div className="plan-view entering">
             <div className="plan-stage">
               <div className="plan-watermark">{unit.residence}</div>
-              <div className="entry-arrow">
-                <svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-                {t.plan.access}
-              </div>
               <img
                 className="floorplan-img"
                 src={unit.floorPlan}
