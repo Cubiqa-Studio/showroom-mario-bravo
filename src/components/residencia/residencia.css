@@ -389,7 +389,7 @@
      botón "Ver las N fotos", que va al pie del hero, quedaba 168px por debajo del
      pliegue. `min(540px, 68dvh)` mantiene los 540 en cualquier pantalla normal y
      sólo cede donde el alto no da. */
-  height: 70vh; min-height: min(540px, 68dvh);
+  height: 70vh; min-height: min(540px, 68svh);
 }
 /* Los 3 thumbs flotantes asoman ~46% por DEBAJO del hero. Sin la DataBar (Miro
    2026-07-15) la primera sección (Plano de la Unidad) quedaba pegada al hero y los
@@ -1394,8 +1394,14 @@
      plano entero de una, y la ficha se sentía interminable ("la landing tiene el plano
      gigante", 30-08). Con el tope, sólo se achican las dos tipologías más altas —lo
      justo para que entren en pantalla—; de 0,48:1 para arriba el plano sigue usando
-     todo el ancho, igual que antes. `dvh` y no `vh`: descuenta la barra del navegador. */
-  .res-landing .floorplan-img { max-height: max(420px, calc(100dvh - 190px)); }
+     todo el ancho, igual que antes.
+     ⚠ `svh` y NO `dvh`: `dvh` es el alto DINÁMICO, o sea que CRECE cuando el navegador
+     esconde la barra de direcciones al scrollear — y con él crecía el plano, en pleno
+     scroll, como un salto de tamaño en medio de la lectura (reporte de Joaquim,
+     31-08). `svh` es el alto CHICO, el estable: no se mueve nunca.
+     El tope va a 500px (antes ~725) porque el plano seguía sintiéndose gigante en el
+     celular. Es la palanca: subilo o bajalo acá y se mueve todo. */
+  .res-landing .floorplan-img { max-height: min(500px, calc(100svh - 220px)); }
   .res-landing .plan-watermark { font-size: calc(clamp(110px, 40vw, 200px) * var(--fs-k)); }
   /* La flecha "Acceso" se posiciona en px fijos sobre un plano placeholder genérico;
      al achicarse la tarjeta quedaba flotando sobre el dibujo → se oculta en celu. */
@@ -1410,7 +1416,7 @@
   /* Marco fino + tope de alto generoso: en celular el plano del piso es lo que hay
      que poder leer, así que se le da casi toda la pantalla (antes quedaba en 256px
      de alto por la proporción apaisada fija). El ancho lo deriva `--plate-ar`. */
-  .res-landing .plate-stage { padding: 12px; --plate-max-h: max(300px, calc(100dvh - 190px)); }
+  .res-landing .plate-stage { padding: 12px; --plate-max-h: max(300px, calc(100svh - 190px)); }
   /* El plate es bajito en celu (~220px) → el tooltip se ANCLA al pie de la tarjeta
      (full-width) en vez de seguir el dedo con la matemática de 290px del desktop, y
      se oculta la miniatura de 88px que lo hacía más alto que el plate. */
@@ -1583,7 +1589,7 @@
      el tope (`max-width: 100%`) y, con la proporción apaisada fija, la tarjeta
      quedaba de 388x261 con el dibujo ocupando la mitad del ancho. */
   .masterplan-scope .plate-stage {
-    max-width: min(100%, max(300px, calc((100dvh - 230px) * var(--plate-ar, 1.486))));
+    max-width: min(100%, max(300px, calc((100svh - 230px) * var(--plate-ar, 1.486))));
   }
 }
 
@@ -2290,7 +2296,7 @@
 @media (max-height: 560px) {
   /* El mapa medía 640px sobre 412 de pantalla y la tarjeta de dirección se comía
      casi todo el visor, tapando la pill "Explorar la zona". */
-  .res-landing .map-stage { height: min(460px, calc(100dvh - 96px)); }
+  .res-landing .map-stage { height: min(460px, calc(100svh - 96px)); }
   .res-landing .map-info-card {
     top: 12px; left: 12px; right: auto; width: min(290px, 46vw); padding: 12px 16px;
   }

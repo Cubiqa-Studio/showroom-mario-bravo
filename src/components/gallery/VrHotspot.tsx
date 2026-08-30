@@ -82,20 +82,28 @@ export function VrHotspot({
       // Abajo, apenas lo justo para que entre entera: el margen grande empujaba la
       // bolita bien arriba de la puerta y quedaba VOLANDO sobre la fachada.
       //
-      // ⚠ PENDIENTE (medido 30-08): en teléfono ACOSTADO (915×412) el recorte "cover"
-      // le come tanto alto al render que el punto de la puerta cae sobre la fila de
-      // flechas ‹ GIRAR › —que va a 24px del pie— y la bolita se les monta encima
-      // (solape medido: 64×44 px). Subir esta reserva NO alcanza: probado con
-      // `l.height` y con `window.innerHeight`, la posición no se movía, así que la
-      // causa está en otro lado y hay que investigarla antes de tocar acá. En vertical
-      // (412×915 y 430×932) no hay solape. Hoy es sólo cosmético: la bolita todavía no
-      // abre nada (ENTRANCE_HALL_360 sigue en null, falta el tour del hall).
-      const bottom = 32 * scale + 16;
       const clamp = (v: number, min: number, max: number) =>
         max < min ? (min + max) / 2 : Math.min(Math.max(v, min), max);
+
+      // El tope de ABAJO se calcula contra la PANTALLA, no contra la capa.
+      //
+      // La capa acompaña al render, que va con "cover": en un teléfono ACOSTADO
+      // (915×412) medía 515px de alto arrancando en y=-51 — o sea que se sale de
+      // cuadro por arriba y por abajo. Restarle la reserva a `l.height` daba un tope
+      // que en pantalla caía por debajo del pliegue, y la bolita terminaba montada
+      // sobre la fila de flechas ‹ GIRAR › (solape medido: 64×44 px).
+      //
+      // En pantallas BAJAS se reservan 100px de pie: es lo que ocupan las flechas
+      // (van a 24px del borde y miden ~48) más aire. En una pantalla normal la puerta
+      // queda MUY por encima de esa zona, así que el tope ni se activa y la bolita
+      // sigue exactamente donde la aprobó el cliente.
+      const reservaPie = window.innerHeight < 560 ? 100 : 16;
+      const topeEnPantalla = window.innerHeight - reservaPie - 32 * scale;
+      const yEnPantalla = Math.min(a.top + a.height / 2, topeEnPantalla);
+
       setPos({
         x: clamp(a.left + a.width / 2 - l.left, r, l.width - r),
-        y: clamp(a.top + a.height / 2 - l.top, r, l.height - bottom),
+        y: clamp(yEnPantalla - l.top, r, l.height - r),
       });
     };
     update();
@@ -108,7 +116,13 @@ export function VrHotspot({
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [x, y, width, height, scale]);
+    // `active` en las dependencias: el visor monta esta capa ANTES de terminar de
+    // acomodarse (mientras carga el recorrido), así que el primer `update()` podía
+    // correr contra una caja que todavía no era la definitiva — y como después nada
+    // cambiaba de tamaño, el ResizeObserver no volvía a disparar y la bolita quedaba
+    // con la posición vieja. El hotspot se vuelve `active` recién cuando la vista
+    // está parada y lista: recalcular ahí es la señal correcta.
+  }, [x, y, width, height, scale, active]);
 
   // Si el overlay se apaga (transición), soltá el hover/preview para no dejarlo pegado.
   useEffect(() => {
