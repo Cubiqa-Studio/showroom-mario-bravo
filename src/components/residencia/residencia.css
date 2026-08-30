@@ -465,7 +465,15 @@
    menos el nav, sin el margen de arriba) y la DataBar no reserva el hueco de los
    thumbs (que en el caso 360 no existen). */
 .res-landing.has-360 .hero { padding-top: 0; }
-.res-landing.has-360 .hero-stage { margin: 0; height: 100dvh; min-height: 0; }
+/* ⚠ `svh` y NO `dvh` (mismo motivo que la landing de foto y que el plano más abajo).
+   `dvh` es el alto DINÁMICO: crece cuando el navegador esconde la barra de direcciones
+   al scrollear (medido en un Galaxy: 830 → 915 px). El <iframe> de Kuula sigue ese alto,
+   así que el visor re-renderizaba la panorámica sobre un canvas 1,10× más grande EN
+   PLENO SCROLL —y animado, porque Chrome retrae la barra con una animación—: el mismo
+   "zoom tosco" de las fotos, reportado por Joaquim el 30-08. `svh` es el alto CHICO, el
+   estable, así que el 360° queda quieto. Los 85px que sobran cuando la barra se va los
+   tapa la hoja, que es opaca y arranca 134px por encima del pie del hero. */
+.res-landing.has-360 .hero-stage { margin: 0; height: 100svh; min-height: 0; }
 /* El 360 llena TODA la pantalla (también detrás del nav, que flota encima). Fondo
    negro = el mismo del visor, para que no asome ningún gris si hubiera un gap. */
 .res-landing.has-360 .hero-main { border-radius: 0; background: #000; }
@@ -484,8 +492,8 @@
    abajo para agarrarla. `overflow-x: clip` deja que el hero sticky pegue al scroller real. */
 @media (pointer: coarse) {
   .res-landing.has-360 { overflow-x: clip; }
-  .res-landing.has-360 .hero { position: sticky; top: 0; height: 100dvh; z-index: 0; }
-  .res-landing.has-360 .hero-stage { height: 100dvh; }
+  .res-landing.has-360 .hero { position: sticky; top: 0; height: 100svh; z-index: 0; }
+  .res-landing.has-360 .hero-stage { height: 100svh; }
   .res-landing.has-360 .landing-body {
     position: relative;
     z-index: 1;                               /* la hoja va SOBRE el 360° fijo (z-0) */
