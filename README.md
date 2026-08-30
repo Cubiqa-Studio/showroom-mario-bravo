@@ -354,6 +354,22 @@ no hay que tocar nada**: sale de `plates.json`.
 entra por "ancho de tablet": con el `78vh` de escritorio la tarjeta quedaba en 321px y el
 dibujo en ~250 de ancho sobre una pantalla de 915 — "se ve super chico", 30-08).
 
+**Las plantas se cachean a nivel de MÓDULO** (`plantasResueltas` / `imagenesListas` en
+`FloorPlate.tsx`), no por componente. `/api/plate/:floor` es `force-dynamic` —lee el Blob
+de Netlify y Airtable—, así que sin cache cada cambio de piso volvía a pedirla y mostraba
+el spinner otra vez, **incluso al volver a un piso ya visto** ("es super molesto y tosco
+de ver", 30-08). Guardado fuera del componente, la pestaña de la ficha y el Plan Maestro
+comparten lo mismo: se paga una vez por piso y por sesión. Además:
+
+- al entrar a un piso se **precalientan los dos vecinos** (JSON + decode de la imagen),
+  que son los únicos alcanzables con las flechas → avanzar y retroceder no vuelve a
+  mostrar el spinner nunca;
+- las **pastillas de piso** precalientan en `pointerenter` / `pointerdown`, que llega
+  ~100ms antes del click, porque saltan a cualquier piso;
+- **no** se precargan las diez de una: entre todos los planos son 3,2 MB (la PB sola
+  pesa 1) y en un celular eso se paga. La primera vez que se salta a un piso lejano por
+  pastilla puede haber spinner; a partir de ahí no.
+
 **El marcador de cada unidad** (el círculo con el número que muta a "+" en hover) se
 pide en **píxeles de PANTALLA** (`R_PANTALLA` en `FloorPlate.tsx`) y se convierte a
 unidades del plano con la escala real de render, medida con un `ResizeObserver`. Antes

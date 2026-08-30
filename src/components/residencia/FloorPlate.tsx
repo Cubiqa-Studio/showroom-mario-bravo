@@ -29,6 +29,86 @@ const RATIO_NUMERO = 0.76;
  *  dos tiras de monoambientes tienen sus centros a 89px. */
 const HOLGURA_VECINOS = 0.4;
 
+/** Lo que devuelve `/api/plate/:floor`. */
+interface PlantaTraida {
+  plate: FloorPlateData | null;
+  units: Record<string, Unit>;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   CACHE DE PLANTAS, a nivel de MÓDULO.
+
+   Antes cada cambio de piso volvía a pedir `/api/plate/:floor` —que es
+   `force-dynamic`: lee el Blob de Netlify y Airtable— y mostraba el spinner otra
+   vez, incluso al VOLVER a un piso ya visto ("es super molesto y tosco de ver",
+   Joaquim 30-08). Guardado acá afuera sobrevive al desmontaje del componente, así
+   que la pestaña "Planta del piso" de la ficha y el Plan Maestro del menú comparten
+   lo mismo: se paga una vez por piso y por sesión.
+   ─────────────────────────────────────────────────────────────────────────────── */
+const plantasResueltas = new Map<string, PlantaTraida>();
+const plantasEnVuelo = new Map<string, Promise<PlantaTraida>>();
+/** Imágenes de plano ya decodificadas, por URL. */
+const imagenesListas = new Set<string>();
+/** Objeto estable para el caso "sin unidades": si fuera un `{}` nuevo en cada render,
+ *  el `useMemo` de `byId` se recalcularía siempre. */
+const SIN_UNIDADES: Record<string, Unit> = {};
+
+function traerPlanta(floor: string): Promise<PlantaTraida> {
+  const ya = plantasResueltas.get(floor);
+  if (ya) return Promise.resolve(ya);
+  const enVuelo = plantasEnVuelo.get(floor);
+  // Un pedido a la vez por piso: el precalentado del vecino y el click comparten uno.
+  if (enVuelo) return enVuelo;
+  const pedido = fetch(`/api/plate/${floor}`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      const datos: PlantaTraida = {
+        plate: (d?.plate as FloorPlateData | null) ?? null,
+        units: (d?.units as Record<string, Unit>) ?? {},
+      };
+      plantasResueltas.set(floor, datos);
+      return datos;
+    })
+    // El ERROR no se cachea: si se cayó la red, el próximo intento vuelve a pedir.
+    .finally(() => plantasEnVuelo.delete(floor));
+  plantasEnVuelo.set(floor, pedido);
+  return pedido;
+}
+
+/** Decodifica la imagen del plano ANTES de mostrarlo (si no se ve el marco vacío un
+ *  instante). Resuelve al toque si esa imagen ya pasó por acá. */
+function precargarImagen(src: string): Promise<void> {
+  if (imagenesListas.has(src)) return Promise.resolve();
+  return new Promise((listo) => {
+    const img = new window.Image();
+    const fin = () => {
+      imagenesListas.add(src);
+      listo();
+    };
+    img.onload = fin;
+    img.onerror = fin; // ante un error igual mostramos (el <image> hará su fallback)
+    img.src = src;
+  });
+}
+
+/** La planta de un piso lista para DIBUJAR ya mismo (JSON + imagen decodificada), o
+ *  `null` si todavía hay que ir a buscarla. */
+function plantaLista(floor: string): PlantaTraida | null {
+  const datos = plantasResueltas.get(floor);
+  if (!datos) return null;
+  if (datos.plate?.image && !imagenesListas.has(datos.plate.image)) return null;
+  return datos;
+}
+
+/** Deja lista la planta de un piso SIN mostrarla: los dos vecinos al cambiar de piso,
+ *  y la pastilla que el usuario está por tocar. */
+function precalentarPlanta(floor: string) {
+  if (plantaLista(floor)) return;
+  void traerPlanta(floor)
+    .then((d) => (d.plate?.image ? precargarImagen(d.plate.image) : undefined))
+    .catch(() => {});
+}
+
 /**
  * "Planta del piso" — COMPONENTE AISLADO. Tiene dos caminos:
  *  1. `plate` trazado (Fase 6): imagen del plano + polígonos por unidad.
@@ -117,44 +197,49 @@ export function FloorPlate({
   // Mientras se resuelve el fetch mostramos un loader (NO el esquemático), así no
   // parpadea el plano genérico antes del plano real. Si el piso no tiene plano, el
   // esquemático aparece recién al saberlo (sin flash).
-  const [plate, setPlate] = useState<FloorPlateData | null>(null);
+  // Lo último que trajimos por red. Ojo: NO es lo que se dibuja — eso se decide en el
+  // RENDER, unas líneas más abajo. Si la planta ya está en el cache de módulo se usa
+  // directo, sin pasar por un estado: así al volver a un piso ya visto no hay ni un
+  // frame de spinner ni de planta vieja.
+  const [traido, setTraido] = useState<{ floor: string; datos: PlantaTraida } | null>(null);
+  const listo = traido?.floor === floor ? traido.datos : plantaLista(floor);
+  const plate = listo?.plate ?? null;
   // Metadata de las unidades de los polígonos del plano (la trae el mismo fetch).
   // Incluye unidades de OTRO piso (los dúplex que asoman en el entrepiso de arriba).
-  const [plateUnits, setPlateUnits] = useState<Record<string, Unit>>({});
-  const [loading, setLoading] = useState(true);
+  const plateUnits = listo?.units ?? SIN_UNIDADES;
+  const loading = listo == null;
+
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    fetch(`/api/plate/${floor}`)
-      .then((r) => (r.ok ? r.json() : { plate: null, units: {} }))
-      .then((d) => {
-        if (cancelled) return;
-        const p = (d?.plate as FloorPlateData | null) ?? null;
-        const pu = (d?.units as Record<string, Unit>) ?? {};
-        const done = () => {
-          if (cancelled) return;
-          setPlate(p);
-          setPlateUnits(pu);
-          setLoading(false);
-        };
-        // Precargamos la imagen del plano: recién dejamos de "cargar" cuando el JPG
-        // está decodificado → al mostrar TracedPlate la imagen ya está, sin parpadeo.
-        if (p?.image) {
-          const img = new window.Image();
-          img.onload = done;
-          img.onerror = done; // ante un error igual mostramos (el <image> hará su fallback)
-          img.src = p.image;
-        } else {
-          done();
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setLoading(false);
-      });
+    let cancelado = false;
+    // `traido?.floor === floor` cubre también el caso ERROR: se guarda una planta
+    // vacía para este piso y no se reintenta en loop. Al volver más tarde sí reintenta.
+    const yaEsta = traido?.floor === floor || plantaLista(floor) != null;
+    if (!yaEsta) {
+      traerPlanta(floor)
+        .then(async (d) => {
+          // Recién dejamos de "cargar" cuando la imagen está DECODIFICADA: al mostrar
+          // TracedPlate el plano ya está, sin parpadeo.
+          if (d.plate?.image) await precargarImagen(d.plate.image);
+          if (!cancelado) setTraido({ floor, datos: d });
+        })
+        .catch(() => {
+          if (!cancelado) setTraido({ floor, datos: { plate: null, units: SIN_UNIDADES } });
+        });
+    }
+    // Los dos VECINOS, en segundo plano. Con las flechas sólo se puede ir a uno de
+    // ellos, así que dejándolos listos avanzar y retroceder no vuelve a mostrar el
+    // spinner nunca. No se precargan los diez a propósito: entre todos los planos son
+    // 3,2 MB (la PB sola pesa 1) y en un celular eso se paga.
+    const i = FLOORS.indexOf(floor);
+    if (i >= 0) {
+      for (const d of [1, -1]) {
+        precalentarPlanta(FLOORS[(i + d + FLOORS.length) % FLOORS.length]);
+      }
+    }
     return () => {
-      cancelled = true;
+      cancelado = true;
     };
-  }, [floor]);
+  }, [floor, traido]);
 
   const byId = useMemo(() => {
     const m = new Map<string, UnitWithId>();
@@ -239,6 +324,12 @@ export function FloorPlate({
               type="button"
               className={`plate-pill${f === floor ? " active" : ""}`}
               aria-pressed={f === floor}
+              // Las pastillas saltan a CUALQUIER piso, no sólo al vecino (que ya
+              // viene precalentado). Con el hover del mouse o el `pointerdown` del
+              // dedo —que llega ~100ms antes que el click— la planta arranca a
+              // bajarse antes de que haga falta.
+              onPointerEnter={() => precalentarPlanta(f)}
+              onPointerDown={() => precalentarPlanta(f)}
               onClick={() => {
                 setFloor(f);
                 setTip(null);
