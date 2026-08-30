@@ -29,6 +29,10 @@
   background: var(--tier-dark);
   color: var(--ink);
   font-family: var(--sans);
+  /* Columna: la grilla de proyectos se come el alto que sobra y el zócalo de la
+     desarrolladora se queda con el suyo, fijo. */
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------- logotipo de la marca paraguas ---------- */
@@ -38,14 +42,24 @@
 /* Scrim de arriba: el logotipo cae sobre el panel del medio, que puede ser una foto
    clara o un video. Sin esto, "DESARROLLOS" se perdía contra el cielo del render.
    `pointer-events: none` es obligatorio: si no, se comería el hover de los paneles. */
+/* El degradado de arriba lo pidió el cliente explícitamente: "un degradado negro
+   sutil, para que destaque aún más la marca TIER". En su key visual el tercio
+   superior es casi negro puro y de ahí sale el oro del logotipo; esto es lo mismo,
+   graduado, para que la foto del panel del medio no se pierda. */
 .portada::before {
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
-  height: 200px;
+  height: clamp(190px, 34vh, 380px);
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(11, 11, 11, 0.7), rgba(11, 11, 11, 0));
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 8, 9, 0.92) 0%,
+    rgba(9, 9, 10, 0.74) 34%,
+    rgba(11, 11, 11, 0.34) 68%,
+    rgba(11, 11, 11, 0) 100%
+  );
 }
 
 .portada-marca {
@@ -57,22 +71,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: clamp(10px, 1.2vh, 18px);
   pointer-events: none;
 }
 .portada-marca img {
   display: block;
-  height: 34px;
+  /* El wordmark es una tira de 900×172 (5,2:1), así que cada píxel de alto son cinco
+     de ancho: a 92px mide ~480px, que es un tercio de una pantalla de 1440 — la misma
+     proporción que le da el cliente en su afiche. */
+  height: clamp(38px, 6.2vw, 110px);
   width: auto;
   /* Sombra suave: el logotipo cae sobre tres fondos distintos (y sobre un video). */
-  filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 2px 18px rgba(0, 0, 0, 0.6));
 }
-.portada-marca span {
-  font-size: 11px;
-  letter-spacing: 0.42em;
+/* Filete dorado entre el logotipo y la bajada, como en el key visual. */
+.portada-regla {
+  display: block;
+  width: clamp(28px, 3vw, 48px);
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.85;
+}
+.portada-bajada {
+  font-size: clamp(10px, 0.86vw, 13px);
+  letter-spacing: 0.46em;
   text-transform: uppercase;
   color: var(--muted);
-  text-indent: 0.42em; /* compensa el tracking del último carácter */
+  text-indent: 0.46em; /* compensa el tracking del último carácter */
 }
 
 /* ---------- la grilla de tres ---------- */
@@ -80,7 +105,8 @@
   position: relative;
   z-index: 1;
   display: flex;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
 }
 
@@ -297,6 +323,50 @@
   transition: transform 0.35s ease;
 }
 
+/* ---------- zócalo de la DESARROLLADORA ---------- */
+/* Replica el pie del key visual del cliente: las cuatro virtudes separadas por
+   filetes verticales y, en el centro, el logotipo de CCM. Va en el FLUJO (no flota):
+   se queda con su alto y la grilla de proyectos se reparte el resto, así nunca tapa
+   el nombre de un proyecto. Un punto más profundo que el lienzo para que se lea como
+   un zócalo y no como una franja más de la portada. */
+.portada-pie {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #060607;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: clamp(13px, 1.7vh, 20px) clamp(14px, 2vw, 40px);
+}
+.portada-pie > * {
+  padding: 0 clamp(14px, 2.4vw, 44px);
+}
+/* Filetes entre celdas — el mismo recurso del afiche. */
+.portada-pie > * + * {
+  border-left: 1px solid rgba(255, 255, 255, 0.11);
+}
+.pie-virtud {
+  font-size: clamp(9.5px, 0.78vw, 12.5px);
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  line-height: 1;
+}
+.pie-ccm {
+  display: flex;
+  align-items: center;
+}
+.pie-ccm img {
+  display: block;
+  /* El PNG recortado es 1178×469 (2,5:1): a 40px de alto mide ~100px de ancho. */
+  height: clamp(30px, 3.2vw, 50px);
+  width: auto;
+}
+
 /* ---------- coreografía del hover (sólo puntero FINO) ---------- */
 /* En táctil no hay hover: el panel se muestra siempre en su estado "abierto" (más
    abajo), porque si no el visitante de celular vería la versión apagada y nunca la
@@ -472,9 +542,6 @@
   .portada-marca {
     top: 30px;
   }
-  .portada-marca img {
-    height: 28px;
-  }
   .pp-cuerpo {
     padding: 40px clamp(16px, 2.2vw, 26px) clamp(30px, 4vh, 42px);
   }
@@ -529,8 +596,25 @@
     padding: 0 clamp(20px, 3vw, 40px) clamp(20px, 2.4vh, 34px);
     justify-content: flex-end;
   }
+  /* APILADO: la cabecera deja de FLOTAR y pasa al flujo, arriba de las tres franjas.
+     Flotando funcionaba con el logotipo chico, pero con el tamaño que pidió el cliente
+     ya no entra: el bloque de texto de la primera franja mide más que lo que queda
+     libre, se desborda hacia arriba y "DESARROLLOS" terminaba encima de "TIER
+     SINCLAIR". En el flujo el problema no existe: la cabecera se queda con su alto y
+     las tres franjas se reparten el resto, exactas.
+     Y el degradado de arriba ya no hace falta — la cabecera apoya sobre el negro
+     pleno, que es el contraste máximo que puede tener el logotipo. */
+  .portada::before {
+    display: none;
+  }
+  .portada-marca {
+    position: static;
+    transform: none;
+    flex: 0 0 auto;
+    padding: clamp(20px, 3.2vh, 34px) 16px clamp(14px, 2vh, 24px);
+  }
   .pp:first-child .pp-cuerpo {
-    padding-top: clamp(76px, 11vh, 130px);
+    padding-top: clamp(16px, 2.2vh, 30px);
   }
   /* Apilado, el hover del panel de arriba no debe "abrir" nada: las franjas ya están
      todas a la vista. Se anula el crecimiento y el apagado de los hermanos. */
@@ -547,13 +631,13 @@
    ========================================================= */
 @media (max-width: 760px) {
   .portada-marca {
-    top: 20px;
     gap: 9px;
   }
+  /* ~52% del ancho de la pantalla: es el peso que pidió el cliente para la marca. */
   .portada-marca img {
-    height: 25px;
+    height: clamp(32px, 10vw, 44px);
   }
-  .portada-marca span {
+  .portada-bajada {
     font-size: 10px;
     letter-spacing: 0.36em;
     text-indent: 0.36em;
@@ -569,7 +653,8 @@
   /* Sin el número, el bloque baja: se sube el piso para que la primera franja nunca
      toque el logotipo, que flota arriba del todo. */
   .pp:first-child .pp-cuerpo {
-    padding-top: clamp(84px, 12vh, 120px);
+    /* La cabecera creció: el logotipo solo mide ya ~40px, más el filete y la bajada. */
+    padding-top: clamp(112px, 17vh, 150px);
   }
   .pp-marca {
     font-size: 10px;
@@ -601,6 +686,36 @@
   .pp-agua {
     font-size: clamp(150px, 42vw, 230px);
   }
+  /* El zócalo no entra en un renglón a 412px (cinco celdas), así que se reordena:
+     el logotipo de CCM se va arriba, solo, y las cuatro virtudes caen de a dos.
+     Se caen los filetes: con dos renglones marcarían una grilla que no existe. */
+  .portada-pie {
+    flex-wrap: wrap;
+    padding: 12px 14px 14px;
+    row-gap: 9px;
+  }
+  .portada-pie > * {
+    padding: 0;
+  }
+  .portada-pie > * + * {
+    border-left: 0;
+  }
+  .pie-ccm {
+    order: -1;
+    flex: 0 0 100%;
+    justify-content: center;
+    margin-bottom: 3px;
+  }
+  .pie-ccm img {
+    height: 30px;
+  }
+  .pie-virtud {
+    flex: 0 0 50%;
+    text-align: center;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+  }
 }
 
 /* Celular BAJO (teléfono acostado, ~412px de alto): tres franjas de ~137px. Se cae
@@ -608,11 +723,14 @@
 @media (max-height: 560px) and (max-width: 1180px) {
   .portada-marca {
     top: 12px;
+    padding-top: 10px;
+    padding-bottom: 8px;
   }
   .portada-marca img {
-    height: 20px;
+    height: 26px;
   }
-  .portada-marca span {
+  .portada-bajada,
+  .portada-regla {
     display: none;
   }
   .pp-kicker,
@@ -650,6 +768,22 @@
     right: 10px;
     width: 38px;
     height: 38px;
+  }
+  /* Acostado hay 412px de alto para todo: el zócalo se comprime a un renglón y las
+     virtudes bajan a cuerpo mínimo, pero no se caen — son del cliente. */
+  .portada-pie {
+    padding: 8px clamp(10px, 1.6vw, 24px);
+  }
+  .portada-pie > * {
+    padding: 0 clamp(10px, 1.6vw, 26px);
+  }
+  .pie-virtud {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-indent: 0.14em;
+  }
+  .pie-ccm img {
+    height: 24px;
   }
 }
 

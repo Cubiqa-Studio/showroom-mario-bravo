@@ -289,9 +289,13 @@ export function PortadaScreen({ preload = [] }: { preload?: string[] }) {
         <p>{t.seo.homeBody}</p>
       </section>
 
+      {/* Cabecera de MARCA. El logotipo de TIER manda: el cliente pidió que tuviera
+          "mucho más protagonismo" y en su propio key visual ocupa un tercio del ancho.
+          Debajo, la regla dorada y la bajada, igual que el lockup del afiche. */}
       <div className="portada-marca">
         <img src="/logo.png" alt="TIER" />
-        <span>{t.portada.eyebrow}</span>
+        <span className="portada-regla" aria-hidden="true" />
+        <span className="portada-bajada">{t.portada.eyebrow}</span>
       </div>
 
       <div className="portada-grid" data-expandido={expandido ?? undefined}>
@@ -307,6 +311,20 @@ export function PortadaScreen({ preload = [] }: { preload?: string[] }) {
           />
         ))}
       </div>
+
+      {/* ZÓCALO de la desarrolladora. Replica el pie del key visual del cliente: las
+          cuatro virtudes separadas por filetes y, en el CENTRO, el logotipo de CCM
+          —que es quien desarrolla TIER—. En celular el logo se va a su propio renglón
+          arriba y las virtudes caen de a dos, que es lo único que entra bien. */}
+      <footer className="portada-pie">
+        <span className="pie-virtud">{t.portada.virtudes[0]}</span>
+        <span className="pie-virtud">{t.portada.virtudes[1]}</span>
+        <span className="pie-ccm">
+          <img src="/logo-ccm.png" alt={t.portada.ccmAlt} />
+        </span>
+        <span className="pie-virtud">{t.portada.virtudes[2]}</span>
+        <span className="pie-virtud">{t.portada.virtudes[3]}</span>
+      </footer>
 
       {/* Cerrar la vista ampliada. Sólo existe mientras hay un panel abierto, así que
           en escritorio no aparece nunca. */}

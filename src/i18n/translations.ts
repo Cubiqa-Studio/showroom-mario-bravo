@@ -39,6 +39,10 @@ const es = {
     /** Táctil: el 1er toque AMPLÍA el panel; la X vuelve a los tres. */
     ariaAmpliar: (nombre: string) => `Ampliar ${nombre}`,
     cerrar: "Volver a los tres desarrollos",
+    /** Zócalo: las cuatro virtudes de la desarrolladora, tal cual el key visual que
+     *  entregó el cliente (dos a cada lado del logotipo de CCM). */
+    virtudes: ["Desarrollamos", "Construimos", "Sustentamos", "Creamos valor"],
+    ccmAlt: "CCM Desarrollos",
   },
 
   /** Copy SEO/accesible (sr-only) de las páginas visuales (home + showroom): dan
@@ -813,6 +817,8 @@ const en: Dict = {
     ariaEntrar: (nombre: string) => `Enter ${nombre}`,
     ariaAmpliar: (nombre: string) => `Expand ${nombre}`,
     cerrar: "Back to all three developments",
+    virtudes: ["We develop", "We build", "We sustain", "We create value"],
+    ccmAlt: "CCM Desarrollos",
   },
 
   seo: {

@@ -71,3 +71,54 @@ for (const [name, color] of VARIANTS) {
 
 console.log("\n✓ variantes de logo generadas.");
 console.log("  Después de esto corré `npm run og:generate` (el OG compone logo.png).");
+
+// ── CCM DESARROLLOS ───────────────────────────────────────────────────────────
+//
+// El logotipo de la DESARROLLADORA (la empresa detrás de TIER) aparece en el zócalo
+// de la portada, y el cliente sólo lo entregó en su versión para fondo CLARO: "CCM"
+// en negro, el asta izquierda de la M en oro, y "DESARROLLOS" en gris debajo. La
+// portada es negra, así que hace falta la versión clara — la MISMA que usa el key
+// visual del cliente (_media-src/marca/tier-key-visual.jpeg).
+//
+// No se puede resolver con un `invert` ni con `brightness`: el asta dorada es la única
+// nota de color del logotipo y hay que DEJARLA INTACTA. Entonces se recolorean sólo
+// los píxeles NEUTROS (los que casi no tienen saturación) con una recta que manda el
+// negro del "CCM" al off-white de la paleta y el gris del "DESARROLLOS" a `--muted`;
+// el antialias del borde cae en el medio y sale suave solo. Todo lo que tiene color
+// —el oro— se deja pasar sin tocar.
+const CCM_SRC = join(ROOT, "_media-src", "logos", "ccm-desarrollos-src.png");
+const CCM_OUT = join(OUT_DIR, "logo-ccm.png");
+/** Saturación mínima para considerar que un píxel ES color (y no tocarlo). */
+const SAT_COLOR = 0.22;
+/** Recta luminancia→luminancia de los neutros: negro 0 → 244 (--ink), gris 153 → 168
+ *  (--muted). Sale de esos dos puntos: 244 − 0.497·L. */
+const mapNeutro = (l) => Math.max(0, Math.min(255, Math.round(244 - 0.497 * l)));
+
+if (existsSync(CCM_SRC)) {
+  const { data, info } = await sharp(CCM_SRC)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+  for (let i = 0; i < data.length; i += channels) {
+    if (data[i + 3] === 0) continue; // transparente: nada que recolorear
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const sat = max === 0 ? 0 : (max - min) / max;
+    if (sat >= SAT_COLOR) continue; // el asta dorada queda como está
+    const nuevo = mapNeutro(0.2126 * r + 0.7152 * g + 0.0722 * b);
+    data[i] = nuevo;
+    data[i + 1] = nuevo;
+    data[i + 2] = nuevo;
+  }
+  // `trim` sobre el alfa: el original trae ~15% de lienzo vacío alrededor y, sin
+  // recortar, el logotipo se ve chico y descentrado dentro de su caja.
+  const out = await sharp(data, { raw: { width, height, channels } })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+  const info2 = await sharp(out).trim({ threshold: 1 }).png({ compressionLevel: 9 }).toFile(CCM_OUT);
+  console.log(`ccm-desarrollos-src.png  ${width}×${height} → logo-ccm.png (${info2.width}×${info2.height}, ${Math.round(info2.size / 1024)} KB)`);
+} else {
+  console.warn(`⚠ falta ${CCM_SRC} — no se generó logo-ccm.png`);
+}
