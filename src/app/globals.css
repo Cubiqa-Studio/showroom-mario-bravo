@@ -209,6 +209,31 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ============================================================
+   PISO DE 16px EN LOS CAMPOS, EN PUNTERO GRUESO.
+   En iOS —o sea en TODOS los navegadores de iPhone y iPad, que van sobre WebKit—
+   enfocar un input cuya letra mide menos de 16px dispara un ZOOM automático de la
+   página. Y no vuelve solo: el visitante queda con la ficha agrandada y con scroll
+   lateral, sin entender qué pasó. Es la clase de bug que reaparece cada vez que
+   alguien escribe `text-sm` en un formulario, así que además de arreglarlo donde
+   estaba (ContactModal) queda esta red.
+   Se listan los DOS escalones chicos de la escala en vez de tocar todos los campos:
+   así sube sólo lo que caería por debajo de 16, y no se le recorta el cuerpo a los
+   formularios que ya son grandes a propósito (el del cliente pide letra grande).
+   Un selector de elemento + clase (0,1,1) le gana a la utilidad sola (0,1,0), así
+   que no hace falta `!important`.
+   ============================================================ */
+@media (pointer: coarse) {
+  input.text-xs,
+  input.text-sm,
+  select.text-xs,
+  select.text-sm,
+  textarea.text-xs,
+  textarea.text-sm {
+    font-size: 16px;
+  }
+}
+
 /* Rótulo premium reutilizable (eyebrow): mayúsculas + tracking. */
 .eyebrow {
   font-size: 12px;

@@ -15,6 +15,10 @@ import { ContactModal } from "./ContactModal";
 import { GalleryModal } from "./GalleryModal";
 import { scrollToContact, toggleFullscreen } from "./landing-dom";
 
+/** Alto de la barra (px). Vive en residencia.css como `.nav-inner { height: 78px }`;
+ *  acá se usa para correr la línea de disparo del observer al pie del nav. */
+const NAV_H = 78;
+
 /**
  * Navbar fija de la landing: logo (imagen, el mismo del home), pill de la unidad
  * actual, pantalla completa, "Consultar" y la hamburguesa que abre el SideMenu
@@ -73,12 +77,12 @@ export function LandingNav({
   };
 
   // Sólo en unidades con tour 360°: el nav arranca transparente (sobre el visor) y
-  // se vuelve sólido cuando el hero deja de estar detrás del nav (scroll hacia abajo).
+  // se vuelve sólido cuando el CUERPO de la landing sube y le queda por detrás.
   const [overHero, setOverHero] = useState(!!unit.tour360);
   // Depende de `unit.residence` además de `tour360`: al SALTAR entre unidades por el
   // plano (router.replace, sin remontar el nav), el estado no se reinicia solo y el
   // nav quedaba con fondo blanco sobre el 360. Acá, al entrar a una unidad con tour,
-  // arrancamos en ghost (estás arriba) y reenganchamos el observer al hero NUEVO
+  // arrancamos en ghost (estás arriba) y reenganchamos el observer al nodo NUEVO
   // (que puede no estar montado en el mismo frame → reintento con rAF).
   useEffect(() => {
     if (!unit.tour360) {
@@ -90,24 +94,40 @@ export function LandingNav({
     let raf = 0;
     let tries = 0;
     const attach = () => {
-      // Buscá el hero DE ESTA landing, no un querySelector GLOBAL: durante el crossfade
-      // entre unidades conviven dos `.res-landing` en el DOM (la que sale y la que entra),
-      // y un `document.querySelector(".hero")` agarra la PRIMERA = la unidad anterior, que
-      // ya se está desmontando → el observer queda pegado a un nodo huérfano que reporta
-      // "fuera de vista" para siempre → nav-ghost trabado en blanco sobre el 360. Scopeando
-      // al `.res-landing` propio (vía el ref del nav) siempre observamos NUESTRO hero.
-      const hero = navRef.current
-        ?.closest(".res-landing")
-        ?.querySelector(".hero");
-      if (!hero) {
+      // Se observa `.unit-head` —el primer bloque de la hoja, 60-70px de alto—, no el
+      // hero.
+      //
+      // Con el hero pasaba esto: en táctil, una unidad con 360° monta el visor como
+      // `position: sticky; top: 0; height: 100dvh` (así la hoja sube tapándolo), o sea
+      // que el hero NUNCA sale de pantalla → `isIntersecting` daba true para siempre →
+      // el nav quedaba transparente TODA la página, con el texto del cuerpo leyéndose
+      // por detrás de los botones (reporte de Joaquim con captura, 30-08).
+      //
+      // Y el centinela tiene que ser CHICO: `.landing-body` entero mide varios miles de
+      // px, así que con `threshold: 0` nunca termina de cruzar el borde y el observer
+      // dispara UNA sola vez, al observar. `.unit-head` entra y sale de la línea del
+      // nav, que es justo el momento en que el nav pasa de estar sobre el 360 a estar
+      // sobre contenido. Sirve igual sin 360 (ahí el hero scrollea normal).
+      //
+      // El nodo se busca DENTRO de esta landing, no con un querySelector global:
+      // durante el crossfade entre unidades conviven dos `.res-landing` en el DOM (la
+      // que sale y la que entra) y el global agarraría la que se está desmontando.
+      const root = navRef.current?.closest(".res-landing");
+      const centinela = root?.querySelector(".unit-head");
+      if (!centinela) {
         if (tries++ < 20) raf = requestAnimationFrame(attach);
         return;
       }
-      io = new IntersectionObserver(([e]) => setOverHero(e.isIntersecting), {
-        rootMargin: "-78px 0px 0px 0px", // alto del nav: dispara cuando el hero cruza debajo del nav
-        threshold: 0,
-      });
-      io.observe(hero);
+      io = new IntersectionObserver(
+        ([e]) => setOverHero(e.boundingClientRect.top > NAV_H),
+        {
+          // El margen negativo corre la línea de disparo al pie del nav, así el
+          // callback salta justo cuando el centinela lo cruza.
+          rootMargin: `-${NAV_H}px 0px 0px 0px`,
+          threshold: 0,
+        },
+      );
+      io.observe(centinela);
     };
     attach();
     return () => {

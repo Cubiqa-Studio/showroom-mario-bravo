@@ -352,7 +352,11 @@ export function SideMenu({
                                           <p className="px-1.5 pb-1 text-[14px] font-semibold uppercase tracking-wider text-faint">
                                             {t.sideMenu.floor(group.floor)}
                                           </p>
-                                          <div className="flex flex-wrap gap-1.5 px-1.5 pb-1.5">
+                                          {/* `gap-2` + `min-h-11`: son 60 chips de tres
+                                              dígitos, y a 43x25 con 6px de aire entre
+                                              medio errarle al piso de al lado era lo
+                                              más fácil del mundo. */}
+                                          <div className="flex flex-wrap gap-2 px-1.5 pb-1.5">
                                             {group.units.map((u) => (
                                               <button
                                                 key={u.id}
@@ -360,7 +364,7 @@ export function SideMenu({
                                                 onClick={() =>
                                                   openTour(u.url)
                                                 }
-                                                className="rounded-md px-2.5 py-1 text-xs font-medium tabular-nums text-muted ring-1 ring-line transition hover:bg-white/10 hover:text-ink hover:ring-gold/50"
+                                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2.5 text-xs font-medium tabular-nums text-muted ring-1 ring-line transition hover:bg-white/10 hover:text-ink hover:ring-gold/50"
                                               >
                                                 {u.residence}
                                               </button>

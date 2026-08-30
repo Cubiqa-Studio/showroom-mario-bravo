@@ -13,10 +13,6 @@ import type { NextConfig } from "next";
 const FLYBY_ASSET_CACHE = "public, max-age=86400, stale-while-revalidate=2592000";
 
 const nextConfig: NextConfig = {
-  // [TEMP-AUDIT] carpeta de build alternativa para no pisar el .next del dev del usuario.
-  distDir: process.env.NEXT_DIST_DIR || ".next",
-  ...(process.env.NEXT_DIST_DIR ? { devIndicators: false as const } : {}),
-
   // Higiene: no publicar el stack en cada response (X-Powered-By: Next.js).
   poweredByHeader: false,
 

@@ -86,8 +86,12 @@ export function ContactModal({
     t.contactModal.waMessage(form.name, form.phone, form.comment),
   );
 
+  // `text-base` y NO `text-sm`: en iOS, enfocar un campo cuya letra mide menos de
+  // 16px dispara un ZOOM automático de la página — y no vuelve solo, queda agrandada
+  // y con scroll lateral. Con `text-sm` estos tres campos daban 15px en un teléfono y
+  // 14px de 400px para abajo. `text-base` son 17px / 16px en esos escalones.
   const field =
-    "w-full rounded-lg border border-line bg-mist px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20 placeholder:text-faint";
+    "w-full rounded-lg border border-line bg-mist px-3.5 py-2.5 text-base text-ink shadow-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20 placeholder:text-faint";
 
   return (
     <FloatingPortal>

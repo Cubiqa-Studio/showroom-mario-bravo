@@ -9,16 +9,23 @@ import { SITE } from "@/data/site";
 /**
  * Página 404 global (App Router: `app/not-found.tsx`). Se muestra para cualquier
  * URL que no matchee una ruta. Diseño premium: fondo con el aéreo del proyecto
- * (SITE.aerialImage) atenuado, y una tarjeta clara centrada (los logos son oscuros →
- * necesitan fondo claro) con el logo del proyecto, un "404" en serif dorado, el
- * mensaje bilingüe (ES/EN vía i18n), accesos al inicio y al showroom, y el crédito
- * de CUBIQA. Vive dentro del layout raíz → hereda LanguageProvider.
+ * (SITE.aerialImage) atenuado y una tarjeta OSCURA centrada (frosted glass sobre el
+ * negro de marca) con el logo del proyecto, un "404" en serif dorado, el mensaje
+ * bilingüe (ES/EN vía i18n), accesos al inicio y al showroom, y el crédito de CUBIQA
+ * —cuyo logotipo es tinta NEGRA y por eso se invierte por CSS—.
+ * Vive dentro del layout raíz → hereda LanguageProvider.
  */
 export default function NotFound() {
   const { t } = useI18n();
 
   return (
-    <main className="relative flex min-h-[100dvh] items-center justify-center bg-tier-dark px-5 py-8 sm:py-14">
+    // `[@media(max-height:560px)]:` comprime el ritmo VERTICAL. Los escalones `sm:`
+    // miran sólo el ANCHO, así que un teléfono acostado (915x412) entra por "ancho de
+    // tablet" y toma los tamaños de escritorio: la tarjeta medía 607px sobre 412 de
+    // viewport y los dos botones arrancaban 38px por DEBAJO del pliegue — o sea, un 404
+    // sin ninguna acción a la vista. Con el bloque de abajo la tarjeta cae a ~423px y
+    // los dos CTA entran en pantalla.
+    <main className="relative flex min-h-[100dvh] items-center justify-center bg-tier-dark px-5 py-8 [@media(max-height:560px)]:py-4 sm:py-14">
       {/* Fondo FIJO al viewport (aéreo del proyecto, atenuado). Fijo = no crece con el
           contenido ni fuerza scroll; `overflow-hidden` clipa el halo de scale-105. En
           mobile ACOSTADO el contenido puede superar el alto → la página scrollea y la
@@ -35,14 +42,14 @@ export default function NotFound() {
       {/* Tarjeta: frosted glass (translúcida + blur) para camuflarse con el aéreo.
           Va en el negro de marca para que el texto claro y el logo se lean sobre el
           aéreo. Más ancha (max-w-3xl) para que no quede tan alta, y blur más fuerte. */}
-      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-tier-dark/45 px-8 py-10 text-center shadow-2xl ring-1 ring-white/15 backdrop-blur-3xl sm:px-14 sm:py-12">
+      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-tier-dark/45 px-8 py-10 text-center shadow-2xl ring-1 ring-white/15 backdrop-blur-3xl [@media(max-height:560px)]:py-6 sm:px-14 sm:py-12">
         <img
           src="/logo.png"
           alt="TIER Bravo"
-          className="mx-auto h-12 w-auto sm:h-14"
+          className="mx-auto h-12 w-auto [@media(max-height:560px)]:h-9 sm:h-14"
         />
 
-        <p className="mt-9 font-serif text-7xl leading-none tracking-wide text-gold sm:text-8xl">
+        <p className="mt-9 font-serif text-7xl leading-none tracking-wide text-gold [@media(max-height:560px)]:mt-4 [@media(max-height:560px)]:text-5xl sm:text-8xl">
           404
         </p>
 
@@ -53,23 +60,23 @@ export default function NotFound() {
           {t.notFound.body}
         </p>
 
-        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 [@media(max-height:560px)]:mt-5 sm:flex-row">
           <Link
             href="/"
-            className="w-full rounded-full bg-gold px-7 py-3 text-[16.5px] font-semibold uppercase tracking-[0.18em] text-cream shadow-md transition hover:brightness-110 active:scale-95 sm:w-auto"
+            className="w-full rounded-full bg-gold px-5 py-3 text-[15px] font-semibold uppercase tracking-[0.12em] text-cream shadow-md transition hover:brightness-110 active:scale-95 min-[375px]:px-7 min-[375px]:text-[16.5px] min-[375px]:tracking-[0.18em] sm:w-auto"
           >
             {t.notFound.home}
           </Link>
           <Link
             href="/showroom"
-            className="w-full rounded-full bg-white/10 px-7 py-3 text-[16.5px] font-semibold uppercase tracking-[0.18em] text-ink ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95 sm:w-auto"
+            className="w-full rounded-full bg-white/10 px-5 py-3 text-[15px] font-semibold uppercase tracking-[0.12em] text-ink ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95 min-[375px]:px-7 min-[375px]:text-[16.5px] min-[375px]:tracking-[0.18em] sm:w-auto"
           >
             {t.notFound.showroom}
           </Link>
         </div>
 
         {/* Crédito CUBIQA */}
-        <div className="mt-11 flex flex-col items-center gap-2.5 border-t border-line pt-6">
+        <div className="mt-11 flex flex-col items-center gap-2.5 border-t border-line pt-6 [@media(max-height:560px)]:mt-5 [@media(max-height:560px)]:pt-4">
           <span className="text-[14px] font-medium uppercase tracking-[0.24em] text-ink/55">
             {t.notFound.credit}
           </span>
@@ -79,11 +86,19 @@ export default function NotFound() {
             rel="noopener noreferrer"
             aria-label="CUBIQA Studio"
             title="CUBIQA Studio"
+            // El ancla envolvia al <img h-4> pelado: 38x16 de area tactil. El padding
+            // la lleva a 62x44 y el margen negativo lo compensa, asi la tarjeta no
+            // crece de alto (medido: sin el -my la tarjeta sumaba 28px).
+            className="inline-flex items-center px-3 py-3.5 -my-3.5"
           >
             <img
               src="/logotipo_cubiqa.png"
               alt="CUBIQA"
-              className="h-4 w-auto opacity-75 transition hover:opacity-100"
+              // El arte del logotipo es NEGRO sobre transparente. La tarjeta era clara
+              // cuando se armo esto; hoy es `bg-tier-dark/45` y el wordmark quedaba
+              // negro sobre negro. `brightness-0 invert` lo pasa a blanco puro sin
+              // necesidad de otro archivo (el PNG es tinta plana, no tiene medios tonos).
+              className="h-4 w-auto opacity-80 brightness-0 invert transition hover:opacity-100"
             />
           </a>
         </div>

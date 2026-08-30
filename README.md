@@ -304,6 +304,19 @@ selector las recorre en este orden, de abajo hacia arriba:
 Se regeneran con `npm run plates:images` (conserva polígonos). El mapeo piso → archivo
 está en `FLOOR_SOURCES`, y el orden en `FLOOR_ORDER`, arriba de `scripts/make-plates.mjs`.
 
+⚠ **La tarjeta toma la proporción del plano, no una fija.** Mirá la última columna: los
+espacios van de 0,56:1 (planta baja) a 1,51:1 (azotea), y casi todos rondan 0,93 — o sea
+VERTICALES. La tarjeta estaba clavada en `aspect-ratio: 1100/740` (1,49, apaisado), que
+sólo le quedaba bien a la azotea; como el SVG usa `preserveAspectRatio="meet"`, el resto
+entraba por ALTO y dejaba media tarjeta vacía a los costados. En un teléfono eso daba una
+caja de 380×256 con el plano ocupando la mitad del ancho.
+Hoy `FloorPlate.tsx` inyecta `--plate-ar` = `imageWidth / imageHeight` del piso actual, y
+el CSS lo usa para el `aspect-ratio` y para derivar el ancho de un tope de alto
+(`--plate-max-h`, y en el Plan Maestro `100dvh − chrome`). Sirve para los dos lugares
+donde se muestra la planta —la pestaña de la ficha y el Plan Maestro del menú—, porque
+los dos montan el mismo `<FloorPlate>`. **Si mañana entra un plano con otra proporción,
+no hay que tocar nada**: sale de `plates.json`.
+
 **El subsuelo y la planta baja no tienen unidades**, así que no llevan polígonos —no hay
 nada que clickear— pero **sí se muestran**: son la cochera y los amenities, que es justo
 lo que pregunta el que compra.
@@ -416,6 +429,13 @@ la validación cruzada:
 Se regeneran con `npm run plans:units` (recorta el lienzo, escala a 1400 px de lado
 mayor y reescribe el `floorPlan` de cada unidad). El mapeo vive en `PLANS`, arriba de
 `scripts/make-unit-plans.mjs`.
+
+⚠ **Son tiras muy verticales** — 1400 px de alto y entre 516 y 729 de ancho, o sea de
+0,37:1 a 0,52:1. A ancho completo en un teléfono, la tipología A pedía **939 px de
+alto sobre un viewport de 915**: no entraba entera en pantalla y la ficha se sentía
+interminable. Por eso en ≤720px la imagen lleva `max-height: calc(100dvh - 190px)`
+(residencia.css). Sólo achica a las dos tipologías más altas, lo justo para que
+entren; de 0,48:1 para arriba el plano sigue usando todo el ancho.
 
 **El 6° reusa las tipologías del piso tipo, con la numeración corrida.** En el 6° las
 unidades 01 y 06 son las grandes de retiro y se comen la numeración, así que las seis

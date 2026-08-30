@@ -384,7 +384,12 @@
 .res-landing .hero-stage {
   position: relative;
   margin: 26px var(--pad) 0;
-  height: 70vh; min-height: 540px;
+  /* El `min-height` se acota contra el ALTO del viewport: con 540px fijos, un
+     teléfono ACOSTADO (915x412) montaba un hero de 540 sobre 412 de pantalla y el
+     botón "Ver las N fotos", que va al pie del hero, quedaba 168px por debajo del
+     pliegue. `min(540px, 68dvh)` mantiene los 540 en cualquier pantalla normal y
+     sólo cede donde el alto no da. */
+  height: 70vh; min-height: min(540px, 68dvh);
 }
 /* Los 3 thumbs flotantes asoman ~46% por DEBAJO del hero. Sin la DataBar (Miro
    2026-07-15) la primera sección (Plano de la Unidad) quedaba pegada al hero y los
@@ -661,10 +666,14 @@
 .res-landing .ov-row + .ov-row { border-top: 1px solid var(--divider-2); }
 .res-landing .ov-row .lbl { color: var(--gray); white-space: nowrap; }
 .res-landing .ov-row .lead { flex: 1 1 24px; min-width: 24px; border-bottom: 1px dotted var(--divider); transform: translateY(-3px); }
-/* Si no entra en la línea de la etiqueta, cae entera abajo y se alinea a la
-   derecha (`margin-left:auto`); recién si TAMPOCO entra así, parte por palabras.
-   Los valores cortos con unidad ("68.3 m²", "2") nunca llegan a ese punto. */
-.res-landing .ov-row .val { font-weight: 600; margin-left: auto; text-align: right; overflow-wrap: break-word; min-width: 0; }
+/* Los valores CORTOS ("68.3 m²", "2") quedan pegados a la derecha, al final del
+   líder punteado: eso lo hace `margin-left: auto`, y como la caja mide exactamente
+   lo que el texto, el `text-align` no los toca.
+   El valor LARGO (la lista de amenities) no entra en la línea de la etiqueta y cae
+   solo a la de abajo ocupando todo el ancho: ahí `text-align: left` lo arranca
+   contra el margen izquierdo. Con `right` la última línea quedaba colgada sola a la
+   derecha ("…y pileta" suelto) — pedido de Joaquim, 30-08. */
+.res-landing .ov-row .val { font-weight: 600; margin-left: auto; text-align: left; overflow-wrap: break-word; min-width: 0; }
 .res-landing .ov-row .val.big { font-family: var(--serif); font-size: calc(24.5px * var(--fs-k)); color: var(--gold); }
 .res-landing .ov-group-gap { height: 18px; }
 .res-landing .overview .btn-gold { margin-top: auto; justify-content: center; }
@@ -681,6 +690,11 @@
 .res-landing .plate-head .section-title { font-size: calc(37px * var(--fs-k)); }
 .res-landing .plate-head p { margin-top: 22px; max-width: 440px; line-height: 1.7; }
 
+/* `--plate-ar` = ancho/alto REAL del plano del piso; lo inyecta FloorPlate.tsx desde
+   `imageWidth/imageHeight` de plates.json (0,56 en PB · ~0,93 del 1º al 6º · 1,13 en
+   el 7º · 1,51 en el 8º). El 1,486 del fallback es el 1100/740 viejo, que sólo le
+   quedaba bien al 8º. `--plate-max-h` es el tope de alto: el ancho se deriva de ahí
+   (× la proporción), así la tarjeta nunca se pasa de pantalla ni deja franjas vacías. */
 .res-landing .plate-stage {
   position: relative;
   background:
@@ -689,7 +703,9 @@
   border: 1px solid var(--divider);
   border-radius: var(--radius);
   padding: 26px;
-  aspect-ratio: 1100 / 740;
+  aspect-ratio: var(--plate-ar, 1.486);
+  max-width: calc(var(--plate-max-h, 78vh) * var(--plate-ar, 1.486));
+  margin-inline: auto;
   box-shadow: var(--shadow-card);
 }
 .res-landing .plate-svg { width: 100%; height: 100%; display: block; }
@@ -926,6 +942,12 @@
   border-radius: 50%;
 }
 .res-landing .map-stage .maplibregl-ctrl-bottom-right { z-index: 2; }
+/* Los +/- de maplibre vienen en 29x29px de fábrica. En un dispositivo táctil eso está
+   muy por debajo de lo agarrable, y el zoom es la interacción principal del mapa. */
+@media (pointer: coarse) {
+  .res-landing .map-stage .maplibregl-ctrl-group button { width: 40px; height: 40px; }
+  .res-landing .map-stage .maplibregl-ctrl-group button span { transform: scale(1.25); }
+}
 
 /* custom property marker */
 .res-landing .prop-marker { position: relative; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
@@ -1136,7 +1158,10 @@
 .res-landing .map-info-card .mi-addr { font-family: var(--serif); font-size: calc(29px * var(--fs-k)); letter-spacing: .03em; line-height: 1.18; margin-top: 8px; }
 .res-landing .map-info-card .mi-note { display: flex; align-items: center; gap: 9px; color: var(--gray); font-size: calc(18.5px * var(--fs-k)); margin-top: 14px; }
 .res-landing .map-info-card .mi-note .dotg { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-.res-landing .map-info-card .mi-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; color: var(--gold); font-size: calc(17.5px * var(--fs-k)); letter-spacing: .12em; text-transform: uppercase; font-weight: 600; transition: gap .2s ease; }
+/* `min-height` + el margen negativo que lo compensa: es la ÚNICA acción de la
+   tarjeta de ubicación y su área táctil era de 22px de alto. Así llega a 44 sin
+   mover el diseño ni un píxel. */
+.res-landing .map-info-card .mi-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; min-height: 44px; margin-bottom: -11px; color: var(--gold); font-size: calc(17.5px * var(--fs-k)); letter-spacing: .12em; text-transform: uppercase; font-weight: 600; transition: gap .2s ease; }
 .res-landing .map-info-card .mi-cta svg { width: 14px; height: 14px; }
 .res-landing .map-info-card .mi-cta:hover { gap: 13px; }
 
@@ -1176,11 +1201,13 @@
 .res-landing .ca-wsp p { color: var(--gray); font-size: calc(20px * var(--fs-k)); line-height: 1.7; margin-bottom: 16px; }
 .res-landing .ca-wsp .btn svg { flex-shrink: 0; }
 /* "Escribinos por WhatsApp" es el rótulo más largo del sitio: en una línea mide
-   306px y la columna lateral de esta grilla ronda los 250-300px entre 1024 y
-   1180px. Como `.btn` es `white-space: nowrap`, no podía achicarse y empujaba
-   TODA la landing 34px fuera del viewport (medido en iPad apaisado). Es el único
-   botón que necesita poder partirse en dos líneas. */
-.res-landing .ca-wsp .btn { white-space: normal; text-align: left; }
+   306px y la columna lateral de esta grilla mide 281px (0,9fr de 1080 con gaps de
+   56) — o sea que NUNCA entra en un renglón, ni en un monitor de 4K. Como `.btn` es
+   `white-space: nowrap`, no podía achicarse y empujaba TODA la landing 34px fuera
+   del viewport (medido en iPad apaisado). Es el único botón que necesita partirse en
+   dos líneas, y va CENTRADO para que las dos se lean como un bloque y no queden
+   colgando contra el ícono. */
+.res-landing .ca-wsp .btn { white-space: normal; text-align: center; justify-content: center; }
 
 /* =========================================================
    ≤ 1100px — el nav no entra completo. Medido en el navegador:
@@ -1297,8 +1324,11 @@
   .res-landing .plan-logo { display: none; }
   .res-landing .contact-split { grid-template-columns: 1fr; gap: 40px; }
   .res-landing .plate-wrap { grid-template-columns: 1fr; gap: 40px; }
-  .res-landing .res-row { grid-template-columns: 1fr auto; }
-  .res-landing .res-row .rr-stats, .res-landing .res-row .rr-badge { display: none; }
+  /* Se cae el desglose (dorm · baños · m²), que es lo que no entra, pero el ESTADO
+     se queda: Disponible/Reservada es la señal que la persona vino a buscar y en esta
+     banda el listado quedaba con el número de unidad y nada más. */
+  .res-landing .res-row { grid-template-columns: 1fr auto auto; }
+  .res-landing .res-row .rr-stats { display: none; }
 }
 
 /* =========================================================
@@ -1358,7 +1388,14 @@
   .res-landing .water-banner { margin: 16px 0 26px; font-size: calc(16.5px * var(--fs-k)); letter-spacing: .12em; }
   .res-landing .plan-layout { gap: 30px; }
   .res-landing .plan-stage { min-height: 0; padding: 16px; overflow: hidden; }
-  .res-landing .floorplan-img { max-height: none; }
+  /* TOPE DE ALTO en celular. Los planos de unidad son tiras verticales de 1400px de
+     alto y entre 516 y 729 de ancho (0,37:1 a 0,52:1). Sin tope, a 346px de ancho la
+     tipología A quedaba en 939px de alto sobre un viewport de 915: no se podía ver el
+     plano entero de una, y la ficha se sentía interminable ("la landing tiene el plano
+     gigante", 30-08). Con el tope, sólo se achican las dos tipologías más altas —lo
+     justo para que entren en pantalla—; de 0,48:1 para arriba el plano sigue usando
+     todo el ancho, igual que antes. `dvh` y no `vh`: descuenta la barra del navegador. */
+  .res-landing .floorplan-img { max-height: max(420px, calc(100dvh - 190px)); }
   .res-landing .plan-watermark { font-size: calc(clamp(110px, 40vw, 200px) * var(--fs-k)); }
   /* La flecha "Acceso" se posiciona en px fijos sobre un plano placeholder genérico;
      al achicarse la tarjeta quedaba flotando sobre el dibujo → se oculta en celu. */
@@ -1370,7 +1407,10 @@
   .res-landing .ov-row .val.big { font-size: calc(22px * var(--fs-k)); }
 
   /* ---- PLANTA DEL PISO ---- */
-  .res-landing .plate-stage { padding: 12px; }
+  /* Marco fino + tope de alto generoso: en celular el plano del piso es lo que hay
+     que poder leer, así que se le da casi toda la pantalla (antes quedaba en 256px
+     de alto por la proporción apaisada fija). El ancho lo deriva `--plate-ar`. */
+  .res-landing .plate-stage { padding: 12px; --plate-max-h: max(300px, calc(100dvh - 190px)); }
   /* El plate es bajito en celu (~220px) → el tooltip se ANCLA al pie de la tarjeta
      (full-width) en vez de seguir el dedo con la matemática de 290px del desktop, y
      se oculta la miniatura de 88px que lo hacía más alto que el plate. */
@@ -1409,6 +1449,9 @@
   /* El control +/- vive en top-right, justo donde ahora está la tarjeta de dirección
      full-width → lo bajamos para que no quede tapado ni intocable. */
   .res-landing .map-stage .maplibregl-ctrl-top-right { top: auto; bottom: 92px; }
+  /* La atribución de OpenStreetMap vive abajo a la derecha, justo donde ahora van las
+     pills full-width: quedaba texto cortado asomando entre ellas. */
+  .res-landing .map-stage .maplibregl-ctrl-bottom-right { bottom: 58px; }
   /* El label del marker (buildingName) puede ser largo: en celu
      envuelve y se acota para no recortarse contra .map-stage{overflow:hidden}. */
   .res-landing .prop-label { white-space: normal; max-width: 56vw; text-align: center; line-height: 1.22; letter-spacing: .08em; }
@@ -1522,15 +1565,26 @@
 .masterplan-scope .plate-stage {
   width: 100%;
   /* Reserva = header + controles + leyenda + paddings, así planta + leyenda
-     entran SIN scroll (la leyenda va en los 4 pisos ahora). */
-  max-width: min(1600px, calc((100vh - 240px) * 1100 / 740));
+     entran SIN scroll (la leyenda va en los 4 pisos ahora). La proporción sale del
+     plano REAL (--plate-ar, ver .plate-stage más arriba): con el 1100/740 fijo, un
+     plano vertical entraba por alto y la tarjeta quedaba con medio ancho vacío. */
+  /* `max(360px, …)`: el tope de alto sirve mientras HAY alto. En un teléfono
+     acostado (412px) la cuenta da 160px de planta — ilegible. El piso deja que la
+     tarjeta se pase del viewport y se scrollee, que es lo correcto ahí: un plano
+     vertical no entra en 412px de alto por más que se lo achique. */
+  max-width: min(1600px, max(360px, calc((100vh - 240px) * var(--plate-ar, 1.486))));
   margin: 0 auto;
   padding: 12px;
-  aspect-ratio: 1100 / 740;
 }
 @media (max-width: 720px) {
   .res-landing.masterplan-scope { padding: 12px 12px 24px; }
-  .masterplan-scope .plate-stage { max-width: 100%; }
+  /* En celular el chrome de arriba (título + flechas + pills de piso, que envuelven
+     en dos filas) se lleva ~230px; el resto es para la planta. Antes acá se soltaba
+     el tope (`max-width: 100%`) y, con la proporción apaisada fija, la tarjeta
+     quedaba de 388x261 con el dibujo ocupando la mitad del ancho. */
+  .masterplan-scope .plate-stage {
+    max-width: min(100%, max(300px, calc((100dvh - 230px) * var(--plate-ar, 1.486))));
+  }
 }
 
 /* =========================================================
@@ -1715,13 +1769,16 @@
 .team-wrap { max-width: 1080px; margin: 0 auto; }
 .team-intro { max-width: 640px; margin: 4px auto 0; text-align: center; color: var(--gray); line-height: 1.7; }
 .team-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 18px; margin-top: 20px;
 }
-.team-grid--featured { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 38px; }
+/* `min(300px, 100%)`: con `minmax(300px, …)` pelado, en un viewport de 320 la pista
+   medía 300 dentro de una columna de 288 y la tarjeta se pasaba 12px del margen
+   derecho. El `min()` deja que la pista se achique cuando no hay 300px. */
+.team-grid--featured { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); margin-top: 38px; }
 /* RE/MAX solo al pie, centrado, del MISMO ancho que una tarjeta destacada
    (531px ≈ media fila de 1080 con gap 18); la tarjeta se renderiza `featured`. */
-.team-grid--solo { grid-template-columns: minmax(300px, 531px); justify-content: center; }
+.team-grid--solo { grid-template-columns: minmax(min(300px, 100%), 531px); justify-content: center; }
 .team-card {
   background: var(--bg-2); border: 1px solid var(--divider); border-radius: var(--radius);
   padding: 22px 24px; text-align: left;
@@ -1761,6 +1818,9 @@
   /* En mobile, la hoja de "El Proyecto" se navega con flechas (no con la lista). */
   .spec-embedded .spec-pager { display: flex; }
   .spec-embedded .spec-2col .spec-nav { display: none; }
+  /* …y ahí el paginador YA imprime "01 / 04" arriba, así que el mismo contador
+     dentro del panel queda repetido dos veces en pantalla. */
+  .spec-embedded .spec-panel .sp-num { display: none; }
 }
 
 /* =========================================================
@@ -2027,10 +2087,15 @@
   position: absolute; top: 42px; left: 14px; z-index: 2;
   display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
 }
+/* Van FLOTANDO sobre el plano de la unidad, que es un render claro: en gris pelado
+   se perdían contra el piso de madera y las paredes. La pastilla oscura las despega
+   igual que al chip de estado, que vive dos píxeles más arriba. */
 .res-landing .finder-duplex-label,
 .res-landing .finder-exposure-label {
   font-family: var(--sans); font-size: calc(14px * var(--fs-k)); font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase;
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--glass-strong); backdrop-filter: blur(4px);
 }
 .res-landing .finder-duplex-label { color: var(--violet); }
 /* Gris, no un color propio: la exposición la tienen TODAS las unidades, así que un
@@ -2189,4 +2254,49 @@
   .res-landing .finder-card:hover .finder-plan { transform: none; }
   /* El shimmer del skeleton es decorativo → estático (el spinner de carga se mantiene). */
   .res-landing .finder-plate-skeleton { animation: none; }
+}
+
+/* =========================================================
+   OBJETIVOS TÁCTILES — va AL FINAL a propósito.
+   El público del proyecto es grande y con la vista cansada; el cliente lo marcó tres
+   veces, y lo mismo vale para la puntería. En pantallas de dedo los controles suben al
+   mínimo cómodo (~44px). Crecen sólo en ALTO: el ancho es el recurso escaso en un
+   teléfono, y el DIBUJO de los switches no cambia — lo que se agranda es la fila
+   clickeable que los contiene.
+   ⚠ Tiene que ir al final del archivo: estas reglas tienen la MISMA especificidad que
+   las que pisan (`.res-landing .finder-chip`), así que gana la última. Puesto más
+   arriba no hace nada — que es exactamente lo que pasó en el primer intento.
+   ========================================================= */
+@media (pointer: coarse) {
+  .res-landing .finder-chip { height: 44px; min-width: 44px; }
+  .res-landing .finder-toggle { min-height: 44px; }
+  .res-landing .finder-sort-opt { min-height: 44px; }
+  .res-landing .finder-seg-opt { min-height: 40px; }
+  .res-landing .finder-active-chip { min-height: 36px; }
+  .res-landing .finder-search input { min-height: 44px; }
+  .res-landing .plate-pill { min-height: 40px; }
+  .res-landing .lang-opt { min-height: 38px; }
+  /* Única acción de la tarjeta del mapa; ver también su min-height más arriba. */
+  .res-landing .map-pill { min-height: 44px; }
+}
+
+/* =========================================================
+   VIEWPORTS BAJOS (≤560px de alto) — el teléfono ACOSTADO.
+   Es el caso que se escapa siempre: 915×412 entra por "ancho de tablet", así que
+   toma las variantes de ESCRITORIO aunque tenga 412px de alto. Las reglas de
+   celular viven en `@media (max-width: 720px)` y no llegan. Acá se repite lo que
+   depende del ALTO.
+   ========================================================= */
+@media (max-height: 560px) {
+  /* El mapa medía 640px sobre 412 de pantalla y la tarjeta de dirección se comía
+     casi todo el visor, tapando la pill "Explorar la zona". */
+  .res-landing .map-stage { height: min(460px, calc(100dvh - 96px)); }
+  .res-landing .map-info-card {
+    top: 12px; left: 12px; right: auto; width: min(290px, 46vw); padding: 12px 16px;
+  }
+  .res-landing .map-info-card .mi-note { margin-top: 8px; }
+  .res-landing .map-info-card .mi-cta { margin-top: 10px; }
+  /* La atribución de OSM queda debajo de las pills si no se la levanta. */
+  .res-landing .map-stage .maplibregl-ctrl-bottom-right { bottom: 46px; }
+  .res-landing .map-pills { bottom: 8px; }
 }

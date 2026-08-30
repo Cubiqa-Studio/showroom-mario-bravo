@@ -52,22 +52,31 @@ export function ZoomLayer({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <motion.div
-        className="h-[100dvh] w-full"
-        style={{ transformOrigin }}
-        animate={{ scale: targetScale }}
-        transition={
-          reduce
-            ? { duration: 0 }
-            : open
-              ? // Forward (zoom-in al abrir): ~1.5s, para que se vea el "avance".
-                { duration: 1.5, ease: [0.4, 0, 0.2, 1] }
-              : // Reverse (zoom-out al cerrar): ágil, como estaba.
-                { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-        }
-      >
-        {children}
-      </motion.div>
+      {/* El `overflow-hidden` recorta el zoom. Sin él, al abrir un detalle el home
+          escalado (1,04 en celular · 1,07 en escritorio) se pasa del ancho del
+          viewport —412 × 1,04 = 428— y ESO le agrega scroll HORIZONTAL al documento:
+          con la ficha abierta se podía arrastrar la página al costado y aparecía una
+          franja negra. El velo de abajo es `fixed`, así que no necesita recorte, y el
+          contenido del home ya vive en una caja de 100dvh: no hay nada que scrollear
+          acá adentro. Los modales van por portal al body, fuera de este contenedor. */}
+      <div className="overflow-hidden">
+        <motion.div
+          className="h-[100dvh] w-full"
+          style={{ transformOrigin }}
+          animate={{ scale: targetScale }}
+          transition={
+            reduce
+              ? { duration: 0 }
+              : open
+                ? // Forward (zoom-in al abrir): ~1.5s, para que se vea el "avance".
+                  { duration: 1.5, ease: [0.4, 0, 0.2, 1] }
+                : // Reverse (zoom-out al cerrar): ágil, como estaba.
+                  { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+          }
+        >
+          {children}
+        </motion.div>
+      </div>
 
       {/* Velo translúcido que acompaña el zoom (encima del home, debajo del detalle).
           En el negro de marca: "lava" hacia la ficha oscura a la que se entra. */}
@@ -76,7 +85,11 @@ export function ZoomLayer({ children }: { children: ReactNode }) {
         className="pointer-events-none fixed inset-0 z-30 bg-tier-dark"
         initial={false}
         animate={{ opacity: open && !reduce ? 0.5 : 0 }}
-        transition={reduce ? { duration: 0 } : { duration: open ? 1.0 : 0.45, ease: "easeOut" }}
+        transition={
+          reduce
+            ? { duration: 0 }
+            : { duration: open ? 1.0 : 0.45, ease: "easeOut" }
+        }
       />
     </>
   );

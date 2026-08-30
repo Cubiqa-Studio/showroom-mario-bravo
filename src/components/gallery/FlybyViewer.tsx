@@ -1419,7 +1419,10 @@ export function FlybyViewer({
           <span className="finder-sonar-ring" aria-hidden />
           <SearchIcon width={20} height={20} className="finder-lupa-glyph" />
         </button>
-        <AvanceBadge />
+        {/* `h-full`: la fila mide 40px en teléfonos y el badge, con su padding
+            inline, se quedaba en 32 — más bajo que la lupa de al lado. De 560px
+            para arriba la fila no tiene alto fijo y esto no hace nada. */}
+        <AvanceBadge className="h-full" />
       </div>
 
       <SideMenu

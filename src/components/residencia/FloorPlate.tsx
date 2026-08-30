@@ -236,7 +236,31 @@ export function FloorPlate({
         </div>
       ) : null}
 
-      <div className="plate-stage" ref={stageRef}>
+      {/* La tarjeta toma la PROPORCIÓN REAL del plano del piso (`--plate-ar`), no una
+          fija. Los planos de TIER Bravo son verticales —de 0,56:1 (PB) a 1,51:1 (8º),
+          casi todos ~0,93— y la tarjeta estaba clavada en 1100/740 = 1,49 APAISADO: el
+          SVG va con preserveAspectRatio="meet", así que el dibujo entraba por ALTO y
+          dejaba una franja vacía a cada lado. En celular eso lo dejaba en 380x256 con el
+          plano ocupando la mitad del ancho (reporte de Joaquim, 30-08: "planta de piso
+          se ve muy chiquita", y lo mismo en el Plan Maestro del menú). Con la proporción
+          real la tarjeta abraza el plano y el dibujo gana todo el ancho disponible.
+          El tope de alto —para que no empuje la página— vive en el CSS. */}
+      <div
+        className="plate-stage"
+        ref={stageRef}
+        style={
+          plate?.imageWidth && plate?.imageHeight
+            ? ({ "--plate-ar": plate.imageWidth / plate.imageHeight } as React.CSSProperties)
+            : loading
+              ? // Todavía no sabemos la proporción (el plano llega por fetch). Se
+                // reserva la del piso TIPO —los pisos 1 a 6 son 7 de 10 y todos rondan
+                // 0,93— para que al llegar el plano el salto sea de unos pocos px. Con
+                // el fallback del CSS (1,486, la del esquemático) el salto era de 153.
+                ({ "--plate-ar": 0.93 } as React.CSSProperties)
+              : // Sin plano trazado se dibuja el esquemático, que sí es 1100×740.
+                undefined
+        }
+      >
       {loading ? (
         <div className="plate-loading" aria-hidden />
       ) : plate ? (

@@ -81,6 +81,15 @@ export function VrHotspot({
       const r = 32 * scale + 12;
       // Abajo, apenas lo justo para que entre entera: el margen grande empujaba la
       // bolita bien arriba de la puerta y quedaba VOLANDO sobre la fachada.
+      //
+      // ⚠ PENDIENTE (medido 30-08): en teléfono ACOSTADO (915×412) el recorte "cover"
+      // le come tanto alto al render que el punto de la puerta cae sobre la fila de
+      // flechas ‹ GIRAR › —que va a 24px del pie— y la bolita se les monta encima
+      // (solape medido: 64×44 px). Subir esta reserva NO alcanza: probado con
+      // `l.height` y con `window.innerHeight`, la posición no se movía, así que la
+      // causa está en otro lado y hay que investigarla antes de tocar acá. En vertical
+      // (412×915 y 430×932) no hay solape. Hoy es sólo cosmético: la bolita todavía no
+      // abre nada (ENTRANCE_HALL_360 sigue en null, falta el tour del hall).
       const bottom = 32 * scale + 16;
       const clamp = (v: number, min: number, max: number) =>
         max < min ? (min + max) / 2 : Math.min(Math.max(v, min), max);

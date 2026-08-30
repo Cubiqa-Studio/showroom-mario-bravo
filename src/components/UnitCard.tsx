@@ -87,7 +87,12 @@ export function UnitCard({ unit }: { unit: Unit }) {
         </div>
       </div>
 
-      <div className="bg-mist" style={{ padding: "12px 16px 14px" }}>
+      {/* El padding SUPERIOR (24, no 12) es el carril de los badges: montados sobre el
+          borde con `translate-y-1/2`, su mitad de abajo cae acá dentro (~13px de un
+          chip de 26). Con 12 se apoyaban justo encima del título y lo tapaban a medias
+          —"DEPARTAMENTO 107" con "Disponible/Frente" encima— porque el título es
+          largo y los chips van a la derecha. */}
+      <div className="bg-mist" style={{ padding: "24px 16px 14px" }}>
         {/* Miro 2026-07-15: sin precio en la tarjeta (se sacaron los precios). */}
         <h3 className="font-serif text-lg leading-tight tracking-wide text-cream">
           {t.common.residence(unit.residence)}

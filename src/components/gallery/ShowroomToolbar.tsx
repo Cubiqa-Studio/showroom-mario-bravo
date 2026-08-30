@@ -170,7 +170,7 @@ export function ShowroomToolbar({
                 type="button"
                 onClick={() => setLang(l)}
                 aria-pressed={lang === l}
-                className={`rounded-full px-2 py-2 uppercase transition min-[401px]:px-2.5 ${
+                className={`inline-flex min-h-9 items-center rounded-full px-2 uppercase transition min-[401px]:px-2.5 ${
                   lang === l ? "bg-gold text-cream shadow-sm" : "text-muted hover:text-ink"
                 }`}
               >
