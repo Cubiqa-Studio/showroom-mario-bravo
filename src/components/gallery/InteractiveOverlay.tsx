@@ -101,7 +101,18 @@ export function InteractiveOverlay({
       // flecha y el tap para ROTAR entraba a la unidad. `shift` sólo clampa el eje
       // vertical acá, así que el padding inferior la empuja por encima de los controles.
       // Desktop queda igual (padding uniforme de 8, el tooltip no es interactivo).
+      // `crossAxis: true` = clampear TAMBIÉN en horizontal. En `left/right-*` el eje
+      // "cross" de shift es la X, y viene apagado por default: la tarjeta mide 224px y
+      // en un teléfono de 412 no entra a ningún costado del dedo si tocaste cerca del
+      // medio (ni a la derecha ni volteada a la izquierda por `flip`), así que se salía
+      // ~30px por el borde derecho. Y una tarjeta que se sale ENSANCHA el documento:
+      // Chrome de Android agranda el viewport de layout a ese ancho (441 sobre 412
+      // medidos) y a partir de ahí TODO el sitio —showroom y ficha— queda dibujado más
+      // ancho que la pantalla: el contenido "corrido a la derecha" y la navbar con los
+      // botones cortados que reportó Joaquim el 30-08. Y no se arregla solo: sobrevive
+      // a la navegación al detalle, por eso "a veces se arregla refrescando".
       shift({
+        crossAxis: true,
         padding: isTouch ? { top: 8, bottom: 96, left: 8, right: 8 } : 8,
       }),
     ],
