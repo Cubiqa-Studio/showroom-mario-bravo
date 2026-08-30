@@ -20,6 +20,15 @@ export const FILL_ALPHA = 0.45;
  *  queda en el StatusPill del tooltip). Es un canal distinto: "ocupa dos niveles". */
 export const DUPLEX_COLOR = "#8b5cf6";
 
+/** Violeta de la TERRAZA propia (las tres del último piso). Es a propósito el MISMO
+ *  violeta del dúplex: Juani lo pidió así ("en violetita como hiciste en Caviahue con
+ *  los que eran duplex"), y los dos canales dicen lo mismo —"esta unidad tiene algo
+ *  que las demás no"— sin competir nunca, porque ningún proyecto usa los dos.
+ *
+ *  ⚠ A diferencia del dúplex, NO entra en `unitFillColor`: el relleno del polígono
+ *  comunica DISPONIBILIDAD y pintarlo de violeta la taparía. Vive sólo en el chip. */
+export const TERRAZA_COLOR = DUPLEX_COLOR;
+
 /** Grafito del chip de EXPOSICIÓN (frente / contrafrente).
  *
  *  UN SOLO color para los dos valores, a propósito: el texto ya dice cuál es, y

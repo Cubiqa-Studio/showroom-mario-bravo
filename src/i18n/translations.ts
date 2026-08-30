@@ -69,6 +69,8 @@ const es = {
     reserved: "Reservada",
     duplex: "Dúplex",
     duplexTwoLevels: "Dúplex (dos niveles)",
+    /** Chip de TERRAZA propia (último piso). Mismo lugar y forma que el de dúplex. */
+    terraza: "Terraza",
     /** Chip de exposición (mismo lugar que el de dúplex). */
     frente: "Frente",
     contrafrente: "Contrafrente",
@@ -794,6 +796,7 @@ const en: Dict = {
     reserved: "Reserved",
     duplex: "Duplex",
     duplexTwoLevels: "Duplex (two levels)",
+    terraza: "Terrace",
     // "Street-facing" / "Rear-facing": lo que usa un aviso inmobiliario en inglés.
     // "Front"/"Back" a secas se lee como frente/dorso del edificio, no como vista.
     frente: "Street-facing",

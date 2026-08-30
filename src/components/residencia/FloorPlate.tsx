@@ -15,6 +15,20 @@ import { UnitCard } from "../UnitCard";
 // es el dato que cambia en cada showroom.
 const FLOORS = SITE.floors;
 
+/** Radio OBJETIVO del marcador de unidad, en píxeles de PANTALLA. Se convierte a
+ *  unidades del plano con la escala real de render, así mide lo mismo en el Plan
+ *  Maestro de escritorio y en la planta de un celular. */
+const R_PANTALLA = 17;
+/** Qué parte del radio ocupa el número. Subió de 0,6 a 0,76: el número es lo que hay
+ *  que poder LEER, y en el disco sobraba aire (a 0,76 tres dígitos ocupan el 58% del
+ *  diámetro). El público de estos showrooms compra con la vista cansada. */
+const RATIO_NUMERO = 0.76;
+/** Tope por CERCANÍA: el radio nunca pasa de esta fracción de la distancia entre los
+ *  dos marcadores más próximos de la planta, así dos discos vecinos no se tocan
+ *  (0,40 → 20% de aire entre ellos). Es el límite físico en los pisos tipo, donde las
+ *  dos tiras de monoambientes tienen sus centros a 89px. */
+const HOLGURA_VECINOS = 0.4;
+
 /**
  * "Planta del piso" — COMPONENTE AISLADO. Tiene dos caminos:
  *  1. `plate` trazado (Fase 6): imagen del plano + polígonos por unidad.
@@ -410,23 +424,79 @@ function TracedPlate({
 }) {
   const w = plate.imageWidth ?? 1100;
   const h = plate.imageHeight ?? 740;
-  const R = Math.min(w, h) * 0.019; // radio del marcador, proporcional al plano
+
+  // ── Tamaño del marcador ────────────────────────────────────────────────────
+  // Antes salía de `min(w,h) * 0,019`, o sea del tamaño NATIVO del plano, y eso
+  // rompía por dos lados a la vez (reporte de Joaquim, 30-08: "se ven MUY chiquitos,
+  // tanto mobile como desktop"):
+  //   · el mismo marcador medía 24px de diámetro en escritorio y 9 en un celular,
+  //     porque el plano se dibuja mucho más chico y el marcador viaja con él;
+  //   · `min(w,h)` castiga a los planos APAISADOS: la azotea (1583×1049) sacaba un
+  //     radio 34% menor que el piso tipo aunque se dibuja igual de grande. Justo la
+  //     planta de la captura del cliente.
+  // Ahora el radio se pide en PÍXELES DE PANTALLA y se convierte con la escala real
+  // de render, con un tope por cercanía para que dos vecinos nunca se toquen.
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [escala, setEscala] = useState<number | null>(null);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const medir = () => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      // `preserveAspectRatio="meet"` → la escala que manda es la MENOR de las dos.
+      setEscala(Math.min(r.width / w, r.height / h));
+    };
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [w, h]);
+
+  // Centroides una sola vez: los usan el marcador y el cálculo de cercanía.
+  const marcadores = useMemo(
+    () => plate.polygons.map((p) => ({ poly: p, c: centroid(p.points) })),
+    [plate.polygons]
+  );
+  /** Distancia (en unidades del plano) entre los dos marcadores más próximos de esta
+   *  planta. En los pisos tipo son las dos tiras de monoambientes: 89px de nada. En el
+   *  7° y el 8°, más de 500 — por eso ahí el marcador puede crecer sin problema. */
+  const vecinoMasCerca = useMemo(() => {
+    let min = Infinity;
+    for (let i = 0; i < marcadores.length; i++) {
+      for (let j = i + 1; j < marcadores.length; j++) {
+        const d = Math.hypot(
+          marcadores[i].c.x - marcadores[j].c.x,
+          marcadores[i].c.y - marcadores[j].c.y
+        );
+        if (d < min) min = d;
+      }
+    }
+    return min;
+  }, [marcadores]);
+
+  const R = Math.min(
+    // Objetivo en pantalla. Antes de la primera medición (SSR / primer paint) cae en
+    // la fórmula vieja, que es un valor razonable y evita el salto de tamaño.
+    escala ? R_PANTALLA / escala : Math.min(w, h) * 0.019,
+    vecinoMasCerca * HOLGURA_VECINOS
+  );
   // ¿La unidad actual está en ESTE piso? Sólo entonces atenuamos las demás para que
   // resalte fuerte (Miro 2026-07-15). En el Plan Maestro (sin currentId) o en otros
   // pisos de la landing, todas quedan con su tinte normal.
   const hasCurrent = currentId != null && plate.polygons.some((p) => p.unitId === currentId);
   return (
     <svg
+      ref={svgRef}
       className={`plate-svg${hasCurrent ? " has-current" : ""}`}
       viewBox={`0 0 ${w} ${h}`}
       preserveAspectRatio="xMidYMid meet"
     >
       <image href={plate.image} x={0} y={0} width={w} height={h} preserveAspectRatio="xMidYMid meet" />
-      {plate.polygons.map((p) => {
+      {marcadores.map(({ poly: p, c }) => {
         const u = byId.get(p.unitId);
         // Color de la unidad: VIOLETA si es dúplex, si no verde/ámbar por disponibilidad.
         const color = u ? unitFillColor(u) : "#9ca3af";
-        const c = centroid(p.points);
         const label = u?.residence ?? p.unitId;
         return (
           <g
@@ -446,7 +516,7 @@ function TracedPlate({
               <circle className="pm-disc" r={R} strokeWidth={R * 0.06} />
               <text
                 className="pm-num"
-                fontSize={R * 0.6}
+                fontSize={R * RATIO_NUMERO}
                 textAnchor="middle"
                 dominantBaseline="central"
               >

@@ -938,10 +938,13 @@ function FinderCard({
         </span>
         {/* Etiquetas bajo el chip de estado. Van en una columna para que no se
             pisen si una unidad llegara a ser dúplex Y tener exposición cargada. */}
-        {(unit.duplex || unit.exposure) && (
+        {(unit.duplex || unit.terraza || unit.exposure) && (
           <span className="finder-tags">
             {unit.duplex && (
               <span className="finder-duplex-label">{t.status.duplex}</span>
+            )}
+            {unit.terraza && (
+              <span className="finder-terraza-label">{t.status.terraza}</span>
             )}
             {unit.exposure && (
               <span className="finder-exposure-label">

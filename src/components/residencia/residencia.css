@@ -2097,6 +2097,7 @@
    se perdían contra el piso de madera y las paredes. La pastilla oscura las despega
    igual que al chip de estado, que vive dos píxeles más arriba. */
 .res-landing .finder-duplex-label,
+.res-landing .finder-terraza-label,
 .res-landing .finder-exposure-label {
   font-family: var(--sans); font-size: calc(14px * var(--fs-k)); font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase;
@@ -2104,6 +2105,9 @@
   background: var(--glass-strong); backdrop-filter: blur(4px);
 }
 .res-landing .finder-duplex-label { color: var(--violet); }
+/* Mismo violeta que el dúplex: es el mismo canal ("esta unidad tiene algo que las
+   demás no") y ningún proyecto usa los dos a la vez. */
+.res-landing .finder-terraza-label { color: var(--violet); }
 /* Gris, no un color propio: la exposición la tienen TODAS las unidades, así que un
    color fuerte competiría con el estado (que es lo que hay que leer primero). */
 .res-landing .finder-exposure-label { color: var(--gray); }

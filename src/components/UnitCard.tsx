@@ -3,7 +3,7 @@
 import type { Unit } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { unitArea, orientationLabel } from "@/lib/residencia";
-import { STATUS_STYLES, DUPLEX_COLOR, EXPOSURE_COLOR } from "@/lib/status";
+import { STATUS_STYLES, DUPLEX_COLOR, TERRAZA_COLOR, EXPOSURE_COLOR } from "@/lib/status";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -73,6 +73,17 @@ export function UnitCard({ unit }: { unit: Unit }) {
               {t.status.duplex}
             </span>
           ) : null}
+          {/* Terraza propia en la azotea (las tres del último piso; Juani, 30-08).
+              Mismo violeta y misma forma que el chip de dúplex — es el canal
+              "esta unidad tiene algo que las demás no". */}
+          {unit.terraza ? (
+            <span
+              className="rounded-full text-[15px] font-semibold text-white shadow"
+              style={badgeStyle(TERRAZA_COLOR)}
+            >
+              {t.status.terraza}
+            </span>
+          ) : null}
           {/* Exposición (pedido del cliente, 25-08): mismo lugar y misma forma que el
               chip de dúplex. Las unidades que dan a los dos lados no traen `exposure`
               y no muestran chip. */}
@@ -87,12 +98,17 @@ export function UnitCard({ unit }: { unit: Unit }) {
         </div>
       </div>
 
-      {/* El padding SUPERIOR (24, no 12) es el carril de los badges: montados sobre el
-          borde con `translate-y-1/2`, su mitad de abajo cae acá dentro (~13px de un
-          chip de 26). Con 12 se apoyaban justo encima del título y lo tapaban a medias
-          —"DEPARTAMENTO 107" con "Disponible/Frente" encima— porque el título es
-          largo y los chips van a la derecha. */}
-      <div className="bg-mist" style={{ padding: "24px 16px 14px" }}>
+      {/* El padding SUPERIOR (38, no 14) es el carril de los badges: montados sobre el
+          borde con `translate-y-1/2`, su mitad de abajo cae acá dentro. Con 12 se
+          apoyaban justo encima del título y lo tapaban a medias —"DEPARTAMENTO 107"
+          con "Disponible/Frente" encima— porque el título es largo y los chips van a
+          la derecha.
+          Subió de 24 a 38 el 30-08: la fila de chips NO entra en un renglón —a 224px
+          de ancho, "Disponible" + "Contrafrente" ya se pasaban— así que envuelve en
+          DOS y su mitad de abajo son ~33px, no 13. Medido: con 24 el bloque de chips
+          caía 10px SOBRE el título, con dos chips o con tres. Si algún día entran en
+          un solo renglón, esto se puede volver a bajar. */}
+      <div className="bg-mist" style={{ padding: "38px 16px 14px" }}>
         {/* Miro 2026-07-15: sin precio en la tarjeta (se sacaron los precios). */}
         <h3 className="font-serif text-lg leading-tight tracking-wide text-cream">
           {t.common.residence(unit.residence)}

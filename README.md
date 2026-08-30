@@ -150,7 +150,7 @@ dormitorio).
 **El hero de una unidad** sale de `unitGallery()` (`src/lib/residencia.ts`):
 
 - Con `tour360` (las 50 de los pisos 1 a 5) → el recorrido de Kuula embebido, sin fotos.
-- Sin `tour360` (las 11 del 6° y 7°) → `DEFAULT_HERO_VIEWS`: la **fachada** grande y
+- Sin `tour360` (las 13 del 6° y 7°) → `DEFAULT_HERO_VIEWS`: la **fachada** grande y
   **cocina, dormitorio y living** en los tres mosaicos del header. Lo eligió el cliente
   el 26-08.
 - Una unidad puede traer su propia `gallery` en `units.json` y pisa el default.
@@ -158,6 +158,23 @@ dormitorio).
 ⚠ `DEFAULT_HERO_VIEWS` y los `previewImage` de `vr-hotspots.ts` son rutas **escritas a
 mano** a archivos que genera el script. Si se renombra un original en `_media-src`, hay
 que actualizarlas — una ruta rota no rompe el build, sólo deja una imagen fantasma.
+
+### Terraza propia (el último piso)
+
+`unit.terraza` (bool). Las **tres unidades del 7°** —701, 702 y 706— tienen terraza
+privada en la azotea: su escalera propia sale en el plano del 8° (por eso esa planta
+lleva polígonos que apuntan al 7°) y entre **120 y 129 m² descubiertos**, contra los
+40-44 de "balcón terraza" de las de retiro del 6°, que **no** llevan el chip. Lo pidió
+Juani el 30-08: "en violetita como hiciste en Caviahue con los que eran duplex".
+
+Se ve como un chip violeta en la tarjeta de unidad (junto a estado y exposición) y como
+etiqueta en el buscador. ⚠ A diferencia del dúplex, **no entra en `unitFillColor`**: el
+relleno del polígono comunica DISPONIBILIDAD y pintarlo de violeta la taparía.
+
+> Pendiente: **el plano de la terraza en la ficha**. Juani lo pidió el 30-08 para que la
+> pestaña "Plano de la unidad" del 7° muestre también la terraza, pero Camila todavía no
+> separó el plano individual de cada una. Cuando lleguen, entran por `unit.floorPlan`
+> (o una segunda imagen) — no está hecho a propósito.
 
 ### Exposición: frente y contrafrente
 
@@ -336,6 +353,18 @@ no hay que tocar nada**: sale de `plates.json`.
 ≤720px de ancho, y `calc(100svh - 40px)` en ≤560px de **alto** (celular acostado, que
 entra por "ancho de tablet": con el `78vh` de escritorio la tarjeta quedaba en 321px y el
 dibujo en ~250 de ancho sobre una pantalla de 915 — "se ve super chico", 30-08).
+
+**El marcador de cada unidad** (el círculo con el número que muta a "+" en hover) se
+pide en **píxeles de PANTALLA** (`R_PANTALLA` en `FloorPlate.tsx`) y se convierte a
+unidades del plano con la escala real de render, medida con un `ResizeObserver`. Antes
+salía de `min(w,h) × 0,019` —el tamaño NATIVO del plano— y eso rompía por dos lados:
+el mismo marcador medía 24px en escritorio y **9 en un celular**, y `min(w,h)` castigaba
+a los planos apaisados (la azotea sacaba un radio 34% menor que el piso tipo aunque se
+dibuja igual de grande). Hoy mide 34px de diámetro en TODOS los casos.
+`HOLGURA_VECINOS` es la red de seguridad: el radio nunca pasa del 40% de la distancia
+entre los dos marcadores más próximos de esa planta, así dos discos no se tocan nunca.
+Hoy no llega a activarse —el par más cercano de un piso tipo está a 204px de plano, que
+son 45 en el peor render— pero si entra una planta más densa, aprieta sola.
 
 **El subsuelo y la planta baja no tienen unidades**, así que no llevan polígonos —no hay
 nada que clickear— pero **sí se muestran**: son la cochera y los amenities, que es justo
@@ -844,6 +873,7 @@ faltantes) y de dónde salió cada asset.
 | **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Con la 605 y la 610 en la mezcla esto hay que confirmarlo sí o sí. Ver [Los planos de unidad](#los-planos-de-unidad). |
 | **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
 | **Brochure comercial** | `BROCHURE_URL` es `null` → el item del menú y el botón "Ver PDF" están ocultos. |
+| **Plano individual de cada terraza** | Juani (30-08): en el 7°, la pestaña "Plano de la unidad" debería mostrar también la terraza privada. Camila todavía no las separó. Ver [Terraza propia](#terraza-propia-el-último-piso). |
 | **Logo de Estudio Mizraji** | Va en "El Equipo". El drop sólo trajo el de CCM. |
 | **Media del barrio** | La sección de entorno del menú está oculta (`HAS_DESTINATION_MEDIA`). |
 

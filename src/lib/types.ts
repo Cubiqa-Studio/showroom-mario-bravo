@@ -46,6 +46,17 @@ export interface Unit {
    */
   duplex?: boolean;
   /**
+   * TERRAZA PROPIA en la azotea. Sólo el ÚLTIMO piso: las tres unidades del 7° tienen
+   * su escalera privada al 8° (ver los polígonos de esa planta) y entre 120 y 129 m²
+   * descubiertos, contra los 40-44 de "balcón terraza" de las de retiro del 6° — que
+   * no llevan el chip, son otra cosa.
+   *
+   * Muestra un chip violeta, igual que el dúplex de otros proyectos (pedido de Juani,
+   * 30-08). ⚠ A diferencia del dúplex, NO entra en `unitFillColor`: el relleno del
+   * polígono comunica disponibilidad y pintarlo de violeta la taparía.
+   */
+  terraza?: boolean;
+  /**
    * A qué da la unidad: `"frente"` = a la calle Mario Bravo, `"contrafrente"` = al
    * pulmón de manzana (pileta, deck y parque). Sale de las plantas generales, NO de
    * Airtable —el cliente no tiene esa columna—, así que vive en `units.json`.
