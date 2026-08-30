@@ -79,7 +79,7 @@
   /* El wordmark es una tira de 900×172 (5,2:1), así que cada píxel de alto son cinco
      de ancho: a 92px mide ~480px, que es un tercio de una pantalla de 1440 — la misma
      proporción que le da el cliente en su afiche. */
-  height: clamp(34px, 5vw, 88px);
+  height: clamp(30px, 4vw, 72px);
   width: auto;
   /* Sombra suave: el logotipo cae sobre tres fondos distintos (y sobre un video). */
   filter: drop-shadow(0 2px 18px rgba(0, 0, 0, 0.6));
@@ -93,7 +93,9 @@
   opacity: 0.85;
 }
 .portada-bajada {
-  font-size: clamp(10px, 0.86vw, 13px);
+  /* Crece con el logotipo achicado: la bajada tiene que sostener el lockup, no
+     desaparecer debajo. Pedido de Joaquim, 30-08. */
+  font-size: clamp(11px, 1.05vw, 16px);
   letter-spacing: 0.46em;
   text-transform: uppercase;
   color: var(--muted);
@@ -596,9 +598,15 @@
   }
   /* El bloque de texto se recuesta abajo de cada franja; el primero deja lugar para
      el logotipo, que flota arriba del todo. */
+  /* CENTRADO dentro de su franja, no pegado al pie. Bottom-anchored, todo el aire
+     sobrante se juntaba arriba (62px en un teléfono alto, 0 en uno corto) y el
+     antetítulo terminaba contra el borde. Centrado, el sobrante se reparte solo y el
+     bloque queda bien ubicado en su tercio sea cual sea el alto del teléfono: 41px
+     arriba y abajo en 830, 28 en 748, 21 en 700. Los tres siguen alineados entre sí
+     porque las tres franjas miden lo mismo y los tres bloques también. */
   .pp-cuerpo {
-    padding: 0 clamp(20px, 3vw, 40px) clamp(20px, 2.4vh, 34px);
-    justify-content: flex-end;
+    padding: clamp(14px, 2vh, 24px) clamp(20px, 3vw, 40px);
+    justify-content: center;
   }
   /* APILADO: la cabecera deja de FLOTAR y pasa al flujo, arriba de las tres franjas.
      Flotando funcionaba con el logotipo chico, pero con el tamaño que pidió el cliente
@@ -615,11 +623,13 @@
     position: static;
     transform: none;
     flex: 0 0 auto;
-    padding: clamp(20px, 3.2vh, 34px) 16px clamp(14px, 2vh, 24px);
+    /* Ajustado: cada píxel que se lleva la cabecera se lo saca a las tres franjas, y
+       ahí es donde faltaba aire (ver el ritmo compacto más abajo). */
+    padding: clamp(16px, 2.6vh, 28px) 16px clamp(10px, 1.6vh, 18px);
   }
-  .pp:first-child .pp-cuerpo {
-    padding-top: clamp(16px, 2.2vh, 30px);
-  }
+  /* (La primera franja ya NO necesita un piso extra: la cabecera está en el flujo,
+     arriba de todo, y no se le monta encima. Con el bloque centrado, ese padding sólo
+     lo empujaba hacia abajo y lo desalineaba respecto de las otras dos.) */
   /* Apilado, el hover del panel de arriba no debe "abrir" nada: las franjas ya están
      todas a la vista. Se anula el crecimiento y el apagado de los hermanos.
      ⚠ VA GATEADO POR PUNTERO FINO, y esto NO es un detalle. En un teléfono de verdad
@@ -666,32 +676,32 @@
   .pp-kicker {
     display: none;
   }
-  /* Sin el número, el bloque baja: se sube el piso para que la primera franja nunca
-     toque el logotipo, que flota arriba del todo. */
-  .pp:first-child .pp-cuerpo {
-    /* La cabecera creció: el logotipo solo mide ya ~40px, más el filete y la bajada. */
-    padding-top: clamp(112px, 17vh, 150px);
-  }
+  /* RITMO COMPACTO. El bloque de texto medía casi lo mismo que su franja (146 de 185
+     en un teléfono de 748 de alto), así que el antetítulo "TIER" terminaba pegado al
+     borde de arriba y las tres franjas se veían apretadas — reporte de Joaquim con
+     captura, 30-08. Se le sacan ~20px al bloque, entre el cuerpo del nombre, los
+     márgenes del filete y el alto reservado del CTA. Con eso queda aire arriba y el
+     contenido se lee CENTRADO dentro de su tercio, que es lo que se pidió. */
   .pp-marca {
     font-size: 10px;
     letter-spacing: 0.36em;
     text-indent: 0.36em;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
   }
   .pp-nombre {
-    font-size: clamp(26px, 8vw, 38px);
+    font-size: clamp(24px, 7.2vw, 34px);
   }
   .pp-linea {
     width: 44px;
-    margin: 12px 0 10px;
+    margin: 9px 0 8px;
   }
   .pp-meta {
     font-size: 12px;
     letter-spacing: 0.16em;
   }
   .pp-cta-fila {
-    min-height: 46px;
-    margin-top: 12px;
+    min-height: 40px;
+    margin-top: 10px;
   }
   .pp-cta {
     padding: 9px 16px;
@@ -708,14 +718,15 @@
   .portada-pie {
     flex-wrap: wrap;
     justify-content: center;
+    /* Ídem: el zócalo devuelve alto a las franjas. */
     /* El aire lateral no es estético: el badge flotante de CUBIQA vive fijo en la
        esquina inferior derecha (36px + 12 de margen) y, sin reservarle lugar, se
        comía el final de "CREAMOS VALOR". Va SIMÉTRICO para que el bloque siga
        centrado en la pantalla; si las cuatro no entran en un renglón, envuelven
        centradas de a dos, que se lee bien igual. */
-    padding: 12px 54px 14px;
+    padding: 10px 54px 12px;
     column-gap: 12px;
-    row-gap: 7px;
+    row-gap: 6px;
   }
   .portada-pie > * {
     padding: 0;
@@ -769,8 +780,12 @@
   .pp-cuerpo {
     padding: 0 18px 14px;
   }
-  .pp:first-child .pp-cuerpo {
-    padding-top: 46px;
+  /* Acá la cabecera SÍ flota (pantalla baja = columnas), así que la primera columna
+     necesita despejarla. En el layout apilado no hace falta: ahí está en el flujo. */
+  @media (min-aspect-ratio: 5 / 4) {
+    .pp:first-child .pp-cuerpo {
+      padding-top: 46px;
+    }
   }
   .pp-nombre {
     font-size: clamp(20px, 4.4vh, 30px);
