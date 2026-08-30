@@ -5,6 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import type { Stop } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
 
+/** Alto de viewport por debajo del cual se considera "pantalla baja" (teléfono
+ *  acostado: 915×412). Mismo umbral que el `@media (max-height: 560px)` del CSS. */
+const PANTALLA_BAJA = 560;
+/** Escala máxima de la bolita en pantalla baja. A 0,55 mide 35px y entra dentro del
+ *  vano de la puerta, que en apaisado queda de ~48px de alto. */
+const ESCALA_COMPACTA = 0.55;
+/** Banda que ocupan las flechas ‹ GIRAR › abajo: 48px de alto + los 24 de `bottom-6`
+ *  (ver FlybyViewer) + 10 de aire. La bolita nunca baja de acá. */
+const BANDA_FLECHAS = 48 + 24 + 10;
+
 interface VrHotspotProps {
   stop: Stop;
   /** Posición del hotspot en píxeles nativos del render del stop. */
@@ -56,6 +66,11 @@ export function VrHotspot({
   const layerRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<SVGCircleElement>(null);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  // Pantalla BAJA (teléfono acostado): la bolita se dibuja más chica. Lo decide el
+  // mismo `update()` que calcula la posición, así el clamp y el render usan SIEMPRE
+  // el mismo tamaño.
+  const [compacta, setCompacta] = useState(false);
+  const escala = compacta ? Math.min(scale, ESCALA_COMPACTA) : scale;
   const [hover, setHover] = useState(false);
   // Táctil: el preview se "revela" con el 1er toque (no hay hover).
   const [revealed, setRevealed] = useState(false);
@@ -77,8 +92,13 @@ export function VrHotspot({
     const update = () => {
       const a = anchor.getBoundingClientRect();
       const l = layer.getBoundingClientRect();
+      // En pantalla baja la bolita se achica ANTES de clampear: el tope depende de su
+      // propio radio, así que los dos números tienen que salir de la misma escala.
+      const baja = window.innerHeight < PANTALLA_BAJA;
+      const esc = baja ? Math.min(scale, ESCALA_COMPACTA) : scale;
+      setCompacta(baja);
       // Radio de la bolita (h-16 = 64px) a la escala de esta vista, + un respiro.
-      const r = 32 * scale + 12;
+      const r = 32 * esc + 12;
       // Abajo, apenas lo justo para que entre entera: el margen grande empujaba la
       // bolita bien arriba de la puerta y quedaba VOLANDO sobre la fachada.
       //
@@ -93,12 +113,16 @@ export function VrHotspot({
       // que en pantalla caía por debajo del pliegue, y la bolita terminaba montada
       // sobre la fila de flechas ‹ GIRAR › (solape medido: 64×44 px).
       //
-      // En pantallas BAJAS se reservan 100px de pie: es lo que ocupan las flechas
-      // (van a 24px del borde y miden ~48) más aire. En una pantalla normal la puerta
-      // queda MUY por encima de esa zona, así que el tope ni se activa y la bolita
-      // sigue exactamente donde la aprobó el cliente.
-      const reservaPie = window.innerHeight < 560 ? 100 : 16;
-      const topeEnPantalla = window.innerHeight - reservaPie - 32 * scale;
+      // En pantallas BAJAS se reserva EXACTAMENTE la banda de las flechas y nada más
+      // (antes eran 100px redondos, que la dejaban 28px más arriba de lo necesario,
+      // "a la mitad de la nada" sobre la fachada — reporte de Joaquim, 30-08). Con
+      // la bolita ya achicada, el tope la deja lo más abajo posible sin tocar los
+      // controles: pegada al vano de la puerta, que en apaisado cae justo detrás de
+      // las flechas. En una pantalla normal la puerta queda MUY por encima de esa
+      // zona, así que el tope ni se activa y la bolita sigue donde la aprobó el
+      // cliente, a tamaño completo.
+      const reservaPie = baja ? BANDA_FLECHAS : 16;
+      const topeEnPantalla = window.innerHeight - reservaPie - 32 * esc;
       const yEnPantalla = Math.min(a.top + a.height / 2, topeEnPantalla);
 
       setPos({
@@ -227,10 +251,10 @@ export function VrHotspot({
             animate={
               active
                 ? {
-                    scale: [scale, 1.5 * scale, scale],
+                    scale: [escala, 1.5 * escala, escala],
                     opacity: [0.45, 0, 0.45],
                   }
-                : { scale, opacity: 0 }
+                : { scale: escala, opacity: 0 }
             }
             transition={
               active
@@ -249,7 +273,7 @@ export function VrHotspot({
             onMouseLeave={() => !isTouch && setHover(false)}
             onFocus={() => !isTouch && setHover(true)}
             onBlur={() => !isTouch && setHover(false)}
-            animate={{ scale: (showPreview ? 1.1 : 1) * scale }}
+            animate={{ scale: (showPreview ? 1.1 : 1) * escala }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="relative grid h-16 w-16 cursor-pointer place-items-center rounded-full bg-tier-dark/85 text-ink shadow-xl ring-1 ring-line backdrop-blur focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >

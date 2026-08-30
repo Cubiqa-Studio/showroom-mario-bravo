@@ -27,20 +27,24 @@ export interface VrHotspotConfig {
   previewKind?: "hall" | "amenities";
 }
 
-// ⚠ TIER BRAVO NO TIENE (TODAVÍA) 360° DE ESPACIOS COMUNES.
-// Lo único que entregó el cliente son los 5 recorridos de DEPARTAMENTO (A–E), que
-// viven en el `tour360` de cada unidad en `units.json`. No hay tour del hall ni de
-// los amenities, así que estas dos constantes quedan en `null` y todo lo que las
-// consume se esconde solo:
-//   · la bolita del exterior se sigue viendo (el cliente la pidió en el Miro) pero
-//     no abre nada hasta que llegue el tour;
-//   · los items "Hall" y "Amenities" del submenú Tours no se muestran;
-//   · el modal de Amenities queda sólo con las specs, sin el 360 embebido.
-// Cuando Camila mande las colecciones, pegá acá las URLs con el mismo formato que
-// usan los tours de unidad (`?fs=1&vr=1&thumbs=0&info=0&logo=-1`) y vuelve todo
-// solo. NO reusar las de otro proyecto: son otro edificio.
+// Recorridos 360° de espacios COMUNES.
+//
+// Los de DEPARTAMENTO (A–E) viven en el `tour360` de cada unidad en `units.json`.
+// Acá van los dos del edificio, y cada uno se consume solo donde corresponde: si
+// alguno queda en `null`, todo lo que lo usa se esconde (los items del submenú
+// Tours, el embed del modal de Amenities y el click de la bolita del exterior).
+//
+// AMENITIES — entregado por el cliente el 30-08 (verificado: el título de la
+// colección es "MARIO BRAVO - AMENITIES"). El link que pasaron apunta a un post
+// dentro de la colección (`/post/LM3wD/collection/7TyxW`); acá va la URL de
+// COLECCIÓN con los mismos parámetros que los tours de unidad, para que el visor
+// arranque en el primer panorama y con el chrome de Kuula ya resuelto.
+//
+// HALL — todavía no llegó. Queda en `null` a propósito: NO reusar el de otro
+// proyecto ni apuntarlo al de amenities.
 export const ENTRANCE_HALL_360: string | null = null;
-export const AMENITIES_360: string | null = null;
+export const AMENITIES_360: string | null =
+  "https://kuula.co/share/collection/7TyxW?fs=1&vr=1&zoom=0&thumbs=0&info=0&logo=-1";
 
 /**
  * Hotspots por id de stop.
@@ -71,9 +75,13 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
     x: 2230,
     y: 2400,
     scale: 0.85,
-    kuulaUrl: ENTRANCE_HALL_360 ?? undefined,
+    // Abre el recorrido de AMENITIES (pedido de Joaquim, 30-08: el link que mandó
+    // el cliente va en la bolita de las vistas 01 y 02). El preview sigue siendo el
+    // lobby —es la puerta que marca la bolita— con la etiqueta "Amenities", que es
+    // lo que efectivamente se abre al tocarla.
+    kuulaUrl: AMENITIES_360 ?? undefined,
     previewImage: "/gallery/optimized/09-lobby.webp",
-    previewKind: "hall",
+    previewKind: "amenities",
   },
   // Stop 1 (esquina) — la MISMA puerta, vista de costado: el paño oscuro sobre el
   // muro de listones de madera. Acá queda a media altura del render, así que no la
@@ -86,8 +94,8 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
     x: 1737,
     y: 1900,
     scale: 0.8,
-    kuulaUrl: ENTRANCE_HALL_360 ?? undefined,
+    kuulaUrl: AMENITIES_360 ?? undefined,
     previewImage: "/gallery/optimized/09-lobby.webp",
-    previewKind: "hall",
+    previewKind: "amenities",
   },
 };

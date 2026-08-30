@@ -157,6 +157,20 @@ const INFERRED = {
   "609": "tipologia-A",
 };
 
+/** PRESTADOS: el cliente NO mandó el dibujo de esta unidad y se muestra el de otra.
+ *  No es lo mismo que `INFERRED` (ahí el plano SÍ es el que corresponde, sólo que
+ *  hubo que deducir a qué unidad iba).
+ *
+ *  702 ← 701: del 7° sólo llegaron el "01" y el "06". Sobre `piso-7.webp` la 02 es
+ *  la 01 espejada en vertical (mismo orden estar-comedor → cocina → 3 dormitorios,
+ *  con la terraza arriba en vez de abajo) y las dos son 4 amb. / 3 dorm. / 2 baños,
+ *  así que sirve como aproximación —lo pidió Joaquim el 30-08—, pero **está espejado
+ *  y las superficies no coinciden** (229 m² contra 217,65). Cuando Camila mande el
+ *  "PLANTA 7MO PISO - 02.png", sacá esta entrada y agregalo a PLANS. */
+const BORROWED = {
+  "702": "piso-7-01",
+};
+
 if (!existsSync(SRC_DIR)) {
   console.error(`No existe ${SRC_DIR} — dejá ahí los planos de tipología del cliente.`);
   process.exit(1);
@@ -222,7 +236,7 @@ for (const plan of PLANS) {
   }
 }
 
-for (const [id, out] of Object.entries(INFERRED)) {
+for (const [id, out] of Object.entries({ ...INFERRED, ...BORROWED })) {
   if (!units[id]) {
     console.error(`✗ inferido: la unidad ${id} no existe en units.json`);
     failed = true;
@@ -250,6 +264,11 @@ const all = Object.keys(units);
 const without = all.filter((id) => !assigned.has(id));
 console.log(`\n✓ ${assigned.size}/${all.length} unidades con plano (${changed} actualizadas)`);
 console.log(`· inferidas (numeración corrida del 6°): ${Object.keys(INFERRED).join(" ")}`);
+console.log(
+  `⚠ prestadas (el cliente no mandó SU plano): ${Object.entries(BORROWED)
+    .map(([id, out]) => `${id} ← ${out}`)
+    .join(" · ")}`
+);
 console.log(
   without.length
     ? `⚠ SIN plano (siguen en el placeholder): ${without.join(" ")} — falta pedírselo al cliente.`

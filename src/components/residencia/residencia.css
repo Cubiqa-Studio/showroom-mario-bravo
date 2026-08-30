@@ -2305,4 +2305,27 @@
   /* La atribución de OSM queda debajo de las pills si no se la levanta. */
   .res-landing .map-stage .maplibregl-ctrl-bottom-right { bottom: 46px; }
   .res-landing .map-pills { bottom: 8px; }
+
+  /* ---- PLANO DE LA UNIDAD ----
+     Acostado el teléfono entra por "ancho de tablet" (915px), así que hasta acá
+     tomaba el tope de ESCRITORIO: 620px de plano + 88 de padding = 708px de tarjeta
+     sobre 412 de pantalla, casi dos pantallas de scroll para un solo dibujo
+     ("se ve extremadamente gigante", Joaquim 30-08). Con el tope por ALTO la
+     tarjeta entra en una pantalla y el plano se sigue leyendo entero.
+     `svh` y no `dvh` por lo mismo que en celular: `dvh` crece cuando el navegador
+     esconde su barra y el plano daba un salto de tamaño en pleno scroll. */
+  .res-landing .plan-stage { min-height: 0; padding: 16px; overflow: hidden; }
+  .res-landing .floorplan-img { max-height: min(420px, calc(100svh - 40px)); }
+  /* Misma razón que en celular: la flecha "Acceso" va en px fijos y, con la tarjeta
+     achicada, queda flotando sobre el dibujo. */
+  .res-landing .entry-arrow { display: none; }
+
+  /* ---- PLANTA DEL PISO ----
+     Al revés que el plano de la unidad: el tope de escritorio es `78vh`, que sobre
+     412 de alto dejaba la tarjeta en 321px y el dibujo en ~250 de ancho sobre una
+     pantalla de 915 ("se ve super chico", Joaquim 30-08). Se le da casi toda la
+     altura útil y se afina el marco, que acá es puro aire. El ancho lo sigue
+     derivando `--plate-ar` (proporción real del plano), así que ninguna planta se
+     deforma ni deja franjas vacías. */
+  .res-landing .plate-stage { padding: 12px; --plate-max-h: calc(100svh - 40px); }
 }

@@ -317,6 +317,11 @@ donde se muestra la planta —la pestaña de la ficha y el Plan Maestro del men�
 los dos montan el mismo `<FloorPlate>`. **Si mañana entra un plano con otra proporción,
 no hay que tocar nada**: sale de `plates.json`.
 
+`--plate-max-h` por pantalla: `78vh` de escritorio, `max(300px, calc(100svh - 190px))` en
+≤720px de ancho, y `calc(100svh - 40px)` en ≤560px de **alto** (celular acostado, que
+entra por "ancho de tablet": con el `78vh` de escritorio la tarjeta quedaba en 321px y el
+dibujo en ~250 de ancho sobre una pantalla de 915 — "se ve super chico", 30-08).
+
 **El subsuelo y la planta baja no tienen unidades**, así que no llevan polígonos —no hay
 nada que clickear— pero **sí se muestran**: son la cochera y los amenities, que es justo
 lo que pregunta el que compra.
@@ -402,11 +407,22 @@ nativos (ver [El encuadre del render](#el-encuadre-del-render)), así que un `y`
 al piso queda fuera de cuadro. Por eso la bolita de la vista 0 va en 2400 y no más abajo.
 El clamp de `VrHotspot` es sólo la red de seguridad para contenedores muy bajos.
 
-⚠ **`ENTRANCE_HALL_360` y `AMENITIES_360` están en `null`**: TIER Bravo todavía no tiene
-360° de espacios comunes. Todo lo que los consume se esconde solo (los items del submenú
-Tours y el iframe del modal de Amenities); la bolita se sigue viendo —el cliente la
-pidió— pero no abre nada hasta que lleguen. **No reusar las colecciones de otro
-proyecto**: son otro edificio.
+**Qué abre la bolita.** Desde el 30-08 abre el recorrido de **amenities**
+(`AMENITIES_360`, colección `7TyxW` — verificado: el título es "MARIO BRAVO - AMENITIES").
+Lo pidió Joaquim así: el cliente mandó ese link y va en la bolita de las vistas 01 y 02.
+El preview del hover sigue siendo el lobby —es la puerta que marca la bolita— con la
+etiqueta "Amenities", que es lo que realmente se abre. La misma constante enciende sola
+el item "Amenities" del submenú Tours y el iframe del modal de Amenities.
+
+⚠ **`ENTRANCE_HALL_360` sigue en `null`**: el 360° del hall no llegó. Todo lo que lo
+consume se esconde solo (el item "Hall" del submenú Tours). **No apuntarlo al de
+amenities ni reusar la colección de otro proyecto**: son otro edificio.
+
+En apaisado la bolita se **achica y baja** hasta apoyarse justo arriba de las flechas
+‹ GIRAR ›. No es un capricho: con 412px de alto la puerta cae *detrás* de los controles
+(el vano va de y≈355 a y≈403 en pantalla y las flechas ocupan 340-388), así que no hay
+forma de dejarla dentro del vano sin encimarla a los botones. Los tres números viven en
+`VrHotspot.tsx` (`PANTALLA_BAJA`, `ESCALA_COMPACTA`, `BANDA_FLECHAS`).
 
 ### Los planos de unidad
 
@@ -425,6 +441,7 @@ la validación cruzada:
 | `tipologia-E.webp` | 02 y 06 de los pisos 1-5 | E — 2 amb. 57-58 m² |
 | `piso-6-01.webp` / `piso-6-06.webp` | 601 y 606 | 4 amb. de retiro |
 | `piso-7-01.webp` / `piso-7-06.webp` | 701 y 706 | 4 amb. de retiro |
+| `piso-7-01.webp` | 702 — **prestado del 701**, ver abajo | 4 amb. de retiro |
 
 Se regeneran con `npm run plans:units` (recorta el lienzo, escala a 1400 px de lado
 mayor y reescribe el `floorPlan` de cada unidad). El mapeo vive en `PLANS`, arriba de
@@ -433,9 +450,18 @@ mayor y reescribe el `floorPlan` de cada unidad). El mapeo vive en `PLANS`, arri
 ⚠ **Son tiras muy verticales** — 1400 px de alto y entre 516 y 729 de ancho, o sea de
 0,37:1 a 0,52:1. A ancho completo en un teléfono, la tipología A pedía **939 px de
 alto sobre un viewport de 915**: no entraba entera en pantalla y la ficha se sentía
-interminable. Por eso en ≤720px la imagen lleva `max-height: calc(100dvh - 190px)`
-(residencia.css). Sólo achica a las dos tipologías más altas, lo justo para que
-entren; de 0,48:1 para arriba el plano sigue usando todo el ancho.
+interminable. Por eso la imagen lleva **tope de alto** en `residencia.css`, distinto
+según la pantalla:
+
+| Pantalla | Tope | Por qué |
+|---|---|---|
+| `≤720px` de ancho (celular parado) | `min(500px, calc(100svh - 220px))` | 500 es la palanca: el cliente lo quería más chico ("la landing tiene el plano gigante"). |
+| `≤560px` de **alto** (celular acostado) | `min(420px, calc(100svh - 40px))` | Entra por "ancho de tablet" y tomaba el tope de escritorio (620 + 88 de padding = 708px de tarjeta sobre 412 de pantalla). |
+| resto | `620px` | Escritorio, sin cambios. |
+
+⚠ **`svh` y NO `dvh`**: `dvh` es el alto *dinámico* y **crece** cuando el navegador
+esconde su barra de direcciones al scrollear — con `dvh` el plano cambiaba de tamaño en
+plena lectura, como un salto visual.
 
 **El 6° reusa las tipologías del piso tipo, con la numeración corrida.** En el 6° las
 unidades 01 y 06 son las grandes de retiro y se comen la numeración, así que las seis
@@ -445,8 +471,14 @@ en `piso-6.png` vs `piso-tipo-2-5.png`, y la superficie cubierta de la planilla 
 Igual **el cliente no las nombró: lo dedujimos nosotros**, así que conviene que Camila lo
 confirme. Está en `INFERRED`, en el mismo script.
 
-**Falta el plano de la 702** (la unidad de arriba a la izquierda del 7°): el cliente
-mandó sólo el 01 y el 06 de ese piso. Es la única de las 61 que sigue con el placeholder.
+⚠ **La 702 usa el plano del 701.** El cliente mandó sólo el 01 y el 06 del 7°
+(`_media-src/tipologias/`), así que la 702 quedó con el placeholder hasta el 30-08, que
+Joaquim pidió ponerle "el mismo plano que el otro del piso 7". Es una aproximación
+razonable —las dos son 4 amb. / 3 dorm. / 2 baños y, sobre `piso-7.webp`, la 02 es la 01
+**espejada en vertical**: mismo orden estar-comedor → cocina → 3 dormitorios, con la
+terraza arriba en vez de abajo— pero **no es el dibujo de la 702**: está espejado y las
+superficies no coinciden (229 m² contra 217,65). Sigue pendiente pedirle a Camila el
+"PLANTA 7MO PISO - 02"; cuando llegue, entra por `npm run plans:units`.
 
 #### Baños: lo que muestran los planos
 
@@ -779,13 +811,13 @@ faltantes) y de dónde salió cada asset.
 | **Token de Airtable definitivo** | El actual lo pasó el cliente para probar y va a ser rotado. |
 | **Pin exacto del edificio** | `SITE.location` tiene coordenadas aproximadas de la altura 900 de Mario Bravo. |
 | **POIs del barrio** | `SITE.pois` está vacío a propósito (inventarlos publica datos falsos). |
-| **360° del hall y de los amenities** | Sólo llegaron los 5 de departamento. La bolita del exterior está en su lugar pero **no abre nada**, y los items "Hall"/"Amenities" del menú están ocultos. Ver [El punto 360° del exterior](#el-punto-360-del-exterior). |
+| **360° del hall** | El de amenities llegó el 30-08 y ya está puesto (bolita del exterior + submenú Tours + modal de Amenities). Falta el del hall: `ENTRANCE_HALL_360` sigue en `null` y su item del menú, oculto. Ver [El punto 360° del exterior](#el-punto-360-del-exterior). |
 | **Recorrido 360° del 6° y 7°** | 11 unidades sin `tour360`. ¿Reusan A–E o llevan el suyo? |
 | **Clips que incluyan su frame de destino** | Hoy cada uno corta uno antes y se compensa con `--land`. Ver [Los frames del flyby](#los-frames-del-flyby). |
 | **Video de intro** | La portada `/` está en modo still. Con `public/intro.mp4` + `intro-mobile.mp4` poné `INTRO_VIDEO_READY = true` en `IntroScreen.tsx`. |
 | **Copy de "Un equipo con trayectoria"** | El cliente pidió dejar los tres logos TIER (Bravo, Avenue, Sinclair). El texto que los acompaña lo escribimos nosotros y conviene que lo apruebe. |
 | **¿Cómo etiquetar la 706?** | Es pasante (dormitorios al contrafrente, estar a la calle). Hoy no muestra chip de exposición. Si la quieren rotulada, decidir si va como "Frente", "Contrafrente" o si sumamos un valor "Pasante". |
-| **Plano de la unidad 702** | Del 7° mandaron sólo el 01 y el 06. Es la única de las 61 sin plano. |
+| **Plano de la unidad 702** | Del 7° mandaron sólo el 01 y el 06. Hoy la 702 muestra el del 701 (misma tipología, pero espejado y con 11 m² de diferencia). Ver [Los planos de unidad](#los-planos-de-unidad). |
 | **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Ver [Los planos de unidad](#los-planos-de-unidad). |
 | **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
 | **Brochure comercial** | `BROCHURE_URL` es `null` → el item del menú y el botón "Ver PDF" están ocultos. |
