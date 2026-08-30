@@ -516,6 +516,70 @@
   }
 }
 
+/* ---- BOTTOM SHEET de la landing de FOTO (unidades SIN tour 360°, celular) ----
+   Pedido de Joaquim (30-08): "las residencias que NO tienen 360° no tienen el
+   comportamiento de bottom sheet al scrollear, como sí lo tienen las que tienen 360°
+   al inicio; agregar ese comportamiento también". Mismo gesto que el bloque de arriba:
+   el hero pasa a ocupar la pantalla entera y queda FIJO detrás (sticky), y el cuerpo
+   es la misma hoja opaca con handle que sube tapándolo, asomando 134px abajo.
+
+   Va por ANCHO (≤720px) y no por `pointer: coarse` como el del 360°: allá el gate es
+   táctil porque el iframe de Kuula se traga el gesto y sin la hoja no había forma de
+   bajar. Acá no hay nada que se trague nada — es una foto —, así que el criterio es el
+   del resto de la landing mobile. En tablet y escritorio el hero sigue siendo la
+   tarjeta con margen y los tres mosaicos flotantes que aprobó el cliente.
+
+   `overflow-x: clip` y NO `hidden` (que es lo que tiene .res-landing de base): `hidden`
+   convierte a .res-landing en su PROPIO contenedor de scroll —uno que nunca scrollea,
+   porque su alto es el del contenido—, y contra ese scroller el hero sticky no se pega
+   a nada y se va para arriba como antes. `clip` recorta igual el desborde horizontal
+   pero no crea scroller, así el sticky se ancla al de verdad (la ventana, o el overlay
+   del detalle interceptado). Es el mismo truco que ya usaba el 360°. */
+@media (max-width: 720px) {
+  .res-landing:not(.has-360) { overflow-x: clip; }
+  .res-landing:not(.has-360) .hero {
+    position: sticky; top: 0; height: 100dvh; z-index: 0;
+    padding-top: 0;                            /* full-bleed: el nav flota encima */
+  }
+  .res-landing:not(.has-360) .hero-stage {
+    margin: 0; height: 100dvh; min-height: 0;
+  }
+  /* Sin esquinas redondeadas ni marco: el render llena la pantalla, como el 360°. */
+  .res-landing:not(.has-360) .hero-main { border-radius: 0; }
+  /* El badge DISPONIBLE baja debajo del nav, que ahora flota sobre la foto. */
+  .res-landing:not(.has-360) .hero-badge { top: 90px; left: 16px; }
+  /* "Ver las N fotos" sube por encima del peek de la hoja (134px) — abajo del todo
+     quedaba tapado por ella. */
+  .res-landing:not(.has-360) .see-all { bottom: 150px; right: 16px; }
+  .res-landing:not(.has-360) .landing-body {
+    position: relative;
+    z-index: 1;                               /* la hoja va SOBRE la foto fija (z-0) */
+    margin-top: -134px;                       /* asoma ~134px (peek) sobre el hero */
+    border-radius: 22px 22px 0 0;
+    background: var(--bg);                     /* opaca: tapa la foto al subir */
+    box-shadow: 0 -12px 22px rgba(0, 0, 0, 0.6);
+  }
+  /* El peek muestra el ENCABEZADO + el arranque del Plano: esa primera sección va
+     visible desde el server-render, si no queda una franja vacía hasta hidratar. */
+  .res-landing:not(.has-360) .unit-head { padding: 34px var(--pad) 0; }
+  .res-landing:not(.has-360) .unit-head + .sr-only + section.reveal,
+  .res-landing:not(.has-360) .landing-body > section.reveal:first-of-type {
+    opacity: 1;
+    transform: none;
+  }
+  /* Handle (barrita) de la hoja. */
+  .res-landing:not(.has-360) .landing-body::before {
+    content: "";
+    position: absolute;
+    top: 13px; left: 50%;
+    transform: translateX(-50%);
+    width: 46px; height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+    z-index: 2;
+  }
+}
+
 /* (La DATA BAR —sección 1: precio+chips+descripción+acciones— se eliminó de la
    landing; Miro 2026-07-15. Del bloque sólo VOLVIÓ el título, ahora "unit-head";
    corrección 2026-07-16: no había que sacarlo, sólo renombrarlo a DEPARTAMENTO.) */
