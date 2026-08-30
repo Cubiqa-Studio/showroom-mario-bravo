@@ -101,11 +101,16 @@ export function PlanSection({
         </div>
       ) : (
       <div className="plan-layout" key="plan">
-        {/* Miro 2026-06-10: logo de la marca a la izquierda del plano (ref. 123 Ocean). */}
-        <div className="plan-logo">
-          <img src="/logo.png" alt={t.plan.logoAlt} />
-        </div>
-        <div className="stage-col">
+        {/* Logo + plano viajan JUNTOS: es el bloque que queda pegado (sticky) mientras
+            se lee el resumen de la derecha, que es bastante más largo. Antes cada uno
+            era una columna suelta de la grilla y el plano terminaba con medio metro de
+            vacío debajo (pedido de Joaquim, 30-08). */}
+        <div className="plan-main">
+          {/* Miro 2026-06-10: logo de la marca a la izquierda del plano (ref. 123 Ocean). */}
+          <div className="plan-logo">
+            <img src="/logo.png" alt={t.plan.logoAlt} />
+          </div>
+          <div className="stage-col">
           <div className="plan-view entering">
             <div className="plan-stage">
               <div className="plan-watermark">{unit.residence}</div>
@@ -115,8 +120,9 @@ export function PlanSection({
                 alt={t.plan.planAlt(unit.residence)}
               />
             </div>
-          </div>
+            </div>
 
+          </div>
         </div>
 
         <aside className="overview">

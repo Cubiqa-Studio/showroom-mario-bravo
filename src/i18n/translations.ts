@@ -27,9 +27,18 @@ const es = {
   },
 
   /** Portada de entrada: video intro en bucle + botón al centro. */
-  splash: {
-    cta: "Descubrir",
-    aria: "Video de presentación del showroom",
+  /** PORTADA (raíz "/"): los tres desarrollos de TIER dividiendo la pantalla.
+   *  Reemplazó al viejo `splash` de un solo proyecto (Camila, 30-08). */
+  portada: {
+    /** Bajada del logotipo de la marca paraguas, arriba de los tres paneles. */
+    eyebrow: "Desarrollos",
+    /** Estado de un proyecto que todavía no tiene a dónde llevar. */
+    proximamente: "Próximamente",
+    entrar: "Descubrir",
+    ariaEntrar: (nombre: string) => `Entrar a ${nombre}`,
+    /** Táctil: el 1er toque AMPLÍA el panel; la X vuelve a los tres. */
+    ariaAmpliar: (nombre: string) => `Ampliar ${nombre}`,
+    cerrar: "Volver a los tres desarrollos",
   },
 
   /** Copy SEO/accesible (sr-only) de las páginas visuales (home + showroom): dan
@@ -359,7 +368,10 @@ const es = {
     prevFloor: "Piso anterior",
     nextFloor: "Piso siguiente",
     duplexNote: "Dúplex · dormitorio en el entrepiso (piso de arriba)",
-    statsLine: (beds: number, baths: string, m2: string) => `${beds} Dorm · ${baths} Baños${m2}`,
+    /** "1 Baño", no "1 Baños". `baths` llega ya formateado ("1", "2,5"), así que el
+     *  plural se decide sobre el string. "Dorm" es abreviatura y no se declina. */
+    statsLine: (beds: number, baths: string, m2: string) =>
+      `${beds} Dorm · ${baths} ${baths === "1" ? "Baño" : "Baños"}${m2}`,
     rooms: (n: number) => `${n} amb`,
     core: "NÚCLEO · CIRCULACIÓN · ASCENSORES",
   },
@@ -794,9 +806,13 @@ const en: Dict = {
     residence: (n: string) => `Apartment ${n}`,
   },
 
-  splash: {
-    cta: "Discover",
-    aria: "Showroom intro video",
+  portada: {
+    eyebrow: "Developments",
+    proximamente: "Coming soon",
+    entrar: "Discover",
+    ariaEntrar: (nombre: string) => `Enter ${nombre}`,
+    ariaAmpliar: (nombre: string) => `Expand ${nombre}`,
+    cerrar: "Back to all three developments",
   },
 
   seo: {
@@ -933,7 +949,11 @@ const en: Dict = {
   },
 
   unitCard: {
-    rooms: (n: number) => `${n} rooms`,
+    /** "1 rooms" era el bug: en inglés un monoambiente son 0 dormitorios y 1 ambiente,
+     *  y la tarjeta lo imprimía en plural mientras la ficha de esa MISMA unidad decía
+     *  "Studio" (25 de 63 unidades). Se unifica con la ficha. En español no pasa:
+     *  "1 amb" es una abreviatura y no se declina. */
+    rooms: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
     beds: (n: number) => (n === 1 ? "1 bedroom" : `${n} bedrooms`),
     baths: (n: number, toilette = false) =>
       `${n === 1 ? "1 bathroom" : `${n} bathrooms`}${toilette ? " + toilet" : ""}`,
@@ -971,7 +991,7 @@ const en: Dict = {
     emptyBody: "Adjust the filters to see more.",
     floorFull: (key: string) => (key === "0" ? "Ground floor" : `Floor ${key}`),
     cardCta: "View apartment",
-    statRooms: (n: number) => `${n} rooms`,
+    statRooms: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
     statBeds: (n: number) => (n === 1 ? "1 bed" : `${n} beds`),
     statBaths: (n: number) => (n === 1 ? "1 bath" : `${n} baths`),
     statToilette: "toilette",
@@ -1065,8 +1085,9 @@ const en: Dict = {
     prevFloor: "Previous floor",
     nextFloor: "Next floor",
     duplexNote: "Duplex · bedroom on the mezzanine (floor above)",
-    statsLine: (beds: number, baths: string, m2: string) => `${beds} Bed · ${baths} Bath${m2}`,
-    rooms: (n: number) => `${n} rooms`,
+    statsLine: (beds: number, baths: string, m2: string) =>
+      `${beds} ${beds === 1 ? "Bed" : "Beds"} · ${baths} ${baths === "1" ? "Bath" : "Baths"}${m2}`,
+    rooms: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
     core: "CORE · CIRCULATION · ELEVATORS",
   },
 

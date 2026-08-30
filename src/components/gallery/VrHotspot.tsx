@@ -124,13 +124,63 @@ export function VrHotspot({
       // las flechas. En una pantalla normal la puerta queda MUY por encima de esa
       // zona, así que el tope ni se activa y la bolita sigue donde la aprobó el
       // cliente, a tamaño completo.
+      //
+      // ⚠ TODO SE MIDE EN PÍXELES CSS DE LA CAPA, no en píxeles de pantalla.
+      //
+      // El showroom vive adentro de <ZoomLayer>, que lo ESCALA (1,04 en celular ·
+      // 1,07 en escritorio) mientras hay una ficha de unidad abierta encima. Un
+      // `getBoundingClientRect()` devuelve píxeles de PANTALLA —ya escalados—, pero
+      // `pos` se aplica como `left/top`, que son píxeles CSS de la capa. Mezclarlos
+      // corría la bolita, y no era un parpadeo: se quedaba corrida.
+      //
+      // Por qué se quedaba. El ResizeObserver NO dispara con un `transform: scale`
+      // (la caja de layout no cambia), así que nada volvía a medir cuando el zoom
+      // regresaba a 1. Pero el listener de `scroll` va en CAPTURA, o sea que lo
+      // dispara CUALQUIER scroll de la página… incluido el de la ficha abierta. Con
+      // sólo scrollear el detalle, la bolita se remedía escalada y quedaba mal hasta
+      // el F5 (reporte de Joaquim con captura, 30-08: "queda bugeada super abajo").
+      //
+      // `k` es ese factor: el alto en pantalla sobre el alto de layout. Dividiendo
+      // por él, la cuenta da lo mismo con el zoom puesto o sin él, así que ya no
+      // importa CUÁNDO se mida. Con el home sin escalar, k = 1 y esto es idéntico a
+      // lo que había.
+      const k = layer.offsetHeight > 0 ? l.height / layer.offsetHeight : 1;
+      const anchoCapa = layer.offsetWidth;
+      const altoCapa = layer.offsetHeight;
       const reservaPie = baja ? BANDA_FLECHAS : 16;
-      const topeEnPantalla = window.innerHeight - reservaPie - 32 * esc;
-      const yEnPantalla = Math.min(a.top + a.height / 2, topeEnPantalla);
+      // El tope de abajo nace en píxeles de pantalla (`window.innerHeight`) y se pasa
+      // a coordenadas de la capa en el mismo paso que el resto.
+      const topeEnCapa = (window.innerHeight - reservaPie - l.top) / k - 32 * esc;
+      const yEnCapa = Math.min((a.top + a.height / 2 - l.top) / k, topeEnCapa);
+
+      // ⚠ EN X TAMBIÉN HAY QUE CLAMPEAR CONTRA LA PANTALLA, no sólo contra la capa.
+      //
+      // La capa NO mide lo que la ventana: acompaña al render, que va con "cover", así
+      // que en una pantalla angosta es MÁS ANCHA que el viewport y se sale por los dos
+      // costados. Clampear contra `anchoCapa` (que es lo que se hacía) no servía de
+      // nada: un punto que cae en la franja recortada seguía estando "dentro de la
+      // capa" y la bolita quedaba fuera de cuadro.
+      //
+      // Medido en la vista 1 en un teléfono en RETRATO: el punto está en x=1737 de
+      // 4999; a 412×830 el render se dibuja 1475px de ancho arrancando en -531,8 →
+      // 1737 × (1475/4999) − 531,8 = −19px. O sea que el centro de la bolita caía
+      // FUERA de la pantalla y sólo asomaba un gajo negro de 6px contra el borde
+      // izquierdo, imposible de tocar (a 390px de ancho desaparecía del todo).
+      // Lo encontró la auditoría del 30-08; en escritorio y en apaisado nunca pasó
+      // porque ahí el recorte horizontal es chico o nulo.
+      //
+      // El eje Y ya se clampeaba así (ver el tope de abajo); esto es lo mismo para X.
+      const izqEnCapa = (0 - l.left) / k;
+      const derEnCapa = (window.innerWidth - l.left) / k;
+      const xEnCapa = (a.left + a.width / 2 - l.left) / k;
 
       setPos({
-        x: clamp(a.left + a.width / 2 - l.left, r, l.width - r),
-        y: clamp(yEnPantalla - l.top, r, l.height - r),
+        x: clamp(
+          xEnCapa,
+          Math.max(r, izqEnCapa + r),
+          Math.min(anchoCapa - r, derEnCapa - r),
+        ),
+        y: clamp(yEnCapa, r, altoCapa - r),
       });
     };
     update();

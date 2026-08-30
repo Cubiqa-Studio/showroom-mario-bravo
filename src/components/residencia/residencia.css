@@ -75,7 +75,15 @@
   font-size: calc(21px * var(--fs-k));
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* `clip` y NO `hidden`. Los dos recortan igual el desborde horizontal, pero `hidden`
+     convierte a .res-landing en su PROPIO contenedor de scroll —uno que nunca scrollea,
+     porque su alto es el del contenido— y contra ese scroller inerte NINGÚN
+     `position: sticky` de adentro engancha: se quedaba pegado a nada y viajaba con la
+     página. Era el caso del hero del bottom sheet (por eso ya se pisaba con `clip` más
+     abajo) y también el del bloque logo+plano de la ficha. `clip` no crea scroller, así
+     que el sticky se ancla al de verdad: la ventana, o el overlay del detalle
+     interceptado. */
+  overflow-x: clip;
   min-height: 100%;
   background-image:
     radial-gradient(1100px 760px at 88% 4%, rgba(120,124,140,.05), transparent 60%);
@@ -347,6 +355,18 @@
 @media (min-width: 640px) and (max-width: 1180px) {
   .res-landing .nav .avance-short { display: none; }
 }
+/* "Ver las N fotos" se muda a la esquina de ARRIBA en las pantallas medianas.
+   Los tres mosaicos van centrados y ocupan 19% cada uno + 34 de aire: a partir de
+   ~1100px para abajo el de la derecha le pisa el arranque al botón. Medido en un iPad
+   vertical (820×1180): 56px de solape, o sea el 31% del botón, y —peor— seis de cada
+   diecisiete puntos de su línea media devolvían el <img> en vez del <button>, así que
+   ese tercio no respondía al toque y el rótulo se leía "R LAS 4 FOTOS". Lo encontró la
+   auditoría del 30-08; se reproduce en 768×1024, 820×1180 y 1024×1366.
+   `min-height: 561px` deja afuera al teléfono acostado, que va con la hoja y tiene los
+   mosaicos ocultos: ahí el botón sigue abajo, donde corresponde. */
+@media (min-width: 721px) and (max-width: 1180px) and (min-height: 561px) {
+  .res-landing:not(.has-360) .see-all { top: 26px; bottom: auto; }
+}
 /* Switch de idioma ES/EN (segmentado chico, mismo lenguaje que los pills). */
 .res-landing .lang-switch {
   display: flex; align-items: center; padding: 3px;
@@ -542,11 +562,15 @@
    el hero pasa a ocupar la pantalla entera y queda FIJO detrás (sticky), y el cuerpo
    es la misma hoja opaca con handle que sube tapándolo, asomando 134px abajo.
 
-   Va por ANCHO (≤720px) y no por `pointer: coarse` como el del 360°: allá el gate es
-   táctil porque el iframe de Kuula se traga el gesto y sin la hoja no había forma de
-   bajar. Acá no hay nada que se trague nada — es una foto —, así que el criterio es el
-   del resto de la landing mobile. En tablet y escritorio el hero sigue siendo la
-   tarjeta con margen y los tres mosaicos flotantes que aprobó el cliente.
+   El gate NO es sólo el ancho. Con `max-width: 720px` a secas, un teléfono ACOSTADO
+   (915×412) se quedaba sin hoja —porque mide 915 de ancho— y volvía a la maqueta de
+   escritorio: tarjeta con margen y tres mosaicos flotantes que además quedaban
+   cortados por el pliegue y le comían el botón "Ver las N fotos". Y encima era
+   INCONSISTENTE: en ese mismo teléfono acostado las unidades CON 360° sí tenían su
+   hoja, porque aquéllas van por `pointer: coarse`. Lo encontró la auditoría del 30-08.
+   Se suma entonces la condición de PANTALLA BAJA + táctil, que es exactamente el
+   teléfono acostado. La tablet queda afuera a propósito (mide más de 560 de alto):
+   ahí el hero sigue siendo la tarjeta con los tres mosaicos que aprobó el cliente.
 
    `overflow-x: clip` y NO `hidden` (que es lo que tiene .res-landing de base): `hidden`
    convierte a .res-landing en su PROPIO contenedor de scroll —uno que nunca scrollea,
@@ -554,7 +578,7 @@
    a nada y se va para arriba como antes. `clip` recorta igual el desborde horizontal
    pero no crea scroller, así el sticky se ancla al de verdad (la ventana, o el overlay
    del detalle interceptado). Es el mismo truco que ya usaba el 360°. */
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 560px) and (pointer: coarse) {
   .res-landing:not(.has-360) { overflow-x: clip; }
   /* ⚠ `svh` y NO `dvh`, por lo mismo que el plano y la planta más abajo. `dvh` es el
      alto DINÁMICO: CRECE cuando el navegador esconde la barra de direcciones al
@@ -575,6 +599,11 @@
   }
   /* Sin esquinas redondeadas ni marco: el render llena la pantalla, como el 360°. */
   .res-landing:not(.has-360) .hero-main { border-radius: 0; }
+  /* Los tres mosaicos flotantes NO van con la hoja: cuelgan del pie del hero, que acá
+     es el pliegue de la pantalla, así que quedarían cortados y encima taparían el
+     botón. En ≤720px ya estaban ocultos por la regla general; esto cubre el teléfono
+     acostado, que entra por la otra rama del gate. */
+  .res-landing:not(.has-360) .hero-thumbs { display: none; }
   /* El badge DISPONIBLE baja debajo del nav, que ahora flota sobre la foto. */
   .res-landing:not(.has-360) .hero-badge { top: 90px; left: 16px; }
   /* "Ver las N fotos" sube por encima del peek de la hoja (134px) — abajo del todo
@@ -653,8 +682,21 @@
 /* Miro 2026-06-10: logo | plano | resumen (como la referencia 123 Ocean — marca a la
    izquierda del floorplan). La caja amarilla del cliente ocupa ~⅓ del VIEWPORT →
    la columna del plano pesa 1.45fr sobre un wrap de 1280 (tarjeta ≈620px). */
-.res-landing .plan-layout { display: grid; grid-template-columns: 150px minmax(0, 1.45fr) 1fr; gap: 44px; align-items: start; max-width: 1280px; margin: 0 auto; }
-.res-landing .plan-logo { align-self: center; display: flex; align-items: center; justify-content: center; }
+/* Dos columnas: [logo + plano] | resumen. Las proporciones son EXACTAMENTE las de
+   antes (150 + 44 + 617 = 811 contra 425 sobre un wrap de 1280); lo único que cambió
+   es que el logo y el plano ahora viven en el mismo bloque, para poder pegarlo. */
+.res-landing .plan-layout { display: grid; grid-template-columns: minmax(0, 1.908fr) 1fr; gap: 44px; align-items: start; max-width: 1280px; margin: 0 auto; }
+/* El bloque logo+plano queda PEGADO mientras se scrollea el resumen. El bloque de
+   sticky es su celda de la grilla, que mide lo que la fila —o sea, lo que el resumen—,
+   así que el plano acompaña hasta la última fila ("Amenities") y ahí se suelta solo,
+   sin un `bottom` inventado. `top: 100px` = los 78 del nav fijo + aire.
+   En ≤1100px la grilla pasa a una columna y esto se apaga (más abajo). */
+.res-landing .plan-main {
+  display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 44px;
+  align-items: center;   /* ← TIER al 50% del ALTO DEL PLANO, no de la fila entera */
+  position: sticky; top: 100px;
+}
+.res-landing .plan-logo { display: flex; align-items: center; justify-content: center; }
 .res-landing .plan-logo img { width: 100%; max-width: 140px; height: auto; }
 /* Tab "Planta del piso": una sola columna ancha, como el FLOOR SELECTOR de la
    referencia (un toque más angosta que la sección: pedido 2026-06-10). */
@@ -735,8 +777,15 @@
      ~0,63:1). Con el tope viejo, `contain` los dejaba en ~305px de ancho dentro
      de una tarjeta de 557 — el dibujo se leía chico y con aire a los costados.
      A 620 el plano vertical llega a ~394px y la tarjeta sigue sin dominar la
-     sección (la .plan-stage abraza la altura del plano, no al revés). */
-  width: 100%; height: auto; max-height: 620px;
+     sección (la .plan-stage abraza la altura del plano, no al revés).
+     ⚠ El `min()` es por el STICKY: desde el 30-08 el bloque logo+plano queda pegado
+     a 100px del borde, y un elemento pegado que es MÁS ALTO que el hueco disponible
+     se corta por abajo y no hay forma de scrollear para ver el resto. La tarjeta mide
+     el plano + 60 de padding, así que necesita `alto - 180` para entrar entera. En un
+     monitor normal (≥800px de viewport) el mínimo sigue siendo 620 y no cambia nada;
+     sólo cede en laptops bajas (1366×768 deja ~620 de viewport), que es justo donde
+     se cortaba. */
+  width: 100%; height: auto; max-height: min(620px, calc(100vh - 180px));
   object-fit: contain; margin: 0 auto; display: block;
 }
 
@@ -798,7 +847,14 @@
   border-radius: var(--radius);
   padding: 26px;
   aspect-ratio: var(--plate-ar, 1.486);
-  max-width: calc(var(--plate-max-h, 78vh) * var(--plate-ar, 1.486));
+  /* Tope de ALTO en escritorio. Estaba en 78vh y sobre una ventana de 900px daba una
+     tarjeta de ~700px: se comía la pantalla entera y había que scrollear para ver el
+     plano completo con su switcher de pisos (pedido de Joaquim, 30-08: "quedó muy
+     grande, achicalo un poco"). A 64vh entra holgado con el título y las flechas, y
+     el plano del 7° —el más apaisado de los que tienen unidades— sigue midiendo
+     ~650px de ancho. El ancho se deriva de acá × la proporción real del plano. */
+  --plate-max-h: 64vh;
+  max-width: calc(var(--plate-max-h, 64vh) * var(--plate-ar, 1.486));
   margin-inline: auto;
   box-shadow: var(--shadow-card);
 }
@@ -1413,6 +1469,10 @@
   .res-landing .spec-nav { position: static; }
   .res-landing .spec-pane { min-height: 0; }
   .res-landing .plan-layout { grid-template-columns: 1fr; gap: 44px; }
+  /* En una sola columna no hay resumen al costado contra el cual pegarse: el bloque
+     vuelve a ser flujo normal. Si quedara sticky, el plano se pegaría contra el
+     propio resumen que va DEBAJO y lo taparía al scrollear. */
+  .res-landing .plan-main { display: block; position: static; }
   /* en columna única el logo decorativo no aporta → se oculta */
   .res-landing .plan-logo { display: none; }
   .res-landing .contact-split { grid-template-columns: 1fr; gap: 40px; }
