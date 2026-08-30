@@ -470,8 +470,12 @@ El clamp de `VrHotspot` es sólo la red de seguridad para contenedores muy bajos
 **Qué abre la bolita.** Desde el 30-08 abre el recorrido de **amenities**
 (`AMENITIES_360`, colección `7TyxW` — verificado: el título es "MARIO BRAVO - AMENITIES").
 Lo pidió Joaquim así: el cliente mandó ese link y va en la bolita de las vistas 01 y 02.
-El preview del hover sigue siendo el lobby —es la puerta que marca la bolita— con la
-etiqueta "Amenities", que es lo que realmente se abre. La misma constante enciende sola
+El preview del hover es un **mosaico de tres renders de amenities** (pileta grande arriba,
+gimnasio y SUM al 50% abajo), no el lobby: lo que se ve tiene que ser lo que se abre.
+Entra en la MISMA caja de siempre —16/10 del ancho de la tarjeta— así que el globo no
+crece; lo arma `previewImages` (`[grande, chica, chica]`) en `vr-hotspots.ts`. ⚠ Las tres
+`<img>` llevan `min-h-0`: un `<img>` es un ítem de grilla con tamaño intrínseco y su
+`min-height: auto` no deja achicar la fila (medido: 171 + 73 sobre 160 de alto). La misma constante enciende sola
 el item "Amenities" del submenú Tours y el iframe del modal de Amenities.
 
 ⚠ **`ENTRANCE_HALL_360` sigue en `null`**: el 360° del hall no llegó. Todo lo que lo

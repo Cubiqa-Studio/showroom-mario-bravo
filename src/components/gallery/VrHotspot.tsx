@@ -26,6 +26,8 @@ interface VrHotspotProps {
   active?: boolean;
   /** Render del preview del hover (webp de la galería). Sin esto, el render del stop. */
   previewImage?: string;
+  /** Mosaico del preview: una grande arriba y dos abajo al 50%. Pisa a `previewImage`. */
+  previewImages?: [string, string, string];
   /** Etiqueta del preview: "hall" (default) o "amenities". */
   previewKind?: "hall" | "amenities";
   /** Táctil: no hay hover → el 1er toque REVELA el preview (clickeable) y tocarlo —o la
@@ -56,6 +58,7 @@ export function VrHotspot({
   scale = 1,
   active = true,
   previewImage,
+  previewImages,
   previewKind = "hall",
   isTouch = false,
   resetKey = 0,
@@ -198,13 +201,40 @@ export function VrHotspot({
   // táctil (envuelta en un botón clickeable).
   const previewCard = (
     <div className="overflow-hidden rounded-2xl bg-paper shadow-2xl ring-1 ring-line">
+      {/* La caja de la media mide SIEMPRE lo mismo (16/10 del ancho de la tarjeta),
+          traiga una imagen o el mosaico: el pedido fue meter las tres adentro, no
+          agrandar el globo. El mosaico es una grilla de 2 columnas con la primera
+          ocupando las dos —grande arriba, dos al 50% abajo— y filas 1,6fr/1fr, que
+          sobre 160px da ~98 + ~61. Las tres van con `object-cover`: son recortes,
+          así que ninguna se deforma. */}
       <div className="relative aspect-[16/10] w-full bg-mist">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={previewImage ?? stop.image}
-          alt={t.vr.tour}
-          className="h-full w-full object-cover"
-        />
+        {previewImages ? (
+          <div
+            className="grid h-full w-full gap-px bg-line"
+            style={{ gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1.6fr 1fr" }}
+          >
+            {previewImages.map((src, i) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={src}
+                src={src}
+                alt=""
+                aria-hidden
+                // `min-h-0`: un <img> es un ítem de grilla con tamaño intrínseco, así
+                // que su `min-height: auto` NO deja que la fila se achique y las tres
+                // se pasaban de la caja (medido: 171 + 73 sobre 160 de alto).
+                className={`h-full w-full min-h-0 min-w-0 object-cover${i === 0 ? " col-span-2" : ""}`}
+              />
+            ))}
+          </div>
+        ) : (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={previewImage ?? stop.image}
+            alt={t.vr.tour}
+            className="h-full w-full object-cover"
+          />
+        )}
         <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[15px] font-semibold text-white">
           360°
         </span>

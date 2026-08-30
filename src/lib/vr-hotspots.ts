@@ -23,6 +23,10 @@ export interface VrHotspotConfig {
   kuulaUrl?: string;
   /** Render que muestra el PREVIEW del hover. Sin esto usa el render del stop. */
   previewImage?: string;
+  /** MOSAICO del preview: una imagen grande arriba y dos abajo al 50%. Tiene
+   *  prioridad sobre `previewImage` y entra en la MISMA caja (la tarjeta no crece).
+   *  Se usa para mostrar de un vistazo qué hay del otro lado de la puerta. */
+  previewImages?: [string, string, string];
   /** Etiqueta del preview: "hall" (default) o "amenities". */
   previewKind?: "hall" | "amenities";
 }
@@ -76,11 +80,19 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
     y: 2400,
     scale: 0.85,
     // Abre el recorrido de AMENITIES (pedido de Joaquim, 30-08: el link que mandó
-    // el cliente va en la bolita de las vistas 01 y 02). El preview sigue siendo el
-    // lobby —es la puerta que marca la bolita— con la etiqueta "Amenities", que es
-    // lo que efectivamente se abre al tocarla.
+    // el cliente va en la bolita de las vistas 01 y 02).
     kuulaUrl: AMENITIES_360 ?? undefined,
-    previewImage: "/gallery/optimized/09-lobby.webp",
+    // MOSAICO de amenities, no el lobby: la bolita abre el recorrido de espacios
+    // comunes, así que el preview muestra lo que se va a ver (pedido de Joaquim,
+    // 30-08). Grande arriba y dos abajo al 50%, dentro de la MISMA caja de siempre.
+    // Los tamaños salen del pipeline de la galería: la variante `-mid` (800px) para
+    // la grande, que se dibuja a ~256 CSS (512 en pantallas 2×), y `-thumb` (320px)
+    // para las dos chicas, que van a ~127.
+    previewImages: [
+      "/gallery/optimized/05-pileta-mid.webp",
+      "/gallery/optimized/08-gimnasio-thumb.webp",
+      "/gallery/optimized/11-sum-vista-pileta-thumb.webp",
+    ],
     previewKind: "amenities",
   },
   // Stop 1 (esquina) — la MISMA puerta, vista de costado: el paño oscuro sobre el
@@ -95,7 +107,12 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
     y: 1900,
     scale: 0.8,
     kuulaUrl: AMENITIES_360 ?? undefined,
-    previewImage: "/gallery/optimized/09-lobby.webp",
+    // Mismo mosaico que la vista 0: es la misma puerta y el mismo recorrido.
+    previewImages: [
+      "/gallery/optimized/05-pileta-mid.webp",
+      "/gallery/optimized/08-gimnasio-thumb.webp",
+      "/gallery/optimized/11-sum-vista-pileta-thumb.webp",
+    ],
     previewKind: "amenities",
   },
 };

@@ -1350,6 +1350,7 @@ export function FlybyViewer({
             scale={hotspot.scale}
             active={parked}
             previewImage={hotspot.previewImage}
+            previewImages={hotspot.previewImages}
             previewKind={hotspot.previewKind}
             isTouch={isTouch}
             resetKey={selResetKey}
