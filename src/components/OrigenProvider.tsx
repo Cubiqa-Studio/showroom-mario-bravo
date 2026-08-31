@@ -1,10 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { whatsappUrl } from "@/lib/contact";
 import {
   COMERCIALIZADORES,
   ORIGEN_DEFECTO,
+  PARAM_ORIGEN,
   guardarOrigen,
   leerOrigenDeUrl,
   leerOrigenGuardado,
@@ -26,6 +28,17 @@ import {
  * servidor no ve ni la URL del cliente ni su localStorage). El efecto es de LAYOUT, no
  * el común: React aplica el cambio de estado antes de que el navegador pinte, así que
  * la portada no llega a mostrar los tres proyectos y después sacar uno.
+ *
+ * Además **deja el parámetro escrito en la URL**, siempre y en todas las rutas: si
+ * entrás a "/" pelado, la barra pasa a decir "/?v=desarrolladora". Se hace en cada
+ * cambio de ruta con `history.replaceState` —sin navegar, sin entrada nueva en el
+ * historial— en vez de agregarle el parámetro a mano a cada `<Link>` y a cada
+ * `router.push`: así lo agarra TODA la navegación, incluidos el back/forward y los
+ * links que se agreguen mañana. Se conserva `history.state` porque ahí guarda el
+ * router de Next lo suyo.
+ *
+ * ⚠ El `<link rel="canonical">` lo emite el servidor SIN parámetro (ver src/lib/seo.ts),
+ * así que esto no le abre a Google una URL duplicada por comercializador.
  */
 
 /** `useLayoutEffect` avisa por consola si se ejecuta en el servidor; en SSR no hay
@@ -44,19 +57,26 @@ const Ctx = createContext<Valor>({
 
 export function OrigenProvider({ children }: { children: React.ReactNode }) {
   const [origen, setOrigen] = useState<Origen>(ORIGEN_DEFECTO);
+  // Sobrevive a la navegación aunque el navegador no deje escribir en localStorage
+  // (incógnito estricto): sin esto, cambiar de página perdería el origen.
+  const ultimo = useRef<Origen>(ORIGEN_DEFECTO);
+  const pathname = usePathname();
 
   useEfectoDeLayout(() => {
     // El parámetro de la URL SIEMPRE pisa lo guardado: si alguien entra por el link
     // de la otra parte, la visita es de esa parte (última campaña, gana).
     const deUrl = leerOrigenDeUrl(window.location.search);
-    if (deUrl) {
-      guardarOrigen(deUrl);
-      setOrigen(deUrl);
-      return;
+    if (deUrl) guardarOrigen(deUrl);
+    const actual = deUrl ?? leerOrigenGuardado() ?? ultimo.current;
+    ultimo.current = actual;
+    setOrigen(actual);
+
+    const url = new URL(window.location.href);
+    if (url.searchParams.get(PARAM_ORIGEN) !== actual) {
+      url.searchParams.set(PARAM_ORIGEN, actual);
+      window.history.replaceState(window.history.state, "", url.toString());
     }
-    const guardado = leerOrigenGuardado();
-    if (guardado) setOrigen(guardado);
-  }, []);
+  }, [pathname]);
 
   const valor = useMemo<Valor>(
     () => ({ origen, comercializador: COMERCIALIZADORES[origen] }),

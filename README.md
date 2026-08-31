@@ -200,9 +200,20 @@ decide el link por el que entró la persona**. Cada uno publicita el suyo:
 | Inmobiliaria | `https://…/?v=inmobiliaria` |
 
 El parámetro sirve en **cualquier ruta** (`/`, `/showroom`, `/residencia/402`) y se guarda
-apenas entra, así que puede desaparecer de la URL —navegación interna, un link que la
-persona comparte— sin perder de vista de dónde vino. Dura 30 días, que es la ventana de
-atribución habitual, y si alguien entra después por el otro link, gana el último.
+apenas entra. Dura 30 días, que es la ventana de atribución habitual, y si alguien entra
+después por el otro link, gana el último.
+
+Y **queda escrito en la URL, siempre**: entrar a `/` pelado deja la barra en
+`/?v=desarrolladora`, y el parámetro viaja solo a cada ruta que se visite. No se hace
+agregándoselo a cada `<Link>` —eso se olvida en el próximo link que alguien agregue— sino
+con un `history.replaceState` en cada cambio de ruta, dentro del propio `OrigenProvider`:
+así lo agarra TODA la navegación, incluidos el back/forward y los clicks sobre los
+polígonos del render. Aun así el origen sigue guardado, porque una carga completa de
+`/residencia/402` (un link que alguien comparte sin el parámetro) tiene que seguir
+respetando de dónde venía la visita.
+
+⚠ El `<link rel="canonical">` lo emite el servidor **sin** parámetro, así que Google no ve
+dos URLs por página.
 
 Qué cambia según el origen:
 
