@@ -77,9 +77,10 @@
 .portada-marca img {
   display: block;
   /* El wordmark es una tira de 900×172 (5,2:1), así que cada píxel de alto son cinco
-     de ancho: a 92px mide ~480px, que es un tercio de una pantalla de 1440 — la misma
-     proporción que le da el cliente en su afiche. */
-  height: clamp(30px, 4vw, 72px);
+     de ancho. Otro 20% abajo el 31-08 (tercera pasada del cliente): a 58px la tira
+     mide ~300px, poco más de un quinto de una pantalla de 1440. El mínimo y el punto
+     medio bajan en la misma proporción para que la curva no se deforme. */
+  height: clamp(24px, 3.2vw, 58px);
   width: auto;
   /* Sombra suave: el logotipo cae sobre tres fondos distintos (y sobre un video). */
   filter: drop-shadow(0 2px 18px rgba(0, 0, 0, 0.6));

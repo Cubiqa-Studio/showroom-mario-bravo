@@ -9,6 +9,7 @@ import { captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { FloorPlate } from "./FloorPlate";
 import { AmenitiesModal } from "./AmenitiesModal";
+import { ExpandIcon } from "../gallery/icons";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -214,11 +215,16 @@ export function PlanSection({
           <div className="ov-row">
             <span className="lbl">{t.plan.amenities}</span>
             <span className="lead" />
+            {/* Pastilla con marco y el ícono de "expandir" (el mismo de las cuatro
+                esquinas que usa el 360° para ir a pantalla completa). Era un link
+                subrayado y leía como "te lleva a otra pantalla" — y esto abre un
+                modal acá mismo (Joaquim, 31-08). */}
             <button
               type="button"
-              className="ov-link"
+              className="ov-btn"
               onClick={() => setAmenitiesOpen(true)}
             >
+              <ExpandIcon aria-hidden />
               {t.plan.seeAmenities}
             </button>
             <span className="val val--wrap">{t.plan.amenitiesValue}</span>

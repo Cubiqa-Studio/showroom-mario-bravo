@@ -822,20 +822,37 @@
    que comparte fila con el botón "Ver amenities"). `flex-basis: 100%` fuerza el
    salto; sin el `margin-left: auto` que llevan los valores cortos, arranca contra
    el margen izquierdo. */
-.res-landing .ov-row .val--wrap { flex: 1 0 100%; margin-left: 0; margin-top: 8px; }
-/* Botón de texto dentro de una fila del resumen: dorado, subrayado sutil, y con
-   44px de alto táctil sin engordar la fila (el margen negativo lo compensa). */
-.res-landing .ov-row .ov-link {
-  appearance: none; background: none; border: 0; cursor: pointer;
-  margin-left: auto; padding: 12px 0; margin-top: -12px; margin-bottom: -12px;
-  display: inline-flex; align-items: center; min-height: 44px;
-  font-family: var(--sans); font-size: calc(18.5px * var(--fs-k)); font-weight: 600;
-  color: var(--gold); white-space: nowrap;
-  border-bottom: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
-  transition: color .2s ease, border-color .2s ease;
+.res-landing .ov-row .val--wrap { flex: 1 0 100%; margin-left: 0; margin-top: 14px; }
+/* Botón dentro de una fila del resumen. Con MARCO en las cuatro caras y el ícono de
+   expandir: tiene que leerse como "abre algo acá encima", no como un link que te
+   saca de la página. Antes era texto con un subrayado y pasaba justo lo contrario
+   (Joaquim, 31-08: "parece que te va a llevar a otra pantalla").
+   La fila alinea por BASELINE, que es lo correcto para "etiqueta …… valor": deja los
+   dos textos apoyados en la misma línea. Pero una pastilla de 40px no tiene baseline
+   que valga y quedaba 10px más abajo que su etiqueta (medido). En la fila que TIENE
+   botón se pasa a alineación centrada —y el líder punteado pierde su corrección de
+   -3px, que existía justamente para la baseline. */
+.res-landing .ov-row:has(.ov-btn) { align-items: center; }
+.res-landing .ov-row:has(.ov-btn) .lead { transform: none; }
+.res-landing .ov-row .ov-btn {
+  appearance: none; cursor: pointer;
+  margin-left: auto; align-self: center;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--gold) 42%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--gold) 9%, transparent);
+  font-family: var(--sans); font-size: calc(17px * var(--fs-k)); font-weight: 600;
+  letter-spacing: .01em; color: var(--gold); white-space: nowrap;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
 }
-.res-landing .ov-row .ov-link:hover { color: var(--gold-bright); border-bottom-color: var(--gold-bright); }
-.res-landing .ov-row .ov-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 3px; }
+.res-landing .ov-row .ov-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.res-landing .ov-row .ov-btn:hover {
+  border-color: var(--gold); color: var(--gold-bright);
+  background: color-mix(in srgb, var(--gold) 17%, transparent);
+}
+.res-landing .ov-row .ov-btn:active { transform: scale(.98); }
+.res-landing .ov-row .ov-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .res-landing .ov-group-gap { height: 18px; }
 .res-landing .overview .btn-gold { margin-top: auto; justify-content: center; }
 
