@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import type { SiteConfig, Unit } from "@/lib/types";
-import { whatsappUrl } from "@/lib/contact";
+import { useWhatsappUrl } from "@/components/OrigenProvider";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { SideMenu } from "../gallery/SideMenu";
 import { UnitFinderModal } from "../gallery/UnitFinderModal";
@@ -44,6 +44,8 @@ export function LandingNav({
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const { lang, setLang, t } = useI18n();
+  // WhatsApp del comercializador que trajo la visita (ver src/lib/origen.ts).
+  const waUrl = useWhatsappUrl();
 
   // Volver a la galería (items "Inicio"/"Disponibilidad" del menú): en overlay
   // cierra el detalle; standalone scrollea al tope ANTES de navegar al exterior,
@@ -324,7 +326,7 @@ export function LandingNav({
         onMasterplan={() => setMasterplanOpen(true)}
         onContact={() => setContactOpen(true)}
         onGallery={() => setGalleryOpen(true)}
-        consultHref={whatsappUrl(t.wa.general)}
+        consultHref={waUrl(t.wa.general)}
         zClass="z-[140]"
         // Pedido de Camila (2026-06-30): que la landing tenga los mismos items que el
         // inicio — "El Proyecto" y "Amenities" (y "Ubicación" abre el mapa, no "Pronto").

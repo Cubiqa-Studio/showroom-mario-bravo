@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { SiteConfig, Unit } from "@/lib/types";
-import { whatsappUrl } from "@/lib/contact";
+import { useOrigen, useWhatsappUrl } from "@/components/OrigenProvider";
 import { captureContactFormSubmitted, captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 
@@ -28,6 +28,9 @@ export function ContactSection({
 }) {
   const brand = site.brandName ?? site.projectName;
   const { t } = useI18n();
+  // Quién trajo la visita: decide a qué bandeja va el lead y a qué WhatsApp.
+  const { origen } = useOrigen();
+  const waUrl = useWhatsappUrl();
   const [state, setState] = useState<FormState>("idle");
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const set = (k: keyof typeof form) => (v: string) =>
@@ -45,10 +48,11 @@ export function ContactSection({
           message: t.contact.formMessage(unit.residence),
           unitId,
           residence: unit.residence,
+          origen,
         }),
       });
       if (!res.ok) throw new Error();
-      captureContactFormSubmitted("residence_contact_section");
+      captureContactFormSubmitted("residence_contact_section", origen);
       setState("ok");
     } catch {
       setState("error");
@@ -147,7 +151,7 @@ export function ContactSection({
             <p>{t.contact.wspCopy}</p>
             <a
               className="btn btn-outline"
-              href={whatsappUrl(t.wa.unit(unit.residence))}
+              href={waUrl(t.wa.unit(unit.residence))}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() =>

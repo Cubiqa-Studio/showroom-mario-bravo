@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import type { Origen } from "./origen";
 
 /**
  * Llamadas a la acción del sitio, en UN solo evento (`cta_clicked`) para poder
@@ -72,6 +73,9 @@ export function captureUnitSelected(unitId: string, location: CtaLocation) {
   posthog.capture("unit_selected", { unitId, location });
 }
 
-export function captureContactFormSubmitted(location: CtaLocation) {
-  posthog.capture("contact_form_submitted", { location });
+/** `origen`: por el link de quién entró la visita — desarrolladora o inmobiliaria
+ *  (ver src/lib/origen.ts). Es una propiedad NUEVA sobre el mismo evento, no un
+ *  rename: sirve para ver qué campaña convierte. */
+export function captureContactFormSubmitted(location: CtaLocation, origen?: Origen) {
+  posthog.capture("contact_form_submitted", { location, ...(origen ? { origen } : {}) });
 }

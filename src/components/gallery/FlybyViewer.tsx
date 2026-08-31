@@ -25,7 +25,7 @@ import { SearchIcon } from "./icons";
 import { VrHotspot } from "./VrHotspot";
 import { Vr360Modal } from "./Vr360Modal";
 import { VR_HOTSPOTS } from "@/lib/vr-hotspots";
-import { whatsappUrl } from "@/lib/contact";
+import { useWhatsappUrl } from "@/components/OrigenProvider";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { useIsTouch } from "@/hooks/useIsTouch";
 
@@ -184,6 +184,8 @@ export function FlybyViewer({
   // URL del tour 360° abierto en el modal grande (null = cerrado).
   const [vr360Url, setVr360Url] = useState<string | null>(null);
   const { t } = useI18n();
+  // WhatsApp del comercializador que trajo la visita (ver src/lib/origen.ts).
+  const waUrl = useWhatsappUrl();
   // Ruta actual: cambia a /residencia/:id cuando se abre el detalle interceptado
   // (@modal) con el showroom vivo debajo → sirve para re-primar frames al volver.
   const pathname = usePathname();
@@ -1395,7 +1397,7 @@ export function FlybyViewer({
       <ShowroomToolbar
         showAvailability={showAvailability}
         onToggleAvailability={setShowAvailability}
-        consultHref={whatsappUrl(t.wa.general)}
+        consultHref={waUrl(t.wa.general)}
         branding={branding}
         onBrandingClick={goToStart}
         brandingLabel={t.flyby.home}
@@ -1440,7 +1442,7 @@ export function FlybyViewer({
         onMasterplan={() => setMasterplanOpen(true)}
         onContact={() => setContactOpen(true)}
         onGallery={() => setGalleryOpen(true)}
-        consultHref={whatsappUrl(t.wa.general)}
+        consultHref={waUrl(t.wa.general)}
         // El acceso al editor de polígonos se dejó fuera del front de producción.
         // El editor sigue EN EL CÓDIGO (herramienta interna reutilizable en futuros
         // showrooms) pero no se expone por ninguna URL: para reactivarlo, setear

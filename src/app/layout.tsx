@@ -3,6 +3,7 @@ import { Jost, Playfair_Display_SC } from "next/font/google";
 import "./globals.css";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
+import { OrigenProvider } from "@/components/OrigenProvider";
 import { CubiqaBadge } from "@/components/CubiqaBadge";
 import { getUnitIds } from "@/lib/data";
 import {
@@ -113,10 +114,15 @@ export default function RootLayout({
             (el desarrollo). Los datos por-unidad van en cada /residencia/:id. */}
         <script {...jsonLdScriptProps(siteGraphLd(getUnitIds().length))} />
         <LanguageProvider>
-          <TransitionProvider>
-            {children}
-            {modal}
-          </TransitionProvider>
+          {/* Lee `?v=…` de la URL de entrada y se acuerda de quién trajo la visita
+              (ver src/lib/origen.ts). Tiene que envolver TODA la app: el parámetro
+              viene en la primera carga y la navegación interna se lo lleva. */}
+          <OrigenProvider>
+            <TransitionProvider>
+              {children}
+              {modal}
+            </TransitionProvider>
+          </OrigenProvider>
         </LanguageProvider>
         <CubiqaBadge />
       </body>

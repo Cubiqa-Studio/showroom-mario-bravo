@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { COMERCIALIZADORES, ORIGEN_DEFECTO, normalizarOrigen, type Origen } from "@/lib/origen";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Envío de leads del showroom por email vía Resend (API HTTP, sin dependencia npm).
@@ -13,7 +14,11 @@ import { NextResponse } from "next/server";
 //
 // Config por entorno (ver .env.example):
 //   RESEND_API_KEY  – obligatoria (https://resend.com/api-keys).
-//   EMAIL_TO        – bandeja donde llegan los leads.
+//   EMAIL_TO        – bandeja de la DESARROLLADORA (y default de todo lo demás).
+//   EMAIL_TO_INMOBILIARIA – bandeja de la inmobiliaria. El lead va acá cuando la
+//                     visita entró por su link (`?v=inmobiliaria`, ver
+//                     src/lib/origen.ts). Si no está cargada, el lead NO se pierde:
+//                     cae en EMAIL_TO y el mail dice por quién vino.
 //   EMAIL_FROM      – remitente. Default `onboarding@resend.dev` (funciona SIN
 //                     dominio verificado, sólo entrega a la cuenta dueña de la key).
 //                     Al verificar el dominio en Resend → EMAIL_FROM=Showroom
@@ -31,6 +36,8 @@ interface ContactBody {
   unitId?: string;
   residence?: string;
   source?: string;
+  /** Comercializador que trajo la visita (ver src/lib/origen.ts). */
+  origen?: string;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,7 +75,25 @@ export async function POST(req: Request) {
   }
 
   const unitLabel = body.residence?.trim() || body.unitId?.trim();
-  const subject = unitLabel ? `Nueva consulta — ${name} · ${unitLabel}` : `Nueva consulta — ${name}`;
+
+  // A quién le corresponde el lead. El valor viene del cliente, así que se valida
+  // contra la lista conocida; cualquier cosa rara cae en el default.
+  const origen: Origen = normalizarOrigen(body.origen) ?? ORIGEN_DEFECTO;
+  const comercializador = COMERCIALIZADORES[origen];
+  const bandejaInmobiliaria = process.env.EMAIL_TO_INMOBILIARIA?.trim();
+  const destino = origen === "inmobiliaria" && bandejaInmobiliaria ? bandejaInmobiliaria : emailTo;
+  if (origen === "inmobiliaria" && !bandejaInmobiliaria) {
+    console.warn(
+      "[contacto] Lead de la inmobiliaria sin EMAIL_TO_INMOBILIARIA: va a EMAIL_TO.",
+    );
+  }
+
+  // Etiqueta en el asunto sólo cuando NO es el default, para que se pueda filtrar
+  // de un vistazo sin ensuciar el asunto de todos los días.
+  const etiqueta = origen === ORIGEN_DEFECTO ? "" : `[${comercializador.nombre}] `;
+  const subject = unitLabel
+    ? `${etiqueta}Nueva consulta — ${name} · ${unitLabel}`
+    : `${etiqueta}Nueva consulta — ${name}`;
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -79,9 +104,17 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         from: EMAIL_FROM,
-        to: [emailTo],
+        to: [destino],
         subject,
-        html: renderEmail({ name, email, phone, text, unitLabel, source: body.source }),
+        html: renderEmail({
+          name,
+          email,
+          phone,
+          text,
+          unitLabel,
+          source: body.source,
+          vinoPor: comercializador.nombre,
+        }),
         // Responder al email va directo al interesado (si dejó email).
         ...(email ? { reply_to: email } : {}),
       }),
@@ -109,6 +142,8 @@ function renderEmail(d: {
   text?: string;
   unitLabel?: string;
   source?: string;
+  /** Comercializador por cuyo link entró la visita. */
+  vinoPor?: string;
 }): string {
   const row = (label: string, value: string) => `
     <tr>
@@ -127,6 +162,7 @@ function renderEmail(d: {
     d.unitLabel ? row("Unidad", escapeHtml(d.unitLabel)) : "",
     d.text ? row("Mensaje", escapeHtml(d.text).replace(/\n/g, "<br>")) : "",
     d.source ? row("Origen", escapeHtml(d.source)) : "",
+    d.vinoPor ? row("Vino por", escapeHtml(d.vinoPor)) : "",
   ].join("");
 
   return `

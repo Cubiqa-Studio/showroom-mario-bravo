@@ -249,6 +249,56 @@ con el zoom en el rango −1..1. Dos razones para no cargar su script:
 código: en el Export Editor de Kuula se puede correr el zoom por defecto y los límites de
 cada tour (sección "Zoom Settings"). Eso ataca la queja de origen sin pelearse con nada.
 
+### Dos comercializadores, un formulario
+
+El proyecto lo venden dos: la **desarrolladora** y la **inmobiliaria**, y las dos querían
+poder recibir consultas. Poner dos formularios en la misma pantalla es un problema de
+usabilidad —¿a cuál le escribo?— y encima no resuelve el de fondo: alguien que llegó por
+la publicidad de una puede terminar escribiéndole a la otra.
+
+Lo que se hizo (idea de Joaquim, 31-08) es **un solo formulario, y el destinatario lo
+decide el link por el que entró la persona**. Cada uno publicita el suyo:
+
+| Quién | Link |
+|---|---|
+| Desarrolladora | `https://…/` (o `?v=desarrolladora`, si lo quieren explícito) |
+| Inmobiliaria | `https://…/?v=inmobiliaria` |
+
+El parámetro sirve en **cualquier ruta** (`/`, `/showroom`, `/residencia/402`) y se guarda
+apenas entra, así que puede desaparecer de la URL —navegación interna, un link que la
+persona comparte— sin perder de vista de dónde vino. Dura 30 días, que es la ventana de
+atribución habitual, y si alguien entra después por el otro link, gana el último.
+
+Qué cambia según el origen:
+
+* **a qué bandeja va el lead** — `EMAIL_TO` o `EMAIL_TO_INMOBILIARIA`. Si la segunda no
+  está cargada, el lead **no se pierde**: cae en `EMAIL_TO` y el mail dice "Vino por";
+* **a qué WhatsApp** apuntan todos los CTA — `WHATSAPP_NUMBER` o
+  `WHATSAPP_NUMBER_INMOBILIARIA` (`src/lib/contact.ts`);
+* el asunto del mail lleva `[Inmobiliaria]` adelante cuando no es el default, para poder
+  filtrarlo de un vistazo;
+* el evento `contact_form_submitted` de PostHog suma la propiedad `origen`, así se puede
+  ver qué campaña convierte.
+
+Lo que **no** cambia es la pantalla: el visitante ve el mismo formulario de siempre. Esa
+es la gracia — no hay que elegir nada ni entender quién es quién.
+
+Las piezas: `src/lib/origen.ts` (los valores, los alias y el guardado) y
+`src/components/OrigenProvider.tsx` (lo resuelve una vez en el layout raíz y lo reparte
+con `useOrigen()` / `useWhatsappUrl()`). Además de `?v=`, se aceptan `?utm_source=` y
+`?ref=` con los mismos valores, porque los gestores de campañas agregan `utm_source`
+solos.
+
+⚠ Es **atribución, no seguridad**: el parámetro está a la vista y cualquiera puede
+cambiarlo. Alcanza de sobra para que cada campaña alimente su bandeja; no sirve para nada
+que tenga que ser infalsificable.
+
+⚠ **Faltan los datos**: el nombre y el WhatsApp de la inmobiliaria, y su casilla de mail
+(y el WhatsApp de ventas de la desarrolladora sigue vacío desde el principio). Con el
+número en blanco, el botón de WhatsApp abre el selector de contactos. A propósito no cae
+al número de la otra parte: es preferible que se note que falta un número a mandarle
+callado el lead de una al teléfono de la otra.
+
 ### La hoja de Amenities
 
 Un solo componente (`AmenitiesModal`) con **dos pestañas**, y se abre desde dos lados:

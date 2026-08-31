@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
-import { whatsappUrl } from "@/lib/contact";
+import { useOrigen, useWhatsappUrl } from "@/components/OrigenProvider";
 import { captureContactFormSubmitted, captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { CloseIcon } from "../gallery/icons";
@@ -25,6 +25,9 @@ export function ContactModal({
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  // Quién trajo la visita: decide a qué bandeja va el lead y a qué WhatsApp.
+  const { origen } = useOrigen();
+  const waUrl = useWhatsappUrl();
   const [form, setForm] = useState({ name: "", phone: "", comment: "" });
   const set = (k: keyof typeof form) => (v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -71,10 +74,11 @@ export function ContactModal({
           phone: form.phone,
           comment: form.comment,
           source: "Sidebar · Contacto",
+          origen,
         }),
       });
       if (!res.ok) throw new Error();
-      captureContactFormSubmitted("sidebar_contact_modal");
+      captureContactFormSubmitted("sidebar_contact_modal", origen);
       setState("ok");
     } catch {
       setState("error");
@@ -82,7 +86,7 @@ export function ContactModal({
   };
 
   // WhatsApp (alternativa): link con el mensaje pre-cargado con los datos del form.
-  const waHref = whatsappUrl(
+  const waHref = waUrl(
     t.contactModal.waMessage(form.name, form.phone, form.comment),
   );
 
