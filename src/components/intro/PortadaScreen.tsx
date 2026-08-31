@@ -4,6 +4,7 @@ import "./portada.css";
 import Link, { useLinkStatus } from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PROYECTOS, type Proyecto } from "@/data/proyectos";
+import { useOrigen } from "@/components/OrigenProvider";
 import { useI18n } from "@/i18n/LanguageProvider";
 
 /* eslint-disable @next/next/no-img-element */
@@ -267,6 +268,12 @@ function Panel({
  */
 export function PortadaScreen({ preload = [] }: { preload?: string[] }) {
   const { t } = useI18n();
+  // Sólo los desarrollos que vende quien trajo la visita: si alguien entra por el link
+  // de la inmobiliaria, no tiene sentido mostrarle un proyecto que ella no comercializa
+  // (Juani, 31-08). Sin parámetro se ven todos. Los paneles son `flex: 1 1 0`, así que
+  // se reparten la pantalla solos: dos quedan al 50%.
+  const { origen } = useOrigen();
+  const proyectos = PROYECTOS.filter((p) => p.comercializan.includes(origen));
   // El video del hover sólo en escritorio con puntero fino: en táctil no hay hover que
   // lo dispare y bajar tres videos sería tirar los datos del visitante a la basura.
   const [conVideo, setConVideo] = useState(false);
@@ -338,7 +345,7 @@ export function PortadaScreen({ preload = [] }: { preload?: string[] }) {
       </div>
 
       <div className="portada-grid" data-expandido={expandido ?? undefined}>
-        {PROYECTOS.map((p, i) => (
+        {proyectos.map((p, i) => (
           <Panel
             key={p.id}
             proyecto={p}

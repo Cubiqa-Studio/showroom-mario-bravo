@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { whatsappUrl } from "@/lib/contact";
 import {
   COMERCIALIZADORES,
@@ -22,10 +22,15 @@ import {
  * parámetro viene en la URL de ENTRADA y la navegación interna se lo lleva puesto:
  * si esperáramos a que abran "Contacto", `location.search` ya no lo tendría.
  *
- * Se resuelve en un efecto y no durante el render para no romper la hidratación
- * (el servidor no ve ni la URL del cliente ni su localStorage). El primer pintado
- * usa el default; el ajuste ocurre antes de que nadie llegue a tocar un botón.
+ * Se resuelve en un efecto y no durante el render para no romper la hidratación (el
+ * servidor no ve ni la URL del cliente ni su localStorage). El efecto es de LAYOUT, no
+ * el común: React aplica el cambio de estado antes de que el navegador pinte, así que
+ * la portada no llega a mostrar los tres proyectos y después sacar uno.
  */
+
+/** `useLayoutEffect` avisa por consola si se ejecuta en el servidor; en SSR no hay
+ *  nada que medir, así que ahí cae al efecto común. Patrón de siempre. */
+const useEfectoDeLayout = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 interface Valor {
   origen: Origen;
@@ -40,7 +45,7 @@ const Ctx = createContext<Valor>({
 export function OrigenProvider({ children }: { children: React.ReactNode }) {
   const [origen, setOrigen] = useState<Origen>(ORIGEN_DEFECTO);
 
-  useEffect(() => {
+  useEfectoDeLayout(() => {
     // El parámetro de la URL SIEMPRE pisa lo guardado: si alguien entra por el link
     // de la otra parte, la visita es de esa parte (última campaña, gana).
     const deUrl = leerOrigenDeUrl(window.location.search);

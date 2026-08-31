@@ -7,25 +7,36 @@ import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { useI18n } from "@/i18n/LanguageProvider";
+import { useOrigen } from "@/components/OrigenProvider";
+import { ORDEN_PORTFOLIO, PROYECTOS } from "@/data/proyectos";
+import type { TeamPartner } from "@/lib/types";
 import { CloseIcon } from "../gallery/icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /* eslint-disable @next/next/no-img-element */
 
 /**
- * "El Equipo" — modal propio del menú general: respaldo institucional. Los
- * `featured` van arriba en tarjetas grandes, el resto en tarjetas chicas debajo, y
- * los `solo` en su propia fila centrada al pie. Con logo donde hay archivo en
- * /public; si no, el nombre en texto. Los datos viven en t.team.members — hoy, los
- * tres desarrollos de TIER (Bravo, Avenue y Sinclair), todos con el mismo logotipo.
+ * "El Equipo" — modal propio del menú general. Dos bloques, según el mockup que pasó
+ * el cliente (31-08):
+ *
+ *  1. **Quiénes están detrás** — las dos empresas del proyecto (la desarrolladora y el
+ *     estudio de arquitectura), cada una con su logo, su rol y qué hizo.
+ *  2. **Los desarrollos de TIER** — el portfolio de la marca. Sale de `PROYECTOS`, la
+ *     MISMA fuente que la portada: así el día que lleguen los renders y las direcciones
+ *     de Avenue y Sinclair, aparecen en los dos lados sin tocar componentes.
+ *
+ * El mockup traía un "Ver el sitio" debajo de cada empresa; el cliente lo tachó, así
+ * que no está. Y donde falta material no se inventa: un proyecto sin render se dibuja
+ * tipográfico (igual que en la portada) y sin dirección dice "Próximamente".
  */
 export function TeamModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useI18n();
-  const featured = t.team.members.filter((m) => m.featured);
-  // Espejo del brochure: destacados arriba, fila del medio, y los `solo`
-  // (RE/MAX) en su propia fila centrada al pie.
-  const rest = t.team.members.filter((m) => !m.featured && !m.solo);
-  const solo = t.team.members.filter((m) => m.solo);
+  // Mismo criterio que la portada: no se le muestra a la inmobiliaria un desarrollo
+  // que no comercializa (Juani, 31-08). Sin parámetro en la URL, se ven los tres.
+  const { origen } = useOrigen();
+  const obras = PROYECTOS.filter((p) => p.comercializan.includes(origen)).sort(
+    (a, b) => ORDEN_PORTFOLIO.indexOf(a.id) - ORDEN_PORTFOLIO.indexOf(b.id),
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -70,29 +81,49 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
 
               <div className="sheet-body">
                 <div className="team-wrap">
-                  <p className="team-intro">{t.team.intro}</p>
-
-                  <div className="team-grid team-grid--featured">
-                    {featured.map((m) => (
-                      <TeamCard key={m.name} m={m} featured />
-                    ))}
-                  </div>
-
-                  <div className="team-grid">
-                    {rest.map((m) => (
-                      <TeamCard key={m.name} m={m} />
-                    ))}
-                  </div>
-
-                  {solo.length > 0 ? (
-                    <div className="team-grid team-grid--solo">
-                      {solo.map((m) => (
-                        // `featured`: la tarjeta de RE/MAX va del MISMO tamaño que las
-                        // destacadas (logo 56px, padding y nombre grandes) — pedido 21/07.
-                        <TeamCard key={m.name} m={m} featured />
+                  <section className="team-bloque">
+                    <h3 className="team-h">{t.team.behindTitle}</h3>
+                    <p className="team-intro">{t.team.behindIntro}</p>
+                    <div className="team-socios">
+                      {t.team.partners.map((p) => (
+                        <TarjetaSocio key={p.name} socio={p} />
                       ))}
                     </div>
-                  ) : null}
+                  </section>
+
+                  <section className="team-bloque">
+                    <header className="team-bloque-head">
+                      <h3 className="team-h team-h--fila">{t.team.worksTitle}</h3>
+                      <p className="team-nota">{t.team.worksNote}</p>
+                    </header>
+                    <div className="team-obras">
+                      {obras.map((o) => (
+                        <article className="team-obra" key={o.id}>
+                          <div className="team-obra-media">
+                            {o.poster ? (
+                              <img src={o.poster} alt="" aria-hidden loading="lazy" decoding="async" />
+                            ) : (
+                              // Sin render todavía: panel tipográfico, no una foto
+                              // prestada de otro proyecto (mismo criterio que la portada).
+                              <span className="team-obra-sinmedia" aria-hidden>
+                                TIER
+                              </span>
+                            )}
+                            {/* El proyecto de ESTE showroom, marcado. Es el único que
+                                hoy lleva a algún lado (`href`). */}
+                            {o.href ? (
+                              <span className="team-obra-chip">{t.team.thisShowroom}</span>
+                            ) : null}
+                          </div>
+                          <div className="team-obra-pie">
+                            <p className="team-role">TIER</p>
+                            <h4 className="team-obra-nombre">{o.nombre}</h4>
+                            <p className="team-obra-dato">{o.ubicacion ?? t.team.soon}</p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
                 </div>
               </div>
             </div>
@@ -103,30 +134,24 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
   );
 }
 
-/** Tarjeta de un miembro: rol arriba (kicker), logo si hay archivo y el nombre
- *  siempre en texto (cuando hay logo, como caption chico debajo). */
-function TeamCard({
-  m,
-  featured = false,
-}: {
-  m: { role: string; name: string; logo?: string };
-  featured?: boolean;
-}) {
+/** Una empresa: rol arriba, logo (o el nombre en texto si no hay archivo), filete,
+ *  nombre y qué hizo. */
+function TarjetaSocio({ socio }: { socio: TeamPartner }) {
   return (
-    <div className={`team-card${featured ? " team-card--featured" : ""}`}>
-      <p className="team-role">{m.role}</p>
-      {m.logo ? (
-        <>
-          <img
-            className={`team-logo${featured ? " team-logo--big" : ""}`}
-            src={m.logo}
-            alt={m.name}
-          />
-          <p className="team-name team-name--sub">{m.name}</p>
-        </>
-      ) : (
-        <p className="team-name serif">{m.name}</p>
-      )}
-    </div>
+    <article className="team-card">
+      <p className="team-role">{socio.role}</p>
+      {/* Con logo, el nombre va debajo del filete. SIN logo, el nombre ocupa el
+          lugar del logo y no se repite abajo (si no queda dos veces seguidas). */}
+      <div className="team-marca">
+        {socio.logo ? (
+          <img className="team-logo" src={socio.logo} alt={socio.name} />
+        ) : (
+          <span className="team-marca-texto">{socio.name}</span>
+        )}
+      </div>
+      <span className="team-filete" aria-hidden />
+      {socio.logo ? <h4 className="team-name">{socio.name}</h4> : null}
+      <p className={`team-desc${socio.logo ? "" : " team-desc--solo"}`}>{socio.desc}</p>
+    </article>
   );
 }

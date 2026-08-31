@@ -1,4 +1,4 @@
-import type { SpecPanel, PaymentMilestone, TeamMember, Unit } from "@/lib/types";
+import type { SpecPanel, PaymentMilestone, TeamPartner, Unit } from "@/lib/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Diccionario i18n de TODO el sitio (showroom exterior + landing de residencia).
@@ -399,26 +399,38 @@ const es = {
     financingTitle: "Financiación",
   },
 
-  /** "El Equipo" — modal propio del menú general. */
+  /** "El Equipo" — modal propio del menú general. Dos bloques, según el mockup del
+   *  cliente (31-08): las empresas detrás del proyecto, y el portfolio de la marca.
+   *  ⚠ El mockup traía un "Ver el sitio" en cada tarjeta y el cliente lo tachó. */
   team: {
     eyebrow: "Respaldo institucional",
     title: "Un equipo con trayectoria",
-    intro:
-      "TIER es la marca de desarrollos de CCM. Bravo, Avenue y Sinclair conforman su portfolio; este showroom es el de TIER Bravo, en Mario Bravo 955.",
     close: "Cerrar",
-    // Los tres desarrollos de TIER (pedido del cliente, 26-08). Los tres llevan el
-    // MISMO logotipo TIER, en su variante DORADA (`/logo.png`): la hoja es oscura y
-    // la variante tinta desaparecía contra el fondo. Éste es Bravo, va destacado.
-    members: [
+
+    behindTitle: "Quiénes están detrás",
+    behindIntro:
+      "TIER Bravo es el resultado del trabajo conjunto de una desarrolladora y un estudio de arquitectura.",
+    // ⚠ Falta el logo de Estudio Mizraji: el drop del cliente sólo trajo el de CCM.
+    // Sin archivo, la tarjeta muestra el nombre en texto (ver TeamModal).
+    partners: [
       {
-        role: "Este desarrollo",
-        name: "TIER Bravo",
-        logo: "/logo.png",
-        featured: true,
+        role: "Desarrollo",
+        name: "CCM Desarrollos",
+        logo: "/logo-ccm.png",
+        desc: "Desarrolladora a cargo del proyecto, desde la compra del terreno hasta la entrega de las unidades.",
       },
-      { role: "También de TIER", name: "TIER Avenue", logo: "/logo.png" },
-      { role: "También de TIER", name: "TIER Sinclair", logo: "/logo.png" },
-    ] as TeamMember[],
+      {
+        role: "Proyecto y arquitectura",
+        name: "Estudio Mizraji",
+        desc: "Estudio de arquitectura responsable del proyecto, el diseño de los espacios comunes y las terminaciones.",
+      },
+    ] as TeamPartner[],
+
+    worksTitle: "Los desarrollos de TIER",
+    worksNote: "TIER es la marca de desarrollos de CCM.",
+    thisShowroom: "Este showroom",
+    /** Lo que se muestra donde todavía no hay dirección ni estado de obra. */
+    soon: "Próximamente",
   },
 
   /** Controles de sonido de un video (los usa el carrusel del entorno). */
@@ -1122,19 +1134,29 @@ const en: Dict = {
   team: {
     eyebrow: "Institutional backing",
     title: "A team with a track record",
-    intro:
-      "TIER is CCM's development brand. Bravo, Avenue and Sinclair make up its portfolio; this showroom is TIER Bravo, at Mario Bravo 955.",
     close: "Close",
-    members: [
+
+    behindTitle: "Who is behind it",
+    behindIntro:
+      "TIER Bravo is the result of a developer and an architecture studio working together.",
+    partners: [
       {
-        role: "This development",
-        name: "TIER Bravo",
-        logo: "/logo.png",
-        featured: true,
+        role: "Development",
+        name: "CCM Desarrollos",
+        logo: "/logo-ccm.png",
+        desc: "Developer in charge of the project, from buying the site to handing over the units.",
       },
-      { role: "Also by TIER", name: "TIER Avenue", logo: "/logo.png" },
-      { role: "Also by TIER", name: "TIER Sinclair", logo: "/logo.png" },
+      {
+        role: "Project and architecture",
+        name: "Estudio Mizraji",
+        desc: "Architecture studio behind the project, the design of the common areas and the finishes.",
+      },
     ],
+
+    worksTitle: "The TIER developments",
+    worksNote: "TIER is CCM's development brand.",
+    thisShowroom: "This showroom",
+    soon: "Coming soon",
   },
 
   anim: {

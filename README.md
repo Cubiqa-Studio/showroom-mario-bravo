@@ -215,8 +215,20 @@ Qué cambia según el origen:
 * el evento `contact_form_submitted` de PostHog suma la propiedad `origen`, así se puede
   ver qué campaña convierte.
 
-Lo que **no** cambia es la pantalla: el visitante ve el mismo formulario de siempre. Esa
-es la gracia — no hay que elegir nada ni entender quién es quién.
+Y además, **qué desarrollos se muestran**. Juani lo levantó el 31-08: el link se comparte
+desde la portada, donde se ven los tres proyectos de la marca, y no tiene sentido que la
+inmobiliaria exhiba uno que no vende. Camila confirmó que comercializa **Bravo y Avenue**,
+así que con `?v=inmobiliaria` la portada muestra esos dos (los paneles son `flex: 1 1 0`,
+se reparten la pantalla solos) y el bloque "Los desarrollos de TIER" de El Equipo, también.
+Quién vende cada uno vive en `comercializan` (`src/data/proyectos.ts`), que es la misma
+fuente que usan la portada y El Equipo.
+
+El origen se resuelve en un efecto de **layout**, no en uno común: React aplica el cambio
+antes de que el navegador pinte, así que la portada no llega a mostrar los tres proyectos
+y después sacar uno.
+
+Lo que **no** cambia es el formulario: el visitante ve el mismo de siempre. Esa es la
+gracia — no hay que elegir nada ni entender quién es quién.
 
 Las piezas: `src/lib/origen.ts` (los valores, los alias y el guardado) y
 `src/components/OrigenProvider.tsx` (lo resuelve una vez en el layout raíz y lo reparte
@@ -233,6 +245,30 @@ que tenga que ser infalsificable.
 número en blanco, el botón de WhatsApp abre el selector de contactos. A propósito no cae
 al número de la otra parte: es preferible que se note que falta un número a mandarle
 callado el lead de una al teléfono de la otra.
+
+### "El Equipo"
+
+Dos bloques, según el mockup que pasó el cliente el 31-08:
+
+1. **Quiénes están detrás** — las dos empresas del proyecto: CCM Desarrollos (desarrollo)
+   y Estudio Mizraji (proyecto y arquitectura), cada una con su rol, su logo y qué hizo.
+2. **Los desarrollos de TIER** — el portfolio de la marca, con el de este showroom
+   marcado con un chip.
+
+Dos decisiones que conviene no deshacer sin querer:
+
+* el mockup traía un **"Ver el sitio"** debajo de cada empresa y **el cliente lo tachó**.
+  No está, y no es un olvido;
+* el portfolio sale de `PROYECTOS` (`src/data/proyectos.ts`), la **misma fuente que la
+  portada**. El día que lleguen los renders y las direcciones de Avenue y Sinclair,
+  aparecen en los dos lados sin tocar un componente. El orden acá es el de la marca
+  (`ORDEN_PORTFOLIO`: Bravo, Avenue, Sinclair); la portada usa otro a propósito, con
+  Bravo al medio.
+
+Donde falta material no se inventa: un proyecto sin render se dibuja tipográfico (igual
+que en la portada, sin robarle la foto a otro) y sin dirección dice "Próximamente". Falta
+el logo de Estudio Mizraji — el drop del cliente sólo trajo el de CCM —, así que esa
+tarjeta muestra el nombre en texto donde iría el logo.
 
 ### La hoja de Amenities
 

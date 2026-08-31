@@ -2024,43 +2024,104 @@
   .sheet-amenities-specs .spec-panel p.am-lead { font-size: calc(20px * var(--fs-k)); line-height: 1.8; }
 }
 
-/* "El Equipo" (Miro 2026-07-15): respaldo institucional dentro de la hoja.
-   Fluir Desarrollos + Aslan y Ezcurra en tarjetas GRANDES arriba; el resto en
-   tarjetas chicas debajo (layout del mockup del cliente). */
+/* "El Equipo" — dos bloques, según el mockup del cliente (31-08): arriba las empresas
+   detrás del proyecto, abajo el portfolio de la marca. Ver TeamModal.tsx. */
 .team-wrap { max-width: 1080px; margin: 0 auto; }
-.team-intro { max-width: 640px; margin: 4px auto 0; text-align: center; color: var(--gray); line-height: 1.7; }
-.team-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 18px; margin-top: 20px;
+.team-bloque + .team-bloque {
+  margin-top: 62px; padding-top: 46px; border-top: 1px solid var(--divider);
 }
-/* `min(300px, 100%)`: con `minmax(300px, …)` pelado, en un viewport de 320 la pista
-   medía 300 dentro de una columna de 288 y la tarjeta se pasaba 12px del margen
-   derecho. El `min()` deja que la pista se achique cuando no hay 300px. */
-.team-grid--featured { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); margin-top: 38px; }
-/* RE/MAX solo al pie, centrado, del MISMO ancho que una tarjeta destacada
-   (531px ≈ media fila de 1080 con gap 18); la tarjeta se renderiza `featured`. */
-.team-grid--solo { grid-template-columns: minmax(min(300px, 100%), 531px); justify-content: center; }
+.team-h {
+  font-family: var(--sans); font-weight: 300; line-height: 1.15; letter-spacing: .01em;
+  font-size: calc(clamp(27px, 3.2vw, 40px) * var(--fs-k)); text-align: center;
+}
+.team-intro {
+  max-width: 640px; margin: 14px auto 0; text-align: center;
+  color: var(--gray); line-height: 1.7;
+}
+
+/* ---- bloque 1: quiénes están detrás ---- */
+.team-socios {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 20px; margin-top: 34px;
+}
 .team-card {
   background: var(--bg-2); border: 1px solid var(--divider); border-radius: var(--radius);
-  padding: 22px 24px; text-align: left;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  padding: 30px 28px; text-align: left;
+  display: flex; flex-direction: column; align-items: flex-start;
 }
-.team-card--featured { padding: 34px 30px; }
 .team-role {
-  font-size: calc(16.5px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase; color: var(--gold);
+  font-size: calc(16.5px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold);
 }
-.team-name { font-family: var(--serif); font-size: calc(23.5px * var(--fs-k)); letter-spacing: .02em; line-height: 1.25; }
-.team-card--featured .team-name { font-size: calc(clamp(22px, 2.4vw, 28px) * var(--fs-k)); }
-/* Con logo, el nombre queda como caption chico debajo (no compite con el logo). */
-.team-name--sub { font-family: var(--sans, inherit); font-size: calc(18px * var(--fs-k)); color: var(--gray); letter-spacing: .02em; }
-.team-logo { display: block; height: 40px; width: auto; max-width: 100%; object-fit: contain; border-radius: 8px; }
-.team-logo--big { height: 56px; }
+/* Caja de altura fija para el logo: así el filete de las dos tarjetas queda a la
+   misma altura aunque un logo sea más alto o falte el archivo. */
+.team-marca { display: flex; align-items: center; min-height: 86px; margin-top: 18px; }
+.team-logo { display: block; height: 46px; width: auto; max-width: 100%; object-fit: contain; }
+/* Sin archivo de logo, el nombre en texto (indicación de Juani). */
+.team-marca-texto {
+  font-family: var(--serif); font-size: calc(26px * var(--fs-k)); letter-spacing: .04em;
+}
+.team-filete {
+  display: block; width: 100%; height: 1px; margin: 6px 0 20px;
+  background: linear-gradient(90deg, var(--gold), transparent 82%);
+}
+.team-name { font-size: calc(21px * var(--fs-k)); letter-spacing: .01em; line-height: 1.25; }
+.team-desc { margin-top: 10px; color: var(--gray); line-height: 1.7; }
+/* Sin logo no hay nombre arriba del texto, así que la descripción arranca pegada al
+   filete y hay que devolverle el aire que daba el nombre. */
+.team-desc--solo { margin-top: 0; }
+
+/* ---- bloque 2: los desarrollos de la marca ---- */
+.team-bloque-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 16px 24px;
+  flex-wrap: wrap;
+}
+.team-h--fila {
+  text-align: left; font-size: calc(clamp(22px, 2.4vw, 28px) * var(--fs-k));
+}
+.team-nota { color: var(--gray); }
+.team-obras {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 18px; margin-top: 24px;
+}
+.team-obra {
+  background: var(--bg-2); border: 1px solid var(--divider); border-radius: var(--radius);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.team-obra-media {
+  position: relative; aspect-ratio: 16 / 10; display: grid; place-items: center;
+  background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+  border-bottom: 1px solid var(--divider);
+}
+.team-obra-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Proyecto sin render todavía: panel tipográfico, NO una foto prestada de otro. */
+.team-obra-sinmedia {
+  font-size: calc(21px * var(--fs-k)); letter-spacing: .42em; text-indent: .42em;
+  color: color-mix(in srgb, var(--gold) 58%, transparent);
+}
+.team-obra-chip {
+  position: absolute; top: 14px; left: 14px;
+  padding: 6px 13px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  background: rgba(11, 11, 11, .55); backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--gold); font-size: calc(14px * var(--fs-k));
+  letter-spacing: .16em; text-transform: uppercase; line-height: 1;
+}
+.team-obra-pie { padding: 20px 22px 24px; }
+.team-obra-nombre {
+  margin-top: 8px; font-size: calc(25px * var(--fs-k)); letter-spacing: .01em; line-height: 1.2;
+}
+.team-obra-dato { margin-top: 10px; color: var(--gray); }
+
 @media (max-width: 720px) {
-  .team-grid { gap: 12px; margin-top: 14px; }
-  .team-grid--featured { margin-top: 26px; }
-  .team-card { padding: 18px 18px; }
-  .team-card--featured { padding: 24px 20px; }
-  .team-logo--big { height: 44px; }
+  .team-bloque + .team-bloque { margin-top: 42px; padding-top: 32px; }
+  .team-socios { gap: 12px; margin-top: 24px; }
+  .team-card { padding: 22px 20px; }
+  .team-marca { min-height: 66px; margin-top: 14px; }
+  .team-logo { height: 38px; }
+  .team-obras { gap: 12px; margin-top: 18px; }
+  .team-obra-pie { padding: 16px 18px 20px; }
 }
 
 /* Paginador mobile del acordeón (01 → 03) — sólo en la hoja, sólo en mobile. */

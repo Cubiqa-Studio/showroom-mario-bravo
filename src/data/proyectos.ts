@@ -22,6 +22,8 @@
  * proyecto: se dibuja tipográfico. Y uno sin `href` no es clickeable y dice
  * "Próximamente", que es la verdad.
  */
+import type { Origen } from "@/lib/origen";
+
 export interface Proyecto {
   /** Slug interno (clave de React y de los data-attributes). */
   id: string;
@@ -42,6 +44,14 @@ export interface Proyecto {
    * celular y tablet nunca se baja: son tres videos y el visitante no tiene hover.
    */
   video: string | null;
+  /**
+   * Quiénes venden ESTE desarrollo. La portada muestra sólo los que comercializa el
+   * dueño del link por el que entró la visita (ver src/lib/origen.ts): la inmobiliaria
+   * no tiene por qué exhibir un proyecto que no vende.
+   *
+   * Camila, 31-08: "solo bravo y avenue va a comercializar esta inmobiliaria".
+   */
+  comercializan: Origen[];
 }
 
 export const PROYECTOS: Proyecto[] = [
@@ -52,6 +62,7 @@ export const PROYECTOS: Proyecto[] = [
     href: null,
     poster: null,
     video: null,
+    comercializan: ["desarrolladora"],
   },
   {
     // El único que hoy tiene showroom: es ESTE sitio.
@@ -64,6 +75,7 @@ export const PROYECTOS: Proyecto[] = [
     // pasa a ser su primer frame.
     poster: "/intro-poster.jpg",
     video: null,
+    comercializan: ["desarrolladora", "inmobiliaria"],
   },
   {
     id: "avenue",
@@ -72,5 +84,13 @@ export const PROYECTOS: Proyecto[] = [
     href: null,
     poster: null,
     video: null,
+    comercializan: ["desarrolladora", "inmobiliaria"],
   },
 ];
+
+/**
+ * Orden del portfolio para "El Equipo" — el mismo con el que la marca se nombra a sí
+ * misma ("Bravo, Avenue y Sinclair conforman su portfolio") y el del mockup del
+ * cliente. La PORTADA usa otro orden a propósito: ahí Bravo va al medio.
+ */
+export const ORDEN_PORTFOLIO = ["bravo", "avenue", "sinclair"];

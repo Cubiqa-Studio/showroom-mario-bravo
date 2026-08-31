@@ -178,16 +178,15 @@ export interface SpecPanel {
 }
 
 /** Miembro del equipo (modal "El Equipo" — Miro 2026-07-15). */
-export interface TeamMember {
-  /** Rol institucional, ej. "Desarrollador", "Estudio de arquitectura". */
+/** Una de las empresas detrás del proyecto (bloque "Quiénes están detrás"). */
+export interface TeamPartner {
+  /** Rol institucional: "Desarrollo", "Proyecto y arquitectura". Va como antetítulo. */
   role: string;
   name: string;
   /** Logo en /public. Sin logo, el nombre va sólo en texto (indicación de Juani). */
   logo?: string;
-  /** Tarjeta destacada y más grande (Fluir Desarrollos y Aslan y Ezcurra). */
-  featured?: boolean;
-  /** Tarjeta sola, centrada al pie — espejo del brochure (RE/MAX). */
-  solo?: boolean;
+  /** Qué hizo, en una línea. */
+  desc: string;
 }
 
 /** Un hito del plan de pagos (sección Reserva y Cronograma). */
