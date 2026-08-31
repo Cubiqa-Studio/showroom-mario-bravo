@@ -17,7 +17,6 @@ import { CloseIcon } from "../gallery/icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { GalleryModal } from "./GalleryModal";
 import { ZoomKuula } from "./ZoomKuula";
-import { EscudoRueda } from "./EscudoRueda";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -50,10 +49,11 @@ export function AmenitiesModal({
   // Índice de la foto abierta en el lightbox; `null` = cerrado.
   const [foto, setFoto] = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  // Zoom siempre; en escritorio la rueda de la hoja la cuidan el candado del hook y el
-  // escudo, si no el iframe se la quedaría (ver la tabla en KuulaChromeOpts.zoom).
-  const conZoom = true;
-  const kz = useKuulaZoom(iframeRef, open && conZoom, { candado: !isTouch });
+  // Zoom sólo en táctil: en escritorio habilitarlo le devuelve la rueda al iframe y la
+  // hoja deja de scrollear (ver la tabla en KuulaChromeOpts.zoom). Para zoomear en
+  // escritorio está el botón de pantalla completa que dibuja el propio Kuula.
+  const conZoom = isTouch;
+  const kz = useKuulaZoom(iframeRef, open && conZoom);
 
   // Al cerrar la hoja, volver a la pestaña inicial y soltar el lightbox: si no,
   // reabrirla te deja donde estabas y el visor grande queda colgado detrás.
@@ -151,7 +151,6 @@ export function AmenitiesModal({
                       allow="fullscreen"
                       allowFullScreen
                     />
-                    <EscudoRueda activo={!isTouch} intrusos={kz.intrusos} />
                     <ZoomKuula kz={kz} className="kz--hoja" />
                   </div>
                 )}

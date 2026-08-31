@@ -193,8 +193,8 @@ real el 31-08, con el mismo tour y los mismos parámetros:
 
 | | rueda del mouse sobre el 360 | `setZoom` de la Player API |
 |---|---|---|
-| `zoom=0` | no hace nada → **la página scrollea** (1300px en la prueba) | el player vuelve a 0 al instante: pedirle 0,6 deja `5,99e-15` |
-| `zoom=1` | zoomea → **la página NO scrollea** (0px) | funciona (pedirle 0,6 deja 0,6) |
+| `zoom=0` | no hace nada → **la página scrollea** | el player vuelve a 0 al instante: pedirle 0,6 deja `5,99e-15` |
+| `zoom=1` | zoomea → **la página NO scrollea** | funciona (pedirle 0,6 deja 0,6) |
 
 No hay ningún atajo alrededor de eso, y está probado uno por uno:
 
@@ -205,34 +205,34 @@ No hay ningún atajo alrededor de eso, y está probado uno por uno:
 * **no hay gesto que lo condicione**: la rueda se la lleva el tour desde el primer giro,
   sin click previo (el `focus` que reporta el player da `false` y zoomea igual).
 
-Así que el embed lleva **`zoom=1` en todos lados** y el scroll se defiende del lado
-nuestro, con dos piezas que trabajan juntas:
-
-**1. El candado (`useKuulaZoom`, opción `candado`).** El zoom lo maneja sólo la barrita.
-Si el valor se corre sin que lo haya pedido la barra —o sea, alguien usó la rueda—, se lo
-devuelve al valor de la barra y sube un contador (`intrusos`). Medido: un golpe de rueda
-alcanza a mover 0,054 (contra 0,2 si lo dejás) y vuelve en ~150 ms.
-
-**2. El escudo (`EscudoRueda`, sólo escritorio).** Un overlay transparente sobre el
-iframe. Con el escudo puesto, la rueda vuelve a ser de la página (medido: scrollea 600px
-y el tour no zoomea). Lo importante es que **no es un candado que haya que abrir con un
-click**: se corre solo apenas el mouse se mueve, así que arrastrar para mirar y tocar los
-hotspots de Kuula sigue siendo directo. Y se vuelve a poner cuando el puntero se va del
-360°, o cuando el candado avisa que alguien intentó zoomear con la rueda.
-
-En criollo: **quieto, la rueda scrollea la página; con el mouse moviéndose, el tour es
-tuyo; y la rueda nunca cambia el zoom** — para eso está la barrita (pedido del cliente,
-31-08: "que solo se pueda hacer zoomIn / zoomOut con la barra, NO CON EL SCROLL").
+Así que la barrita va **sólo donde no hay una rueda que robarle a nadie**:
 
 | Dónde | Escritorio | Táctil |
 |---|---|---|
-| `Vr360Modal` (bolita del showroom, submenú Tours) | barrita + candado, sin escudo: no hay nada atrás que scrollear | barrita, sin candado (el pinch es bienvenido) |
-| `Hero360` de la ficha | barrita + candado + escudo | barrita, sin candado |
-| Hoja de Amenities | barrita + candado + escudo | barrita, sin candado |
+| `Vr360Modal` (bolita del showroom, submenú Tours, y el chip del hero) | ✅ pantalla completa, no hay nada atrás | ✅ |
+| `Hero360` de la ficha | ❌ `zoom=0`: la rueda tiene que seguir scrolleando la ficha | ✅ el scroll se hace arrastrando el bottom sheet |
+| Hoja de Amenities | ❌ ídem, la hoja scrollea | ✅ |
 
-En táctil no se monta el escudo: no hay rueda que robar (el scroll se hace arrastrando el
-bottom sheet) y el 360° tiene que seguir siendo directo. La barrita lleva `touch-action:
-none` para que tocar "+"/"−" con la deriva normal de un dedo no arrastre la ficha.
+En escritorio, entonces, **el hero es 100% nativo** (arrastrar, hotspots, y la rueda
+scrollea la ficha) y para zoomear está el chip "360°" de arriba a la derecha, que abre el
+mismo tour a pantalla completa en el `Vr360Modal`, donde la barrita sí funciona.
+
+⚠️ **Lo que NO hay que volver a intentar.** Se probó tapar el iframe con un overlay
+transparente que le devolviera la rueda a la página y se corriera solo al mover el mouse.
+En el banco de pruebas daba perfecto (la página scrolleaba 600px y el tour no zoomeaba),
+y **en la vida real funcionó pésimo**: alcanza con que la mano tiemble un pixel para que
+el overlay se corra y la rueda vuelva a zoomear, y encima el navegador dispara `mousemove`
+propios durante el scroll. Es una carrera que se pierde. La variante determinista —que el
+overlay se abra con un click— funciona, pero se come el primer click de cada exploración.
+
+Si algún día hay que insistir, la ÚNICA vía sólida es un overlay **permanente** y manejar
+la cámara nosotros por la API. Está medido y es viable: los comandos de cámara son
+instantáneos (un salto de 40° se aplica en el cuadro siguiente, no animado) y la
+sensibilidad del arrastre tiene una ley limpia — un arrastre de punta a punta del ancho
+barre `114° × (1 + 0,5 × zoom)`, y no depende del alto. El precio es que un overlay que
+tapa la rueda tapa TAMBIÉN los clicks: se pierden las flechas de Kuula y los hotspots del
+piso, y habría que reponerlos con UI propia (`frameloaded` trae la lista de `posts` y
+`cmd:"load"` navega entre ellas). Es un player propio, con todo lo que eso implica.
 
 **Cómo se habla con el player.** Kuula ofrece un `static.kuula.io/api.js`, pero acá se
 habla el protocolo directo (`useKuulaZoom`): el player postea al padre
@@ -244,6 +244,14 @@ con el zoom en el rango −1..1. Dos razones para no cargar su script:
    le mandaría los comandos al equivocado. Comparar `event.source === contentWindow` no
    tiene ese problema;
 2. son 2,8 KB de un tercero en una página que ya está medida al gramo.
+
+El hook además acepta un **candado** (`{ candado: true }`), que se usa en el `Vr360Modal`
+en escritorio: si el zoom se corre sin que lo pida la barrita, se lo devuelve. Así se
+cumple el pedido de que el zoom se haga sólo con la barra. Ahí no cuesta nada, porque no
+hay ninguna página atrás esperando la rueda.
+
+En táctil la barrita lleva `touch-action: none`, porque tocar "+"/"−" con la deriva normal
+de un dedo arrastraba la ficha.
 
 ⚠ Si el encuadre de arranque sigue pareciendo cerrado, hay una salida que no toca el
 código: en el Export Editor de Kuula se puede correr el zoom por defecto y los límites de

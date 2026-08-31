@@ -47,19 +47,17 @@ export function useKuulaZoom(
   /**
    * Candado: el zoom lo maneja SÓLO la barrita. Si el player se mueve por su cuenta
    * —la rueda del mouse, que Kuula se queda sí o sí cuando el embed lleva `zoom=1`—
-   * se lo devuelve al valor de la barra y se avisa subiendo `intrusos`.
+   * se lo devuelve al valor de la barra.
    *
-   * Se usa en escritorio, donde la rueda tiene que seguir siendo de la PÁGINA
-   * (`EscudoRueda` se re-arma justo con ese aviso). En táctil va sin candado: ahí no
-   * hay rueda, el pinch es bienvenido y la barra tiene que reflejarlo.
+   * Se usa en el `Vr360Modal` en escritorio, para cumplir el pedido del cliente de que
+   * el zoom se haga SÓLO con la barrita (31-08). En táctil va sin candado: ahí no hay
+   * rueda, el pinch es bienvenido y la barra tiene que reflejarlo.
    */
   { candado = false }: { candado?: boolean } = {},
 ) {
   const uuid = useRef<number | null>(null);
   const [listo, setListo] = useState(false);
   const [zoom, setZoom] = useState(0);
-  // Sube de a uno cada vez que se atajó un zoom que no pidió la barra.
-  const [intrusos, setIntrusos] = useState(0);
   // Mientras el dedo está en la barrita ignoramos el eco del player: `orientation`
   // llega ~20 veces por segundo y, si lo escribiéramos siempre, pelearía contra el
   // arrastre y la barrita temblaría.
@@ -122,12 +120,11 @@ export function useKuulaZoom(
         return;
       }
 
-      // Fase 2: si el zoom se corrió sin que lo pidiéramos, devolverlo y avisar.
+      // Fase 2: si el zoom se corrió sin que lo pidiéramos, devolverlo a donde estaba.
       if (arrastrando.current || ahora < graciaHasta.current) return;
       if (Math.abs(z - esperado.current) > TOLERANCIA) {
         graciaHasta.current = ahora + GRACIA_MS;
         postear(esperado.current);
-        setIntrusos((n) => n + 1);
       }
     };
 
@@ -154,5 +151,5 @@ export function useKuulaZoom(
     if (!v) graciaHasta.current = performance.now() + GRACIA_MS;
   }, []);
 
-  return { listo, zoom, aplicar, marcarArrastre, intrusos };
+  return { listo, zoom, aplicar, marcarArrastre };
 }

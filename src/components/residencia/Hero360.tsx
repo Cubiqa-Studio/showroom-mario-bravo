@@ -6,18 +6,22 @@ import { useIsTouch } from "@/hooks/useIsTouch";
 import { kuulaEmbedUrl } from "@/lib/kuula";
 import { useKuulaZoom } from "@/hooks/useKuulaZoom";
 import { ZoomKuula } from "./ZoomKuula";
-import { EscudoRueda } from "./EscudoRueda";
+import { Vr360Modal } from "../gallery/Vr360Modal";
 
 /**
  * Tour 360° de Kuula embebido en el hero (tipología E dúplex: 207/213).
  *
- * Nota scroll/zoom: la URL lleva SIEMPRE `zoom=1` para que ande la barrita lateral
- * (`ZoomKuula`). Como el zoom de Kuula es todo o nada, eso le devuelve la rueda del
- * mouse al tour — y con un hero de 100vh la ficha dejaría de scrollear. En ESCRITORIO
- * lo tapa el `EscudoRueda`, que se corre solo apenas movés el mouse (mirar y tocar
- * hotspots sigue siendo directo) y vuelve cuando alguien intenta zoomear con la rueda.
- * En TÁCTIL no hace falta escudo: no hay rueda, y el scroll se hace arrastrando el
- * bottom sheet.
+ * Nota scroll/zoom: en ESCRITORIO la URL lleva `zoom=0`. El zoom de Kuula es todo o
+ * nada: habilitarlo (lo único que hace andar la barrita) le devuelve la RUEDA al tour,
+ * y con un hero de 100vh la ficha deja de scrollear. Se probó taparlo con un overlay
+ * que se corría solo, y en la vida real es una carrera que se pierde: alcanza con que
+ * el mouse se mueva un pixel para que la rueda vuelva a zoomear (reporte del cliente,
+ * 31-08). Así que acá el 360° es NATIVO —arrastrar, hotspots, la rueda scrollea la
+ * ficha— y el zoom se hace a pantalla completa, en el `Vr360Modal`, donde no hay nada
+ * atrás que scrollear: el chip de arriba a la derecha lo abre.
+ *
+ * En TÁCTIL sí va `zoom=1` + la barrita: no hay rueda que robar (el scroll se hace
+ * arrastrando el bottom sheet), así que el zoom sale gratis.
  *
  * En TÁCTIL (mobile) el 360 es directamente interactivo: se ARRASTRA para mirar sin
  * tener que tocar antes. La página no queda trabada porque el scroll se hace
@@ -38,10 +42,15 @@ export function Hero360({ src, title }: { src: string; title: string }) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { t } = useI18n();
   const isTouch = useIsTouch();
-  // Zoom en todos lados; en escritorio la rueda la cuidan el candado del hook y el
-  // escudo (ver EscudoRueda.tsx).
-  const conZoom = true;
-  const kz = useKuulaZoom(iframeRef, conZoom, { candado: !isTouch });
+  // Zoom SÓLO en táctil. En escritorio habilitarlo le devuelve la rueda al 360° y la
+  // ficha deja de scrollear (medido: 0px con el cursor sobre el hero, que ocupa la
+  // pantalla entera). Ver la tabla en `KuulaChromeOpts.zoom`.
+  const conZoom = isTouch;
+  const kz = useKuulaZoom(iframeRef, conZoom);
+  // En escritorio el chip abre el tour a pantalla completa EN UN MODAL (ahí sí hay
+  // barrita de zoom). En táctil sigue siendo el fullscreen del elemento, que ya
+  // funciona y evita cargar el tour dos veces.
+  const [modalAbierto, setModalAbierto] = useState(false);
   // Montamos el iframe recién después del primer efecto (isTouch ya resuelto) → el src
   // se calcula una sola vez, sin doble load.
   const [mounted, setMounted] = useState(false);
@@ -51,6 +60,10 @@ export function Hero360({ src, title }: { src: string; title: string }) {
   const iframeSrc = kuulaEmbedUrl(src, isTouch, { hideFullscreen: true, zoom: conZoom });
 
   const openTour = () => {
+    if (!isTouch) {
+      setModalAbierto(true);
+      return;
+    }
     const el = wrapRef.current;
     if (el && el.requestFullscreen) {
       el.requestFullscreen().catch(() =>
@@ -78,10 +91,7 @@ export function Hero360({ src, title }: { src: string; title: string }) {
       ) : (
         <div className="hero-360-skeleton" aria-hidden />
       )}
-      {/* En escritorio, escudo primero (z-3) y barrita encima (z-5): así el zoom nunca
-          queda tapado por el escudo. En mobile el escudo no se monta. */}
-      <EscudoRueda activo={mounted && !isTouch} intrusos={kz.intrusos} />
-      {/* Barrita de zoom. Se dibuja sola cuando el player hizo el handshake. */}
+      {/* Barrita de zoom. Se dibuja sola sólo si el embed lo permite (táctil). */}
       <ZoomKuula kz={kz} className="kz--hero" />
 
       {/* En mobile se arrastra para mirar SIN tocar antes (el scroll de la página se hace
@@ -98,6 +108,14 @@ export function Hero360({ src, title }: { src: string; title: string }) {
         </svg>
         360°
       </button>
+
+      {/* Escritorio: el mismo tour a pantalla completa, con la barrita de zoom. Se
+          monta recién al abrirlo (src null = no hay iframe), así no carga dos veces. */}
+      <Vr360Modal
+        src={modalAbierto ? src : null}
+        onClose={() => setModalAbierto(false)}
+        zClass="z-[170]"
+      />
     </div>
   );
 }
