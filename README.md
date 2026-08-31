@@ -282,6 +282,56 @@ Donde falta material no se inventa: un proyecto sin render se dibuja tipográfic
 que en la portada, sin robarle la foto a otro) y sin dirección dice "Próximamente". Los dos logos son blancos sobre transparente (`/logo-ccm.png`, `/logo-mizraji.png`): el
 de Mizraji llegó en negro y se recortó e invirtió para esta hoja, que es oscura.
 
+### El zoom de los 360°
+
+El param `zoom` de la URL **no es "hay zoom / no hay zoom": es el interruptor del zoom del
+player entero, API incluida.** Medido contra el player real, con el `api.js` oficial:
+
+| | rueda sobre el 360 | `setZoom` del Player API |
+|---|---|---|
+| `zoom=0` | no hace nada → **la página scrollea** | se ignora en silencio |
+| `zoom=1` | zoomea → la página NO scrollea | funciona |
+
+De ahí salen dos motores distintos detrás de **un solo control** (`ZoomHero.tsx`, la
+pastilla con `+`, barra y `−` a la derecha del visor):
+
+| Dónde | `zoom` | Rueda | Cómo zoomea el control |
+|---|---|---|---|
+| `Vr360Modal` y hoja de Amenities | `1` | zoomea (nativo de Kuula) | Player API |
+| `Hero360` en TÁCTIL | `1` | no hay rueda; queda el pinch | Player API |
+| `Hero360` en ESCRITORIO | `0` | **scrollea la ficha** | recorte propio |
+
+En el modal y en la hoja no hay scroll que proteger, así que el zoom nativo es bienvenido.
+El caso difícil es el hero en escritorio: ocupa la pantalla entera, así que la rueda tiene
+que seguir siendo de la ficha. Ahí el zoom se hace **por fuera del iframe**: se monta a
+`width/height: 200%` y se muestra la mitad con `transform: translate(-25%,-25%) scale(z)`,
+z de 0,5 (reposo) a 1 (2x). No es agrandar píxeles: en 1 estás mirando el 50% central de
+un render que ya se hizo a resolución nativa. Medido contra el hero anterior: encuadre
+idéntico, **0 px de corrimiento**, y los recortes 1:1 son indistinguibles.
+
+Tres cosas que cuesta caro volver a descubrir:
+
+* **en runtime sólo se toca `transform`.** Animar o cambiar `width`/`height` le dispara un
+  resize al player;
+* **el rango de Kuula está invertido**: `-1` es todo zoom IN y `1` todo zoom OUT. El hook
+  expone `valor = -zoomDelPlayer` para que "arriba" sea siempre acercar;
+* el `<input type="range">` va con **`step="any"`**. Con un step fijo el navegador pega el
+  valor a la grilla `min + k*step` y el pulsador queda corrido respecto del zoom real.
+
+El control refleja **lo que reporta el player**, no lo que le pedimos: cada panorámica
+tiene sus propios límites de zoom seteados en Kuula y el player clampea, así que si alguna
+frena antes, el pulsador se queda donde frenó. Eso mismo es lo que mantiene el control
+sincronizado con el **pinch** en el celular (medido: siguen al 0,001).
+
+⚠ El arrastre en escritorio queda un ~15% menos sensible con el recorte puesto (hay que
+mover ~17% más para girar lo mismo). Es reproducible y no se explica por el FOV, que es
+idéntico. Se dejó sin compensar a propósito.
+
+⚠ El cartel **"CLICK & DRAG TO LOOK AROUND"** no se puede sacar por parámetro (la doc de
+Kuula sólo documenta `fs`, `initload`, `sd` y `vr`), pero **se va solo al primer arrastre**:
+es el hint de onboarding, no queda fijo. Y `vr=0` es un **no-op medido**: no saca el botón
+de la esquina. Quedó puesto porque estaba pedido, pero no hace nada.
+
 ### Las flechas y los puntitos de Kuula
 
 El cliente los pidió afuera (31-08): las flechas de "anterior/siguiente" a media altura y

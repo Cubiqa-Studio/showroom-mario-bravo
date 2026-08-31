@@ -4,12 +4,14 @@
 // activa SÓLO desde el sidebar del showroom (no desde la bolita 360° del exterior,
 // que abre el Vr360Modal pelado).
 import "./residencia.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { AMENITIES_360 } from "@/lib/vr-hotspots";
 import { AMENITIES_GALLERY } from "@/lib/amenities-gallery";
 import { kuulaEmbedUrl } from "@/lib/kuula";
+import { useZoomKuula, ZOOM_MAX, ZOOM_MIN, ZOOM_PASO } from "@/hooks/useZoomKuula";
+import { ZoomHero } from "./ZoomHero";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { useIsTouch } from "@/hooks/useIsTouch";
 import { CloseIcon } from "../gallery/icons";
@@ -39,6 +41,8 @@ export function AmenitiesModal({
   const { t } = useI18n();
   const sheet = t.amenitiesSheet;
   const isTouch = useIsTouch();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const kuula = useZoomKuula(iframeRef, open, AMENITIES_360 ?? "");
   // Pestañas de la hoja. Sólo se muestran si HAY las dos cosas: sin tour queda la
   // galería sola, sin renders queda el tour solo — y en los dos casos sin barra.
   const hayTour = Boolean(AMENITIES_360);
@@ -137,10 +141,19 @@ export function AmenitiesModal({
                         (sólo se mira arrastrando). Se conserva `fullscreen`. En táctil,
                         `withKuulaTouchGate` fuerza la pantalla de título (anti-lag iOS). */}
                     <iframe
-                      src={kuulaEmbedUrl(AMENITIES_360!, isTouch)}
+                      ref={iframeRef}
+                      src={kuulaEmbedUrl(AMENITIES_360!, isTouch, { zoom: true })}
                       title={t.vr.virtualTour}
                       allow="fullscreen"
                       allowFullScreen
+                    />
+                    <ZoomHero
+                      valor={kuula.valor}
+                      min={ZOOM_MIN}
+                      max={ZOOM_MAX}
+                      paso={ZOOM_PASO}
+                      listo={kuula.listo}
+                      onCambio={kuula.aplicar}
                     />
                   </div>
                 )}

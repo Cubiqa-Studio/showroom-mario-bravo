@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { useI18n } from "@/i18n/LanguageProvider";
@@ -8,6 +8,8 @@ import { useIsTouch } from "@/hooks/useIsTouch";
 import { kuulaEmbedUrl } from "@/lib/kuula";
 import { CloseIcon } from "./icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
+import { useZoomKuula, ZOOM_MAX, ZOOM_MIN, ZOOM_PASO } from "@/hooks/useZoomKuula";
+import { ZoomHero } from "../residencia/ZoomHero";
 
 /**
  * Modal a (casi) pantalla completa con el recorrido 360° de Kuula embebido. Se abre
@@ -31,6 +33,8 @@ export function Vr360Modal({
 }) {
   const { t } = useI18n();
   const isTouch = useIsTouch();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const kuula = useZoomKuula(iframeRef, Boolean(src), src ?? "");
 
   // Cerrar con Escape + bloquear el scroll del fondo mientras está abierto.
   useEffect(() => {
@@ -74,11 +78,20 @@ export function Vr360Modal({
                   (sólo se mira arrastrando). Se conserva `fullscreen`. En táctil,
                   `withKuulaTouchGate` fuerza la pantalla de título (anti-lag iOS). */}
               <iframe
+                ref={iframeRef}
                 className="absolute inset-0 h-full w-full border-0"
-                src={kuulaEmbedUrl(src, isTouch)}
+                src={kuulaEmbedUrl(src, isTouch, { zoom: true })}
                 title={t.vr.virtualTour}
                 allow="fullscreen"
                 allowFullScreen
+              />
+              <ZoomHero
+                valor={kuula.valor}
+                min={ZOOM_MIN}
+                max={ZOOM_MAX}
+                paso={ZOOM_PASO}
+                listo={kuula.listo}
+                onCambio={kuula.aplicar}
               />
               {/* Cerrar: un poco más abajo y con fondo blanco para no pisar el botón
                   de pantalla completa que Kuula dibuja en la esquina superior derecha. */}

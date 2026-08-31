@@ -42,10 +42,16 @@ export interface KuulaChromeOpts {
    * | `zoom=0` | no hace nada → **la página scrollea** | se ignora en silencio |
    * | `zoom=1` | zoomea → la página NO scrollea | funciona |
    *
-   * Por eso va prendido SÓLO en táctil, donde no hay rueda que robar (el scroll se hace
-   * arrastrando el bottom sheet): ahí quedan el pinch nativo y los controles por API.
-   * En escritorio queda en 0 y el zoom se hace por fuera del iframe, recortando (ver
-   * Hero360.tsx).
+   * Dónde va prendido:
+   *
+   *  · `Vr360Modal` y la hoja de Amenities — SIEMPRE. Ahí el 360° no le está robando el
+   *    scroll a nadie (el modal es pantalla completa y en la hoja el tour ocupa una
+   *    altura fija), así que el zoom nativo de Kuula es bienvenido y encima anda la
+   *    barrita por el Player API (pedido de Joaquim, 31-08).
+   *  · `Hero360` — sólo en TÁCTIL, donde no hay rueda que robar (el scroll se hace
+   *    arrastrando el bottom sheet). En escritorio queda en 0, porque el hero ocupa la
+   *    pantalla entera y la rueda tiene que seguir siendo de la ficha: ahí el zoom se
+   *    hace por fuera del iframe, recortando (ver Hero360.tsx).
    */
   zoom?: boolean;
   /** `vr=0`: oculta el botón de VR/cardboard, que Kuula dibuja en una esquina. Se usa
