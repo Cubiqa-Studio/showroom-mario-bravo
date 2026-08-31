@@ -266,9 +266,8 @@ Dos decisiones que conviene no deshacer sin querer:
   Bravo al medio.
 
 Donde falta material no se inventa: un proyecto sin render se dibuja tipográfico (igual
-que en la portada, sin robarle la foto a otro) y sin dirección dice "Próximamente". Falta
-el logo de Estudio Mizraji — el drop del cliente sólo trajo el de CCM —, así que esa
-tarjeta muestra el nombre en texto donde iría el logo.
+que en la portada, sin robarle la foto a otro) y sin dirección dice "Próximamente". Los dos logos son blancos sobre transparente (`/logo-ccm.png`, `/logo-mizraji.png`): el
+de Mizraji llegó en negro y se recortó e invirtió para esta hoja, que es oscura.
 
 ### La hoja de Amenities
 
@@ -1057,7 +1056,6 @@ faltantes) y de dónde salió cada asset.
 | **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
 | **Brochure comercial** | `BROCHURE_URL` es `null` → el item del menú y el botón "Ver PDF" están ocultos. |
 | **Plano individual de cada terraza** | Juani (30-08): en el 7°, la pestaña "Plano de la unidad" debería mostrar también la terraza privada. Camila todavía no las separó. Ver [Terraza propia](#terraza-propia-el-último-piso). |
-| **Logo de Estudio Mizraji** | Va en "El Equipo". El drop sólo trajo el de CCM. |
 | **Media del barrio** | La sección de entorno del menú está oculta (`HAS_DESTINATION_MEDIA`). |
 
 ### Del lado nuestro

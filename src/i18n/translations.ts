@@ -410,8 +410,6 @@ const es = {
     behindTitle: "Quiénes están detrás",
     behindIntro:
       "TIER Bravo es el resultado del trabajo conjunto de una desarrolladora y un estudio de arquitectura.",
-    // ⚠ Falta el logo de Estudio Mizraji: el drop del cliente sólo trajo el de CCM.
-    // Sin archivo, la tarjeta muestra el nombre en texto (ver TeamModal).
     partners: [
       {
         role: "Desarrollo",
@@ -422,6 +420,7 @@ const es = {
       {
         role: "Proyecto y arquitectura",
         name: "Estudio Mizraji",
+        logo: "/logo-mizraji.png",
         desc: "Estudio de arquitectura responsable del proyecto, el diseño de los espacios comunes y las terminaciones.",
       },
     ] as TeamPartner[],
@@ -1149,6 +1148,7 @@ const en: Dict = {
       {
         role: "Project and architecture",
         name: "Estudio Mizraji",
+        logo: "/logo-mizraji.png",
         desc: "Architecture studio behind the project, the design of the common areas and the finishes.",
       },
     ],

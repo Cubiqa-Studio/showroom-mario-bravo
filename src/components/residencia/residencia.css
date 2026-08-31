@@ -2056,7 +2056,7 @@
 /* Caja de altura fija para el logo: así el filete de las dos tarjetas queda a la
    misma altura aunque un logo sea más alto o falte el archivo. */
 .team-marca { display: flex; align-items: center; min-height: 86px; margin-top: 18px; }
-.team-logo { display: block; height: 46px; width: auto; max-width: 100%; object-fit: contain; }
+.team-logo { display: block; height: 46px; width: auto; max-width: min(220px, 100%); object-fit: contain; }
 /* Sin archivo de logo, el nombre en texto (indicación de Juani). */
 .team-marca-texto {
   font-family: var(--serif); font-size: calc(26px * var(--fs-k)); letter-spacing: .04em;
