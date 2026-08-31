@@ -37,6 +37,36 @@ function Flecha() {
  * `pending` es true y la flecha se reemplaza por un spinner, así el click tiene
  * respuesta inmediata en vez de parecer que no pasó nada.
  */
+/**
+ * Marca el PANEL ENTERO como "entrando" mientras la navegación está en vuelo, y lo
+ * anuncia al lector de pantalla.
+ *
+ * El spinner del CTA ya existía, pero mide 13px y en escritorio el <Link> es el panel
+ * COMPLETO: se puede clickear a 400px del botón y la única señal quedaba en un rincón
+ * (reporte de Joaquim, 31-08: "a veces tarda un poco… que el user sepa que está
+ * entrando"). Con esto se apaga el resto de la portada y el panel elegido se queda
+ * encendido, que es la señal que sí se ve.
+ *
+ * Va DENTRO del <Link> porque `useLinkStatus()` sólo funciona ahí, pero pinta el
+ * estado en el ancestro `.pp` — de ahí el `closest`.
+ */
+function MarcaEntrando({ etiqueta }: { etiqueta: string }) {
+  const { pending } = useLinkStatus();
+  const ancla = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const panel = ancla.current?.closest(".pp");
+    if (!panel) return;
+    if (pending) panel.setAttribute("data-entrando", "si");
+    else panel.removeAttribute("data-entrando");
+    return () => panel.removeAttribute("data-entrando");
+  }, [pending]);
+  return (
+    <span ref={ancla} className="sr-only" aria-live="polite">
+      {pending ? etiqueta : ""}
+    </span>
+  );
+}
+
 function CtaContenido({ texto }: { texto: string }) {
   const { pending } = useLinkStatus();
   return (
@@ -155,6 +185,9 @@ function Panel({
               <CtaContenido texto={t.portada.entrar} />
             </span>
           ) : null}
+          {/* Va acá dentro (necesita estar bajo el <Link>) pero no dibuja nada: le
+              pone `data-entrando` al panel y anuncia el estado en voz alta. */}
+          {abrible ? <MarcaEntrando etiqueta={t.portada.entrando} /> : null}
         </span>
       </div>
     </>

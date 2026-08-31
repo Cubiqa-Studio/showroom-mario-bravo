@@ -11,6 +11,7 @@ import {
   PhoneIcon,
   ShareIcon,
 } from "./icons";
+import { VolverAPortada } from "./VolverAPortada";
 
 interface ShowroomToolbarProps {
   /** Pintar todas las unidades por estado (switch "Disponibilidad"). */
@@ -233,6 +234,16 @@ export function ShowroomToolbar({
         className="absolute left-3 top-[66px] z-30 flex h-10 items-center gap-2 rounded-2xl bg-tier-dark/80 px-1.5 shadow-lg ring-1 ring-line backdrop-blur min-[560px]:bottom-6 min-[560px]:left-4 min-[560px]:h-auto min-[560px]:px-2 min-[560px]:py-1.5 min-[560px]:top-auto"
         onPointerDown={(e) => e.stopPropagation()}
       >
+        {/* Salida a la portada de TIER, SÓLO en teléfono: de 560 para arriba va al
+            lado del logotipo (la pinta el FlybyViewer). Acá comparte la pastilla con
+            el switch, separada por la misma hairline que usa la barra de acciones —
+            así no suma un elemento flotante más.
+            Debajo de 341px se esconde: a 320 quedan 32px libres en este renglón y no
+            entra sin empujar el "Avance de obra". Ahí la salida es el item del menú. */}
+        <span className="hidden items-center gap-1.5 min-[341px]:flex min-[560px]:hidden">
+          <VolverAPortada className="h-8 w-8" />
+          <span className="h-5 w-px bg-line" />
+        </span>
         <button
           type="button"
           role="switch"

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
@@ -34,6 +35,7 @@ import {
   PolygonEditIcon,
   SearchIcon,
   TeamIcon,
+  ChevronLeftIcon,
 } from "./icons";
 
 // Unidades con tour 360° agrupadas por piso (desde units.json) — submenú "Unidades"
@@ -179,6 +181,13 @@ export function SideMenu({
                 </header>
 
                 <nav className="flex-1 overflow-y-auto px-3 pb-4">
+                  {/* Salida a la portada de TIER. La flecha de arriba a la izquierda
+                      hace lo mismo, pero se esconde en pantallas de menos de 341px
+                      (no entra en el renglón): acá la salida existe SIEMPRE. */}
+                  <MenuIrA href="/" icon={<ChevronLeftIcon width={20} height={20} />}>
+                    {t.portada.volver}
+                  </MenuIrA>
+
                   <MenuButton
                     icon={<HomeIcon width={20} height={20} />}
                     onClick={() => {
@@ -531,6 +540,30 @@ export function SideMenu({
         en el showroom y en la landing). */}
       <UnitFinderModal open={finderOpen} onClose={() => setFinderOpen(false)} />
     </>
+  );
+}
+
+/** Item que NAVEGA dentro del sitio (hoy, la portada de TIER). Ojo con el `MenuLink`
+ *  de más abajo: ése es para links EXTERNOS y fuerza pestaña nueva. Éste usa el
+ *  <Link> de Next y se queda en la misma pestaña, que es lo que corresponde para
+ *  "volver". */
+function MenuIrA({
+  icon,
+  children,
+  href,
+}: {
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  href: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-white/10"
+    >
+      <span className="text-muted">{icon}</span>
+      <span className="flex-1 text-left">{children}</span>
+    </Link>
   );
 }
 

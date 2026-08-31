@@ -97,6 +97,18 @@
   /* Crece con el logotipo achicado: la bajada tiene que sostener el lockup, no
      desaparecer debajo. Pedido de Joaquim, 30-08. */
   font-size: clamp(11px, 1.05vw, 16px);
+  /* El `gap` de la columna ya dejaba la MISMA distancia arriba y abajo del filete
+     (medido: 11px y 11px en escritorio). Pero el filete se veía pegado al logotipo
+     y suelto de "DESARROLLOS", y no era ilusión: entre el filete y la primera tinta
+     del texto había 18px, no 11. La diferencia es aire INVISIBLE de la caja de línea
+     —medio interlineado (con `line-height: 1,5` son 0,25em) más el hueco que las
+     mayúsculas dejan arriba del em (~0,2em)—. El logotipo no tiene nada de eso: su
+     PNG llega con tinta hasta el borde (verificado, 0px de alfa transparente en los
+     cuatro lados), así que su gap sí se ve entero.
+     `line-height: 1` mata el medio interlineado y la subida de 0,2em compensa el
+     hueco de las mayúsculas. Va en `em` para que se corrija sola en cada breakpoint. */
+  line-height: 1;
+  margin-top: -0.2em;
   letter-spacing: 0.46em;
   text-transform: uppercase;
   color: var(--muted);
@@ -428,6 +440,64 @@
   .pp .pp-media video {
     transform: scale(1.02);
     filter: brightness(0.6) saturate(0.9);
+  }
+}
+
+/* ---------- ENTRANDO: la navegación al showroom está en vuelo ----------
+   El spinner del CTA mide 13px y en escritorio el link es el panel ENTERO, así que
+   se puede clickear lejísimos de él y la señal pasaba desapercibida. Acá el panel
+   elegido se queda encendido, los otros dos se apagan, y el CTA sale a la vista aunque
+   el puntero se haya ido. `:has()` para no tener que subir el estado a React: el
+   atributo lo pone el propio panel (ver MarcaEntrando en PortadaScreen). */
+.pp[data-entrando="si"] {
+  cursor: progress;
+}
+.pp[data-entrando="si"] .pp-cta {
+  opacity: 1;
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+}
+.portada-grid:has(.pp[data-entrando="si"]) .pp:not([data-entrando="si"]) {
+  opacity: 0.4;
+  filter: saturate(0.5);
+  pointer-events: none;
+}
+.portada-grid:has(.pp[data-entrando="si"]) .pp {
+  transition:
+    opacity 0.45s ease,
+    filter 0.45s ease;
+}
+/* Barrido dorado sobre el panel elegido: dice "está pasando algo" sin tapar el render.
+   Es la misma idea que la barra de progreso indeterminada de un navegador. */
+.pp[data-entrando="si"]::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  height: 2px;
+  width: 100%;
+  z-index: 3;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gold, #a07f46) 45%,
+    var(--gold-bright, #bf9753) 55%,
+    transparent 100%
+  );
+  animation: pp-barrido 1.15s linear infinite;
+}
+@keyframes pp-barrido {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pp[data-entrando="si"]::after {
+    animation: none;
+    background: var(--gold, #a07f46);
   }
 }
 

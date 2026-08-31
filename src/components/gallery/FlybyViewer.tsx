@@ -18,6 +18,7 @@ import { SideMenu } from "./SideMenu";
 import { MasterplanModal } from "../residencia/MasterplanModal";
 import { ContactModal } from "../residencia/ContactModal";
 import { GalleryModal } from "../residencia/GalleryModal";
+import { VolverAPortada } from "./VolverAPortada";
 import { AvanceBadge } from "../AvanceBadge";
 import { UnitFinderModal } from "./UnitFinderModal";
 import { SearchIcon } from "./icons";
@@ -1371,7 +1372,13 @@ export function FlybyViewer({
         // <560px NO se pinta acá: viaja DENTRO de la barra de acciones (que en
         // teléfonos es una fila de borde a borde), así el logo deja de necesitar una
         // banda propia sobre el render.
-        <div className="absolute left-4 top-7 z-20 hidden max-w-[80vw] min-[560px]:block">
+        <div className="absolute left-4 top-7 z-20 hidden max-w-[80vw] items-center gap-3 min-[560px]:flex">
+          {/* Salida a la portada de TIER. Acá hay lugar de sobra, así que va visible
+              al lado del logotipo; en teléfono vive en la segunda fila (ver
+              VolverAPortada). ⚠ NO se puede reusar el logotipo para esto: su click
+              ya es "volver a la primera vista", que es la única forma de resetear el
+              recorrido (el item "Inicio" del menú sólo cierra el menú). */}
+          <VolverAPortada className="h-10 w-10 bg-tier-dark/80 shadow-lg ring-1 ring-line backdrop-blur" />
           {/* El logo SIEMPRE vuelve al inicio (primera vista, centrada). */}
           <button
             type="button"

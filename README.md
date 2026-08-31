@@ -37,6 +37,31 @@ de video/frames.
 | `/admin/polygon-editor` | Editor de polígonos — herramienta interna, apagada por defecto. |
 | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Metadata routes. |
 
+### La portada `/` y la vuelta desde el showroom
+
+`/` no es la puerta de TIER Bravo: es el índice de los **tres** desarrollos de TIER
+(Sinclair, Bravo, Avenue). Hoy sólo Bravo tiene a dónde llevar; Avenue va a vivir en
+otro dominio. De ahí que el showroom necesite una salida de vuelta, y que esa salida
+esté en dos lugares:
+
+| Dónde | Desde | Por qué ahí |
+|---|---|---|
+| Flecha al lado del logotipo, arriba a la izquierda | 560px | Sobra lugar y es donde cualquiera la busca. |
+| Flecha dentro de la pastilla de "Disponibilidad" (2º renglón) | 341-559px | **La primera fila NO tiene lugar**: medido, quedan 8px libres a 320px y también a 412, donde el rótulo "Consultar" ensancha la pastilla de acciones. |
+| Item "Volver a TIER Desarrollos" en el menú | siempre | Es la única salida por debajo de 341px, donde la flecha no entra en ningún renglón. |
+
+⚠ **No se puede reusar el logotipo del showroom para volver a `/`**: su click ya es
+"volver a la primera vista", que es la ÚNICA forma de resetear el recorrido (el item
+"Inicio" del menú sólo cierra el menú).
+
+**Al entrar a un proyecto, el panel avisa.** `/showroom` es `force-dynamic` y espera a
+Airtable, así que el click tarda. `useLinkStatus()` ya ponía un spinner en el CTA, pero
+mide 13px y en escritorio el `<Link>` es el panel COMPLETO: se puede clickear a 400px
+del botón. Ahora, mientras la navegación está en vuelo, `MarcaEntrando` le pone
+`data-entrando` al panel y eso apaga los otros dos, deja el CTA visible aunque el
+puntero se haya ido, pasa el cursor a `progress`, corre un barrido dorado arriba y
+anuncia "Entrando…" al lector de pantalla.
+
 ---
 
 ## Editor de polígonos

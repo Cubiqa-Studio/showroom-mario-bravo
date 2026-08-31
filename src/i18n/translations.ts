@@ -36,9 +36,13 @@ const es = {
     proximamente: "Próximamente",
     entrar: "Descubrir",
     ariaEntrar: (nombre: string) => `Entrar a ${nombre}`,
+    /** Se anuncia al lector de pantalla mientras la navegación está en vuelo. */
+    entrando: "Entrando…",
     /** Táctil: el 1er toque AMPLÍA el panel; la X vuelve a los tres. */
     ariaAmpliar: (nombre: string) => `Ampliar ${nombre}`,
     cerrar: "Volver a los tres desarrollos",
+    /** Flecha del showroom que vuelve a la portada de TIER. */
+    volver: "Volver a TIER Desarrollos",
     /** Zócalo: las cuatro virtudes de la desarrolladora, tal cual el key visual que
      *  entregó el cliente (dos a cada lado del logotipo de CCM). */
     virtudes: ["Desarrollamos", "Construimos", "Sustentamos", "Creamos valor"],
@@ -817,8 +821,10 @@ const en: Dict = {
     proximamente: "Coming soon",
     entrar: "Discover",
     ariaEntrar: (nombre: string) => `Enter ${nombre}`,
+    entrando: "Entering…",
     ariaAmpliar: (nombre: string) => `Expand ${nombre}`,
     cerrar: "Back to all three developments",
+    volver: "Back to TIER Desarrollos",
     virtudes: ["We develop", "We build", "We sustain", "We create value"],
     ccmAlt: "CCM Desarrollos",
   },
