@@ -15,9 +15,11 @@
 //   https://…/?v=inmobiliaria
 //   https://…/?v=desarrolladora        (explícito, por si lo quieren simétrico)
 //
-// Sirve en cualquier ruta (`/`, `/showroom`, `/residencia/402`) y se guarda apenas
-// entra, así que el parámetro puede desaparecer de la URL —navegación interna,
-// links compartidos— sin perder de vista de dónde vino la visita.
+// Sirve en cualquier ruta (`/`, `/showroom`, `/residencia/402`). La URL es la ÚNICA
+// fuente de verdad: el `OrigenProvider` la deja escrita en cada cambio de ruta, así que
+// el parámetro viaja solo y lo que se copie de la barra ya lo lleva. Sin parámetro manda
+// la desarrolladora — a propósito NO se recuerda la visita anterior: un link pelado
+// tiene que dar siempre lo mismo y no depender de por dónde entró esa persona ayer.
 //
 // Es ATRIBUCIÓN, no seguridad: el parámetro está a la vista y cualquiera puede
 // cambiarlo. Alcanza y sobra para lo que hace falta (que cada campaña alimente su
@@ -33,11 +35,6 @@ export const ORIGEN_DEFECTO: Origen = "desarrolladora";
 
 /** Parámetro corto de los links de campaña: `?v=inmobiliaria`. */
 export const PARAM_ORIGEN = "v";
-
-/** Dónde se guarda, y por cuánto. 30 días es la ventana de atribución habitual:
- *  el que entró por un aviso y vuelve a la semana sigue contando para el mismo. */
-const CLAVE = "tb:origen";
-const VENTANA_MS = 30 * 24 * 60 * 60 * 1000;
 
 export interface Comercializador {
   /** Cómo se nombra en el mail del lead y en el asunto. */
@@ -105,26 +102,3 @@ export function leerOrigenDeUrl(search: string): Origen | null {
   return null;
 }
 
-/** Guarda el origen con su fecha. Silencioso si el navegador no deja escribir
- *  (modo incógnito estricto, cookies bloqueadas): se pierde la persistencia, no
- *  la visita. */
-export function guardarOrigen(origen: Origen): void {
-  try {
-    window.localStorage.setItem(CLAVE, JSON.stringify({ origen, ts: Date.now() }));
-  } catch {
-    /* sin storage: el origen vale sólo para esta página */
-  }
-}
-
-/** Origen guardado, si no venció. */
-export function leerOrigenGuardado(): Origen | null {
-  try {
-    const crudo = window.localStorage.getItem(CLAVE);
-    if (!crudo) return null;
-    const { origen, ts } = JSON.parse(crudo) as { origen?: string; ts?: number };
-    if (typeof ts !== "number" || Date.now() - ts > VENTANA_MS) return null;
-    return normalizarOrigen(origen);
-  } catch {
-    return null;
-  }
-}

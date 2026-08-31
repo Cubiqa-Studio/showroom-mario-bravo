@@ -199,18 +199,21 @@ decide el link por el que entró la persona**. Cada uno publicita el suyo:
 | Desarrolladora | `https://…/` (o `?v=desarrolladora`, si lo quieren explícito) |
 | Inmobiliaria | `https://…/?v=inmobiliaria` |
 
-El parámetro sirve en **cualquier ruta** (`/`, `/showroom`, `/residencia/402`) y se guarda
-apenas entra. Dura 30 días, que es la ventana de atribución habitual, y si alguien entra
-después por el otro link, gana el último.
+El parámetro sirve en **cualquier ruta** (`/`, `/showroom`, `/residencia/402`) y **queda
+escrito en la URL, siempre**: entrar a `/` pelado deja la barra en `/?v=desarrolladora`, y
+el parámetro viaja solo a cada ruta que se visite. No se hace agregándoselo a cada
+`<Link>` —eso se olvida en el próximo link que alguien agregue— sino con un
+`history.replaceState` en cada cambio de ruta, dentro del propio `OrigenProvider`: así lo
+agarra TODA la navegación, incluidos el back/forward y los clicks sobre los polígonos del
+render.
 
-Y **queda escrito en la URL, siempre**: entrar a `/` pelado deja la barra en
-`/?v=desarrolladora`, y el parámetro viaja solo a cada ruta que se visite. No se hace
-agregándoselo a cada `<Link>` —eso se olvida en el próximo link que alguien agregue— sino
-con un `history.replaceState` en cada cambio de ruta, dentro del propio `OrigenProvider`:
-así lo agarra TODA la navegación, incluidos el back/forward y los clicks sobre los
-polígonos del render. Aun así el origen sigue guardado, porque una carga completa de
-`/residencia/402` (un link que alguien comparte sin el parámetro) tiene que seguir
-respetando de dónde venía la visita.
+La URL es la **única** fuente de verdad: no se recuerda la visita anterior. Se probó
+guardarlo en `localStorage` con una ventana de 30 días y se sacó a propósito — quedaba
+pegajoso: alguien que había abierto una vez el link de la inmobiliaria seguía viendo esa
+versión al entrar por un link pelado, días después. Un link sin parámetro tiene que dar
+siempre lo mismo. El costo es que un link que alguien comparte a mano SIN el parámetro
+cuenta como desarrolladora; como el parámetro está siempre en la barra, lo que se copia
+ya lo lleva.
 
 ⚠ El `<link rel="canonical">` lo emite el servidor **sin** parámetro, así que Google no ve
 dos URLs por página.

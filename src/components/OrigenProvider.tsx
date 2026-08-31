@@ -7,9 +7,7 @@ import {
   COMERCIALIZADORES,
   ORIGEN_DEFECTO,
   PARAM_ORIGEN,
-  guardarOrigen,
   leerOrigenDeUrl,
-  leerOrigenGuardado,
   type Comercializador,
   type Origen,
 } from "@/lib/origen";
@@ -18,11 +16,11 @@ import {
  * Quién trajo la visita: la desarrolladora o la inmobiliaria (ver src/lib/origen.ts
  * para el porqué y los links de cada uno).
  *
- * Se resuelve UNA sola vez, apenas carga la página, y de ahí lo toman el formulario
- * de contacto (a qué bandeja va el lead) y todos los botones de WhatsApp (a qué
- * teléfono). Va en el layout raíz —no en la pantalla de contacto— porque el
- * parámetro viene en la URL de ENTRADA y la navegación interna se lo lleva puesto:
- * si esperáramos a que abran "Contacto", `location.search` ya no lo tendría.
+ * De acá lo toman el formulario de contacto (a qué bandeja va el lead) y todos los
+ * botones de WhatsApp (a qué teléfono). Va en el layout raíz —no en la pantalla de
+ * contacto— porque el parámetro viene en la URL de ENTRADA y la navegación interna se
+ * lo lleva puesto: si esperáramos a que abran "Contacto", `location.search` ya no lo
+ * tendría.
  *
  * Se resuelve en un efecto y no durante el render para no romper la hidratación (el
  * servidor no ve ni la URL del cliente ni su localStorage). El efecto es de LAYOUT, no
@@ -57,17 +55,14 @@ const Ctx = createContext<Valor>({
 
 export function OrigenProvider({ children }: { children: React.ReactNode }) {
   const [origen, setOrigen] = useState<Origen>(ORIGEN_DEFECTO);
-  // Sobrevive a la navegación aunque el navegador no deje escribir en localStorage
-  // (incógnito estricto): sin esto, cambiar de página perdería el origen.
+  // Sostiene el origen entre rutas: la navegación interna llega sin el parámetro (el
+  // href del link no lo lleva) y recién después se lo escribimos a la URL.
   const ultimo = useRef<Origen>(ORIGEN_DEFECTO);
   const pathname = usePathname();
 
   useEfectoDeLayout(() => {
-    // El parámetro de la URL SIEMPRE pisa lo guardado: si alguien entra por el link
-    // de la otra parte, la visita es de esa parte (última campaña, gana).
     const deUrl = leerOrigenDeUrl(window.location.search);
-    if (deUrl) guardarOrigen(deUrl);
-    const actual = deUrl ?? leerOrigenGuardado() ?? ultimo.current;
+    const actual = deUrl ?? ultimo.current;
     ultimo.current = actual;
     setOrigen(actual);
 
