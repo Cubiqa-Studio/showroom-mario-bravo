@@ -188,10 +188,6 @@ const es = {
     hall: "Hall de entrada",
     amenities: "Amenities",
     close: "Cerrar recorrido 360°",
-    /** Barrita de zoom al costado del 360°. */
-    zoom: "Zoom del recorrido",
-    zoomIn: "Acercar",
-    zoomOut: "Alejar",
   },
 
   unitTooltip: {
@@ -956,9 +952,6 @@ const en: Dict = {
     hall: "Entrance hall",
     amenities: "Amenities",
     close: "Close 360° tour",
-    zoom: "Tour zoom",
-    zoomIn: "Zoom in",
-    zoomOut: "Zoom out",
   },
 
   unitTooltip: {

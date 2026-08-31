@@ -472,13 +472,12 @@
 /* Wrapper del tour 360° (ver Hero360.tsx). El iframe queda SIEMPRE interactivo inline
    (desktop: arrastrar mira, rueda scrollea por `zoom=0`; mobile: arrastrar mira, y el
    scroll de la página se hace arrastrando el bottom sheet). NO hay shield que tape el
-   360: un chip chico ("360°") arriba a la derecha para ampliar a pantalla completa.
-   En táctil abre el fullscreen del elemento; en escritorio abre el Vr360Modal, que es
-   donde vive la barrita de zoom (ver Hero360.tsx). */
+   360: sólo un chip chico ("360°") arriba a la derecha, en táctil, para ampliar a
+   pantalla completa. En desktop el chip no se muestra. */
 .res-landing .hero-360-wrap { position: relative; width: 100%; height: 100%; }
 .res-landing .h360-fs {
   position: absolute; top: 84px; right: 16px; z-index: 4;
-  display: inline-flex;
+  display: none; /* desktop: 360 interactivo inline, sin chip */
   align-items: center; gap: 7px;
   background: rgba(16,18,24,.55); color: #fff;
   font-family: var(--sans); font-size: calc(16.5px * var(--fs-k)); font-weight: 600;
@@ -487,6 +486,9 @@
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   box-shadow: 0 2px 10px rgba(16,18,24,.28);
   -webkit-tap-highlight-color: transparent;
+}
+@media (hover: none) {
+  .res-landing .h360-fs { display: inline-flex; }
 }
 .res-landing .hero-360-wrap:fullscreen .h360-fs { display: none; }
 .res-landing .h360-fs svg { width: 14px; height: 14px; color: #fff; }
@@ -1953,128 +1955,6 @@
   box-shadow: var(--shadow-card);
 }
 .sheet-amenities-360 iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-
-/* ---------- BARRITA DE ZOOM del 360° ----------
-   Va flotando sobre el iframe, del lado derecho y centrada en vertical. NO está
-   scopeada a `.res-landing` a propósito: el mismo control se usa en el Vr360Modal,
-   que vive en el árbol del showroom. */
-.kz {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 6px;
-  /* El control NUNCA scrollea la página. En mobile la ficha se scrollea arrastrando
-     sobre el 360°, así que un toque en "+"/"−" con unos pocos px de deriva la movía
-     (reporte del cliente, 31-08). También hace que arrastrar la barra sea arrastrar
-     la barra, y no un scroll. */
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  border-radius: 999px;
-  background: rgba(11, 11, 11, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
-}
-.kz-btn {
-  appearance: none;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  color: rgba(255, 255, 255, 0.86);
-  transition: background 0.2s ease, color 0.2s ease;
-}
-.kz-btn svg { width: 19px; height: 19px; }
-.kz-btn:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
-.kz-btn:active { background: rgba(255, 255, 255, 0.22); }
-.kz-btn:focus-visible { outline: 2px solid var(--gold, #a07f46); outline-offset: 2px; }
-
-/* La barra es un range HORIZONTAL rotado: `writing-mode: vertical-*` y
-   `-webkit-appearance: slider-vertical` se portan distinto en cada motor (y el
-   segundo está deprecado). Rotado anda igual en todos, incluido el WebKit del
-   iPhone, y el navegador sigue dando gratis el arrastre y las flechas del teclado.
-   El alto del contenedor es el LARGO de la barra, y el ancho, su grosor. */
-.kz-barra-caja {
-  position: relative;
-  display: block;
-  width: 22px;   /* grosor de la barra ya rotada */
-  height: 116px; /* largo */
-}
-.kz-barra {
-  appearance: none;
-  -webkit-appearance: none;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 116px; /* = el LARGO, porque está rotada */
-  height: 22px;
-  margin: 0;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  background: none;
-  cursor: pointer;
-}
-.kz-barra::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.3);
-}
-.kz-barra::-moz-range-track {
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.3);
-}
-.kz-barra::-webkit-slider-thumb {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  margin-top: -6px; /* centra el pulsador sobre la pista de 4px */
-  border-radius: 50%;
-  background: #fff;
-  border: 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-}
-.kz-barra::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  border: 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-}
-.kz-barra:focus-visible { outline: 2px solid var(--gold, #a07f46); outline-offset: 6px; border-radius: 999px; }
-
-/* En el HERO el control baja un poco: arriba a la derecha ya está el chip "360°" que
-   amplía a pantalla completa, y se pisaban. */
-.kz--hero { top: auto; bottom: 22%; transform: none; }
-/* En el modal NO va centrado en vertical: ahí Kuula dibuja sus propias flechas de
-   "panorama anterior/siguiente" a media altura, contra los bordes, y el control se le
-   montaba encima a la derecha. Se sube al primer tercio, que queda libre entre el
-   botón de cerrar (arriba) y la flecha. */
-.kz--modal { right: 18px; top: auto; bottom: 12%; transform: none; }
-
-
-@media (max-width: 720px) {
-  .kz { right: 10px; gap: 6px; padding: 8px 5px; }
-  .kz-btn { width: 32px; height: 32px; }
-  .kz-btn svg { width: 18px; height: 18px; }
-  .kz-barra-caja { height: 74px; }
-  .kz-barra { width: 74px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .kz-btn { transition: none; }
-}
 /* `hidden` en el div del 360°: el iframe NO se desmonta al cambiar de pestaña (eso
    recargaría el tour de Kuula entero), así que hay que ganarle al `display: flex`
    implícito de nada — pero sí al `position: relative` del bloque. */
