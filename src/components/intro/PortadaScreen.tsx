@@ -236,6 +236,12 @@ function Panel({
         // pestaña nueva"). Sólo interceptamos el 1er toque en táctil.
         if (!esTactil || expandido) return;
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        // …salvo que el toque haya sido en "Descubrir". Ese botón es EXPLÍCITO —dice
+        // a dónde va— así que entra derecho al showroom sin pasar por la vista
+        // ampliada. Antes ampliaba igual y había que tocarlo dos veces (Joaquim,
+        // 31-08). Ampliar sigue siendo lo que hace un toque en cualquier otra parte
+        // del panel, que es lo que se pidió el 30-08.
+        if ((e.target as Element).closest?.(".pp-cta")) return;
         e.preventDefault();
         onAmpliar();
       }}
