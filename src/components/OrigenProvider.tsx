@@ -7,6 +7,8 @@ import {
   COMERCIALIZADORES,
   ORIGEN_DEFECTO,
   PARAM_ORIGEN,
+  guardarEnSesion,
+  leerDeSesion,
   leerOrigenDeUrl,
   type Comercializador,
   type Origen,
@@ -56,14 +58,17 @@ const Ctx = createContext<Valor>({
 export function OrigenProvider({ children }: { children: React.ReactNode }) {
   const [origen, setOrigen] = useState<Origen>(ORIGEN_DEFECTO);
   // Sostiene el origen entre rutas: la navegación interna llega sin el parámetro (el
-  // href del link no lo lleva) y recién después se lo escribimos a la URL.
+  // href del link no lo lleva) y recién después se lo escribimos a la URL. La sesión
+  // cubre el otro caso: una carga COMPLETA con la URL pelada dentro de la misma pestaña
+  // (alguien borra el parámetro a mano, o un link interno que se resuelve en el server).
   const ultimo = useRef<Origen>(ORIGEN_DEFECTO);
   const pathname = usePathname();
 
   useEfectoDeLayout(() => {
     const deUrl = leerOrigenDeUrl(window.location.search);
-    const actual = deUrl ?? ultimo.current;
+    const actual = deUrl ?? leerDeSesion() ?? ultimo.current;
     ultimo.current = actual;
+    guardarEnSesion(actual);
     setOrigen(actual);
 
     const url = new URL(window.location.href);

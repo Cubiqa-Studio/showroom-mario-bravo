@@ -207,13 +207,12 @@ el parámetro viaja solo a cada ruta que se visite. No se hace agregándoselo a 
 agarra TODA la navegación, incluidos el back/forward y los clicks sobre los polígonos del
 render.
 
-La URL es la **única** fuente de verdad: no se recuerda la visita anterior. Se probó
-guardarlo en `localStorage` con una ventana de 30 días y se sacó a propósito — quedaba
-pegajoso: alguien que había abierto una vez el link de la inmobiliaria seguía viendo esa
-versión al entrar por un link pelado, días después. Un link sin parámetro tiene que dar
-siempre lo mismo. El costo es que un link que alguien comparte a mano SIN el parámetro
-cuenta como desarrolladora; como el parámetro está siempre en la barra, lo que se copia
-ya lo lleva.
+Dentro de la **misma pestaña** el origen se sostiene aunque la URL lo pierda: alguien
+borra el parámetro a mano, o una carga completa cae en un link sin él. Va en
+`sessionStorage`. Se probó con `localStorage` y una ventana de 30 días, y se sacó: quedaba
+pegajoso — el que había abierto una vez el link de la inmobiliaria seguía viendo esa
+versión días después, entrando por un link pelado. Con la sesión, una **visita nueva** con
+un link sin parámetro da siempre desarrolladora, que es lo que tiene que pasar.
 
 ⚠ El `<link rel="canonical">` lo emite el servidor **sin** parámetro, así que Google no ve
 dos URLs por página.
@@ -282,6 +281,18 @@ Dos decisiones que conviene no deshacer sin querer:
 Donde falta material no se inventa: un proyecto sin render se dibuja tipográfico (igual
 que en la portada, sin robarle la foto a otro) y sin dirección dice "Próximamente". Los dos logos son blancos sobre transparente (`/logo-ccm.png`, `/logo-mizraji.png`): el
 de Mizraji llegó en negro y se recortó e invirtió para esta hoja, que es oscura.
+
+### Las flechas y los puntitos de Kuula
+
+El cliente los pidió afuera (31-08): las flechas de "anterior/siguiente" a media altura y
+los puntitos del pie. Se sacan con **`thumbs=-1`**, y es el único valor que saca los dos —
+medido contra el player: `thumbs=0` da puntitos + flechas y `thumbs=1` o `2` los cambia por
+una tira de miniaturas, que es peor. Ningún otro parámetro los toca: `chromeless`, `nav`,
+`arrows`, `dots` y `hs` los ignora por completo.
+
+Va en `withKuulaChromeHidden` (`src/lib/kuula.ts`), junto a `info=0` y `logo=-1`, así
+cubre también las URLs que vienen de datos sin editarlas una por una. Para moverse entre
+panorámicas quedan los **hotspots del piso**, que son contenido del tour y siguen ahí.
 
 ### La hoja de Amenities
 

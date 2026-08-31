@@ -63,7 +63,7 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
             transition={{ duration: 0.2, ease: "easeOut" }}
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <div className="res-landing sheet sheet--equipo">
+            <div className="res-landing sheet">
               <header className="sheet-head">
                 <div>
                   <p className="sheet-eyebrow">{t.team.eyebrow}</p>

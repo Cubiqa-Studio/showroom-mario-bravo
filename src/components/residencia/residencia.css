@@ -2026,18 +2026,15 @@
 
 /* "El Equipo" — dos bloques, según el mockup del cliente (31-08): arriba las empresas
    detrás del proyecto, abajo el portfolio de la marca. Ver TeamModal.tsx.
-   Toda la hoja va en la SANS, el título del encabezado incluido: el mockup los tiene
-   así y mezclarla con la serif saltaba a la vista (Camila, 31-08). */
-.sheet--equipo .sheet-head .sheet-title {
-  font-family: var(--sans); font-weight: 300; letter-spacing: .01em;
-}
+   Los títulos van en la SERIF, como todos los del sitio: el mockup los traía en la sans
+   y quedaban peleados con el encabezado de la hoja (Camila, 31-08). */
 .team-wrap { max-width: 1080px; margin: 0 auto; }
 .team-bloque + .team-bloque {
   margin-top: 62px; padding-top: 46px; border-top: 1px solid var(--divider);
 }
 .team-h {
-  font-family: var(--sans); font-weight: 300; line-height: 1.15; letter-spacing: .01em;
-  font-size: calc(clamp(27px, 3.2vw, 40px) * var(--fs-k)); text-align: center;
+  font-family: var(--serif); font-weight: 500; line-height: 1.1; letter-spacing: .04em;
+  font-size: calc(clamp(24px, 2.9vw, 35px) * var(--fs-k)); text-align: center;
 }
 .team-intro {
   max-width: 640px; margin: 14px auto 0; text-align: center;
@@ -2070,7 +2067,10 @@
   display: block; width: 100%; height: 1px; margin: 6px 0 20px;
   background: linear-gradient(90deg, var(--gold), transparent 82%);
 }
-.team-name { font-size: calc(21px * var(--fs-k)); letter-spacing: .01em; line-height: 1.25; }
+.team-name {
+  font-family: var(--serif); font-size: calc(22px * var(--fs-k));
+  letter-spacing: .05em; line-height: 1.25;
+}
 .team-desc { margin-top: 10px; color: var(--gray); line-height: 1.7; }
 /* Sin logo no hay nombre arriba del texto, así que la descripción arranca pegada al
    filete y hay que devolverle el aire que daba el nombre. */
@@ -2115,7 +2115,8 @@
 }
 .team-obra-pie { padding: 20px 22px 24px; }
 .team-obra-nombre {
-  margin-top: 8px; font-size: calc(25px * var(--fs-k)); letter-spacing: .01em; line-height: 1.2;
+  margin-top: 8px; font-family: var(--serif); font-size: calc(26px * var(--fs-k));
+  letter-spacing: .06em; line-height: 1.2;
 }
 .team-obra-dato { margin-top: 10px; color: var(--gray); }
 

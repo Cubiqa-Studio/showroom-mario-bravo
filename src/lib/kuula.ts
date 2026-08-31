@@ -48,6 +48,13 @@ export interface KuulaChromeOpts {
  * queda). Con `hideFullscreen` además saca el botón de pantalla completa (`fs=0`).
  * Se aplica acá, centralizado, para cubrir también las URLs que vienen de datos
  * (units.json / Airtable) sin depender de editarlas una por una.
+ *
+ * `thumbs=-1` saca el navegador de la colección: las flechas de "anterior/siguiente"
+ * a media altura Y los puntitos de abajo (pedido del cliente, 31-08). Es el único
+ * valor que los saca a los dos — medido contra el player: con `0` van puntitos +
+ * flechas, y con `1` o `2` la tira de miniaturas. Ningún otro parámetro los toca
+ * (`chromeless`, `nav`, `arrows`, `dots` los ignora). Para moverse entre panorámicas
+ * quedan los hotspots del piso, que son contenido del tour y siguen ahí.
  */
 export function withKuulaChromeHidden(url: string, opts: KuulaChromeOpts = {}): string {
   try {
@@ -55,6 +62,7 @@ export function withKuulaChromeHidden(url: string, opts: KuulaChromeOpts = {}): 
     if (u.hostname !== "kuula.co" && !u.hostname.endsWith(".kuula.co")) return url;
     u.searchParams.set("info", "0");
     u.searchParams.set("logo", "-1");
+    u.searchParams.set("thumbs", "-1");
     if (opts.hideFullscreen) u.searchParams.set("fs", "0");
     return u.toString();
   } catch {

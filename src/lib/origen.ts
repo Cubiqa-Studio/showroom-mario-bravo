@@ -15,11 +15,16 @@
 //   https://…/?v=inmobiliaria
 //   https://…/?v=desarrolladora        (explícito, por si lo quieren simétrico)
 //
-// Sirve en cualquier ruta (`/`, `/showroom`, `/residencia/402`). La URL es la ÚNICA
-// fuente de verdad: el `OrigenProvider` la deja escrita en cada cambio de ruta, así que
-// el parámetro viaja solo y lo que se copie de la barra ya lo lleva. Sin parámetro manda
-// la desarrolladora — a propósito NO se recuerda la visita anterior: un link pelado
-// tiene que dar siempre lo mismo y no depender de por dónde entró esa persona ayer.
+// Sirve en cualquier ruta (`/`, `/showroom`, `/residencia/402`) y el `OrigenProvider` lo
+// deja escrito en la URL en cada cambio de ruta, así que viaja solo y lo que se copie de
+// la barra ya lo lleva.
+//
+// Dentro de la MISMA pestaña el origen se sostiene aunque la URL lo pierda (alguien
+// borra el parámetro a mano, o una carga completa cae en un link sin él). Se usa
+// `sessionStorage` y no `localStorage` a propósito: el `localStorage` quedaba pegajoso
+// —el que había abierto una vez el link de la inmobiliaria seguía viendo esa versión
+// días después, entrando por un link pelado— y un link sin parámetro tiene que dar
+// siempre la desarrolladora en una visita nueva.
 //
 // Es ATRIBUCIÓN, no seguridad: el parámetro está a la vista y cualquiera puede
 // cambiarlo. Alcanza y sobra para lo que hace falta (que cada campaña alimente su
@@ -35,6 +40,9 @@ export const ORIGEN_DEFECTO: Origen = "desarrolladora";
 
 /** Parámetro corto de los links de campaña: `?v=inmobiliaria`. */
 export const PARAM_ORIGEN = "v";
+
+/** Dónde se sostiene el origen dentro de la pestaña. */
+const CLAVE_SESION = "tb:origen";
 
 export interface Comercializador {
   /** Cómo se nombra en el mail del lead y en el asunto. */
@@ -75,6 +83,25 @@ function pelar(v: string): string {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Sostiene el origen dentro de la pestaña. Silencioso si el navegador no deja
+ *  escribir (incógnito estricto): se pierde el recuerdo, no la visita. */
+export function guardarEnSesion(origen: Origen): void {
+  try {
+    window.sessionStorage.setItem(CLAVE_SESION, origen);
+  } catch {
+    /* sin storage: el origen vale mientras no se recargue */
+  }
+}
+
+/** Origen de esta pestaña, si hay. */
+export function leerDeSesion(): Origen | null {
+  try {
+    return normalizarOrigen(window.sessionStorage.getItem(CLAVE_SESION));
+  } catch {
+    return null;
+  }
 }
 
 /** Devuelve el origen si el valor es uno conocido; `null` si no. */
