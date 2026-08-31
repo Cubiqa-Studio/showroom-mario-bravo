@@ -28,6 +28,9 @@ const RATIO_NUMERO = 0.76;
  *  (0,40 → 20% de aire entre ellos). Es el límite físico en los pisos tipo, donde las
  *  dos tiras de monoambientes tienen sus centros a 89px. */
 const HOLGURA_VECINOS = 0.4;
+/** Tope por BORDE PROPIO: el disco nunca pasa de esta fracción de la holgura que tiene
+ *  el marcador hasta el contorno de su unidad, así no se derrama fuera del plano. */
+const HOLGURA_BORDE = 0.9;
 
 /** Lo que devuelve `/api/plate/:floor`. */
 interface PlantaTraida {
@@ -466,7 +469,104 @@ function SchematicPlate({
   );
 }
 
-/** Centroide (centro de masa) de un polígono "x,y x,y ..." para ubicar el marcador. */
+/* ───────────────────────────────────────────────────────────────────────────────
+   DÓNDE VA EL MARCADOR DE UNA UNIDAD.
+
+   Iba en el CENTROIDE (centro de masa), y en las unidades en L o en T ese punto
+   tiene poco aire: cae cerca del recodo, o directamente sobre el hueco que la L
+   abraza. Con el disco a 34px se notaba — el marcador del 706 se derramaba fuera
+   del dibujo, sobre el patio (reporte de Joaquim, 31-08: "en sí ESTÁ dentro del
+   lienzo, pero justo NO HAY plano en esa parte").
+
+   Ahora va en el POLO DE INACCESIBILIDAD: el punto INTERIOR más lejano de
+   cualquier borde — lo mismo que usan los mapas para colocar la etiqueta de un
+   país. Medido sobre las 8 plantas, la holgura del 706 pasa de 56 a 268 px de
+   plano, y la del 702 en la azotea de 63 a 200. De paso, `holgura` sirve de tope
+   de tamaño del disco (ver HOLGURA_BORDE), así que aunque mañana entre un plano
+   con una unidad angosta el marcador se achica en vez de derramarse.
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+type Punto = [number, number];
+
+const parsePuntos = (points: string): Punto[] =>
+  points
+    .trim()
+    .split(/\s+/)
+    .map((pair) => pair.split(",").map(Number) as Punto);
+
+/** Distancia de un punto al segmento a-b. */
+function distanciaASegmento(px: number, py: number, a: Punto, b: Punto): number {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const largo2 = dx * dx + dy * dy;
+  const t = largo2 ? Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / largo2)) : 0;
+  return Math.hypot(px - (a[0] + t * dx), py - (a[1] + t * dy));
+}
+
+/** Ray casting: ¿el punto cae adentro del polígono? */
+function estaAdentro(px: number, py: number, pts: Punto[]): boolean {
+  let dentro = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i];
+    const [xj, yj] = pts[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) dentro = !dentro;
+  }
+  return dentro;
+}
+
+/** Distancia al contorno CON SIGNO: positiva adentro, negativa afuera. */
+function holguraAlBorde(px: number, py: number, pts: Punto[]): number {
+  let d = Infinity;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    d = Math.min(d, distanciaASegmento(px, py, pts[i], pts[j]));
+  }
+  return estaAdentro(px, py, pts) ? d : -d;
+}
+
+/**
+ * Polo de inaccesibilidad: el punto interior con más aire hasta el borde. Se
+ * resuelve con una grilla que se va refinando alrededor del mejor candidato —más
+ * simple que la cola de prioridad del `polylabel` clásico y de sobra para estos
+ * polígonos (18ms para las ocho plantas enteras, y va memoizado por planta).
+ */
+function poloInterior(points: string): { x: number; y: number; holgura: number } {
+  const pts = parsePuntos(points);
+  if (pts.length < 3) {
+    const c = centroid(points);
+    return { ...c, holgura: 0 };
+  }
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  let x0 = Math.min(...xs);
+  let x1 = Math.max(...xs);
+  let y0 = Math.min(...ys);
+  let y1 = Math.max(...ys);
+  let mejor = { x: (x0 + x1) / 2, y: (y0 + y1) / 2, holgura: -Infinity };
+  let paso = Math.max(x1 - x0, y1 - y0) / 8;
+  // Hasta 1px de plano: más fino no cambia nada visible (el plano se dibuja a
+  // menos de la mitad de su tamaño nativo hasta en escritorio).
+  while (paso > 1) {
+    for (let x = x0; x <= x1; x += paso) {
+      for (let y = y0; y <= y1; y += paso) {
+        const h = holguraAlBorde(x, y, pts);
+        if (h > mejor.holgura) mejor = { x, y, holgura: h };
+      }
+    }
+    x0 = mejor.x - paso;
+    x1 = mejor.x + paso;
+    y0 = mejor.y - paso;
+    y1 = mejor.y + paso;
+    paso /= 4;
+  }
+  // Polígono degenerado (todo el barrido dio afuera): al menos no romper.
+  if (mejor.holgura <= 0) {
+    const c = centroid(points);
+    return { ...c, holgura: Math.max(0, holguraAlBorde(c.x, c.y, pts)) };
+  }
+  return mejor;
+}
+
+/** Centroide (centro de masa) — respaldo del polo para polígonos degenerados. */
 function centroid(points: string): { x: number; y: number } {
   const pts = points
     .trim()
@@ -546,12 +646,20 @@ function TracedPlate({
 
   // Centroides una sola vez: los usan el marcador y el cálculo de cercanía.
   const marcadores = useMemo(
-    () => plate.polygons.map((p) => ({ poly: p, c: centroid(p.points) })),
+    () => plate.polygons.map((p) => ({ poly: p, c: poloInterior(p.points) })),
     [plate.polygons]
   );
+  /** La holgura MÁS CHICA de la planta: ninguna unidad tiene más aire que eso entre
+   *  su marcador y su propio borde, así que es el tope de tamaño del disco. Se toma
+   *  el mínimo de toda la planta y no uno por unidad a propósito: los marcadores de
+   *  un mismo plano tienen que medir todos igual. */
+  const holguraMinima = useMemo(
+    () => marcadores.reduce((min, m) => Math.min(min, m.c.holgura), Infinity),
+    [marcadores]
+  );
   /** Distancia (en unidades del plano) entre los dos marcadores más próximos de esta
-   *  planta. En los pisos tipo son las dos tiras de monoambientes: 89px de nada. En el
-   *  7° y el 8°, más de 500 — por eso ahí el marcador puede crecer sin problema. */
+   *  planta. En los pisos tipo son 189px; en el 7° y el 8°, más de 670 — por eso ahí
+   *  el marcador puede crecer sin problema. */
   const vecinoMasCerca = useMemo(() => {
     let min = Infinity;
     for (let i = 0; i < marcadores.length; i++) {
@@ -570,7 +678,9 @@ function TracedPlate({
     // Objetivo en pantalla. Antes de la primera medición (SSR / primer paint) cae en
     // la fórmula vieja, que es un valor razonable y evita el salto de tamaño.
     escala ? R_PANTALLA / escala : Math.min(w, h) * 0.019,
-    vecinoMasCerca * HOLGURA_VECINOS
+    vecinoMasCerca * HOLGURA_VECINOS,
+    // Y nunca más grande que el aire que tiene la unidad MÁS JUSTA de la planta.
+    holguraMinima * HOLGURA_BORDE
   );
   // ¿La unidad actual está en ESTE piso? Sólo entonces atenuamos las demás para que
   // resalte fuerte (Miro 2026-07-15). En el Plan Maestro (sin currentId) o en otros

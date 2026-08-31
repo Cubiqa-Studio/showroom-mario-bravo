@@ -20,10 +20,10 @@
 //  · 6°: 601 y 606 son las grandes, ocupan el frente (se comen 01+02 y 06+07). Las seis
 //        chicas quedan corridas un lugar (602↔03, 603↔04, 604↔05, 607↔08, 608↔09,
 //        609↔10) y todas caen al contrafrente.
-//  · 7°: 701 es la de abajo (terraza contra la calle) y 702 la de arriba (su balcón
-//        terraza da al pulmón). La 706 CRUZA la planta —dormitorios arriba, estar
-//        abajo— así que tiene las dos: se deja SIN dato y no muestra chip, antes que
-//        etiquetarla mal.
+//  · 7°: 701 y 702 van las DOS como frente. La 702 estaba como contrafrente —por su
+//        posición en el plano, arriba, del lado del pulmón— y el cliente la corrigió
+//        el 31-08. La 706 CRUZA la planta —dormitorios arriba, estar abajo— así que
+//        tiene las dos: se deja SIN dato y no muestra chip, antes que etiquetarla mal.
 //
 // Uso:  node scripts/set-unit-exposure.mjs      (o `npm run units:exposure`)
 import { fileURLToPath } from "node:url";
@@ -54,7 +54,7 @@ for (const id of ["602", "603", "604", "607", "608", "609"]) {
 
 // 7° (retiro).
 EXPOSURE["701"] = "frente";
-EXPOSURE["702"] = "contrafrente";
+EXPOSURE["702"] = "frente";
 
 /** Unidades que dan a los DOS lados → sin chip, a propósito. */
 const AMBAS = ["706"];

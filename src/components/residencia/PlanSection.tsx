@@ -8,6 +8,7 @@ import { BROCHURE_URL } from "@/lib/contact";
 import { captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { FloorPlate } from "./FloorPlate";
+import { AmenitiesModal } from "./AmenitiesModal";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -30,6 +31,8 @@ export function PlanSection({
   floorUnits: UnitWithId[];
 }) {
   const [tab, setTab] = useState<Tab>("plan");
+  // Hoja de Amenities, la misma que abre el sidebar del showroom.
+  const [amenitiesOpen, setAmenitiesOpen] = useState(false);
   const a = unit.areas;
   const { t } = useI18n();
   // Piso de la unidad = su id sin los dos últimos dígitos ("101" → "1", "001" → "0" = PB).
@@ -203,10 +206,22 @@ export function PlanSection({
             </div>
           ) : null}
           <div className="ov-group-gap" />
+          {/* Amenities: el botón abre la MISMA hoja que el item del sidebar del
+              showroom (recorrido 360° + galería + el detalle escrito). Antes esta
+              fila era sólo texto y el recorrido no se podía alcanzar desde la ficha
+              de una unidad — pedido de Joaquim, 31-08. La lista descriptiva cae a la
+              línea de abajo: `.val--wrap` la manda a un renglón propio. */}
           <div className="ov-row">
             <span className="lbl">{t.plan.amenities}</span>
             <span className="lead" />
-            <span className="val">{t.plan.amenitiesValue}</span>
+            <button
+              type="button"
+              className="ov-link"
+              onClick={() => setAmenitiesOpen(true)}
+            >
+              {t.plan.seeAmenities}
+            </button>
+            <span className="val val--wrap">{t.plan.amenitiesValue}</span>
           </div>
           {/* Juani 2026-07-16: la fila "Entrega — 24 a 30 meses" se sacó (quedaba
               desactualizada con el tiempo); el avance real vive en el modal
@@ -231,6 +246,8 @@ export function PlanSection({
         </aside>
       </div>
       )}
+
+      <AmenitiesModal open={amenitiesOpen} onClose={() => setAmenitiesOpen(false)} />
     </div>
   );
 }

@@ -818,6 +818,24 @@
    derecha ("…y pileta" suelto) — pedido de Joaquim, 30-08. */
 .res-landing .ov-row .val { font-weight: 600; margin-left: auto; text-align: left; overflow-wrap: break-word; min-width: 0; }
 .res-landing .ov-row .val.big { font-family: var(--serif); font-size: calc(24.5px * var(--fs-k)); color: var(--gold); }
+/* Valor que va a un RENGLÓN PROPIO, debajo de la etiqueta (la lista de amenities,
+   que comparte fila con el botón "Ver amenities"). `flex-basis: 100%` fuerza el
+   salto; sin el `margin-left: auto` que llevan los valores cortos, arranca contra
+   el margen izquierdo. */
+.res-landing .ov-row .val--wrap { flex: 1 0 100%; margin-left: 0; margin-top: 8px; }
+/* Botón de texto dentro de una fila del resumen: dorado, subrayado sutil, y con
+   44px de alto táctil sin engordar la fila (el margen negativo lo compensa). */
+.res-landing .ov-row .ov-link {
+  appearance: none; background: none; border: 0; cursor: pointer;
+  margin-left: auto; padding: 12px 0; margin-top: -12px; margin-bottom: -12px;
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-family: var(--sans); font-size: calc(18.5px * var(--fs-k)); font-weight: 600;
+  color: var(--gold); white-space: nowrap;
+  border-bottom: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  transition: color .2s ease, border-color .2s ease;
+}
+.res-landing .ov-row .ov-link:hover { color: var(--gold-bright); border-bottom-color: var(--gold-bright); }
+.res-landing .ov-row .ov-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 3px; }
 .res-landing .ov-group-gap { height: 18px; }
 .res-landing .overview .btn-gold { margin-top: auto; justify-content: center; }
 
@@ -1768,9 +1786,18 @@
 }
 .res-landing.sheet {
   flex: 1; min-height: 0;
+  /* `min-width: 0` NO es decorativo: como ítem flex, su mínimo por defecto es el
+     ancho MÍNIMO DE SU CONTENIDO, así que cualquier cosa adentro que no sepa
+     achicarse estira la hoja entera más allá del overlay. Pasó con el mosaico de
+     amenities: sobre un viewport de 390px la hoja medía 1012 y las fotos se salían
+     por la derecha, sin barra de scroll que las alcanzara (el overlay es
+     `overflow: hidden`). Mismo mecanismo que el `nowrap` de la fila de amenities
+     del resumen — ver el README, "El síntoma más engañoso". */
+  min-width: 0;
   display: flex; flex-direction: column;
   background: transparent;
 }
+.sheet-body { min-width: 0; }
 .sheet-head {
   flex: 0 0 auto; /* header fijo: no scrollea con el contenido */
   display: flex; align-items: flex-start; justify-content: space-between; gap: 18px;
@@ -1911,6 +1938,56 @@
   box-shadow: var(--shadow-card);
 }
 .sheet-amenities-360 iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* `hidden` en el div del 360°: el iframe NO se desmonta al cambiar de pestaña (eso
+   recargaría el tour de Kuula entero), así que hay que ganarle al `display: flex`
+   implícito de nada — pero sí al `position: relative` del bloque. */
+.sheet-amenities-360[hidden] { display: none; }
+
+/* ---- Pestañas de la hoja de Amenities (360° / Galería) ---- */
+.am-tabs {
+  display: flex; gap: clamp(18px, 3vw, 30px);
+  max-width: var(--am-col, 1080px); margin: 0 auto 22px;
+  border-bottom: 1px solid var(--divider);
+}
+.am-tab {
+  appearance: none; background: none; border: 0; cursor: pointer;
+  padding: 10px 2px 12px; margin-bottom: -1px;
+  font-family: var(--sans); font-size: calc(18.5px * var(--fs-k)); font-weight: 500;
+  letter-spacing: .04em; color: var(--gray); white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color .2s ease, border-color .2s ease;
+}
+.am-tab:hover { color: var(--white); }
+.am-tab.active { color: var(--white); border-bottom-color: var(--gold); }
+
+/* Mosaico de renders: DOS columnas en celular, TRES de tablet para arriba. Va con
+   cuentas fijas y no con `auto-fill` + `minmax(min(300px, 100%), …)`: el `min()` con
+   porcentaje se resuelve contra el ancho de la propia grilla, y como la hoja es un
+   ítem flex ese ancho todavía no está decidido → la grilla pedía sus tres columnas
+   de 300 como mínimo intrínseco y estiraba la hoja a 1012px sobre un viewport de
+   390. Con `1fr` no hay mínimo que negociar. */
+.am-galeria {
+  display: grid; gap: clamp(10px, 1.4vw, 16px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: var(--am-col, 1080px); margin: 0 auto 36px;
+}
+@media (min-width: 720px) {
+  .am-galeria { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.am-foto {
+  appearance: none; padding: 0; border: 1px solid var(--divider); cursor: pointer;
+  border-radius: var(--radius); overflow: hidden; background: var(--panel);
+  aspect-ratio: 3 / 2; display: block; width: 100%;
+  transition: border-color .2s ease, transform .2s ease;
+}
+.am-foto img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.am-foto:hover { border-color: var(--gold); }
+.am-foto:hover img { transform: scale(1.04); }
+.am-foto:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (pointer: coarse) {
+  /* Sin hover no hay zoom que valga; y el tap target ya es la foto entera. */
+  .am-foto:hover img { transform: none; }
+}
 /* La copy llena la misma columna que el 360° (no la limita a 660 ni la alinea a la izq). */
 .sheet-amenities-specs { max-width: var(--am-col, 1080px); margin: 0 auto; }
 .sheet-amenities-specs .spec-panel p { max-width: 100%; }

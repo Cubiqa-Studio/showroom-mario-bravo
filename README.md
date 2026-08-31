@@ -159,6 +159,35 @@ dormitorio).
 mano** a archivos que genera el script. Si se renombra un original en `_media-src`, hay
 que actualizarlas — una ruta rota no rompe el build, sólo deja una imagen fantasma.
 
+### La hoja de Amenities
+
+Un solo componente (`AmenitiesModal`) con **dos pestañas**, y se abre desde dos lados:
+
+| Desde | Cómo |
+|---|---|
+| Showroom | item "Amenities" del sidebar |
+| Ficha de una unidad | botón **"Ver amenities"** en la fila Amenities del resumen (31-08) |
+
+- **Recorrido 360°** — el iframe de Kuula (`AMENITIES_360`). ⚠ **No se desmonta al
+  cambiar de pestaña**, se esconde con `hidden`: volver a montarlo recarga el tour entero
+  y en táctil obliga a pasar otra vez por la pantalla de título de Kuula.
+- **Galería** — los nueve renders de espacios comunes (`AMENITIES_GALLERY`, en
+  `src/lib/amenities-gallery.ts`). Dos columnas en celular, tres de tablet para arriba.
+  Al tocar uno abre el MISMO visor grande que la galería del proyecto, ya acotado a los
+  amenities; va a `z-160`, sobre la hoja (`z-150`), así que se abre encima sin cerrarla.
+
+La barra de pestañas sólo aparece si están las dos cosas: sin tour queda la galería
+sola, sin renders queda el tour solo, y en los dos casos sin barra.
+
+⚠ **`.res-landing.sheet` lleva `min-width: 0`, y no es decorativo.** Como ítem flex su
+mínimo por defecto es el ancho MÍNIMO DE SU CONTENIDO, así que cualquier cosa adentro que
+no sepa achicarse estira la hoja más allá del overlay — y como el overlay es
+`overflow: hidden`, eso no se ve como scroll sino como contenido cortado. Pasó con el
+mosaico: la primera versión usaba `repeat(auto-fill, minmax(min(300px, 100%), 1fr))`, el
+`min()` con porcentaje se resolvía contra el ancho de la propia grilla (que todavía no
+estaba decidido) y la hoja medía **1012px sobre un viewport de 390**. Es el mismo
+mecanismo que el `nowrap` de la fila de amenities del resumen.
+
 ### Terraza propia (el último piso)
 
 `unit.terraza` (bool). Las **tres unidades del 7°** —701, 702 y 706— tienen terraza
@@ -185,8 +214,8 @@ orientación**, verificado contra la base— así que vive en `units.json` y se 
 
 | | Unidades |
 |---|---|
-| **Frente** (Mario Bravo) | 23 — la 01, 02, 06 y 07 de los pisos 1 a 5, más 601, 606 y 701 |
-| **Contrafrente** (pulmón: pileta, deck y parque) | 39 — la 03, 04, 05, 08, 09 y 10 de los pisos 1 a 5, más 602-605, 607-610 y 702 |
+| **Frente** (Mario Bravo) | 24 — la 01, 02, 06 y 07 de los pisos 1 a 5, más 601, 606, 701 y 702 |
+| **Contrafrente** (pulmón: pileta, deck y parque) | 38 — la 03, 04, 05, 08, 09 y 10 de los pisos 1 a 5, más 602-605 y 607-610 |
 | **Sin dato, a propósito** | 1 — la **706 es PASANTE**: los tres dormitorios dan al pulmón y el estar-comedor a la calle. El campo es opcional justamente para esto: sin valor no muestra chip, que es mejor que etiquetarla mal. |
 
 Cómo se dedujo, por tres caminos independientes que dan lo mismo:
@@ -245,14 +274,21 @@ Los nombres de columna de esta base **no son los del template**, así que
 | `Superficie Semi/Desc` | `areas.exterior` | |
 | `Piso` | `piso` | |
 | `Tipología` | — | **se ignora**: dice "3 AMBIENTES" (duplica `Ambientes`). La tipología del sitio es la LETRA A–E, que vive en `units.json`. Si el cliente algún día carga letras, entran solas. |
-| `Estado` | `status` | ⚠ **la columna NO EXISTE en la base** |
+| `Estado` | `status` | valores `Disponible` / `Reservada` (el mapeo es por prefijo, así que "Reservado" también entra) |
 
-> ⚠️ **Falta la columna `Estado`.** Es la que pinta el contorno de cada unidad (verde
-> disponible / amarillo reservada) y la que alimenta el filtro "Disponibilidad" del
-> buscador. Mientras no exista, las 63 quedan con el estado de `units.json` y **el
-> showroom se ve como si estuviera todo disponible**. Hay que pedirle al cliente que la
-> agregue con valores "Disponible" / "Reservada" — el código ya la lee (y también acepta
-> `Estado de la unidad` o `Disponibilidad`).
+> ✅ **La columna `Estado` ya existe** (la creó el cliente el 31-08). Es la que pinta el
+> contorno de cada unidad —verde disponible / ámbar reservada— y la que alimenta el filtro
+> "Disponibilidad" del buscador. Verificado contra la base el 31-08: las 63 unidades
+> traen `Estado`, las 63 resuelven, y los ids coinciden uno a uno con `units.json` (ni
+> sobra ni falta ninguna). Hoy están las 63 en "Disponible".
+>
+> El mapeo es por PREFIJO (`mapEstado`): cualquier cosa que empiece con "dispon" es
+> disponible y con "reserv" es reservada, así que "Reservado" y "Reservada" entran las
+> dos. Un valor que no matchee ninguno de los dos NO rompe: cae al estado de
+> `units.json`. También se aceptan los alias `Estado de la unidad` y `Disponibilidad`.
+>
+> Probado de punta a punta: forzando una unidad a "Reservada" su polígono pasa de
+> `#22c55e` a `#eab308` y su tarjeta dice "Reservada", con el resto del piso intacto.
 
 > 💰 **Los precios viajan en el HTML aunque no se muestren.** Ningún componente los
 > renderiza hoy, y el JSON-LD no los publica (`PRICE_CURRENCY = null` en `seo.ts`), pero
@@ -377,10 +413,27 @@ salía de `min(w,h) × 0,019` —el tamaño NATIVO del plano— y eso rompía po
 el mismo marcador medía 24px en escritorio y **9 en un celular**, y `min(w,h)` castigaba
 a los planos apaisados (la azotea sacaba un radio 34% menor que el piso tipo aunque se
 dibuja igual de grande). Hoy mide 34px de diámetro en TODOS los casos.
-`HOLGURA_VECINOS` es la red de seguridad: el radio nunca pasa del 40% de la distancia
-entre los dos marcadores más próximos de esa planta, así dos discos no se tocan nunca.
-Hoy no llega a activarse —el par más cercano de un piso tipo está a 204px de plano, que
-son 45 en el peor render— pero si entra una planta más densa, aprieta sola.
+**Dónde se planta.** No en el centroide, sino en el **polo de inaccesibilidad**: el punto
+interior más lejano de cualquier borde, lo mismo que usan los mapas para colocar la
+etiqueta de un país. El centroide de una unidad en L o en T cae cerca del recodo —o
+directamente sobre el hueco que la L abraza—, y con el disco a 34px se derramaba fuera
+del dibujo: el marcador del 706 quedaba sobre el patio (31-08). Con el polo, la holgura
+del 706 pasa de 56 a 268 px de plano y la del 702 en la azotea de 63 a 200. Cuesta 18ms
+para las ocho plantas enteras y va memoizado por planta.
+
+Dos redes de seguridad acotan el radio, las dos por planta:
+
+- `HOLGURA_VECINOS` — nunca más del 40% de la distancia entre los dos marcadores más
+  próximos, así dos discos no se tocan. Apenas aprieta: el par más cercano de un piso
+  tipo está a 189px de plano.
+- `HOLGURA_BORDE` — nunca más del 90% del aire que tiene el marcador **más justo** de la
+  planta hasta su propio contorno, así ninguno se derrama. Hoy no llega a activarse. Se
+  toma el mínimo de toda la planta, y no uno por unidad, a propósito: los marcadores de
+  un mismo plano tienen que medir todos igual.
+
+Verificado en el DOM con `isPointInFill` (el centro del disco + 16 puntos de su borde,
+contra el `<polygon>` de cada unidad): **0 marcadores fuera** en las 8 plantas × celular,
+tablet y escritorio.
 
 **El subsuelo y la planta baja no tienen unidades**, así que no llevan polígonos —no hay
 nada que clickear— pero **sí se muestran**: son la cochera y los amenities, que es justo
@@ -872,7 +925,6 @@ faltantes) y de dónde salió cada asset.
 
 | Qué | Bloquea |
 |---|---|
-| **Columna `Estado` en Airtable** | Sin ella el contorno de las unidades no refleja disponibilidad: todo se ve libre. Es el pedido más urgente. |
 | **Renders con ~440px menos de alto** (5000×2375) | Con 16:9 se recorta el 15,6% del alto en una ventana maximizada. Ver [El encuadre del render](#el-encuadre-del-render) — son *menos* píxeles, no cuesta más tiempo de render. |
 | **Dominio de producción** | `PROD_SITE_URL` (`src/lib/seo.ts`), el redirect www→apex de `next.config.ts` y `netlify.toml`, y `NEXT_PUBLIC_SITE_URL`. Hoy tienen un placeholder con la dirección; **desde el rebranding probablemente sea un dominio TIER**. No deployar así. |
 | **Tipografía del logotipo** | Camila se lo preguntó al cliente. Sin eso no se pueden armar lockups tipográficos coherentes con el wordmark. |
@@ -889,7 +941,7 @@ faltantes) y de dónde salió cada asset.
 | **Copy de "Un equipo con trayectoria"** | El cliente pidió dejar los tres logos TIER (Bravo, Avenue, Sinclair). El texto que los acompaña lo escribimos nosotros y conviene que lo apruebe. |
 | **¿Cómo etiquetar la 706?** | Es pasante (dormitorios al contrafrente, estar a la calle). Hoy no muestra chip de exposición. Si la quieren rotulada, decidir si va como "Frente", "Contrafrente" o si sumamos un valor "Pasante". |
 | **Plano de la unidad 702** | Del 7° mandaron sólo el 01 y el 06. Hoy la 702 muestra el del 701 (misma tipología, pero espejado y con 11 m² de diferencia). Ver [Los planos de unidad](#los-planos-de-unidad). |
-| **Plano del 6° con la 605 y la 610** | El plano que mandaron tiene OCHO departamentos (01-04, 06-09) y el cliente sumó dos unidades más por Airtable. Sin un plano actualizado esas dos no pueden tener polígono en "Planta del piso" ni en el Plan Maestro. **Es el pedido más urgente después del `Estado`.** Ver [Las 63 unidades](#las-63-unidades). |
+| **Plano del 6° con la 605 y la 610** | El plano que mandaron tiene OCHO departamentos (01-04, 06-09) y el cliente sumó dos unidades más por Airtable. Sin un plano actualizado esas dos no pueden tener polígono en "Planta del piso" ni en el Plan Maestro. **Es el pedido más urgente.** Ver [Las 63 unidades](#las-63-unidades). |
 | **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Con la 605 y la 610 en la mezcla esto hay que confirmarlo sí o sí. Ver [Los planos de unidad](#los-planos-de-unidad). |
 | **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
 | **Brochure comercial** | `BROCHURE_URL` es `null` → el item del menú y el botón "Ver PDF" están ocultos. |

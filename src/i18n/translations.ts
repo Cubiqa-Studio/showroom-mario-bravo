@@ -359,6 +359,8 @@ const es = {
     floorValue: (f: string) => (f === "0" ? "PB" : `${f}°`),
     amenities: "Amenities",
     amenitiesValue: "Gimnasio, cowork, SUM, parrillas, juegos, solárium y pileta",
+    /** Botón de la fila Amenities: abre la misma hoja que el sidebar. */
+    seeAmenities: "Ver amenities",
     seePdf: "Ver PDF",
   },
 
@@ -1079,6 +1081,7 @@ const en: Dict = {
     floorValue: (f: string) => (f === "0" ? "Ground" : `Floor ${f}`),
     amenities: "Amenities",
     amenitiesValue: "Gym, coworking, multipurpose room, barbecues, playground, solarium and pool",
+    seeAmenities: "View amenities",
     seePdf: "View PDF",
   },
 

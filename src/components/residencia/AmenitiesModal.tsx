@@ -4,15 +4,21 @@
 // activa SÓLO desde el sidebar del showroom (no desde la bolita 360° del exterior,
 // que abre el Vr360Modal pelado).
 import "./residencia.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { AMENITIES_360 } from "@/lib/vr-hotspots";
+import { AMENITIES_GALLERY } from "@/lib/amenities-gallery";
 import { kuulaEmbedUrl } from "@/lib/kuula";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { useIsTouch } from "@/hooks/useIsTouch";
 import { CloseIcon } from "../gallery/icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
+import { GalleryModal } from "./GalleryModal";
+
+/* eslint-disable @next/next/no-img-element */
+
+type Pestana = "360" | "galeria";
 
 /**
  * "Amenities" — recorrido 360° de Kuula de los amenities ARRIBA + el detalle de
@@ -33,11 +39,28 @@ export function AmenitiesModal({
   const { t } = useI18n();
   const sheet = t.amenitiesSheet;
   const isTouch = useIsTouch();
+  // Pestañas de la hoja. Sólo se muestran si HAY las dos cosas: sin tour queda la
+  // galería sola, sin renders queda el tour solo — y en los dos casos sin barra.
+  const hayTour = Boolean(AMENITIES_360);
+  const hayGaleria = AMENITIES_GALLERY.length > 0;
+  const [pestana, setPestana] = useState<Pestana>(hayTour ? "360" : "galeria");
+  // Índice de la foto abierta en el lightbox; `null` = cerrado.
+  const [foto, setFoto] = useState<number | null>(null);
+
+  // Al cerrar la hoja, volver a la pestaña inicial y soltar el lightbox: si no,
+  // reabrirla te deja donde estabas y el visor grande queda colgado detrás.
+  useEffect(() => {
+    if (open) return;
+    setFoto(null);
+    setPestana(hayTour ? "360" : "galeria");
+  }, [open, hayTour]);
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      // Con el lightbox abierto, Escape cierra PRIMERO la foto (el visor tiene su
+      // propio listener). Sin esto, un Escape cerraba las dos cosas de una.
+      if (e.key === "Escape" && foto === null) onClose();
     };
     window.addEventListener("keydown", onKey);
     const unlock = lockBodyScroll();
@@ -45,7 +68,7 @@ export function AmenitiesModal({
       window.removeEventListener("keydown", onKey);
       unlock();
     };
-  }, [open, onClose]);
+  }, [open, onClose, foto]);
 
   return (
     <FloatingPortal>
@@ -78,20 +101,72 @@ export function AmenitiesModal({
               </header>
 
               <div className="sheet-body">
-                {/* El 360 de amenities sólo si existe: TIER Bravo todavía no lo tiene
-                    (ver src/lib/vr-hotspots.ts) y un iframe sin src queda en blanco.
-                    Mientras tanto la hoja muestra sólo las specs. */}
-                {AMENITIES_360 && (
-                  <div className="sheet-amenities-360">
+                {/* Barra de pestañas: el recorrido 360° y los renders. Sólo aparece si
+                    hay las DOS cosas — con una sola no hay nada que elegir. */}
+                {hayTour && hayGaleria && (
+                  <div className="am-tabs" role="tablist" aria-label={t.sideMenu.amenities}>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={pestana === "360"}
+                      className={`am-tab${pestana === "360" ? " active" : ""}`}
+                      onClick={() => setPestana("360")}
+                    >
+                      {t.vr.tour}
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={pestana === "galeria"}
+                      className={`am-tab${pestana === "galeria" ? " active" : ""}`}
+                      onClick={() => setPestana("galeria")}
+                    >
+                      {t.sideMenu.gallery}
+                    </button>
+                  </div>
+                )}
+
+                {/* El 360 de amenities sólo si existe (ver src/lib/vr-hotspots.ts): un
+                    iframe sin src queda en blanco. El iframe NO se desmonta al cambiar
+                    de pestaña —se esconde— porque volver a montarlo recarga el tour
+                    entero de Kuula y en táctil obliga a pasar otra vez por su pantalla
+                    de título. */}
+                {hayTour && (
+                  <div className="sheet-amenities-360" hidden={pestana !== "360"}>
                     {/* Sin giroscopio/acelerómetro: inclinar el celular no mueve el 360°
                         (sólo se mira arrastrando). Se conserva `fullscreen`. En táctil,
                         `withKuulaTouchGate` fuerza la pantalla de título (anti-lag iOS). */}
                     <iframe
-                      src={kuulaEmbedUrl(AMENITIES_360, isTouch)}
+                      src={kuulaEmbedUrl(AMENITIES_360!, isTouch)}
                       title={t.vr.virtualTour}
                       allow="fullscreen"
                       allowFullScreen
                     />
+                  </div>
+                )}
+
+                {/* Galería: mosaico de renders; al tocar uno abre el mismo visor
+                    grande que la galería del proyecto (con flechas, contador y
+                    miniaturas), ya acotado a los amenities. */}
+                {hayGaleria && pestana === "galeria" && (
+                  <div className="am-galeria">
+                    {AMENITIES_GALLERY.map((img, i) => (
+                      <button
+                        key={img.full}
+                        type="button"
+                        className="am-foto"
+                        onClick={() => setFoto(i)}
+                        aria-label={t.galleryModal.alt(i + 1)}
+                      >
+                        <img
+                          src={img.thumb}
+                          alt=""
+                          aria-hidden
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </button>
+                    ))}
                   </div>
                 )}
 
@@ -122,6 +197,15 @@ export function AmenitiesModal({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Visor grande, con las MISMAS imágenes de la pestaña. Va a z-160, por encima
+          de la hoja (z-150), así que se abre sobre ella sin cerrarla. */}
+      <GalleryModal
+        open={foto !== null}
+        onClose={() => setFoto(null)}
+        images={AMENITIES_GALLERY}
+        initialIndex={foto ?? 0}
+      />
     </FloatingPortal>
   );
 }
