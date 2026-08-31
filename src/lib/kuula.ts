@@ -33,6 +33,28 @@ export function withKuulaTouchGate(url: string, isTouch: boolean): string {
 }
 
 export interface KuulaChromeOpts {
+  /**
+   * `zoom=1`: habilita el zoom del player. **Es todo o nada**, y eso decide dónde se
+   * puede poner la barrita de zoom (`ZoomKuula`). Medido contra el Kuula real el 31-08:
+   *
+   * | | rueda del mouse sobre el 360 | `setZoom` de la API |
+   * |---|---|---|
+   * | `zoom=0` | no hace nada → **la página scrollea** | el player vuelve a 0 al instante (pedirle 0,6 deja 5,99e-15) |
+   * | `zoom=1` | zoomea → **la página NO scrollea** | funciona |
+   *
+   * O sea: no hay forma de tener la barrita sin devolverle la rueda al 360°, que es
+   * justo lo que se sacó porque trababa el scroll de la ficha. Así que se habilita
+   * SÓLO donde no hay scroll que robar:
+   *
+   *  · `Vr360Modal` — pantalla completa, no hay nada atrás. Siempre.
+   *  · `Hero360` y la hoja de Amenities — **sólo en táctil**, donde no existe la rueda
+   *    (el scroll ahí se hace arrastrando el bottom sheet, ver residencia.css) y el
+   *    pinch es un plus. En escritorio queda en 0 y la rueda sigue scrolleando.
+   *
+   * Se fuerza explícitamente en los dos sentidos: las URLs de `units.json` ya traen
+   * `zoom=0` y hay que poder pisarlo.
+   */
+  zoom?: boolean;
   /** `fs=0`: oculta el botón fullscreen ("expandir/zoom") de Kuula. Se usa SÓLO en el
    *  hero de la landing (Miro 2026-07-15): ahí el 360° ya ocupa 100dvh, así que el
    *  botón sobra y encima se encimaba a nuestro navbar. En los modales (Amenities /
@@ -55,6 +77,7 @@ export function withKuulaChromeHidden(url: string, opts: KuulaChromeOpts = {}): 
     if (u.hostname !== "kuula.co" && !u.hostname.endsWith(".kuula.co")) return url;
     u.searchParams.set("info", "0");
     u.searchParams.set("logo", "-1");
+    u.searchParams.set("zoom", opts.zoom ? "1" : "0");
     if (opts.hideFullscreen) u.searchParams.set("fs", "0");
     return u.toString();
   } catch {

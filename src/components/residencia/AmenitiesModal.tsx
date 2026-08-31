@@ -4,7 +4,7 @@
 // activa SÓLO desde el sidebar del showroom (no desde la bolita 360° del exterior,
 // que abre el Vr360Modal pelado).
 import "./residencia.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { AMENITIES_360 } from "@/lib/vr-hotspots";
@@ -15,6 +15,7 @@ import { useIsTouch } from "@/hooks/useIsTouch";
 import { CloseIcon } from "../gallery/icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { GalleryModal } from "./GalleryModal";
+import { ZoomKuula } from "./ZoomKuula";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -46,6 +47,10 @@ export function AmenitiesModal({
   const [pestana, setPestana] = useState<Pestana>(hayTour ? "360" : "galeria");
   // Índice de la foto abierta en el lightbox; `null` = cerrado.
   const [foto, setFoto] = useState<number | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  // Zoom sólo en táctil: en escritorio la rueda sobre el iframe dejaria de scrollear
+  // la hoja (ver la tabla en KuulaChromeOpts.zoom).
+  const conZoom = isTouch;
 
   // Al cerrar la hoja, volver a la pestaña inicial y soltar el lightbox: si no,
   // reabrirla te deja donde estabas y el visor grande queda colgado detrás.
@@ -137,11 +142,13 @@ export function AmenitiesModal({
                         (sólo se mira arrastrando). Se conserva `fullscreen`. En táctil,
                         `withKuulaTouchGate` fuerza la pantalla de título (anti-lag iOS). */}
                     <iframe
-                      src={kuulaEmbedUrl(AMENITIES_360!, isTouch)}
+                      ref={iframeRef}
+                      src={kuulaEmbedUrl(AMENITIES_360!, isTouch, { zoom: conZoom })}
                       title={t.vr.virtualTour}
                       allow="fullscreen"
                       allowFullScreen
                     />
+                    <ZoomKuula iframeRef={iframeRef} habilitado={conZoom} className="kz--hoja" />
                   </div>
                 )}
 

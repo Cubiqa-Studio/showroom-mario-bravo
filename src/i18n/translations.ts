@@ -188,6 +188,10 @@ const es = {
     hall: "Hall de entrada",
     amenities: "Amenities",
     close: "Cerrar recorrido 360°",
+    /** Barrita de zoom al costado del 360°. */
+    zoom: "Zoom del recorrido",
+    zoomIn: "Acercar",
+    zoomOut: "Alejar",
   },
 
   unitTooltip: {
@@ -669,7 +673,7 @@ const es = {
             heading: "Disponibles para sumar",
             items: [
               "Cocheras para autos: 26 unidades disponibles para comprar junto con tu departamento.",
-              "Espacios para motos: 45 plazas en subsuelo, disponibles para adquirir con tu unidad.",
+              "Espacios para bicicletas: 45 plazas en subsuelo, disponibles para adquirir con tu unidad.",
             ],
           },
         ],
@@ -952,6 +956,9 @@ const en: Dict = {
     hall: "Entrance hall",
     amenities: "Amenities",
     close: "Close 360° tour",
+    zoom: "Tour zoom",
+    zoomIn: "Zoom in",
+    zoomOut: "Zoom out",
   },
 
   unitTooltip: {
@@ -1376,7 +1383,7 @@ const en: Dict = {
             heading: "Available to add",
             items: [
               "Car parking spaces: 26 available to purchase alongside your apartment.",
-              "Motorcycle spaces: 45 in the basement, available to purchase with your unit.",
+              "Bicycle spaces: 45 in the basement, available to purchase with your unit.",
             ],
           },
         ],

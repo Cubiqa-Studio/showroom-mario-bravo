@@ -184,6 +184,46 @@ dormitorio).
 mano** a archivos que genera el script. Si se renombra un original en `_media-src`, hay
 que actualizarlas — una ruta rota no rompe el build, sólo deja una imagen fantasma.
 
+### La barrita de zoom del 360°
+
+El cliente pedía poder alejar los recorridos ("siente que tienen demasiado zoom"), sin
+devolverle el zoom a la rueda del mouse — que se había sacado justamente porque trababa
+el scroll de la ficha. **Kuula no deja separar las dos cosas.** Medido contra el player
+real el 31-08, con el mismo tour y los mismos parámetros:
+
+| | rueda del mouse sobre el 360 | `setZoom` de la Player API |
+|---|---|---|
+| `zoom=0` | no hace nada → **la página scrollea** (1300px en la prueba) | el player vuelve a 0 al instante: pedirle 0,6 deja `5,99e-15` |
+| `zoom=1` | zoomea → **la página NO scrollea** (0px) | funciona (pedirle 0,6 deja 0,6) |
+
+O sea que la barrita **exige `zoom=1`**, y `zoom=1` se come la rueda. Así que se habilita
+sólo donde no hay scroll que robar:
+
+| Dónde | Escritorio | Táctil |
+|---|---|---|
+| `Vr360Modal` (bolita del showroom, submenú Tours) | ✅ pantalla completa, no hay nada atrás | ✅ |
+| `Hero360` de la ficha | ❌ `zoom=0`: la rueda tiene que seguir scrolleando la ficha | ✅ el scroll se hace arrastrando el bottom sheet, no hay rueda que robar |
+| Hoja de Amenities | ❌ ídem | ✅ |
+
+`ZoomKuula` no se dibuja si el embed no tiene el zoom habilitado, así que nunca queda un
+control muerto en pantalla. La palanca es `kuulaEmbedUrl(url, isTouch, { zoom })`.
+
+**Cómo se habla con el player.** Kuula ofrece un `static.kuula.io/api.js`, pero acá se
+habla el protocolo directo (`useKuulaZoom`): el player postea al padre
+`{ kuula: true, cmd, uuid, data }` y acepta `{ kuula: true, uuid, cmd: "zoom", value }`,
+con el zoom en el rango −1..1. Dos razones para no cargar su script:
+
+1. busca el iframe con `document.querySelector('iframe[src="…"]')` — **por su URL**—, y
+   acá puede haber dos embeds con la misma (el hero de una unidad y el modal del menú):
+   le mandaría los comandos al equivocado. Comparar `event.source === contentWindow` no
+   tiene ese problema;
+2. son 2,8 KB de un tercero en una página que ya está medida al gramo.
+
+⚠ Si algún día el cliente quiere zoom **inline en escritorio**, hay una salida que no
+toca el código: en el Export Editor de Kuula se puede correr el zoom por defecto y los
+límites de cada tour (sección "Zoom Settings"). Eso ataca la queja de origen —que el
+encuadre inicial es cerrado— sin pelearse con el scroll.
+
 ### La hoja de Amenities
 
 Un solo componente (`AmenitiesModal`) con **dos pestañas**, y se abre desde dos lados:
