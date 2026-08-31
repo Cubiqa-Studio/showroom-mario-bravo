@@ -34,22 +34,26 @@ export function withKuulaTouchGate(url: string, isTouch: boolean): string {
 
 export interface KuulaChromeOpts {
   /**
-   * `zoom=1`: habilita el zoom del player. **Es todo o nada**, y eso decide dónde se
-   * puede poner la barrita de zoom (`ZoomKuula`). Medido contra el Kuula real el 31-08:
+   * `zoom=1`: habilita el zoom del player. **Es todo o nada.** Medido contra el Kuula
+   * real el 31-08:
    *
    * | | rueda del mouse sobre el 360 | `setZoom` de la API |
    * |---|---|---|
    * | `zoom=0` | no hace nada → **la página scrollea** | el player vuelve a 0 al instante (pedirle 0,6 deja 5,99e-15) |
    * | `zoom=1` | zoomea → **la página NO scrollea** | funciona |
    *
-   * O sea: no hay forma de tener la barrita sin devolverle la rueda al 360°, que es
-   * justo lo que se sacó porque trababa el scroll de la ficha. Así que se habilita
-   * SÓLO donde no hay scroll que robar:
+   * Tampoco hay puerta de atrás: con `zoom=0`, `cmd:"orientation"` (el que usa Kuula
+   * para sincronizar players) tampoco mueve el zoom. Y la rueda se la lleva el tour
+   * desde el primer giro, sin click previo: el `focus` que reporta el player no cambia
+   * nada. O sea, no hay forma de tener la barrita sin devolverle la rueda al 360°.
    *
-   *  · `Vr360Modal` — pantalla completa, no hay nada atrás. Siempre.
-   *  · `Hero360` y la hoja de Amenities — **sólo en táctil**, donde no existe la rueda
-   *    (el scroll ahí se hace arrastrando el bottom sheet, ver residencia.css) y el
-   *    pinch es un plus. En escritorio queda en 0 y la rueda sigue scrolleando.
+   * Por eso va `zoom=1` en TODOS los embeds, y el scroll se protege del lado nuestro:
+   *
+   *  · `Vr360Modal` — pantalla completa, no hay nada atrás que scrollear. Nada que hacer.
+   *  · `Hero360` y la hoja de Amenities — en ESCRITORIO los tapa el `EscudoRueda`, un
+   *    overlay transparente que le devuelve la rueda a la página y se baja con un click
+   *    (medido: con escudo la página scrollea 600px y el tour no zoomea). En TÁCTIL no
+   *    se monta: ahí no hay rueda y el scroll se hace arrastrando el bottom sheet.
    *
    * Se fuerza explícitamente en los dos sentidos: las URLs de `units.json` ya traen
    * `zoom=0` y hay que poder pisarlo.

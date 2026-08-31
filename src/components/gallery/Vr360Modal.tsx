@@ -9,6 +9,7 @@ import { kuulaEmbedUrl } from "@/lib/kuula";
 import { CloseIcon } from "./icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { ZoomKuula } from "../residencia/ZoomKuula";
+import { useKuulaZoom } from "@/hooks/useKuulaZoom";
 
 /**
  * Modal a (casi) pantalla completa con el recorrido 360° de Kuula embebido. Se abre
@@ -33,6 +34,10 @@ export function Vr360Modal({
   const { t } = useI18n();
   const isTouch = useIsTouch();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  // Candado en escritorio también acá: el cliente pidió que el zoom se haga SÓLO con
+  // la barrita (31-08). No hace falta escudo — no hay nada atrás que scrollear —, así
+  // que la rueda simplemente no mueve nada.
+  const kz = useKuulaZoom(iframeRef, Boolean(src), { candado: !isTouch });
 
   // Cerrar con Escape + bloquear el scroll del fondo mientras está abierto.
   useEffect(() => {
@@ -87,7 +92,7 @@ export function Vr360Modal({
                 allow="fullscreen"
                 allowFullScreen
               />
-              <ZoomKuula iframeRef={iframeRef} habilitado className="kz--modal" />
+              <ZoomKuula kz={kz} className="kz--modal" />
               {/* Cerrar: un poco más abajo y con fondo blanco para no pisar el botón
                   de pantalla completa que Kuula dibuja en la esquina superior derecha. */}
               <button

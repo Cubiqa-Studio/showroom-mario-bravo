@@ -1971,6 +1971,12 @@
   align-items: center;
   gap: 8px;
   padding: 10px 6px;
+  /* El control NUNCA scrollea la página. En mobile la ficha se scrollea arrastrando
+     sobre el 360°, así que un toque en "+"/"−" con unos pocos px de deriva la movía
+     (reporte del cliente, 31-08). También hace que arrastrar la barra sea arrastrar
+     la barra, y no un scroll. */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
   border-radius: 999px;
   background: rgba(11, 11, 11, 0.62);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -2060,12 +2066,30 @@
    botón de cerrar (arriba) y la flecha. */
 .kz--modal { right: 18px; top: auto; bottom: 12%; transform: none; }
 
+/* ---------- ESCUDO DE LA RUEDA (sólo escritorio, ver EscudoRueda.tsx) ----------
+   Tapa el iframe para que la rueda del mouse siga siendo de la PÁGINA aunque el embed
+   lleve `zoom=1` (que es lo que necesita la barrita). No se ve NUNCA y no hay que
+   abrirlo con un click: se corre solo apenas el mouse se mueve, y vuelve cuando alguien
+   intenta zoomear con la rueda. Va DEBAJO de la barrita (.kz, z-5) a propósito, para
+   que zoomear no cueste un click de más. `grab` para que el cursor no cambie respecto
+   del que dibuja Kuula debajo. */
+.kz-escudo {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: transparent;
+  cursor: grab;
+  /* Corrido: transparente a TODO, el 360° manda. */
+  pointer-events: none;
+}
+.kz-escudo.armado { pointer-events: auto; }
+
 @media (max-width: 720px) {
   .kz { right: 10px; gap: 6px; padding: 8px 5px; }
   .kz-btn { width: 32px; height: 32px; }
   .kz-btn svg { width: 18px; height: 18px; }
-  .kz-barra-caja { height: 92px; }
-  .kz-barra { width: 92px; }
+  .kz-barra-caja { height: 74px; }
+  .kz-barra { width: 74px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .kz-btn { transition: none; }

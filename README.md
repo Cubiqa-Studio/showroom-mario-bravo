@@ -196,17 +196,43 @@ real el 31-08, con el mismo tour y los mismos parámetros:
 | `zoom=0` | no hace nada → **la página scrollea** (1300px en la prueba) | el player vuelve a 0 al instante: pedirle 0,6 deja `5,99e-15` |
 | `zoom=1` | zoomea → **la página NO scrollea** (0px) | funciona (pedirle 0,6 deja 0,6) |
 
-O sea que la barrita **exige `zoom=1`**, y `zoom=1` se come la rueda. Así que se habilita
-sólo donde no hay scroll que robar:
+No hay ningún atajo alrededor de eso, y está probado uno por uno:
+
+* **no hay modo "zoom sólo por API"**: `zoom=2`, `zoom=3` y `zoom=-1` se portan igual que
+  `zoom=1`, y `wheel=0`, `scroll=0`, `keys=0` y `zoomui=0` no existen;
+* **no hay puerta de atrás por el protocolo**: con `zoom=0`, `cmd:"orientation"` —el que
+  Kuula usa para sincronizar players— tampoco mueve el zoom;
+* **no hay gesto que lo condicione**: la rueda se la lleva el tour desde el primer giro,
+  sin click previo (el `focus` que reporta el player da `false` y zoomea igual).
+
+Así que el embed lleva **`zoom=1` en todos lados** y el scroll se defiende del lado
+nuestro, con dos piezas que trabajan juntas:
+
+**1. El candado (`useKuulaZoom`, opción `candado`).** El zoom lo maneja sólo la barrita.
+Si el valor se corre sin que lo haya pedido la barra —o sea, alguien usó la rueda—, se lo
+devuelve al valor de la barra y sube un contador (`intrusos`). Medido: un golpe de rueda
+alcanza a mover 0,054 (contra 0,2 si lo dejás) y vuelve en ~150 ms.
+
+**2. El escudo (`EscudoRueda`, sólo escritorio).** Un overlay transparente sobre el
+iframe. Con el escudo puesto, la rueda vuelve a ser de la página (medido: scrollea 600px
+y el tour no zoomea). Lo importante es que **no es un candado que haya que abrir con un
+click**: se corre solo apenas el mouse se mueve, así que arrastrar para mirar y tocar los
+hotspots de Kuula sigue siendo directo. Y se vuelve a poner cuando el puntero se va del
+360°, o cuando el candado avisa que alguien intentó zoomear con la rueda.
+
+En criollo: **quieto, la rueda scrollea la página; con el mouse moviéndose, el tour es
+tuyo; y la rueda nunca cambia el zoom** — para eso está la barrita (pedido del cliente,
+31-08: "que solo se pueda hacer zoomIn / zoomOut con la barra, NO CON EL SCROLL").
 
 | Dónde | Escritorio | Táctil |
 |---|---|---|
-| `Vr360Modal` (bolita del showroom, submenú Tours) | ✅ pantalla completa, no hay nada atrás | ✅ |
-| `Hero360` de la ficha | ❌ `zoom=0`: la rueda tiene que seguir scrolleando la ficha | ✅ el scroll se hace arrastrando el bottom sheet, no hay rueda que robar |
-| Hoja de Amenities | ❌ ídem | ✅ |
+| `Vr360Modal` (bolita del showroom, submenú Tours) | barrita + candado, sin escudo: no hay nada atrás que scrollear | barrita, sin candado (el pinch es bienvenido) |
+| `Hero360` de la ficha | barrita + candado + escudo | barrita, sin candado |
+| Hoja de Amenities | barrita + candado + escudo | barrita, sin candado |
 
-`ZoomKuula` no se dibuja si el embed no tiene el zoom habilitado, así que nunca queda un
-control muerto en pantalla. La palanca es `kuulaEmbedUrl(url, isTouch, { zoom })`.
+En táctil no se monta el escudo: no hay rueda que robar (el scroll se hace arrastrando el
+bottom sheet) y el 360° tiene que seguir siendo directo. La barrita lleva `touch-action:
+none` para que tocar "+"/"−" con la deriva normal de un dedo no arrastre la ficha.
 
 **Cómo se habla con el player.** Kuula ofrece un `static.kuula.io/api.js`, pero acá se
 habla el protocolo directo (`useKuulaZoom`): el player postea al padre
@@ -219,10 +245,9 @@ con el zoom en el rango −1..1. Dos razones para no cargar su script:
    tiene ese problema;
 2. son 2,8 KB de un tercero en una página que ya está medida al gramo.
 
-⚠ Si algún día el cliente quiere zoom **inline en escritorio**, hay una salida que no
-toca el código: en el Export Editor de Kuula se puede correr el zoom por defecto y los
-límites de cada tour (sección "Zoom Settings"). Eso ataca la queja de origen —que el
-encuadre inicial es cerrado— sin pelearse con el scroll.
+⚠ Si el encuadre de arranque sigue pareciendo cerrado, hay una salida que no toca el
+código: en el Export Editor de Kuula se puede correr el zoom por defecto y los límites de
+cada tour (sección "Zoom Settings"). Eso ataca la queja de origen sin pelearse con nada.
 
 ### La hoja de Amenities
 

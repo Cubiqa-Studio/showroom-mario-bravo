@@ -10,12 +10,14 @@ import { FloatingPortal } from "@floating-ui/react";
 import { AMENITIES_360 } from "@/lib/vr-hotspots";
 import { AMENITIES_GALLERY } from "@/lib/amenities-gallery";
 import { kuulaEmbedUrl } from "@/lib/kuula";
+import { useKuulaZoom } from "@/hooks/useKuulaZoom";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { useIsTouch } from "@/hooks/useIsTouch";
 import { CloseIcon } from "../gallery/icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { GalleryModal } from "./GalleryModal";
 import { ZoomKuula } from "./ZoomKuula";
+import { EscudoRueda } from "./EscudoRueda";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -48,9 +50,10 @@ export function AmenitiesModal({
   // Índice de la foto abierta en el lightbox; `null` = cerrado.
   const [foto, setFoto] = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  // Zoom sólo en táctil: en escritorio la rueda sobre el iframe dejaria de scrollear
-  // la hoja (ver la tabla en KuulaChromeOpts.zoom).
-  const conZoom = isTouch;
+  // Zoom siempre; en escritorio la rueda de la hoja la cuidan el candado del hook y el
+  // escudo, si no el iframe se la quedaría (ver la tabla en KuulaChromeOpts.zoom).
+  const conZoom = true;
+  const kz = useKuulaZoom(iframeRef, open && conZoom, { candado: !isTouch });
 
   // Al cerrar la hoja, volver a la pestaña inicial y soltar el lightbox: si no,
   // reabrirla te deja donde estabas y el visor grande queda colgado detrás.
@@ -148,7 +151,8 @@ export function AmenitiesModal({
                       allow="fullscreen"
                       allowFullScreen
                     />
-                    <ZoomKuula iframeRef={iframeRef} habilitado={conZoom} className="kz--hoja" />
+                    <EscudoRueda activo={!isTouch} intrusos={kz.intrusos} />
+                    <ZoomKuula kz={kz} className="kz--hoja" />
                   </div>
                 )}
 

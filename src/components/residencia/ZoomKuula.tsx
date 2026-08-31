@@ -3,7 +3,7 @@
 // El CSS del control (`.kz*`) vive en residencia.css. Se importa acá y no en cada
 // consumidor porque el Vr360Modal vive en el árbol del showroom y no lo trae.
 import "./residencia.css";
-import { useKuulaZoom, ZOOM_MAX, ZOOM_MIN, ZOOM_PASO } from "@/hooks/useKuulaZoom";
+import { ZOOM_MAX, ZOOM_MIN, ZOOM_PASO, type KuulaZoom } from "@/hooks/useKuulaZoom";
 import { useI18n } from "@/i18n/LanguageProvider";
 
 /**
@@ -12,8 +12,12 @@ import { useI18n } from "@/i18n/LanguageProvider";
  *
  * Es la lupa arriba, la barra vertical con el pulsador, y el "−" abajo. Los dos
  * botones son el camino para dedo grande y para teclado; la barra, para el que quiere
- * puntería. Se dibuja SÓLO si el embed tiene el zoom habilitado y el player ya hizo
- * el handshake (`listo`), así nunca queda un control muerto en pantalla.
+ * puntería. Se dibuja recién cuando el player hizo el handshake (`listo`), así nunca
+ * queda un control muerto en pantalla.
+ *
+ * El estado lo maneja `useKuulaZoom`, que llama el componente de arriba: el mismo hook
+ * lo comparte con el `EscudoRueda`, que necesita enterarse cuando alguien zoomeó con
+ * la rueda para volver a taparle el paso.
  *
  * ⚠ La barra es un `<input type="range">` HORIZONTAL rotado 90°, no un range vertical.
  * `writing-mode: vertical-*` y `-webkit-appearance: slider-vertical` se comportan
@@ -21,20 +25,11 @@ import { useI18n } from "@/i18n/LanguageProvider";
  * igual en todos, incluido el WebKit de iPhone, y conserva el arrastre y las flechas
  * del teclado que da el navegador gratis.
  */
-export function ZoomKuula({
-  iframeRef,
-  habilitado,
-  className = "",
-}: {
-  iframeRef: React.RefObject<HTMLIFrameElement | null>;
-  /** El embed lleva `zoom=1`. Sin eso el player ignora los comandos (ver useKuulaZoom). */
-  habilitado: boolean;
-  className?: string;
-}) {
+export function ZoomKuula({ kz, className = "" }: { kz: KuulaZoom; className?: string }) {
   const { t } = useI18n();
-  const { listo, zoom, aplicar, marcarArrastre } = useKuulaZoom(iframeRef, habilitado);
+  const { listo, zoom, aplicar, marcarArrastre } = kz;
 
-  if (!habilitado || !listo) return null;
+  if (!listo) return null;
 
   return (
     <div className={`kz ${className}`.trim()} role="group" aria-label={t.vr.zoom}>
@@ -53,7 +48,7 @@ export function ZoomKuula({
 
       {/* La caja da el tamaño REAL (angosto y alto); el range va adentro, absoluto y
           rotado. Sin ella el range rotado seguiría ocupando su caja horizontal y la
-          pastilla salía de 104px de ancho en vez de 46 (medido). */}
+          pastilla salía de 104px de ancho en vez de 44 (medido). */}
       <span className="kz-barra-caja">
         <input
           type="range"
