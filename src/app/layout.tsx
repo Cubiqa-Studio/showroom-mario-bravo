@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Jost, Playfair_Display_SC } from "next/font/google";
 import "./globals.css";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
@@ -110,6 +111,11 @@ export default function RootLayout({
       className={`${playfairSC.variable} ${jost.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Player API de Kuula. `beforeInteractive` porque tiene que estar ANTES de que
+            se monte cualquier iframe: engancha `frameloaded` una sola vez y, si llega
+            tarde, ese evento se pierde y nunca hay frameId. Son 2,8 KB y sólo lo usa el
+            hero en TÁCTIL (ver src/hooks/useZoomKuula.ts). */}
+        <Script src="https://static.kuula.io/api.js" strategy="beforeInteractive" />
         {/* JSON-LD del sitio: Organization (Cubiqa) + WebSite + ApartmentComplex
             (el desarrollo). Los datos por-unidad van en cada /residencia/:id. */}
         <script {...jsonLdScriptProps(siteGraphLd(getUnitIds().length))} />

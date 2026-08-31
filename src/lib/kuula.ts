@@ -33,6 +33,25 @@ export function withKuulaTouchGate(url: string, isTouch: boolean): string {
 }
 
 export interface KuulaChromeOpts {
+  /**
+   * `zoom=1`: habilita el zoom del player. **Es todo o nada**, y de paso le da la RUEDA
+   * del mouse al tour. Medido contra el player real (31-08):
+   *
+   * | | rueda sobre el 360 | `setZoom` de la Player API |
+   * |---|---|---|
+   * | `zoom=0` | no hace nada → **la página scrollea** | se ignora en silencio |
+   * | `zoom=1` | zoomea → la página NO scrollea | funciona |
+   *
+   * Por eso va prendido SÓLO en táctil, donde no hay rueda que robar (el scroll se hace
+   * arrastrando el bottom sheet): ahí quedan el pinch nativo y los controles por API.
+   * En escritorio queda en 0 y el zoom se hace por fuera del iframe, recortando (ver
+   * Hero360.tsx).
+   */
+  zoom?: boolean;
+  /** `vr=0`: oculta el botón de VR/cardboard, que Kuula dibuja en una esquina. Se usa
+   *  en el hero de ESCRITORIO: ahí el iframe se monta al doble y se muestra la mitad,
+   *  así que las esquinas quedan fuera del recorte y el botón sería inalcanzable. */
+  hideVr?: boolean;
   /** `fs=0`: oculta el botón fullscreen ("expandir/zoom") de Kuula. Se usa SÓLO en el
    *  hero de la landing (Miro 2026-07-15): ahí el 360° ya ocupa 100dvh, así que el
    *  botón sobra y encima se encimaba a nuestro navbar. En los modales (Amenities /
@@ -63,7 +82,9 @@ export function withKuulaChromeHidden(url: string, opts: KuulaChromeOpts = {}): 
     u.searchParams.set("info", "0");
     u.searchParams.set("logo", "-1");
     u.searchParams.set("thumbs", "-1");
+    u.searchParams.set("zoom", opts.zoom ? "1" : "0");
     if (opts.hideFullscreen) u.searchParams.set("fs", "0");
+    if (opts.hideVr) u.searchParams.set("vr", "0");
     return u.toString();
   } catch {
     return url;

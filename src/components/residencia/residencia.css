@@ -465,6 +465,94 @@
 /* Tour 360° (Kuula) embebido en el hero — llena el mismo espacio que la foto.
    `zoom=0` en la URL hace que la rueda scrollee la página en vez de zoomear. */
 .res-landing .hero-360 { width: 100%; height: 100%; border: 0; display: block; }
+/* Zoom propio del hero en ESCRITORIO: el iframe se monta al DOBLE y se muestra la
+   mitad, así el zoom recorta un render que ya se hizo a resolución nativa en vez de
+   agrandar píxeles. En runtime SÓLO se toca `transform` (el `scale` va inline): cambiar
+   width/height le dispararía un resize al player de Kuula. */
+.res-landing .hero-360-wrap--x2 { overflow: hidden; }
+.res-landing .hero-360--x2 {
+  position: absolute; left: 0; top: 0;
+  width: 200%; height: 200%;
+  transform-origin: center;
+  transform: translate(-25%, -25%) scale(0.5);
+  will-change: transform;
+  transition: transform .35s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .res-landing .hero-360--x2 { transition: none; }
+}
+
+/* Controles de zoom del hero (ver ZoomHero.tsx). Mismo chasis que los demás controles
+   que flotan sobre los visores: pastilla de vidrio oscuro, borde a 14% de blanco y
+   blur. La barra es un range HORIZONTAL rotado: `writing-mode: vertical-*` y
+   `-webkit-appearance: slider-vertical` se portan distinto en cada motor (y el segundo
+   está deprecado). Rotado anda igual en todos, incluido el WebKit del iPhone, y el
+   navegador sigue dando gratis el arrastre y las flechas del teclado. La caja da el
+   tamaño REAL (angosta y alta); si no, el range rotado seguiría ocupando su caja
+   horizontal y la pastilla saldría tres veces más ancha. */
+.zh {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 6px;
+  border-radius: 999px;
+  background: rgba(11, 11, 11, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.zh-btn {
+  appearance: none; border: 0; background: none; cursor: pointer;
+  display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  color: rgba(255, 255, 255, 0.86);
+  transition: background .2s ease, color .2s ease, opacity .2s ease;
+}
+.zh-btn svg { width: 19px; height: 19px; }
+.zh-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.zh-btn:active:not(:disabled) { background: rgba(255, 255, 255, 0.22); }
+.zh-btn:disabled { opacity: .32; cursor: default; }
+.zh-btn:focus-visible { outline: 2px solid var(--gold, #a07f46); outline-offset: 2px; }
+.zh-caja { position: relative; display: block; width: 22px; height: 116px; }
+.zh-barra {
+  appearance: none; -webkit-appearance: none;
+  position: absolute; top: 50%; left: 50%;
+  width: 116px; height: 22px; margin: 0;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  background: none; cursor: pointer;
+}
+.zh-barra:disabled { opacity: .32; cursor: default; }
+.zh-barra::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.3); }
+.zh-barra::-moz-range-track { height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.3); }
+.zh-barra::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 16px; height: 16px; margin-top: -6px; border-radius: 50%;
+  background: #fff; border: 0; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+.zh-barra::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 0; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+.zh-barra:focus-visible { outline: 2px solid var(--gold, #a07f46); outline-offset: 6px; border-radius: 999px; }
+/* Con el dedo, los botones necesitan 44px de blanco aunque el ícono siga chico. */
+@media (pointer: coarse) {
+  .zh { gap: 4px; padding: 6px 4px; right: 10px; }
+  .zh-btn { width: 44px; height: 44px; }
+  .zh-caja { height: 104px; }
+  .zh-barra { width: 104px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zh-btn { transition: none; }
+}
 /* Placeholder de 1 frame hasta que React monta el <iframe> (evita el doble-load en
    táctil, ver Hero360.tsx). Negro plano = mismo fondo que .hero-main en .has-360 y que
    la carga inicial de Kuula, así no hay flash perceptible (desktop queda idéntico). */
