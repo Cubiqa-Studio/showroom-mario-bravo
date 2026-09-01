@@ -7,6 +7,7 @@ import type { UnitWithId } from "@/lib/data";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { scrollToTop } from "./landing-dom";
 import { unitFillColor } from "@/lib/status";
+import { markUnitEntryPoint } from "@/lib/analytics";
 import { SITE } from "@/data/site";
 import { UnitCard } from "../UnitCard";
 
@@ -269,7 +270,10 @@ export function FloorPlate({
         return;
       }
       if (id === unitId) scrollToTop();
-      else router.replace(`/residencia/${id}`);
+      else {
+        markUnitEntryPoint("floor_plate", id);
+        router.replace(`/residencia/${id}`);
+      }
     },
     [unitId, router, onOpenUnit],
   );

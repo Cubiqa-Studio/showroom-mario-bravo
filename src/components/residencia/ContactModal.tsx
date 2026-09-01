@@ -65,6 +65,7 @@ export function ContactModal({
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setState("submitting");
+    captureContactFormSubmitted("sidebar_contact_modal", { origen });
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -78,7 +79,6 @@ export function ContactModal({
         }),
       });
       if (!res.ok) throw new Error();
-      captureContactFormSubmitted("sidebar_contact_modal", origen);
       setState("ok");
     } catch {
       setState("error");

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import type { SiteConfig, Unit } from "@/lib/types";
 import { useWhatsappUrl } from "@/components/OrigenProvider";
+import { captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { SideMenu } from "../gallery/SideMenu";
 import { UnitFinderModal } from "../gallery/UnitFinderModal";
@@ -260,7 +261,10 @@ export function LandingNav({
             <motion.button
               type="button"
               className="btn btn-gold consult-buzz"
-              onClick={scrollToContact}
+              onClick={() => {
+                captureCta("contact_form", "residence_nav");
+                scrollToContact();
+              }}
               // initial="rest" (≠ animate) para que el loop arranque YA al montar.
               // Si initial == animate ("buzz"), framer cree que no hay cambio y la
               // vibración recién se dispara tras el primer hover→unhover.

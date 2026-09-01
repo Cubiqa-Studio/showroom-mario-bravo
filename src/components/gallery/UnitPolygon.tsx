@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { FILL_ALPHA } from "@/lib/status";
 import { PARAM_VISTA } from "@/lib/residencia";
 import { useTransitionOrigin } from "@/components/transition/TransitionProvider";
+import { markUnitEntryPoint } from "@/lib/analytics";
 
 interface UnitPolygonProps {
   /** Unidad a la que navega el click (→ /residencia/:unitId). */
@@ -62,6 +63,7 @@ export function UnitPolygon({
   const open = () => {
     // `beginOpen` fija el ORIGEN y arranca el zoom-in SINCRÓNICO (instantáneo),
     // sin esperar a que cargue la landing.
+    markUnitEntryPoint("showroom_polygon", unitId);
     beginOpen({ x: lastPtRef.current.x, y: lastPtRef.current.y });
     router.push(`/residencia/${unitId}?${PARAM_VISTA}=${stopId}`);
   };

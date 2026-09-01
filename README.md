@@ -226,7 +226,8 @@ Qué cambia según el origen:
 * el asunto del mail lleva `[Inmobiliaria]` adelante cuando no es el default, para poder
   filtrarlo de un vistazo;
 * el evento `contact_form_submitted` de PostHog suma la propiedad `origen`, así se puede
-  ver qué campaña convierte.
+  ver qué campaña convierte (con un límite: va sólo en ese evento, o sea que da
+  conversiones por comercializador y no una tasa — ver [ANALYTICS.md](ANALYTICS.md)).
 
 Y además, **qué desarrollos se muestran**. Juani lo levantó el 31-08: el link se comparte
 desde la portada, donde se ven los tres proyectos de la marca, y no tiene sentido que la

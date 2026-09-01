@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import type { SiteConfig, Unit } from "@/lib/types";
 import type { UnitWithId, VistaUnidad } from "@/lib/data";
 import { formatBaths } from "@/lib/residencia";
+import { captureUnitSelected } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { LandingNav } from "./LandingNav";
 import { HeroGallery } from "./HeroGallery";
@@ -46,6 +47,18 @@ export function ResidenciaLanding({
 }: ResidenciaLandingProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const { t } = useI18n();
+
+  // Una unidad ABIERTA = un `unit_selected`. El evento se emite ACÁ, en el destino, y no
+  // en cada disparador: este componente es el único que renderizan las DOS rutas (la
+  // ficha standalone y el overlay interceptado), así que cubre de una vez el polígono,
+  // la tarjeta de mobile, el buscador, el plan maestro, la planta, "otras residencias"
+  // y —lo que ningún disparador puede ver— la entrada directa por Google o link
+  // compartido. La superficie de origen la deja marcada el disparador (markUnitEntryPoint);
+  // el helper dedupea por unidad dentro de la sesión de PostHog, así que el remount por
+  // back/forward o el doble invoke de StrictMode no duplican.
+  useEffect(() => {
+    captureUnitSelected(unitId);
+  }, [unitId]);
 
   // Al MONTAR esta unidad (apertura directa, o salto entre unidades por el plano/lista)
   // arrancá desde el hero: subí al tope el contenedor scrolleable (el overlay

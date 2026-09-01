@@ -20,7 +20,7 @@ import {
   unitTotalBaths,
 } from "@/lib/residencia";
 import { CloseIcon, SearchIcon } from "./icons";
-import { captureUnitSelected } from "@/lib/analytics";
+import { markUnitEntryPoint } from "@/lib/analytics";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /* eslint-disable @next/next/no-img-element */
@@ -133,7 +133,7 @@ export function UnitFinderModal({
 
   const openUnit = (id: string) => {
     if (navigatingId) return; // ya hay una navegación en curso
-    captureUnitSelected(id, "showroom_toolbar");
+    markUnitEntryPoint("unit_finder", id);
     setNavigatingId(id);
     router.push(`/residencia/${id}`);
   };

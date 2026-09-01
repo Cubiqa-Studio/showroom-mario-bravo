@@ -14,6 +14,7 @@ import { useI18n } from "@/i18n/LanguageProvider";
 import { useLiveUnits } from "@/hooks/useLiveUnits";
 import { CloseIcon } from "../gallery/icons";
 import { FloorPlate } from "./FloorPlate";
+import { markUnitEntryPoint } from "@/lib/analytics";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 
 // Fallback estático (bundleado, seguro en cliente). El estado/precio EN VIVO sale
@@ -60,6 +61,7 @@ export function MasterplanModal({
   }, [open, onClose]);
 
   const openUnit = (id: string) => {
+    markUnitEntryPoint("masterplan", id);
     onClose();
     router.push(`/residencia/${id}`);
   };

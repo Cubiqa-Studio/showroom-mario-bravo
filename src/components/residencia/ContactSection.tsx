@@ -39,6 +39,7 @@ export function ContactSection({
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setState("submitting");
+    captureContactFormSubmitted("residence_contact_section", { unitId, origen });
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -52,7 +53,6 @@ export function ContactSection({
         }),
       });
       if (!res.ok) throw new Error();
-      captureContactFormSubmitted("residence_contact_section", origen);
       setState("ok");
     } catch {
       setState("error");

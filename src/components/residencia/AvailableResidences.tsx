@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { UnitWithId } from "@/lib/data";
 import { formatBaths } from "@/lib/residencia";
 import { useI18n } from "@/i18n/LanguageProvider";
+import { markUnitEntryPoint } from "@/lib/analytics";
 import { StatusPill } from "./StatusPill";
 import { UnitCard } from "../UnitCard";
 
@@ -83,6 +84,7 @@ export function AvailableResidences({ others }: { others: UnitWithId[] }) {
               href={`/residencia/${u.id}`}
               replace
               scroll={false}
+              onClick={() => markUnitEntryPoint("other_residences", u.id)}
               className="res-row"
               onMouseEnter={(e) => onMove(u, e.clientX, e.clientY)}
               onMouseMove={(e) => onMove(u, e.clientX, e.clientY)}
