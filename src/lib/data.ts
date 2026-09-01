@@ -41,6 +41,42 @@ export async function getStop(id: number): Promise<Stop | undefined> {
   return (await readStopsFile()).stops.find((s) => s.id === id);
 }
 
+/** Una vista del exterior donde ESTA unidad tiene polígono trazado. */
+export interface VistaUnidad {
+  stopId: number;
+  image: string;
+  /** Tamaño natural del render = viewBox del overlay (coordenadas 1:1). */
+  width: number;
+  height: number;
+  points: string;
+}
+
+/**
+ * Las vistas del showroom en las que la unidad está marcada, en orden de stop.
+ *
+ * Lo consume el cierre de la landing (`TowerSection`), que ya no muestra un render
+ * genérico sino LA vista desde la que entró el visitante, con su unidad señalada
+ * (idea de Joaquim, 01-09). Devuelve sólo lo necesario para dibujarla y no los stops
+ * enteros: cada stop trae los polígonos de las 63 unidades y esto viaja en el HTML
+ * de cada landing.
+ */
+export async function vistasDeUnidad(unitId: string): Promise<VistaUnidad[]> {
+  const stops = await getStops();
+  const vistas: VistaUnidad[] = [];
+  for (const stop of stops) {
+    const poly = stop.polygons.find((p) => p.unitId === unitId);
+    if (!poly) continue;
+    vistas.push({
+      stopId: stop.id,
+      image: stop.image,
+      width: stop.imageWidth ?? 1920,
+      height: stop.imageHeight ?? 1080,
+      points: poly.points,
+    });
+  }
+  return vistas;
+}
+
 export function getUnits(): Units {
   return units;
 }

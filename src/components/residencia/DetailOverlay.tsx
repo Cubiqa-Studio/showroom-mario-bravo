@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { SiteConfig, Unit } from "@/lib/types";
-import type { UnitWithId } from "@/lib/data";
+import type { UnitWithId, VistaUnidad } from "@/lib/data";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { ResidenciaLanding } from "./ResidenciaLanding";
 
@@ -14,6 +14,7 @@ interface DetailOverlayProps {
   others: UnitWithId[];
   site: SiteConfig;
   floorUnits: UnitWithId[];
+  vistas: VistaUnidad[];
 }
 
 /**
@@ -26,7 +27,7 @@ interface DetailOverlayProps {
  * Entre unidades (carrusel) hace crossfade keyeado por unitId. El cierre lo
  * dispara la navbar (onClose).
  */
-export function DetailOverlay({ unit, unitId, others, site, floorUnits }: DetailOverlayProps) {
+export function DetailOverlay({ unit, unitId, others, site, floorUnits, vistas }: DetailOverlayProps) {
   const router = useRouter();
   const reduce = useReducedMotion();
   const [closing, setClosing] = useState(false);
@@ -121,6 +122,7 @@ export function DetailOverlay({ unit, unitId, others, site, floorUnits }: Detail
             others={others}
             site={site}
             floorUnits={floorUnits}
+            vistas={vistas}
             onClose={close}
           />
         </motion.div>

@@ -3,7 +3,7 @@
 import "./residencia.css";
 import { useEffect, useRef } from "react";
 import type { SiteConfig, Unit } from "@/lib/types";
-import type { UnitWithId } from "@/lib/data";
+import type { UnitWithId, VistaUnidad } from "@/lib/data";
 import { formatBaths } from "@/lib/residencia";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { LandingNav } from "./LandingNav";
@@ -23,6 +23,8 @@ export interface ResidenciaLandingProps {
   site: SiteConfig;
   /** Unidades del mismo piso (pestaña "Planta del piso"). */
   floorUnits: UnitWithId[];
+  /** Vistas del showroom donde esta unidad está trazada (cierre de la landing). */
+  vistas: VistaUnidad[];
   /** En overlay cierra el detalle (router.back vía DetailOverlay). Sin esto, la
    *  nav usa links a "/" (modo standalone). */
   onClose?: () => void;
@@ -39,6 +41,7 @@ export function ResidenciaLanding({
   others,
   site,
   floorUnits,
+  vistas,
   onClose,
 }: ResidenciaLandingProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -116,7 +119,7 @@ export function ResidenciaLanding({
           <AvailableResidences others={others} />
         </Reveal>
 
-        <TowerSection />
+        <TowerSection unit={unit} unitId={unitId} vistas={vistas} />
       </div>
     </div>
   );

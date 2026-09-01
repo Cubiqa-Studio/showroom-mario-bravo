@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import type { Stop, Units } from "@/lib/types";
 import { statusColor } from "@/lib/status";
+import { PARAM_VISTA } from "@/lib/residencia";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { useTransitionOrigin } from "@/components/transition/TransitionProvider";
 import { UnitPolygon } from "./UnitPolygon";
@@ -198,8 +199,8 @@ export function InteractiveOverlay({
   const enterTipUnit = useCallback(() => {
     if (!tipUnitId) return;
     beginOpen({ x: selectPtRef.current.x, y: selectPtRef.current.y });
-    router.push(`/residencia/${tipUnitId}`);
-  }, [tipUnitId, beginOpen, router]);
+    router.push(`/residencia/${tipUnitId}?${PARAM_VISTA}=${stop.id}`);
+  }, [tipUnitId, beginOpen, router, stop.id]);
 
   // Unidad resaltada (relleno + borde): hover (desktop) o selección por toque (mobile).
   const activeUnitId = tipUnitId;
@@ -255,6 +256,7 @@ export function InteractiveOverlay({
             : isActive;
           return (
             <UnitPolygon
+              stopId={stop.id}
               key={poly.unitId}
               unitId={poly.unitId}
               points={poly.points}

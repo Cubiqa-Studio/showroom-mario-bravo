@@ -282,6 +282,45 @@ Donde falta material no se inventa: un proyecto sin render se dibuja tipográfic
 que en la portada, sin robarle la foto a otro) y sin dirección dice "Próximamente". Los dos logos son blancos sobre transparente (`/logo-ccm.png`, `/logo-mizraji.png`): el
 de Mizraji llegó en negro y se recortó e invirtió para esta hoja, que es oscura.
 
+### El cierre de la ficha: la vista por la que entraste
+
+La última sección de `/residencia/:id` ("El Edificio", a pantalla completa) ya no es un
+render genérico: muestra **la vista del showroom desde la que se entró**, con el polígono
+de esa unidad señalado. Cierra el recorrido — entrás desde una vista, y al final volvés a
+verla sabiendo cuál era la tuya (idea de Joaquim, 01-09).
+
+Cómo viaja el dato: el click sobre el polígono agrega `?vista=<stopId>` a la URL
+(`PARAM_VISTA` en `src/lib/residencia.ts`). Va por la URL y no por estado en memoria para
+que sobreviva a un refresh y a un link compartido. Si el param falta o apunta a una vista
+donde la unidad no está trazada —entró por un link directo, por el buscador, o saltando
+entre unidades del mismo piso— cae a la **primera vista que la tenga**; y si no está en
+ninguna, al render de portada de siempre, sin marca.
+
+El param se lee en un efecto y no en el servidor **a propósito**: leer `searchParams` en
+el componente de página arrastraría la ruta a dinámica y la landing es estática con ISR.
+Se puede porque la sección es la última y está muy por debajo del pliegue: se resuelve
+mucho antes de que nadie la vea, y con `loading="lazy"` el navegador ni pide la imagen
+descartada. Los datos que sí vienen del servidor son las vistas donde la unidad está
+trazada (`vistasDeUnidad` en `src/lib/data.ts`), recortadas a lo mínimo para dibujarlas.
+
+⚠ **El encuadre se calcula a mano, no con `object-fit: cover`.** El render es 16:9 y la
+sección ocupa la pantalla entera: en un teléfono vertical el `cover` recorta los costados
+a lo bestia y, medido contra la geometría real, **83 de los 116 polígonos quedaban fuera
+de cuadro** a 393×727. O sea que la unidad señalada casi nunca se habría visto. El lienzo
+se dimensiona igual que lo haría `cover` (nunca hay franjas vacías) pero se corre para
+centrar la unidad, acotado a los bordes de la imagen. Verificado unidad por unidad y stop
+por stop: **106 de 116 quedan enteras en pantalla en mobile** y 113 de 116 en escritorio.
+Las que no, no son un error de encuadre: o el polígono es más ancho que un teléfono
+(unidades dibujadas muy grandes en las vistas cercanas, que igual se leen perfecto), o
+arranca en el borde mismo del render (`y=0`) y no hay nada más que mostrar.
+
+Dentro del lienzo, imagen y SVG comparten caja exacta, así que el polígono calza 1:1 con
+el render (verificado: el bounding box del polígono en la landing da idéntico al del
+mismo polígono en el showroom, `2219,1294 567x276` para la 306 en la vista 0).
+
+⚠ **602 y 607 no están trazadas en ninguna vista**, así que su ficha cierra con el render
+genérico. Se arregla trazándolas en el editor de polígonos, sin tocar código.
+
 ### El zoom de los 360°
 
 El param `zoom` de la URL **no es "hay zoom / no hay zoom": es el interruptor del zoom del

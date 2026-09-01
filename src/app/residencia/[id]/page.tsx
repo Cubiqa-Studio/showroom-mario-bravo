@@ -7,6 +7,7 @@ import {
   getSite,
   getUnitIds,
   otherAvailableUnitsFrom,
+  vistasDeUnidad,
 } from "@/lib/data";
 import { ResidenciaLanding } from "@/components/residencia/ResidenciaLanding";
 import { pageMetadata, residenceGraphLd, jsonLdScriptProps } from "@/lib/seo";
@@ -67,6 +68,7 @@ export default async function ResidenciaPage({
         others={otherAvailableUnitsFrom(units, id)}
         site={getSite()}
         floorUnits={floorUnitsFrom(units, id)}
+        vistas={await vistasDeUnidad(id)}
       />
     </main>
   );

@@ -4,6 +4,7 @@ import {
   getLiveUnits,
   getSite,
   otherAvailableUnitsFrom,
+  vistasDeUnidad,
 } from "@/lib/data";
 import { DetailOverlay } from "@/components/residencia/DetailOverlay";
 
@@ -28,6 +29,7 @@ export default async function ResidenciaInterceptedPage({
       others={otherAvailableUnitsFrom(units, id)}
       site={getSite()}
       floorUnits={floorUnitsFrom(units, id)}
+      vistas={await vistasDeUnidad(id)}
     />
   );
 }

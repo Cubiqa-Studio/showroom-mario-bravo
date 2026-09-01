@@ -805,6 +805,9 @@ const es = {
     // Ya no es una vista aérea: es el render de la fachada (vista 01).
     tag: "EL EDIFICIO",
     aerialAlt: "TIER Bravo — fachada sobre Mario Bravo",
+    /** Cierre de la landing cuando muestra la vista con la unidad señalada. */
+    unitAlt: (n: string) =>
+      `Dónde está el departamento ${n} en la fachada de TIER Bravo`,
     placeholder: "RENDER · TIER BRAVO",
     backToTop: "Volver arriba",
     up: "ARRIBA",
@@ -1518,6 +1521,7 @@ const en: Dict = {
   tower: {
     tag: "THE BUILDING",
     aerialAlt: "TIER Bravo — façade on Mario Bravo",
+    unitAlt: (n: string) => `Where apartment ${n} is on the TIER Bravo façade`,
     placeholder: "RENDER · TIER BRAVO",
     backToTop: "Back to top",
     up: "TOP",

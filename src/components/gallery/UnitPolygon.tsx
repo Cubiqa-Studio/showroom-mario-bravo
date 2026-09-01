@@ -4,11 +4,15 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { FILL_ALPHA } from "@/lib/status";
+import { PARAM_VISTA } from "@/lib/residencia";
 import { useTransitionOrigin } from "@/components/transition/TransitionProvider";
 
 interface UnitPolygonProps {
   /** Unidad a la que navega el click (→ /residencia/:unitId). */
   unitId: string;
+  /** Vista desde la que se entra: viaja en la URL para que el cierre de la landing
+   *  muestre ESTA misma vista con la unidad señalada. */
+  stopId: number;
   points: string;
   /** Status color for the fill. */
   color: string;
@@ -40,6 +44,7 @@ interface UnitPolygonProps {
  */
 export function UnitPolygon({
   unitId,
+  stopId,
   points,
   color,
   fillShown,
@@ -58,7 +63,7 @@ export function UnitPolygon({
     // `beginOpen` fija el ORIGEN y arranca el zoom-in SINCRÓNICO (instantáneo),
     // sin esperar a que cargue la landing.
     beginOpen({ x: lastPtRef.current.x, y: lastPtRef.current.y });
-    router.push(`/residencia/${unitId}`);
+    router.push(`/residencia/${unitId}?${PARAM_VISTA}=${stopId}`);
   };
   // Última posición del puntero en el polígono (origen del zoom al abrir).
   const lastPtRef = useRef({ x: 0, y: 0 });

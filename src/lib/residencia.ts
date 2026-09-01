@@ -1,5 +1,16 @@
 import type { Unit } from "./types";
 
+/**
+ * Query param con el stop del showroom desde el que se entró a la unidad. Lo escribe
+ * el click sobre el polígono y lo lee el cierre de la landing (`TowerSection`), que
+ * muestra ESA vista con la unidad señalada en vez de un render genérico.
+ *
+ * Va por la URL —y no por estado en memoria— para que sobreviva a un refresh y a un
+ * link compartido. Si falta o apunta a una vista donde la unidad no está trazada, se
+ * cae a la primera vista que la tenga.
+ */
+export const PARAM_VISTA = "vista";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Derivaciones para la landing de detalle. Mantienen la landing "data-driven":
 // si la unidad trae el campo, se usa; si no, se deriva de sus otros datos (NO
