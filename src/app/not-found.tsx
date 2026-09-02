@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { useI18n } from "@/i18n/LanguageProvider";
-import { SITE } from "@/data/site";
+import { CUBIQA_URL, SITE } from "@/data/site";
 
 /**
  * Página 404 global (App Router: `app/not-found.tsx`). Se muestra para cualquier
@@ -81,10 +81,10 @@ export default function NotFound() {
             {t.notFound.credit}
           </span>
           <a
-            href="https://www.cubiqastudio.com/"
+            href={CUBIQA_URL}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="CUBIQA Studio"
+            aria-label="Showrooms de CUBIQA Studio"
             title="CUBIQA Studio"
             // El ancla envolvia al <img h-4> pelado: 38x16 de area tactil. El padding
             // la lleva a 62x44 y el margen negativo lo compensa, asi la tarjeta no

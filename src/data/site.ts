@@ -13,6 +13,20 @@ import galleryManifest from "./gallery.json";
 // README, sección "Qué falta".
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * A dónde llevan los logos de CUBIQA del sitio (el isotipo fijo abajo a la derecha y
+ * el crédito del 404).
+ *
+ * A la landing de showrooms y NO a cubiqastudio.com (pedido de Juani, 02-09): en el
+ * sitio del estudio no hay nada sobre showrooms, así que el que hace click porque le
+ * gustó ESTO caía en una página que no le contesta la pregunta.
+ *
+ * ⚠ Es sólo el destino de los logos. La identidad de la organización —el `url` del
+ * JSON-LD y los `authors`/`creator` del metadata— sigue siendo cubiqastudio.com, que
+ * es lo que esos campos significan.
+ */
+export const CUBIQA_URL = "https://showroom.cubiqastudio.com/";
+
 export const SITE: SiteConfig = {
   projectName: "Showroom TIER Bravo",
   developer: "Cubiqa Studio",
