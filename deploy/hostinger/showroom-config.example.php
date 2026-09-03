@@ -15,7 +15,15 @@
 // pero eso es el cinturón, no el asiento.
 //
 // Copiá este archivo como `showroom-config.php`, completá los valores y subilo.
-// NO lo commitees con valores reales.
+// NO lo commitees con valores reales (el .gitignore ya cubre ese nombre).
+//
+// ⚠ GUARDALO SIN BOM (UTF-8 "plano"). Varios editores de Windows —Notepad, y
+// PowerShell con `Set-Content -Encoding utf8`— le meten un BOM de 3 bytes al
+// principio. Como está ANTES del `<?php`, PHP lo emite como contenido y a partir
+// de ahí ya no puede mandar cabeceras: "headers already sent", el Content-Type
+// queda en text/html y el JSON sale inválido. El proxy tiene una red para esto
+// (un buffer de salida que lo descarta, ver _lib.php), pero mejor no depender de
+// ella: en VS Code es "UTF-8" y no "UTF-8 with BOM".
 // ─────────────────────────────────────────────────────────────────────────────
 
 return [

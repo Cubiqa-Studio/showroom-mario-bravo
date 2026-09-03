@@ -80,6 +80,11 @@ dentro del doc root se sirve como **texto plano** y el token queda expuesto. El
 `.htaccess` igual bloquea ese nombre de archivo, pero eso es el cinturón, no el
 asiento.
 
+⚠ **Guardalo sin BOM.** Notepad y `Set-Content -Encoding utf8` de PowerShell le meten
+un BOM de 3 bytes que, al estar antes del `<?php`, rompe las cabeceras de todos los
+endpoints. El proxy lo descarta con un buffer de salida, pero no dependas de eso: en
+VS Code elegí "UTF-8", no "UTF-8 with BOM".
+
 ### NO subir
 
 `out/` como carpeta (subí su contenido), `.next/`, `node_modules/`, el código fuente,

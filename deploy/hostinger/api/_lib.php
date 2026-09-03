@@ -29,6 +29,26 @@ declare(strict_types=1);
 /** Techo de espera de una llamada a un servicio externo, en segundos. */
 const SHOWROOM_TIMEOUT = 8;
 
+// ── Higiene de la respuesta ───────────────────────────────────────────────────
+//
+// 1. Los errores de PHP van al log del hosting, NUNCA al cuerpo de la respuesta.
+//    Un warning impreso rompe el JSON (el cliente recibe basura antes del `{`) y
+//    encima filtra rutas absolutas del servidor.
+//
+// 2. Un buffer de salida para poder DESCARTAR cualquier cosa que se haya impreso
+//    antes de que mandemos las cabeceras. El caso que de verdad pasa: un editor de
+//    Windows guarda `showroom-config.php` con **BOM UTF-8**, esos 3 bytes se
+//    emiten al hacer el `require`, y a partir de ahí PHP ya mandó las cabeceras →
+//    "Cannot modify header information - headers already sent", el Content-Type
+//    queda en text/html, el status no se puede cambiar y el JSON sale inválido.
+//    Con el buffer, el BOM se tira y la respuesta sale limpia igual.
+//    (Aun así: guardá el config SIN BOM. Esto es la red, no la solución.)
+@ini_set('display_errors', '0');
+@ini_set('log_errors', '1');
+if (ob_get_level() === 0) {
+    ob_start();
+}
+
 /**
  * Configuración (secretos incluidos). Se busca en este orden:
  *
@@ -126,6 +146,11 @@ function showroom_cors(): void
 /** Respuesta JSON y fin del request. `$maxAge` = cache del NAVEGADOR, en segundos. */
 function showroom_json($datos, int $status = 200, int $maxAge = 0): void
 {
+    // Tirá lo que haya en el buffer (BOM del config, un warning, un espacio suelto)
+    // ANTES de tocar las cabeceras — ver la nota de arriba.
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
     header('X-Content-Type-Options: nosniff');
