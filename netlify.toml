@@ -1,7 +1,24 @@
-# Netlify detecta Next.js y aplica su runtime oficial (SSR + API + middleware
-# como funciones). No hace falta declarar el plugin a mano.
+# ⚠ EL SITIO PASÓ A SER UN EXPORT ESTÁTICO (`output: "export"` en next.config.ts,
+# para poder hostearlo en Hostinger sin proceso Node — ver deploy/README-hostinger.md).
+#
+# Consecuencia para ESTE deploy: ya no hay runtime de Next acá. No hay SSR, ni
+# middleware, ni route handlers → **/api/unidades, /api/avance y /api/contact no
+# existen en Netlify**. O sea: sin data en vivo de Airtable y sin formulario de
+# contacto. El resto del sitio (recorrido, fichas, planos, 360°) funciona completo
+# con los datos horneados en el build.
+#
+# Para que este deploy vuelva a tener data en vivo y formulario, apuntalo al proxy
+# PHP de Hostinger con la env del build:
+#   NEXT_PUBLIC_API_BASE=https://<dominio-hostinger>/api
+# y agregá el origen de Netlify a `allowed_origins` en showroom-config.php (ahí sí
+# hace falta CORS, porque son dominios distintos).
+#
+# Lo de abajo SÍ sigue aplicando: son reglas de CDN (post-procesado de Netlify), no
+# del server de Next.
 [build]
   command = "npm run build"
+  # El export deja todo en out/. Explícito para no depender de la autodetección.
+  publish = "out"
 
 [build.environment]
   NODE_VERSION = "20"

@@ -8,6 +8,8 @@ import { useI18n } from "@/i18n/LanguageProvider";
 import { scrollToTop } from "./landing-dom";
 import { unitFillColor } from "@/lib/status";
 import { markUnitEntryPoint } from "@/lib/analytics";
+import { apiPlate } from "@/lib/api";
+import { useAbrirFicha, useShowroomMontado } from "@/components/transition/TransitionProvider";
 import { SITE } from "@/data/site";
 import { UnitCard } from "../UnitCard";
 
@@ -42,12 +44,16 @@ interface PlantaTraida {
 /* ───────────────────────────────────────────────────────────────────────────────
    CACHE DE PLANTAS, a nivel de MÓDULO.
 
-   Antes cada cambio de piso volvía a pedir `/api/plate/:floor` —que es
-   `force-dynamic`: lee el Blob de Netlify y Airtable— y mostraba el spinner otra
-   vez, incluso al VOLVER a un piso ya visto ("es super molesto y tosco de ver",
+   Antes cada cambio de piso volvía a pedir `/api/plate/:floor` y mostraba el spinner
+   otra vez, incluso al VOLVER a un piso ya visto ("es super molesto y tosco de ver",
    Joaquim 30-08). Guardado acá afuera sobrevive al desmontaje del componente, así
    que la pestaña "Planta del piso" de la ficha y el Plan Maestro del menú comparten
    lo mismo: se paga una vez por piso y por sesión.
+
+   Con el export estático el endpoint pasó a ser un ARCHIVO horneado en el build
+   (out/api/plate/<piso>, ver la route con `force-static`), así que el pedido lo
+   sirve Apache de disco y además entra en la cache del navegador. La cache de
+   módulo sigue valiendo igual: evita el re-fetch y el re-decode de la imagen.
    ─────────────────────────────────────────────────────────────────────────────── */
 const plantasResueltas = new Map<string, PlantaTraida>();
 const plantasEnVuelo = new Map<string, Promise<PlantaTraida>>();
@@ -63,7 +69,7 @@ function traerPlanta(floor: string): Promise<PlantaTraida> {
   const enVuelo = plantasEnVuelo.get(floor);
   // Un pedido a la vez por piso: el precalentado del vecino y el click comparten uno.
   if (enVuelo) return enVuelo;
-  const pedido = fetch(`/api/plate/${floor}`)
+  const pedido = fetch(apiPlate(floor))
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => {
       const datos: PlantaTraida = {
@@ -255,13 +261,12 @@ export function FloorPlate({
   }, [plateUnits, currentFloorUnits]);
 
   // Click en una unidad de la planta → abrir ESA residencia. Misma unidad: subo al
-  // hero (scroll suave). Otra unidad: navego con el router (client-side, sin reload);
-  // como las páginas son SSG y las prefetcheo en hover, el salto es instantáneo.
-  // REPLACE (no push): saltar entre unidades es lateral, no apila historial. Dentro
-  // del overlay interceptado, cada push intercepta una landing NUEVA sobre el home,
-  // así que "Disponibilidad" (router.back) tendría que desandarlas una por una.
-  // Reemplazando, el historial queda `/ → /residencia/<actual>` y un solo back vuelve
-  // al exterior. Igual de instantáneo (la página destino ya está prefetcheada).
+  // hero (scroll suave). Otra unidad: `useAbrirFicha`, que resuelve el destino según
+  // la superficie (overlay sobre el showroom, o navegación real desde la ficha
+  // standalone) y elige replace en vez de push porque saltar entre unidades es
+  // LATERAL — así "Disponibilidad"/back vuelve al exterior de un solo paso.
+  const abrirFicha = useAbrirFicha();
+  const showroomMontado = useShowroomMontado();
   const router = useRouter();
   const open = useCallback(
     (id: string) => {
@@ -272,16 +277,19 @@ export function FloorPlate({
       if (id === unitId) scrollToTop();
       else {
         markUnitEntryPoint("floor_plate", id);
-        router.replace(`/residencia/${id}`);
+        abrirFicha(id);
       }
     },
-    [unitId, router, onOpenUnit],
+    [unitId, abrirFicha, onOpenUnit],
   );
+  // Prefetch del HTML de la ficha para que el salto sea instantáneo. Sobre el
+  // showroom NO hace falta: la ficha se monta desde el cliente con datos que ya
+  // están en memoria, no hay nada que traer por red.
   const prefetch = useCallback(
     (id: string) => {
-      if (id !== unitId) router.prefetch(`/residencia/${id}`);
+      if (id !== unitId && !showroomMontado) router.prefetch(`/residencia/${id}`);
     },
-    [unitId, router],
+    [unitId, router, showroomMontado],
   );
 
   const move = (u: UnitWithId | undefined, clientX: number, clientY: number) => {

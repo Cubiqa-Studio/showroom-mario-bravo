@@ -16,13 +16,33 @@ import type {
 import { readStopsFile } from "./stops-store";
 import { readPlatesFile } from "./plates-store";
 import { fetchAirtableUnits, fetchAvance, mergeLiveUnits } from "./airtable";
+import {
+  floorOf,
+  floorUnitsFrom,
+  otherAvailableUnitsFrom,
+  vistasDeUnidadFrom,
+  type UnitWithId,
+  type VistaUnidad,
+} from "./units";
+
+// Las derivaciones puras (sin Airtable ni Blobs) viven en `./units` para que las
+// pueda importar un componente CLIENTE; se re-exportan acá para no romper los
+// imports que ya existían.
+export {
+  floorOf,
+  floorUnitsFrom,
+  otherAvailableUnitsFrom,
+  vistasDeUnidadFrom,
+  type UnitWithId,
+  type VistaUnidad,
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Single data-access seam.
 //
-// GEOMETRÍA (stops): persistente vía `stops-store` — Blob de Netlify en prod
-//   (editable online), con el JSON commiteado como semilla/fallback. Por eso
-//   getStops/getStop son async.
+// GEOMETRÍA (stops): vía `stops-store`, que en el export estático lee el JSON
+//   commiteado EN EL BUILD (ver la nota de stops-store: el Blob de Netlify ya no
+//   participa en prod). Siguen siendo async por la costura.
 // METADATA (units) y FLYBY (segments): horneados del JSON (el editor no los toca).
 // Para ir 100% a Supabase/Airtable se cambia sólo el body de estas funciones.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -41,40 +61,13 @@ export async function getStop(id: number): Promise<Stop | undefined> {
   return (await readStopsFile()).stops.find((s) => s.id === id);
 }
 
-/** Una vista del exterior donde ESTA unidad tiene polígono trazado. */
-export interface VistaUnidad {
-  stopId: number;
-  image: string;
-  /** Tamaño natural del render = viewBox del overlay (coordenadas 1:1). */
-  width: number;
-  height: number;
-  points: string;
-}
-
 /**
  * Las vistas del showroom en las que la unidad está marcada, en orden de stop.
- *
- * Lo consume el cierre de la landing (`TowerSection`), que ya no muestra un render
- * genérico sino LA vista desde la que entró el visitante, con su unidad señalada
- * (idea de Joaquim, 01-09). Devuelve sólo lo necesario para dibujarla y no los stops
- * enteros: cada stop trae los polígonos de las 63 unidades y esto viaja en el HTML
- * de cada landing.
+ * Variante SERVIDOR (lee los stops); la derivación pura vive en `./units` porque
+ * el cliente también la necesita (ver UnitDetailHost).
  */
 export async function vistasDeUnidad(unitId: string): Promise<VistaUnidad[]> {
-  const stops = await getStops();
-  const vistas: VistaUnidad[] = [];
-  for (const stop of stops) {
-    const poly = stop.polygons.find((p) => p.unitId === unitId);
-    if (!poly) continue;
-    vistas.push({
-      stopId: stop.id,
-      image: stop.image,
-      width: stop.imageWidth ?? 1920,
-      height: stop.imageHeight ?? 1080,
-      points: poly.points,
-    });
-  }
-  return vistas;
+  return vistasDeUnidadFrom(await getStops(), unitId);
 }
 
 export function getUnits(): Units {
@@ -108,43 +101,15 @@ export async function getAvance(): Promise<AvanceObra | null> {
   return fetchAvance();
 }
 
-/** Variante de `getOtherAvailableUnits` sobre un map ya mergeado (evita re-fetch). */
-export function otherAvailableUnitsFrom(map: Units, excludeId: string): UnitWithId[] {
-  return Object.entries(map)
-    .filter(([id, u]) => id !== excludeId && u.status === "available")
-    .map(([id, u]) => ({ id, ...u }))
-    .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-}
-
-/** Variante de `getFloorUnits` sobre un map ya mergeado (evita re-fetch). */
-export function floorUnitsFrom(map: Units, unitId: string): UnitWithId[] {
-  const floor = floorOf(unitId);
-  return Object.entries(map)
-    .filter(([id]) => floorOf(id) === floor)
-    .map(([id, u]) => ({ id, ...u }))
-    .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-}
-
 /** Todos los ids de unidad (para `generateStaticParams` de la landing). */
 export function getUnitIds(): string[] {
   return Object.keys(units);
 }
 
-/** Unidad + su id (la key del JSON), para construir links a /residencia/:id. */
-export type UnitWithId = Unit & { id: string };
-
 /** ESTÁTICA (units.json). Para datos en vivo usá `otherAvailableUnitsFrom(await getLiveUnits(), id)`.
  *  Otras unidades DISPONIBLES (carrusel de la landing), excluyendo `excludeId`. */
 export function getOtherAvailableUnits(excludeId: string): UnitWithId[] {
-  return Object.entries(units)
-    .filter(([id, u]) => id !== excludeId && u.status === "available")
-    .map(([id, u]) => ({ id, ...u }))
-    .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-}
-
-/** Piso de una unidad = su id sin los dos últimos dígitos ("704" → "7", "1704" → "17"). */
-export function floorOf(unitId: string): string {
-  return unitId.length > 2 ? unitId.slice(0, -2) : unitId;
+  return otherAvailableUnitsFrom(units, excludeId);
 }
 
 /**

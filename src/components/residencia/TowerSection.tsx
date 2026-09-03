@@ -24,7 +24,11 @@ import { scrollToTop } from "./landing-dom";
  * (`SITE.aerialImage`), sin marca.
  *
  * El param se lee en un efecto y no durante el render para no arrastrar la ruta a
- * dinámica: la landing es estática con ISR. Se puede porque esta sección es la última
+ * dinámica: la landing se hornea en el build (export estático), donde un
+ * `searchParams` en el server sería directamente un error de build. Leerlo del
+ * `window.location` en un efecto además cubre el caso del OVERLAY, donde la URL la
+ * escribe `history.pushState` y no hay render de servidor de por medio.
+ * Se puede porque esta sección es la última
  * y está muy por debajo del pliegue: la resolución ocurre mucho antes de que alguien
  * la vea y, con `loading="lazy"`, el navegador ni pide la imagen que se descarta.
  *

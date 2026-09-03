@@ -9,19 +9,27 @@ import {
   otherAvailableUnitsFrom,
   vistasDeUnidad,
 } from "@/lib/data";
-import { ResidenciaLanding } from "@/components/residencia/ResidenciaLanding";
+import { ResidenciaLandingLive } from "@/components/residencia/ResidenciaLandingLive";
 import { pageMetadata, residenceGraphLd, jsonLdScriptProps } from "@/lib/seo";
 
-// Landing STANDALONE de una unidad (acceso directo, refresh, SEO). Cuando se
-// llega navegando desde el home, la ruta interceptada (@modal) la muestra como
-// overlay con la transición; acá no hay home detrás ni zoom.
+// Landing STANDALONE de una unidad (acceso directo por link, Google, refresh, SEO).
+// Cuando se llega navegando desde el showroom, la ficha se muestra como OVERLAY
+// encima y esta página no se renderiza (ver UnitDetailHost); acá no hay showroom
+// detrás ni zoom.
 //
-// ISR: se pre-genera en build (generateStaticParams) y se revalida cada 60 s para
-// reflejar el estado/precio en vivo de Airtable sin perder el beneficio estático.
-export const revalidate = 60;
-// Un id fuera de los pre-generados se renderiza on-demand (y cae al redirect si no
-// existe), en vez de 404. Explícito para no depender del default.
-export const dynamicParams = true;
+// EXPORT ESTÁTICO: las 61 fichas se pre-generan en build (generateStaticParams) y
+// se suben como HTML. No hay ISR — `revalidate` y `dynamicParams: true` son errores
+// de build con `output: "export"` (no hay servidor que regenere ni que resuelva un
+// id nuevo on-demand).
+//
+// Consecuencia: el HTML lleva el estado/precio congelados al MOMENTO DEL BUILD.
+// La data en vivo la refresca el CLIENTE (ver `useLiveUnits` en ResidenciaLanding),
+// así el visitante ve el dato real de Airtable sin rebuild. El HTML horneado es el
+// fallback y lo que leen los crawlers.
+//
+// Un id que no exista no tiene HTML → Apache sirve el 404.html (ver .htaccess),
+// que es la señal correcta para crawlers. Antes eso lo resolvía `dynamicParams`.
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return getUnitIds().map((id) => ({ id }));
@@ -62,7 +70,9 @@ export default async function ResidenciaPage({
       {/* JSON-LD por unidad: Apartment (Offer sólo con disponibilidad, sin precio) y
           BreadcrumbList (Inicio › Showroom › Departamento). */}
       <script {...jsonLdScriptProps(residenceGraphLd(id, unit))} />
-      <ResidenciaLanding
+      {/* Lo de acá abajo es lo HORNEADO en el build (y lo que leen los crawlers);
+          ResidenciaLandingLive lo re-deriva del dato en vivo cuando llega. */}
+      <ResidenciaLandingLive
         unit={unit}
         unitId={id}
         others={otherAvailableUnitsFrom(units, id)}

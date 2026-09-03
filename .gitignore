@@ -45,6 +45,12 @@ yarn-error.log*
 # deploy artifact (zip para subir al hosting) — NO se commitea
 /DEPLOY.zip
 
+# Config del proxy PHP CON LOS SECRETOS reales (token de Airtable, key de Resend).
+# En el servidor vive fuera del doc root; si alguien lo completa en local, que no
+# se pueda commitear por accidente. El template sí se comparte:
+# deploy/hostinger/showroom-config.example.php
+showroom-config.php
+
 # Doc de estado para el cliente/Cubiqa (deliverable local) — NO se pushea
 /ESTADO-MIRO-*.md
 

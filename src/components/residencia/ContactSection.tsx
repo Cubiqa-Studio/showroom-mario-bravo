@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import type { SiteConfig, Unit } from "@/lib/types";
 import { useOrigen, useWhatsappUrl } from "@/components/OrigenProvider";
 import { captureContactFormSubmitted, captureCta } from "@/lib/analytics";
+import { API_CONTACTO } from "@/lib/api";
 import { useI18n } from "@/i18n/LanguageProvider";
 
 /* eslint-disable @next/next/no-img-element */
@@ -41,7 +42,7 @@ export function ContactSection({
     setState("submitting");
     captureContactFormSubmitted("residence_contact_section", { unitId, origen });
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(API_CONTACTO, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

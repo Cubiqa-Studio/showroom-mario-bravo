@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { useOrigen, useWhatsappUrl } from "@/components/OrigenProvider";
 import { captureContactFormSubmitted, captureCta } from "@/lib/analytics";
+import { API_CONTACTO } from "@/lib/api";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { CloseIcon } from "../gallery/icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
@@ -67,7 +68,7 @@ export function ContactModal({
     setState("submitting");
     captureContactFormSubmitted("sidebar_contact_modal", { origen });
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(API_CONTACTO, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "preview:static": "node scripts/serve-static.mjs",
     "lint": "eslint",
     "gallery:optimize": "node scripts/optimize-gallery.mjs",
     "unidades:optimize": "node scripts/optimize-unit-renders.mjs",

@@ -1,34 +1,41 @@
 import "server-only";
-import type { AvanceObra, Unit, Units } from "./types";
+import type { AvanceObra } from "./types";
+import {
+  parseAvance,
+  parseUnits,
+  type AirtableRecord,
+  type LiveUnitFields,
+} from "./airtable-parse";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Capa de Airtable (server-only). Replica el patrón de la referencia (REMAX /
-// MERCED): fetch crudo a la REST API de Airtable (sin SDK), token SÓLO en el
-// servidor.
+// Capa de Airtable (server-only): config, red y resiliencia. El PARSEO de los
+// registros vive en `./airtable-parse`, que es puro y lo comparten el build y el
+// navegador (una sola fuente de verdad para los nombres de columna).
 //
-// CACHE: una sola capa, el Data Cache de Next vía `next: { revalidate: 60 }`. En
-// Next 15 el fetch NO cachea por defecto, así que lo opt-in-eamos explícito →
-// staleness acotada a 60 s y ≤1 llamada/min a Airtable. Persistente en Netlify
-// (plugin) y en Node/Hostinger (cache en filesystem, `.next/cache`). Dentro de un
-// mismo render, la request-memoization de Next deduplica las llamadas repetidas a
-// getLiveUnits (metadata + page). Si Airtable falla, devolvemos {} / null y el
+// Fetch crudo a la REST API de Airtable (sin SDK), token SÓLO en el servidor.
+//
+// CUÁNDO CORRE ESTO. Con `output: "export"` corre en el BUILD, para hornear en el
+// HTML un estado plausible desde el primer frame (y para que el bloque SEO del
+// showroom y el JSON-LD de cada ficha viajen con datos reales). En RUNTIME el dato
+// en vivo lo pide el navegador al proxy —que es el que guarda el token— y lo parsea
+// con el mismo `airtable-parse`. Ver src/lib/api.ts y deploy/hostinger/api/.
+//
+// En `next dev` esto además atiende /api/unidades y /api/avance (route.dev.ts), así
+// que trabajar en local es idéntico a lo que era.
+//
+// CACHE: el Data Cache de Next vía `next: { revalidate: 60 }`. En un build de export
+// el efecto práctico es deduplicar las llamadas dentro del mismo build (las 61 fichas
+// + el showroom comparten UNA lectura de Airtable en vez de pedir 62 veces); en
+// `next dev` acota la staleness a 60 s. Si Airtable falla, devolvemos {} / null y el
 // merge deja la metadata de units.json intacta (fallback robusto).
 //
 // Airtable es la FUENTE EN VIVO de: Estado (→ color del contorno), Precio,
 // Ambientes y Superficies. El resto (planos, tours, geometría, dorm/baño) sigue
 // viviendo en el código (units.json) y es el fallback.
-//
-// NOMBRES DE COLUMNA: se leen por nombre exacto, con alias tolerantes, porque cada
-// showroom arma su base y los nombres varían. Los de TIER Bravo (verificados contra
-// la base el 25-08-2026):
-//   Unidad · Piso · Ambientes · Tipología · Precio USD · Anticipo USD · Saldo USD
-//   Superficie Cubierta · Superficie Semi/Desc · Superficie Común · Superficie Total
-//
-// ⚠ FALTA "Estado". Es la columna que pinta el contorno de cada unidad (verde
-// disponible / amarillo reservada). Mientras no exista, TODAS las unidades quedan
-// con el estado de units.json ("available"): el showroom se ve como si estuviera
-// todo disponible. Hay que pedirle al cliente que la agregue.
 // ─────────────────────────────────────────────────────────────────────────────
+
+export { mergeLiveUnits } from "./airtable-parse";
+export type { LiveUnitFields } from "./airtable-parse";
 
 const AIRTABLE_API = "https://api.airtable.com/v0";
 
@@ -49,127 +56,8 @@ function readConfig(): AirtableConfig | null {
   return { token, baseId, unitsTable, avanceTable: avanceTable ?? "" };
 }
 
-/** Campos que Airtable controla EN VIVO para una unidad (match por "Unidad"). */
-export interface LiveUnitFields {
-  status?: Unit["status"];
-  price?: string;
-  tipologia?: string;
-  ambientes?: number;
-  /** Superficie cubierta en m² (→ areas.interior). */
-  superficieCubierta?: number;
-  /** Superficie semicubierta / descubierta en m² (→ areas.exterior). */
-  superficieExterior?: number;
-  /** Superficie total en m² (→ areas.total). */
-  superficieTotal?: number;
-  /** Proporcional de espacios comunes en m² (→ areas.comun). */
-  superficieComun?: number;
-  /** Vistas (texto, columna "Vistas" de Airtable): "Montaña", "Parcial al lago"… */
-  vistas?: string;
-  piso?: string;
-}
-
-type AirtableFields = Record<string, unknown>;
-interface AirtableRecord {
-  id: string;
-  fields?: AirtableFields;
-}
-
-/** "Disponible" → available · "Reservada/Reservado" → reserved · resto → undefined
- *  (deja el estado base de units.json). Tolerante a mayúsculas/acentos/género. */
-function mapEstado(v: unknown): Unit["status"] | undefined {
-  if (typeof v !== "string") return undefined;
-  const s = v.trim().toLowerCase();
-  if (s.startsWith("reserv")) return "reserved";
-  if (s.startsWith("dispon")) return "available";
-  return undefined;
-}
-
-/** Sólo una LETRA suelta ("A", "c") → mayúscula. Cualquier otra cosa → undefined.
- *  Ver la nota en fetchAirtableUnits: la tipología del sitio es la letra A–E. */
-function letterOnly(v: unknown): string | undefined {
-  if (typeof v !== "string") return undefined;
-  const t = v.trim();
-  return /^[a-zA-Z]$/.test(t) ? t.toUpperCase() : undefined;
-}
-
-/** Número tolerante: acepta number o string ("85", "85,5 m²", "100m2"). */
-function toNum(v: unknown): number | undefined {
-  if (typeof v === "number") return Number.isFinite(v) ? v : undefined;
-  if (typeof v === "string") {
-    const m = v.replace(",", ".").match(/-?\d+(\.\d+)?/);
-    if (!m) return undefined;
-    const n = parseFloat(m[0]);
-    return Number.isFinite(n) ? n : undefined;
-  }
-  return undefined;
-}
-
-/** Primer campo presente entre varios nombres posibles. Absorbe las diferencias de
- *  nomenclatura entre bases sin tener que tocar el código en cada showroom. */
-function pick(f: AirtableFields, ...names: string[]): unknown {
-  for (const n of names) {
-    const v = f[n];
-    if (v !== undefined && v !== null && v !== "") return v;
-  }
-  return undefined;
-}
-
-/** Precio legible desde un número plano de Airtable: 226939 → "USD 226.939".
- *  La columna de esta base se llama "Precio USD", así que la moneda es explícita y
- *  conviene hornearla en el string (si no, la UI muestra "$226.939" y no se sabe
- *  de qué moneda habla). Un valor que ya venga con texto se respeta tal cual. */
-function money(v: unknown): string | undefined {
-  const raw = str(v);
-  if (!raw) return undefined;
-  if (/[a-zA-Z$]/.test(raw)) return raw;
-  const n = toNum(raw);
-  if (n == null || n <= 0) return undefined;
-  return `USD ${n.toLocaleString("es-AR")}`;
-}
-
-function str(v: unknown): string | undefined {
-  if (typeof v === "string") {
-    const t = v.trim();
-    return t ? t : undefined;
-  }
-  if (typeof v === "number") return String(v);
-  return undefined;
-}
-
 /** Techo de espera de UNA llamada a Airtable. */
 const TIMEOUT_MS = 5000;
-
-/** Última respuesta BUENA por tabla, en memoria del proceso.
- *
- *  Sin esto, cualquier hipo de Airtable (un timeout, un 503) tira la capa en vivo
- *  entera y el showroom pinta con units.json: precios "Consultar" y superficies
- *  viejas, hasta el próximo render. Con esto, un fallo aislado sirve la última
- *  copia buena y el usuario no ve el bajón.
- *
- *  Vive lo que vive el proceso (en dev, hasta el próximo reload del server; en
- *  Netlify, lo que dure el lambda tibio) y es sólo un COLCHÓN: el cacheo real lo
- *  hace el Data Cache de Next vía `next: { revalidate: 60 }`. Por eso no expira:
- *  servir data de hace unos minutos siempre es mejor que servir el fallback. */
-const lastGood = new Map<string, { records: AirtableRecord[]; at: number }>();
-
-/** `fetchTable` + colchón: ante un fallo devuelve la última copia buena de ESA
- *  tabla si la hay; si nunca hubo una, propaga el error (→ fallback a units.json). */
-async function fetchTableResilient(cfg: AirtableConfig, table: string): Promise<AirtableRecord[]> {
-  try {
-    const records = await fetchTable(cfg, table);
-    lastGood.set(table, { records, at: Date.now() });
-    return records;
-  } catch (err) {
-    const cached = lastGood.get(table);
-    if (!cached) throw err;
-    const mins = Math.round((Date.now() - cached.at) / 60000);
-    console.warn(
-      `[airtable] "${table}" falló (${reason(err)}) — sirvo la última copia buena ` +
-        `(${cached.records.length} filas, hace ${mins} min).`,
-    );
-    return cached.records;
-  }
-}
 
 /** Motivo en UNA línea. Un AbortError de `AbortSignal.timeout` es un DOMException:
  *  logueado entero escupe la tabla de constantes INDEX_SIZE_ERR…DATA_CLONE_ERR y
@@ -195,16 +83,14 @@ async function fetchTable(cfg: AirtableConfig, table: string): Promise<AirtableR
     const res = await fetch(url.toString(), {
       headers: { Authorization: `Bearer ${cfg.token}` },
       // Opt-in de cache de Next (en 15 el fetch NO cachea por defecto): revalida a
-      // los 60 s → ≤1 hit/min a Airtable y staleness acotada a 60 s.
+      // los 60 s → dentro de un build, las 62 páginas comparten una sola lectura.
       next: { revalidate: 60 },
-      // Corta una Airtable lenta (cold cache / latencia de región): /showroom es
-      // force-dynamic y ESPERA este fetch antes de emitir HTML. El try/catch de
-      // arriba convierte el AbortError en la última copia buena (o en units.json)
-      // en vez de colgar el reveal tras "Descubrir".
+      // Corta una Airtable lenta (cold cache / latencia de región). El try/catch de
+      // `fetchTableResilient` convierte el AbortError en la última copia buena (o en
+      // units.json) en vez de colgar el build.
       //
       // 5 s y no 2,5: el primer hit de un proceso frío paga DNS + TLS + el cold
-      // start de la tabla, y con 2,5 s abortaba de rutina en dev. Como el Data
-      // Cache deja pasar ≤1 request/min, este techo sólo se toca en esa revalidación.
+      // start de la tabla, y con 2,5 s abortaba de rutina en dev.
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
@@ -218,124 +104,69 @@ async function fetchTable(cfg: AirtableConfig, table: string): Promise<AirtableR
   return records;
 }
 
-// ── Unidades ─────────────────────────────────────────────────────────────────
+/** Última respuesta BUENA por tabla, en memoria del proceso.
+ *
+ *  Sin esto, cualquier hipo de Airtable (un timeout, un 503) tira la capa en vivo
+ *  entera y el showroom se hornea con units.json: precios "Consultar" y superficies
+ *  viejas. Con esto, un fallo aislado sirve la última copia buena y el build no
+ *  sale degradado.
+ *
+ *  Vive lo que vive el proceso (un build, o hasta el próximo reload en dev) y es
+ *  sólo un COLCHÓN: el cacheo real lo hace el Data Cache de Next. */
+const lastGood = new Map<string, { records: AirtableRecord[]; at: number }>();
+
+/** `fetchTable` + colchón: ante un fallo devuelve la última copia buena de ESA
+ *  tabla si la hay; si nunca hubo una, propaga el error (→ fallback a units.json). */
+async function fetchTableResilient(cfg: AirtableConfig, table: string): Promise<AirtableRecord[]> {
+  try {
+    const records = await fetchTable(cfg, table);
+    lastGood.set(table, { records, at: Date.now() });
+    return records;
+  } catch (err) {
+    const cached = lastGood.get(table);
+    if (!cached) throw err;
+    const mins = Math.round((Date.now() - cached.at) / 60000);
+    console.warn(
+      `[airtable] "${table}" falló (${reason(err)}) — sirvo la última copia buena ` +
+        `(${cached.records.length} filas, hace ${mins} min).`,
+    );
+    return cached.records;
+  }
+}
+
+/** Registros CRUDOS de la tabla de unidades. Es lo que sirve /api/unidades (en dev)
+ *  y lo que devuelve el proxy PHP (en prod): el cliente los parsea con
+ *  `airtable-parse`. `[]` si no hay config o si falla la carga. */
+export async function fetchAirtableUnitRecords(): Promise<AirtableRecord[]> {
+  const cfg = readConfig();
+  if (!cfg) return [];
+  try {
+    return await fetchTableResilient(cfg, cfg.unitsTable);
+  } catch (err) {
+    console.error(`[airtable] unidades: ${reason(err)} — sigo con units.json.`);
+    return [];
+  }
+}
+
+/** Registros CRUDOS de la tabla de avance de obra. `[]` si no está configurada. */
+export async function fetchAirtableAvanceRecords(): Promise<AirtableRecord[]> {
+  const cfg = readConfig();
+  if (!cfg || !cfg.avanceTable) return [];
+  try {
+    return await fetchTableResilient(cfg, cfg.avanceTable);
+  } catch (err) {
+    console.error(`[airtable] avance de obra: ${reason(err)} — el modal queda vacío.`);
+    return [];
+  }
+}
 
 /** Map { [Unidad]: LiveUnitFields } desde Airtable. {} si no hay config o si
  *  falla la carga (el merge deja la metadata de units.json intacta). */
 export async function fetchAirtableUnits(): Promise<Record<string, LiveUnitFields>> {
-  const cfg = readConfig();
-  if (!cfg) return {};
-  try {
-    const recs = await fetchTableResilient(cfg, cfg.unitsTable);
-    const map: Record<string, LiveUnitFields> = {};
-    for (const r of recs) {
-      const f = r.fields ?? {};
-      // "Unidad" es la clave de match con units.json ("101", "001", …). Es TEXTO
-      // (los PB conservan el cero a la izquierda): no la convertimos a número.
-      const unidad = str(f["Unidad"]);
-      if (!unidad) continue;
-      map[unidad] = {
-        status: mapEstado(pick(f, "Estado", "Estado de la unidad", "Disponibilidad")),
-        price: money(pick(f, "Precio USD", "Precio")),
-        // La columna "Tipología" de ESTA base repite el conteo de ambientes
-        // ("3 AMBIENTES"), que ya viene en "Ambientes". Nuestra tipología es la
-        // LETRA A–E (la que agrupa plano y recorrido 360°, mapeada desde el Miro y
-        // guardada en units.json), así que sólo aceptamos de Airtable un valor que
-        // sea realmente una letra — si el cliente algún día carga letras, entra sola.
-        tipologia: letterOnly(pick(f, "Tipología", "Tipologia")),
-        ambientes: toNum(pick(f, "Ambientes")),
-        superficieCubierta: toNum(pick(f, "Superficie Cubierta")),
-        superficieExterior: toNum(pick(f, "Superficie Semi/Desc", "Superficie Semicubierta", "Superficie Descubierta")),
-        superficieTotal: toNum(pick(f, "Superficie Total")),
-        superficieComun: toNum(pick(f, "Superficie Común", "Superficie Comun")),
-        vistas: str(pick(f, "Vistas")),
-        piso: str(pick(f, "Piso")),
-      };
-    }
-    return map;
-  } catch (err) {
-    console.error(`[airtable] unidades: ${reason(err)} — sigo con units.json.`);
-    return {};
-  }
+  return parseUnits(await fetchAirtableUnitRecords());
 }
 
-/** Pisa los campos en vivo de Airtable sobre la metadata base de units.json.
- *  Sólo pisa lo que Airtable trae (campo presente) → si Airtable está caído o
- *  vacío, queda intacto el dato de units.json (fallback robusto). */
-export function mergeLiveUnits(base: Units, live: Record<string, LiveUnitFields>): Units {
-  const out: Units = {};
-  for (const [id, u] of Object.entries(base)) {
-    const f = live[id];
-    if (!f) {
-      out[id] = u;
-      continue;
-    }
-    const areas = { ...(u.areas ?? {}) };
-    if (f.superficieTotal != null) areas.total = f.superficieTotal;
-    if (f.superficieCubierta != null) areas.interior = f.superficieCubierta;
-    if (f.superficieExterior != null) areas.exterior = f.superficieExterior;
-    if (f.superficieComun != null) areas.comun = f.superficieComun;
-    out[id] = {
-      ...u,
-      status: f.status ?? u.status,
-      price: f.price ?? u.price,
-      ambientes: f.ambientes ?? u.ambientes,
-      tipologia: f.tipologia ?? u.tipologia,
-      vistas: f.vistas ?? u.vistas,
-      areas,
-    };
-  }
-  return out;
-}
-
-// ── Avance de obra ─────────────────────────────────────────────────────────────
-
-/** Timestamp ordenable de una fecha. Date.parse entiende ISO (lo que devuelve un
- *  campo Date de Airtable) y muchos otros formatos; si no parsea, va último. */
-function dateTs(d?: string): number {
-  const n = d ? Date.parse(d) : NaN;
-  return Number.isNaN(n) ? -Infinity : n;
-}
-
-/** Avance de obra: % general + fecha. Toma la fila con la Fecha más reciente
- *  (o la primera si no hay fechas). null si no hay tabla configurada o sin filas. */
+/** Avance de obra (% general + fecha). null si no hay tabla configurada o sin filas. */
 export async function fetchAvance(): Promise<AvanceObra | null> {
-  const cfg = readConfig();
-  if (!cfg || !cfg.avanceTable) return null;
-  try {
-    const recs = await fetchTableResilient(cfg, cfg.avanceTable);
-    if (!recs.length) return null;
-    const rows = recs
-      .map((r) => {
-        const f = r.fields ?? {};
-        // Columnas reales de la tabla "Avance de Obra" (con fallbacks tolerantes).
-        const percent =
-          toNum(f["Porcentaje"]) ??
-          toNum(f["Avance General (%)"]) ??
-          toNum(f["Avance General"]) ??
-          toNum(f["Avance"]);
-        // Aviso de diagnóstico: la fila existe pero ninguna columna de % matcheó
-        // → casi seguro un nombre de columna distinto. Sin esto, el modal muestra
-        // 0 % silencioso y /api/avance no da pistas del typo.
-        if (percent === undefined) {
-          console.warn(
-            `[airtable] avance: fila ${r.id} sin columna de porcentaje reconocida ` +
-              `(esperaba "Porcentaje"). Mostrando 0 %.`,
-          );
-        }
-        return {
-          percent: percent ?? 0,
-          milestone: str(f["Hito en curso"]) ?? str(f["Hito"]),
-          delivery: str(f["Fecha de entrega"]),
-          date: str(f["Última actualización"]) ?? str(f["Fecha"]),
-          note: str(f["Notas"]) ?? str(f["Nota"]),
-        } satisfies AvanceObra;
-      })
-      // Más reciente primero por "Última actualización" (robusto vía Date.parse).
-      .sort((a, b) => dateTs(b.date) - dateTs(a.date));
-    return rows[0];
-  } catch (err) {
-    console.error(`[airtable] avance de obra: ${reason(err)} — el modal queda vacío.`);
-    return null;
-  }
+  return parseAvance(await fetchAirtableAvanceRecords());
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { getStops, getLiveUnits, getFlyby } from "@/lib/data";
-import { FlybyViewer } from "@/components/gallery/FlybyViewer";
-import { ZoomLayer } from "@/components/transition/ZoomLayer";
+import { getStops, getLiveUnits, getFlyby, getSite } from "@/lib/data";
+import { ShowroomClient } from "@/components/gallery/ShowroomClient";
 import { ShowroomSeo } from "@/components/seo/ShowroomSeo";
 import { pageMetadata } from "@/lib/seo";
 
@@ -16,19 +15,20 @@ export const metadata: Metadata = pageMetadata({
 // Tener URL propia es lo que hace que un F5 acá NO repita el video, y que el back
 // del navegador vuelva a la intro sin cookies de por medio.
 //
-// ISR en vez de force-dynamic: la página se sirve CACHEADA desde el CDN (navegar
-// "Descubrir" → /showroom es ~instantáneo, sin el render por-request que dejaba el
-// spinner 6-7s en mobile) y se revalida en segundo plano cada 60 s. La geometría
-// del Blob y Airtable se leen en la regeneración → los cambios del editor aparecen
-// dentro de ~60 s (antes: al recargar), sin rebuild; Airtable YA tenía su cache de
-// 60 s, y el stops.json commiteado es el fallback (la geometría nunca queda rota).
-export const revalidate = 60;
+// EXPORT ESTÁTICO: la página se hornea en build y se sirve como HTML plano desde
+// Apache — navegar "Descubrir" → /showroom es instantáneo, sin render por-request.
+// No hay ISR (`revalidate` es un error de build con `output: "export"`): la
+// geometría de los stops sale del stops.json commiteado, y el estado/precio de las
+// unidades queda congelado al build y lo refresca el CLIENTE (ver `useLiveUnits`
+// dentro de FlybyViewer) — el contorno se repinta con el dato real de Airtable sin
+// rebuild, y el HTML horneado es el fallback si el proxy está caído.
 
 export default async function Showroom() {
   const stops = await getStops();
-  // Unidades con el estado/precio/etc. EN VIVO desde Airtable (mergeado sobre
-  // units.json). El contorno de cada unidad sale ya pintado por su estado real en
-  // el primer render del servidor (sin parpadeo), porque la página es dynamic.
+  // Unidades con el estado/precio/etc. de Airtable mergeado sobre units.json, leído
+  // EN EL BUILD. Sirve dos cosas: el contorno de cada unidad sale ya pintado con un
+  // estado plausible en el primer frame (sin parpadeo) y el bloque SEO de abajo viaja
+  // en el HTML. El dato EN VIVO lo refresca el cliente (ver ShowroomClient).
   const units = await getLiveUnits();
   const segments = getFlyby();
 
@@ -51,15 +51,17 @@ export default async function Showroom() {
       {/* H1 + descripción + links a cada unidad (sr-only, sin impacto visual). */}
       <ShowroomSeo units={unitList} />
 
-      {/* ZoomLayer hace el zoom-in/out cinematográfico del showroom cuando se abre
-          un detalle (/residencia/*) interceptado encima. NO desmonta el visor, así
-          al volver queda donde estaba (cámara/scroll preservados). */}
-      <ZoomLayer>
-        <FlybyViewer
-          stops={stops}
-          units={units}
-          segments={segments}
-          branding={
+      {/* ShowroomClient refresca las unidades en vivo y monta el visor + la ficha
+          como overlay (con el zoom-in/out cinematográfico). El visor NO se desmonta
+          al abrir una ficha, así al volver queda donde estaba (cámara/scroll
+          preservados) — antes eso lo daba la ruta interceptada @modal, que no existe
+          con `output: "export"`. */}
+      <ShowroomClient
+        stops={stops}
+        units={units}
+        segments={segments}
+        site={getSite()}
+        branding={
             // Lockup en DOS líneas (pedido del cliente, 26-08): el logotipo TIER y
             // debajo "BRAVO". El logotipo es un archivo (trazos vectorizados, sin
             // tipografía embebida) y "BRAVO" va tipografiado en Jost —la sans del
@@ -93,9 +95,8 @@ export default async function Showroom() {
                 BRAVO
               </span>
             </span>
-          }
-        />
-      </ZoomLayer>
+        }
+      />
     </main>
   );
 }

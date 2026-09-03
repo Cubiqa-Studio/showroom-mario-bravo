@@ -2,11 +2,22 @@ import seed from "@/data/stops.json";
 import type { Stop, StopsFile } from "./types";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Almacén persistente de la GEOMETRÍA (stops.json) para edición en producción.
+// Almacén de la GEOMETRÍA (stops.json).
 //
-// En Netlify lee/escribe un Blob ("showroom/stops"); el JSON commiteado queda
-// como SEMILLA/fallback, así nada se rompe si el Blob todavía no existe o no hay
-// contexto de Netlify (p.ej. `next dev` local → usa el archivo de siempre).
+// ⚠ CAMBIÓ CON EL EXPORT ESTÁTICO. Esto se lee ahora EN EL BUILD, no por request,
+// y la fuente en producción es el **stops.json commiteado**. El Blob de Netlify
+// (edición online del editor de polígonos) ya no participa: un sitio estático no
+// tiene servidor que lo lea, y el editor pasó a ser sólo-dev (ver la nota de
+// `pageExtensions` en next.config.ts).
+//
+// El FLUJO DE TRABAJO del editor ahora es: `npm run dev` → trazás → se escribe
+// src/data/stops.json → se commitea → el próximo build lo hornea. Es el mismo
+// flujo que ya existía en local; lo que se perdió es poder editar contra
+// producción sin rebuild.
+//
+// El import dinámico de @netlify/blobs se conserva porque en `next dev` con
+// contexto de Netlify (o si algún día vuelve un deploy con servidor) sigue
+// funcionando igual, y sin contexto cae a la semilla sin romper nada.
 // units.json y flyby.json siguen horneados (el editor sólo toca polígonos).
 // ─────────────────────────────────────────────────────────────────────────────
 

@@ -18,14 +18,14 @@ interface DetailOverlayProps {
 }
 
 /**
- * Wrapper del detalle cuando se abre SOBRE el home (ruta interceptada). Es un
- * overlay full-screen scrolleable, OPACO desde el primer frame: apenas llega el
- * RSC se ve (su contenido sube con un fade de ~0.45s desde el fondo blanco) — sin
- * demora artificial, así "entrás a la landing" en vez de quedar mirando el home
- * congelado. Al cerrar hace fade-out y recién ahí navega al exterior `/` (que dispara
- * el zoom-out del home vía ZoomLayer). El back del navegador y Escape cierran igual.
- * Entre unidades (carrusel) hace crossfade keyeado por unitId. El cierre lo
- * dispara la navbar (onClose).
+ * Wrapper del detalle cuando se abre SOBRE el showroom. Lo monta `UnitDetailHost`
+ * mirando la URL (ver src/lib/residencia.ts para por qué ya no es una ruta
+ * interceptada). Es un overlay full-screen scrolleable, OPACO desde el primer
+ * frame: se ve de una — los datos ya están en memoria, no hay RSC que esperar —
+ * y su contenido sube con un fade de ~0.45s. Al cerrar hace fade-out y recién ahí
+ * vuelve al exterior (que dispara el zoom-out del showroom vía ZoomLayer). El back
+ * del navegador y Escape cierran igual. Entre unidades (carrusel) hace crossfade
+ * keyeado por unitId. El cierre lo dispara la navbar (onClose).
  */
 export function DetailOverlay({ unit, unitId, others, site, floorUnits, vistas }: DetailOverlayProps) {
   const router = useRouter();
@@ -97,14 +97,17 @@ export function DetailOverlay({ unit, unitId, others, site, floorUnits, vistas }
       animate={{ opacity: closing ? 0 : 1, pointerEvents: closing ? "none" : "auto" }}
       transition={{ duration: reduce ? 0 : closing ? 0.25 : 0.3, ease: "easeOut" }}
       onAnimationComplete={() => {
-        // Cerrar con router.back(): es la forma correcta de cerrar una ruta INTERCEPTADA
-        // (@modal). El overlay sólo existe si llegaste navegando desde /showroom (la
-        // interceptación lo exige) y los saltos entre unidades usan replace (no apilan),
-        // así que el historial siempre es `/showroom → /residencia/<actual>` → un back
-        // revela el showroom PRESERVADO e interactivo + dispara el zoom-out (ZoomLayer).
-        // OJO: router.replace("/showroom") acá NO cierra el slot interceptado → el
-        // DetailOverlay queda montado (invisible pero fixed/z-100) tapando y capturando
-        // los clicks del showroom → todo "freezado" (sin scroll, sin polígonos) hasta F5.
+        // Cerrar con router.back() y no navegando a una URL. El overlay lo monta
+        // `UnitDetailHost` a partir del PATHNAME, y la entrada /residencia/<id> se
+        // apiló con history.pushState sobre la del showroom; los saltos entre
+        // unidades usan replace (no apilan), así que el historial siempre es
+        // `/showroom → /residencia/<actual>`. Un back deja el pathname en /showroom
+        // → el host desmonta el overlay y ZoomLayer dispara el zoom-out, con el
+        // showroom PRESERVADO e interactivo debajo (nunca se desmontó).
+        //
+        // Un `router.replace("/showroom")` acá sería peor: es una navegación de
+        // verdad, así que además de cerrar el overlay REMONTARÍA el showroom y se
+        // perdería la cámara — justo lo que todo este arreglo existe para conservar.
         if (closing) router.back();
       }}
     >
