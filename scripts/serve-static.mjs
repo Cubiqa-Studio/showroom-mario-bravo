@@ -24,10 +24,16 @@
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { createReadStream } from "node:fs";
-import { join, extname, normalize } from "node:path";
+import { join, extname, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const RAIZ = join(fileURLToPath(new URL("../", import.meta.url)), "out");
+// Por defecto sirve out/. Se le puede pasar otra carpeta como argumento — útil para
+// servir un DEPLOY.zip YA EXTRAÍDO y comprobar que lo que se sube está sano, que es
+// donde apareció el bug de los separadores "\" en los nombres del zip.
+//   node scripts/serve-static.mjs /ruta/al/zip-extraido
+const RAIZ = process.argv[2]
+  ? resolve(process.argv[2])
+  : join(fileURLToPath(new URL("../", import.meta.url)), "out");
 const PUERTO = Number(process.env.PORT ?? 4321);
 
 const TIPOS = {

@@ -21,10 +21,8 @@
 import { cp, mkdir, rm, readFile, writeFile, stat, readdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+import { zipDirectorio, leerNombresDelZip } from "./lib/zip.mjs";
 
-const ejecutar = promisify(execFile);
 const RAIZ = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT = join(RAIZ, "out");
 const HOSTINGER = join(RAIZ, "deploy", "hostinger");
@@ -148,27 +146,54 @@ bandera --test (o borra ese bloque del .htaccess a mano).
 
 const { archivos, bytes } = await contar(STAGING);
 
-// 6. Comprimir. Compress-Archive en Windows, zip en el resto.
+// 6. Comprimir con el escritor propio (ver scripts/lib/zip.mjs). NO se usa
+//    `Compress-Archive` de PowerShell: escribe los nombres con "\" y el extractor
+//    de Hostinger (Linux) los toma como parte del NOMBRE, no como carpetas → el
+//    sitio queda sin estilos ni JS. Pasó en el primer deploy.
 await rm(ZIP, { force: true });
-if (process.platform === "win32") {
-  await ejecutar(
-    "powershell.exe",
-    [
-      "-NoProfile",
-      "-Command",
-      `Compress-Archive -Path '${STAGING}\\*' -DestinationPath '${ZIP}' -CompressionLevel Optimal -Force`,
-    ],
-    { maxBuffer: 1024 * 1024 * 64 },
-  );
-} else {
-  await ejecutar("zip", ["-qr", ZIP, "."], { cwd: STAGING, maxBuffer: 1024 * 1024 * 64 });
-}
+await zipDirectorio(STAGING, ZIP);
 
 await rm(STAGING, { recursive: true, force: true });
+
+// 7. Verificar el zip QUE SE VA A SUBIR, leyendo sus bytes. Si algo de esto falla,
+//    el zip se borra: mejor no tener paquete que tener uno que rompe el sitio y
+//    darse cuenta después de subir 48 MB.
+const nombres = await leerNombresDelZip(ZIP);
+const problemas = [];
+
+const conBackslash = nombres.filter((n) => n.includes("\\"));
+if (conBackslash.length) {
+  problemas.push(
+    `${conBackslash.length} entradas con "\\" en el nombre (ej. ${conBackslash[0]}). ` +
+      `El extractor de Linux no las va a ver como carpetas.`,
+  );
+}
+
+// Los que si faltan dejan el sitio roto de una forma u otra.
+for (const obligatorio of ["index.html", "showroom.html", "404.html", ".htaccess", "api/unidades.php"]) {
+  if (!nombres.includes(obligatorio)) problemas.push(`falta ${obligatorio}`);
+}
+if (!nombres.some((n) => n.startsWith("_next/static/"))) {
+  problemas.push("no hay nada bajo _next/static/ — el sitio quedaría sin estilos ni JS");
+}
+if (!nombres.some((n) => n.startsWith("api/plate/"))) {
+  problemas.push("faltan las plantas horneadas de api/plate/");
+}
+if (nombres.some((n) => n.includes("showroom-config"))) {
+  problemas.push("showroom-config.php NO puede ir en el zip: tiene los secretos y va fuera del doc root");
+}
+
+if (problemas.length) {
+  await rm(ZIP, { force: true });
+  console.error(`\n✖ El zip salió mal, lo borré. Problemas:`);
+  for (const p of problemas) console.error(`   · ${p}`);
+  process.exit(1);
+}
 
 const zipBytes = (await stat(ZIP)).size;
 const mb = (n) => (n / 1024 / 1024).toFixed(1);
 console.log(`\nDEPLOY.zip listo: ${mb(zipBytes)} MB (${archivos} archivos, ${mb(bytes)} MB sin comprimir)`);
 console.log(`  ${ZIP}`);
+console.log(`  verificado: ${nombres.length} entradas, todas con "/" como separador.`);
 console.log(`\nSe extrae DENTRO de public_html. El showroom-config.php va aparte, un nivel arriba.`);
 if (ES_PRUEBA) console.log(`\n⚠ Lleva noindex: Google NO va a indexar este deploy.`);
