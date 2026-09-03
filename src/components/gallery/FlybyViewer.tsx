@@ -186,8 +186,8 @@ export function FlybyViewer({
   const { t } = useI18n();
   // WhatsApp del comercializador que trajo la visita (ver src/lib/origen.ts).
   const waUrl = useWhatsappUrl();
-  // Ruta actual: cambia a /residencia/:id cuando se abre el detalle interceptado
-  // (@modal) con el showroom vivo debajo → sirve para re-primar frames al volver.
+  // Ruta actual: cambia a /residencia/:id cuando se abre la ficha como overlay
+  // con el showroom vivo debajo → sirve para re-primar frames al volver.
   const pathname = usePathname();
   // "Preparando" = el HEAD del segmento (RUN_GATE_FRAMES) no está decodificado a los
   // ~350ms del tap (feedback honesto en vez de un freeze mudo). Con el gate parcial el
@@ -641,8 +641,8 @@ export function FlybyViewer({
   }, [resetPan, stops]);
 
   // ¿Hay un overlay PESADO encima del visor? El modal 360° (iframe Kuula), la galería
-  // de renders full, el masterplan o el DETALLE de unidad interceptado (@modal, la URL
-  // pasa a /residencia/:id con el showroom vivo debajo). Todos presionan la memoria y el
+  // de renders full, el masterplan o la FICHA de unidad como overlay (la URL pasa a
+  // /residencia/:id con el showroom vivo debajo). Todos presionan la memoria y el
   // navegador purga los bitmaps decodificados de los frames del flyby.
   const heavyOverlayOpen =
     !!vr360Url ||

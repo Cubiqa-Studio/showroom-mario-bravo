@@ -1,15 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getPlate, getLiveUnits } from "@/lib/data";
+import { getPlate, getLiveUnits, getPlateFloors } from "@/lib/data";
 import type { Unit } from "@/lib/types";
 
-// Lee el Blob/semilla en runtime; nunca prerenderizar.
-export const dynamic = "force-dynamic";
+// ESTÁTICO en el export. El Blob de Netlify no existe en Hostinger, así que la
+// geometría de las plantas sale del plates.json commiteado: es 100% conocida en
+// build y se hornea como un archivo por piso dentro de out/api/plate/. En
+// `next dev` el handler sigue corriendo en vivo (y sigue leyendo el Blob si hay
+// contexto de Netlify), así que el editor de polígonos trabaja igual que antes.
+export const dynamic = "force-static";
+
+export async function generateStaticParams() {
+  return (await getPlateFloors()).map((floor) => ({ floor }));
+}
 
 /**
- * Endpoint PÚBLICO (no /api/admin → sin Basic Auth) para la landing: devuelve la
- * planta trazada de un piso, o null si todavía no tiene polígonos. La landing lo
- * pide LAZY al abrir la pestaña "Planta del piso", así la navegación al detalle
- * NUNCA se bloquea leyendo el Blob de Netlify (clave para que el zoom sea instantáneo).
+ * Endpoint PÚBLICO para la landing: devuelve la planta trazada de un piso, o null
+ * si todavía no tiene polígonos. La landing lo pide LAZY al abrir la pestaña
+ * "Planta del piso", así la navegación al detalle NUNCA se bloquea esperando los
+ * planos (clave para que el zoom sea instantáneo) y no se bajan los diez planos de
+ * entrada. En el export cada piso queda como un archivo en out/api/plate/, así que
+ * el pedido lo sirve Apache de disco.
  */
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ floor: string }> }) {
   const { floor } = await ctx.params;

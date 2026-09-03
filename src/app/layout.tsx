@@ -99,11 +99,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-  modal,
 }: Readonly<{
   children: React.ReactNode;
-  // Slot paralelo `@modal`: el detalle de unidad interceptado SOBRE el home.
-  modal: React.ReactNode;
 }>) {
   return (
     <html
@@ -124,10 +121,11 @@ export default function RootLayout({
               (ver src/lib/origen.ts). Tiene que envolver TODA la app: el parámetro
               viene en la primera carga y la navegación interna se lo lleva. */}
           <OrigenProvider>
-            <TransitionProvider>
-              {children}
-              {modal}
-            </TransitionProvider>
+            {/* La ficha de unidad se abre SOBRE el showroom como overlay (ver
+                ShowroomClient / UnitDetailHost). Antes esto era un slot paralelo
+                `@modal` con una ruta interceptada, que `output: "export"` no
+                soporta: la interceptación la decide el servidor y acá no hay. */}
+            <TransitionProvider>{children}</TransitionProvider>
           </OrigenProvider>
         </LanguageProvider>
         <CubiqaBadge />

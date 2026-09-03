@@ -6,12 +6,17 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useTransitionOrigin } from "./TransitionProvider";
 
 /**
- * Envuelve el home (FlybyViewer). Reacciona al ROUTER: cuando la ruta es
- * /residencia/* (hay un detalle abierto, interceptado SOBRE el home), hace
- * zoom-in leve hacia el punto clickeado + oscurece; al cerrar (back del navegador
- * o botón), zoom-out a escala 1. Como depende del pathname, el back nativo
- * dispara el zoom-out solo — sin estado suelto. El home NUNCA se desmonta, así
- * que al volver queda exactamente donde estaba (cámara/scroll preservados).
+ * Envuelve el showroom (FlybyViewer). Reacciona al PATHNAME: cuando la ruta es
+ * /residencia/* (hay una ficha abierta como overlay encima), hace zoom-in leve
+ * hacia el punto clickeado + oscurece; al cerrar (back del navegador o botón),
+ * zoom-out a escala 1. Como depende del pathname, el back nativo dispara el
+ * zoom-out solo — sin estado suelto. El showroom NUNCA se desmonta, así que al
+ * volver queda exactamente donde estaba (cámara/scroll preservados).
+ *
+ * Sigue funcionando sin cambios después de sacar la ruta interceptada: la ficha
+ * ahora se abre reescribiendo la URL con `history.pushState`, que Next parchea para
+ * mantener `usePathname()` en sincronía (ver src/lib/residencia.ts). O sea que este
+ * componente ve exactamente lo mismo que veía antes.
  *
  * prefers-reduced-motion → sin zoom ni overlay (navegación directa).
  */
@@ -59,7 +64,7 @@ export function ZoomLayer({ children }: { children: ReactNode }) {
   }, [opening, pathname, setOpening]);
 
   // Zoom-IN instantáneo: arranca con `opening` (seteado sincrónico en el click),
-  // sin esperar a que la ruta interceptada renderice. El pathname lo sostiene abierto.
+  // sin esperar a que monte la ficha. El pathname lo sostiene abierto.
   const open = opening || (pathname?.startsWith("/residencia") ?? false);
   // Mobile: zoom más sutil (~1.04). Desktop: ~1.07.
   const targetScale = open && !reduce ? (isMobile ? 1.04 : 1.07) : 1;

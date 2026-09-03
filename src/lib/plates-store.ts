@@ -2,9 +2,10 @@ import seed from "@/data/plates.json";
 import type { PlatesFile } from "./types";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Almacén persistente de la GEOMETRÍA de PLANTAS DE PISO (plates.json), espejo de
-// `stops-store`. En Netlify lee/escribe un Blob ("showroom/plates"); el JSON
-// commiteado queda como SEMILLA/fallback (next dev local, build, etc.).
+// Almacén de la GEOMETRÍA de PLANTAS DE PISO (plates.json), espejo de
+// `stops-store` — leé la nota de allá: con el export estático la fuente en
+// producción es el plates.json COMMITEADO, esto corre en el build (hornea
+// out/api/plate/<piso>) y el Blob de Netlify ya no participa.
 // Una "plate" es estructuralmente como un Stop: imagen del plano + polígonos.
 // ─────────────────────────────────────────────────────────────────────────────
 

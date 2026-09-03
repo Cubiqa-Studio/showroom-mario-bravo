@@ -6,6 +6,7 @@ import type { UnitWithId } from "@/lib/data";
 import { formatBaths } from "@/lib/residencia";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { markUnitEntryPoint } from "@/lib/analytics";
+import { useAbrirFicha, useShowroomMontado } from "@/components/transition/TransitionProvider";
 import { StatusPill } from "./StatusPill";
 import { UnitCard } from "../UnitCard";
 
@@ -26,6 +27,8 @@ const STEP = 6;
 
 export function AvailableResidences({ others }: { others: UnitWithId[] }) {
   const { t } = useI18n();
+  const abrirFicha = useAbrirFicha();
+  const showroomMontado = useShowroomMontado();
   const [mini, setMini] = useState<{ u: UnitWithId; x: number; y: number } | null>(null);
   // Última unidad hovereada: el float la sigue mostrando durante el fade-out
   // (sin esto, al salir del hover la tarjeta queda blanca mientras se desvanece).
@@ -84,7 +87,17 @@ export function AvailableResidences({ others }: { others: UnitWithId[] }) {
               href={`/residencia/${u.id}`}
               replace
               scroll={false}
-              onClick={() => markUnitEntryPoint("other_residences", u.id)}
+              onClick={(e) => {
+                markUnitEntryPoint("other_residences", u.id);
+                // Sobre el showroom la ficha es un OVERLAY: navegar de verdad
+                // desmontaría el visor y perdería la cámara. Interceptamos el click
+                // y cambiamos de unidad reescribiendo la URL. El `href` real se
+                // conserva a propósito: sigue siendo un <a> crawleable y el
+                // "abrir en pestaña nueva" del navegador sigue funcionando.
+                if (!showroomMontado) return;
+                e.preventDefault();
+                abrirFicha(u.id);
+              }}
               className="res-row"
               onMouseEnter={(e) => onMove(u, e.clientX, e.clientY)}
               onMouseMove={(e) => onMove(u, e.clientX, e.clientY)}

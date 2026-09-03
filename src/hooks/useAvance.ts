@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { AvanceObra } from "@/lib/types";
+import { API_AVANCE } from "@/lib/api";
+import { parseAvance, type AirtableRecord } from "@/lib/airtable-parse";
 
 /**
  * Trae el avance de obra EN VIVO desde /api/avance (Airtable). Devuelve `loading`
@@ -14,11 +16,14 @@ export function useAvance(): { avance: AvanceObra | null; loading: boolean } {
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/avance")
+    fetch(API_AVANCE)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!alive) return;
-        setAvance((data?.avance as AvanceObra | null) ?? null);
+        // Registros CRUDOS de Airtable; el parseo (elegir la fila más reciente y
+        // resolver los nombres de columna) es el mismo que usa el build.
+        const records = (data?.records as AirtableRecord[] | undefined) ?? [];
+        setAvance(parseAvance(records));
         setLoading(false);
       })
       .catch(() => {

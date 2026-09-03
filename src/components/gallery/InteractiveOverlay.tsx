@@ -10,12 +10,10 @@ import {
   shift,
   useFloating,
 } from "@floating-ui/react";
-import { useRouter } from "next/navigation";
 import type { Stop, Units } from "@/lib/types";
 import { statusColor } from "@/lib/status";
-import { PARAM_VISTA } from "@/lib/residencia";
 import { useI18n } from "@/i18n/LanguageProvider";
-import { useTransitionOrigin } from "@/components/transition/TransitionProvider";
+import { useAbrirFicha, useTransitionOrigin } from "@/components/transition/TransitionProvider";
 import { markUnitEntryPoint } from "@/lib/analytics";
 import { UnitPolygon } from "./UnitPolygon";
 import { UnitTooltip } from "./UnitTooltip";
@@ -78,7 +76,7 @@ export function InteractiveOverlay({
 
   // Navegación al detalle (mismo mecanismo que UnitPolygon: zoom-in desde el punto
   // tocado + push a /residencia/:id). Se usa cuando en MOBILE se toca la tarjeta.
-  const router = useRouter();
+  const abrirFicha = useAbrirFicha();
   const { beginOpen } = useTransitionOrigin();
   // Punto donde se tocó la unidad (origen del zoom al entrar desde la tarjeta).
   const selectPtRef = useRef({ x: 0, y: 0 });
@@ -201,8 +199,8 @@ export function InteractiveOverlay({
     if (!tipUnitId) return;
     markUnitEntryPoint("showroom_tooltip", tipUnitId);
     beginOpen({ x: selectPtRef.current.x, y: selectPtRef.current.y });
-    router.push(`/residencia/${tipUnitId}?${PARAM_VISTA}=${stop.id}`);
-  }, [tipUnitId, beginOpen, router, stop.id]);
+    abrirFicha(tipUnitId, { vista: stop.id });
+  }, [tipUnitId, beginOpen, abrirFicha, stop.id]);
 
   // Unidad resaltada (relleno + borde): hover (desktop) o selección por toque (mobile).
   const activeUnitId = tipUnitId;

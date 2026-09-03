@@ -1,0 +1,212 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Showroom TIER Bravo — Apache / Hostinger (sitio estático + proxy PHP)
+#
+# Va en la RAÍZ del doc root (public_html), junto al index.html de out/.
+# Reemplaza lo que en Netlify hacían netlify.toml y next.config.ts > headers().
+#
+# ⚠ Ojo con el orden: primero el ruteo (rewrites), después los headers. Y las
+# reglas de /api van ANTES de la de .html, porque los endpoints no son .html.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── 0. Índice y 404 ───────────────────────────────────────────────────────────
+DirectoryIndex index.html
+
+# El export de Next emite out/404.html. Sin esto, una URL inexistente da el 404
+# pelado de Apache en vez de la página 404 del sitio.
+ErrorDocument 404 /404.html
+
+# No listar el contenido de las carpetas (frames/, gallery/, stops/…).
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # ── 1. Endpoints del proxy PHP ──────────────────────────────────────────────
+  # El código cliente pide /api/unidades, /api/avance y /api/contact (mismas
+  # rutas que en `next dev`, ver src/lib/api.ts). Acá se mapean a los .php.
+  #
+  # OJO: /api/plate/<piso> NO entra acá. Eso es un ARCHIVO estático horneado en el
+  # build (out/api/plate/5), y las condiciones de abajo sólo matchean los tres
+  # nombres exactos, así que las plantas siguen sirviéndose de disco.
+  RewriteRule ^api/(unidades|avance|contact)/?$ api/$1.php [L]
+
+  # Las plantas horneadas (out/api/plate/5) salen SIN extensión, así que Apache no
+  # sabe que son JSON. Marcamos el pedido con una variable de entorno y el bloque
+  # de mod_headers de más abajo le pone el Content-Type. Se hace así porque
+  # <Location> y <Directory> NO están permitidos en un .htaccess, y un
+  # <FilesMatch> sobre nombres numéricos sería demasiado amplio.
+  # Sin substitución y sin [L]: sólo etiqueta, no reescribe ni corta.
+  RewriteRule ^api/plate/[^/]+$ - [E=PLATE_JSON:1]
+
+  # ── 1b. Red de seguridad: nunca mostrarle un payload RSC a una persona ──────
+  # Los .txt de al lado de cada .html son los payloads de React que usa la
+  # navegación cliente de Next (pide /showroom.txt para pintar /showroom sin
+  # recargar). No son páginas: si se abren como documento se ve un choclo de JSON
+  # crudo, que es lo que apareció una vez en celular durante un deploy a medio subir.
+  #
+  # Cuando el fetch de ese .txt falla (un 404 mientras se están sobrescribiendo los
+  # 450 archivos, la red que se corta), Next hace un fallback DURO a esa misma URL
+  # —ver `doMpaNavigation` en fetch-server-response.js— y el visitante termina
+  # mirando el payload.
+  #
+  # `Sec-Fetch-Dest` distingue los dos casos sin ambigüedad: el fetch del router
+  # manda "empty", una navegación de verdad manda "document". Así que si alguien
+  # LLEGA a un .txt como documento, le servimos el .html que le corresponde.
+  # El router no se entera y sigue recibiendo su payload.
+  #
+  # La condición `-f` sobre el .html protege a robots.txt (no existe robots.html,
+  # así que la regla no se le aplica). Navegadores viejos sin Sec-Fetch-Dest
+  # simplemente no matchean y quedan como antes.
+  RewriteCond %{HTTP:Sec-Fetch-Dest} =document [NC]
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^(.+)\.txt$ /$1.html [L]
+
+  # ── 2. URLs sin extensión → el .html horneado ───────────────────────────────
+  # El export emite out/showroom.html y out/residencia/101.html (sin
+  # trailingSlash, así las URLs canónicas, el sitemap y el JSON-LD siguen siendo
+  # /showroom y /residencia/101 — exactamente las mismas que ya están indexadas).
+  # Apache no resuelve eso solo, de ahí esta regla.
+  #
+  # Es CONSERVADORA: sólo actúa si el path pedido NO es un archivo ni un
+  # directorio existente, y si el `.html` correspondiente SÍ existe. Por eso no
+  # toca /api/plate/5 (existe como archivo), ni /api/contact (no tiene .html:
+  # ya lo agarró la regla 1), ni los assets.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^(.+?)/?$ /$1.html [L]
+
+  # ── 3. Canonicalización www → apex ──────────────────────────────────────────
+  # Si www y el apex sirven ambos 200 con el MISMO contenido, Google ve contenido
+  # duplicado y divide las señales. Esto es lo que hacían el redirect de
+  # next.config.ts y la regla edge de netlify.toml.
+  #
+  # ⚠ PLACEHOLDER — el dominio real todavía no está definido (ver PROD_SITE_URL en
+  # src/lib/seo.ts). Descomentá y poné el host real al salir a producción. En el
+  # SUBDOMINIO DE PRUEBA dejalo comentado: no hay www que canonicalizar y una
+  # regla mal puesta te deja el test en loop de redirects.
+  #
+  # RewriteCond %{HTTP_HOST} ^www\.mariobravo955\.com\.ar$ [NC]
+  # RewriteRule ^(.*)$ https://mariobravo955.com.ar/$1 [R=301,L]
+</IfModule>
+
+# ── 4. Tipos MIME ─────────────────────────────────────────────────────────────
+<IfModule mod_mime.c>
+  AddType application/json .json
+  AddType application/manifest+json .webmanifest
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+  AddType video/mp4 .mp4
+  AddType font/woff2 .woff2
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Content-Type de las plantas horneadas, marcadas arriba con PLATE_JSON.
+  # `fetch().json()` parsea igual sin esto (no mira el Content-Type), pero
+  # declararlo bien las hace comprimibles y evita sorpresas con proxies.
+  Header set Content-Type "application/json; charset=utf-8" env=PLATE_JSON
+</IfModule>
+
+# ── 5. Cache ──────────────────────────────────────────────────────────────────
+#
+# ESTO NO ES UNA OPTIMIZACIÓN, ES UN ARREGLO. Los frames del flyby y los stills
+# son ~30 imágenes por transición que se piden todas juntas. Servidos con
+# `max-age=0, must-revalidate` (el default), tras un rato IDLE el navegador purga
+# su cache y, al disparar la transición, revalida los ~30 frames por red: la
+# animación (que avanza por TIEMPO con rAF) no espera y salta directo al destino →
+# "teletransporte" + lag, hasta que un F5 vuelve a primar todo.
+#
+# Con cache larga, dentro del max-age el browser sirve de cache SIN red (cero lag
+# para cualquier idle de un día) y `stale-while-revalidate` deja que tome renders
+# nuevos en segundo plano sin bloquear (auto-actualiza tras un deploy).
+#
+# Sin `immutable`: las URLs de estos assets NO llevan hash, así que un deploy que
+# reemplaza un frame con el mismo nombre tiene que poder propagarse. Eso lo hace
+# el stale-while-revalidate.
+<IfModule mod_headers.c>
+  # Assets pesados del recorrido y de la galería.
+  <FilesMatch "\.(webp|jpg|jpeg|png|svg|gif|ico|mp4|webm|woff2?)$">
+    Header set Cache-Control "public, max-age=86400, stale-while-revalidate=2592000"
+  </FilesMatch>
+
+  # HTML y payloads de navegación: SIEMPRE revalidar. Si no, un deploy no se ve
+  # hasta que al visitante se le vence la cache — y el .txt es el árbol de
+  # componentes que usa la navegación cliente, así que un .txt viejo con HTML
+  # nuevo (o al revés) rompe la navegación interna.
+  <FilesMatch "\.(html|txt)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  # Metadata que cambia en cada deploy.
+  <FilesMatch "^(sitemap\.xml|robots\.txt|manifest\.webmanifest)$">
+    Header set Cache-Control "public, max-age=3600"
+  </FilesMatch>
+
+  # ── 6. Headers de seguridad ────────────────────────────────────────────────
+  # Sin CSP: una CSP estricta necesita nonce por request (imposible sin servidor)
+  # y el sitio carga de terceros el player de Kuula, PostHog, los tiles de
+  # maplibre y Google Fonts. Una CSP con esos hosts en lista es posible pero
+  # frágil: cualquier cambio de CDN de un tercero rompe el sitio en silencio. Si
+  # se quiere CSP, va delante un Cloudflare que la inyecte y se prueba a fondo.
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+  # Higiene: no anunciar el stack (PHP agrega X-Powered-By en sus responses).
+  Header always unset X-Powered-By
+</IfModule>
+
+# Los chunks de Next SÍ llevan hash en el nombre (/_next/static/…): son inmutables
+# de verdad, así que va un año y `immutable`.
+#
+# Va en un <If> SUELTO y AL FINAL a propósito. Apache mergea los <If> después de
+# los <FilesMatch>, así que esto le gana al bloque de arriba que matchea por
+# extensión — y sin eso un .woff2 de /_next/static/media/ se quedaría con las 24 h
+# en vez del año. <If> pide Apache 2.4 (lo que corre Hostinger); si el host fuera
+# 2.2, el bloque se ignora y los chunks quedan con 24 h: peor, pero no roto.
+<IfModule mod_headers.c>
+  <If "%{REQUEST_URI} =~ m#^/_next/static/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
+
+# ── 7. Compresión ─────────────────────────────────────────────────────────────
+# Las imágenes y el video ya están comprimidos: recomprimirlos gasta CPU sin
+# ganar bytes. Sólo texto.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+  AddOutputFilterByType DEFLATE application/manifest+json image/svg+xml
+</IfModule>
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json
+  AddOutputFilterByType BROTLI_COMPRESS application/xml application/xhtml+xml
+  AddOutputFilterByType BROTLI_COMPRESS application/manifest+json image/svg+xml
+</IfModule>
+
+# ── 8. Cerrojos ───────────────────────────────────────────────────────────────
+# El config con los secretos va FUERA del doc root (ver
+# showroom-config.example.php). Esto es defensa en profundidad para el caso de que
+# alguien lo copie acá adentro por error.
+<FilesMatch "^showroom-config.*\.php$">
+  Require all denied
+</FilesMatch>
+
+# El _lib.php del proxy es una librería, no un endpoint: pedirlo directo no debe
+# devolver nada.
+<FilesMatch "^_lib\.php$">
+  Require all denied
+</FilesMatch>
+
+# Nada de archivos de entorno, backups o metadata de git en el doc root.
+<FilesMatch "(^\.env|^\.git|\.(bak|old|orig|log|sql|sh)$|~$)">
+  Require all denied
+</FilesMatch>
+
+# El _headers de out/ es de Netlify: en Apache no hace nada y sólo confunde si
+# alguien lo lee. Que no se pueda pedir.
+<FilesMatch "^_headers$">
+  Require all denied
+</FilesMatch>

@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { useOrigen } from "@/components/OrigenProvider";
-import { ORDEN_PORTFOLIO, PROYECTOS } from "@/data/proyectos";
+import { ORDEN_PORTFOLIO, PROYECTOS, posterMid } from "@/data/proyectos";
 import type { TeamPartner } from "@/lib/types";
 import { CloseIcon } from "../gallery/icons";
 import { lockBodyScroll } from "@/lib/scroll-lock";
@@ -100,8 +100,20 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
                       {obras.map((o) => (
                         <article className="team-obra" key={o.id}>
                           <div className="team-obra-media">
-                            {o.poster ? (
-                              <img src={o.poster} alt="" aria-hidden loading="lazy" decoding="async" />
+                            {posterMid(o) ? (
+                              // La variante `-mid` (720px, ~146 KB) y no la grande
+                              // (~305 KB): la tarjeta se ve a ~360px de ancho, así que
+                              // la grande sería tirar la mitad del peso a la basura.
+                              // Para Bravo esto además usa su fachada propia en vez
+                              // del still de la portada, y así los tres del portfolio
+                              // se ven parejos.
+                              <img
+                                src={posterMid(o)!}
+                                alt=""
+                                aria-hidden
+                                loading="lazy"
+                                decoding="async"
+                              />
                             ) : (
                               // Sin render todavía: panel tipográfico, no una foto
                               // prestada de otro proyecto (mismo criterio que la portada).

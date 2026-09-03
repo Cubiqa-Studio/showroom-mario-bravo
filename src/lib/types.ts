@@ -199,15 +199,6 @@ export interface PaymentMilestone {
   detail?: string;
 }
 
-/** Punto de interés del mapa (sección Ubicación). */
-export interface PointOfInterest {
-  name: string;
-  /** Categoría mostrada en el popup, ej. "Lago", "Ski & Montaña". */
-  cat: string;
-  lng: number;
-  lat: number;
-}
-
 /**
  * Una imagen de la galería del proyecto (lightbox del menú). Derivados WebP
  * generados por `scripts/optimize-gallery.mjs` → manifiesto `src/data/gallery.json`.
@@ -254,9 +245,9 @@ export interface SiteConfig {
   defaultSpecs: SpecGroup[];
   // NOTA i18n: el contenido EDITORIAL (specNarrative, paymentPlan, deliveryNote)
   // vive en src/i18n/translations.ts — es texto por-idioma, no config.
-  /** Puntos de interés del mapa (coordenadas + nombre/categoría ES, que el
-   *  diccionario traduce vía t.location.poiName/poiCat). */
-  pois: PointOfInterest[];
+  // Los puntos que marca el mapa además de este edificio son los OTROS desarrollos
+  // de TIER, y viven en src/data/proyectos.ts (con sus coordenadas y a quién los
+  // comercializa) — no acá. Ver la nota en site.ts donde estaba `pois`.
   /** Galería del proyecto (lightbox del menú). Derivados optimizados desde
    *  `src/data/gallery.json` (ver `scripts/optimize-gallery.mjs`). */
   gallery?: GalleryImage[];

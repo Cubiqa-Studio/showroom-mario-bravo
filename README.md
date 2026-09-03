@@ -66,12 +66,14 @@ anuncia "Entrando…" al lector de pantalla.
 
 ## Editor de polígonos
 
-Es la herramienta para dibujar el área clicable de cada unidad. **Apagada por defecto**
-(`/admin/*` y `/api/admin/*` devuelven 404); se prende con una env var:
+Es la herramienta para dibujar el área clicable de cada unidad. **Vive sólo en local**:
+sus páginas y su API son archivos `page.dev.tsx` / `route.dev.ts`, que quedan afuera del
+build de producción (ver la nota de `pageExtensions` en `next.config.ts`). O sea que en
+el sitio publicado `/admin/*` y `/api/admin/*` **no existen** — no hay nada que proteger
+con clave, y por eso `ENABLE_POLYGON_EDITOR` y `ADMIN_PASSWORD` ya no se usan.
 
 ```bash
-# .env.local  — ya viene creado con esto
-ENABLE_POLYGON_EDITOR=true
+npm run dev   # y listo, el editor está en las URLs de abajo
 ```
 
 | URL | Qué edita |
@@ -79,9 +81,10 @@ ENABLE_POLYGON_EDITOR=true
 | `/admin/polygon-editor/0` … `/4` | Los polígonos de cada una de las 5 vistas del showroom. |
 | `/admin/polygon-editor/plano/SS`, `/0`, `/1` … `/8` | Los polígonos de cada planta (incluye subsuelo, PB y azotea). |
 
-**Cómo se guarda.** El editor postea a `/api/admin/*`, que en local escribe directo a
+**Cómo se guarda.** El editor postea a `/api/admin/*`, que escribe directo a
 `src/data/stops.json` / `plates.json`. Eso es lo que se commitea, y en producción **ese
-JSON es la fuente de verdad**. Después de trazar: revisá el diff y commiteá.
+JSON es la única fuente de verdad**: el build lo hornea en el HTML y en
+`out/api/plate/<piso>`. Después de trazar: revisá el diff, commiteá y rebuildeá.
 
 **Reglas del trazado:**
 
@@ -106,7 +109,9 @@ npm run plates:clone -- 2 3 4 5
 Remapea `2xx → 3xx/4xx/5xx`, valida contra `units.json` y descarta lo que no exista.
 Ahorra 30 polígonos y evita el vértice corrido que aparece al trazar lo mismo cuatro veces.
 
-Antes de deployar, sacá `ENABLE_POLYGON_EDITOR` del entorno de producción.
+⚠ Lo que se perdió al pasar a estático: la **edición online contra producción** (el Blob
+de Netlify). Hoy trazar exige local + commit + rebuild. Si algún día hace falta editar
+en vivo, el lugar donde iría es un endpoint más del proxy, no un route handler de Next.
 
 ---
 
@@ -298,7 +303,9 @@ entre unidades del mismo piso— cae a la **primera vista que la tenga**; y si n
 ninguna, al render de portada de siempre, sin marca.
 
 El param se lee en un efecto y no en el servidor **a propósito**: leer `searchParams` en
-el componente de página arrastraría la ruta a dinámica y la landing es estática con ISR.
+el componente de página arrastraría la ruta a dinámica, y con el export estático eso es
+directamente un error de build. Además cubre el caso del overlay, donde la URL la escribe
+`history.pushState` y no hay render de servidor de por medio.
 Se puede porque la sección es la última y está muy por debajo del pliegue: se resuelve
 mucho antes de que nadie la vea, y con `loading="lazy"` el navegador ni pide la imagen
 descartada. Los datos que sí vienen del servidor son las vistas donde la unidad está
@@ -484,10 +491,24 @@ de los A–E o si van a tener el suyo.
 
 La base **TIER Bravo** (`appVdj9WzBYpKtUcu`) maneja estado, precio, ambientes y
 superficies de las 63 unidades; `units.json` es el fallback si Airtable se cae o tarda
-más de 2,5 s. Las credenciales van en `.env.local` (gitignoreado) — ver `.env.example`.
+más de 5 s. Las credenciales van en `.env.local` (gitignoreado) — ver `.env.example`.
+
+**Se lee DOS veces, y a propósito** (esto cambió con el export estático):
+
+1. **En el build** (`src/lib/airtable.ts`, con el token del entorno) → hornea un estado
+   plausible en el HTML: el contorno de cada unidad sale ya pintado en el primer frame,
+   el bloque SEO del showroom lista las 63 fichas y el JSON-LD lleva disponibilidad real.
+2. **En el navegador** (`useLiveUnits` → `/api/unidades`, que en producción es el proxy
+   PHP que guarda el token) → repinta con el dato REAL. Por eso un cambio en Airtable se
+   ve en ≤2 min sin rebuild.
+
+El parseo lo comparten las dos: vive en **`src/lib/airtable-parse.ts`**, que es puro
+(sin fetch ni token) justamente para que no haya dos implementaciones de los alias de
+columna. `airtable.ts` es sólo la capa de red server-side, y el proxy PHP es tonto: pasa
+los registros crudos y no sabe nada del dominio.
 
 Los nombres de columna de esta base **no son los del template**, así que
-`src/lib/airtable.ts` los lee con alias tolerantes:
+`airtable-parse.ts` los lee con alias tolerantes:
 
 | Columna en Airtable | Va a | Nota |
 |---|---|---|
@@ -1189,10 +1210,34 @@ faltantes) y de dónde salió cada asset.
 
 ## Deploy
 
-Prod pensado para un host con Node (SSR): `npm run build` + `npm start`. `netlify.toml` y
-`public/_headers` traen la cache larga de `/frames/*`, `/stops/*` y `/gallery/*` — sin ella
-el navegador re-baja los frames tras un rato idle y la transición "teletransporta" en vez
-de animar. Verificar post-deploy con `curl -I`.
+**El sitio se publica como EXPORT ESTÁTICO** (`output: "export"`): `npm run build` deja
+todo en `out/` y eso se sube a un hosting común, sin proceso Node. El paso a paso
+—incluido el proxy PHP que guarda los secretos de Airtable y Resend— está en
+**[`deploy/README-hostinger.md`](deploy/README-hostinger.md)**.
 
-En producción **no** seteés `ENABLE_POLYGON_EDITOR`: sin esa var, todo `/admin/*` y
-`/api/admin/*` devuelve 404.
+```bash
+npm run build           # → out/
+npm run preview:static  # mirá out/ como lo va a servir Apache → localhost:4321
+```
+
+Lo que hay que saber de entrada:
+
+- **Sin servidor no hay ISR ni route handlers.** El HTML se hornea en el build; el
+  estado/precio/superficies de Airtable los refresca el NAVEGADOR contra el proxy
+  (`src/lib/api.ts`), así que un cambio de dato se ve en ≤2 min sin rebuild. Un cambio
+  de código, de geometría o de textos sí necesita rebuild.
+- **Los secretos no pueden ir en el bundle.** El token de Airtable y la key de Resend
+  viven en `showroom-config.php`, fuera del doc root, y los lee el proxy PHP de
+  `deploy/hostinger/api/`. Sin PHP el sitio igual funciona con los datos horneados,
+  pero no se actualiza y no entran leads.
+- **La cache larga de `/frames/*`, `/stops/*` y `/gallery/*` es obligatoria**, no una
+  optimización: sin ella el navegador re-baja los frames tras un rato idle y la
+  transición "teletransporta" en vez de animar. En Apache la trae
+  `deploy/hostinger/.htaccess`; `netlify.toml` y `public/_headers` cubren Netlify.
+  Verificar post-deploy con `curl -I`.
+- **El editor de polígonos ya no se publica.** `/admin/*` y `/api/admin/*` son archivos
+  `.dev.tsx` / `.dev.ts` y quedan afuera del build de producción (ver la nota de
+  `pageExtensions` en `next.config.ts`). `ENABLE_POLYGON_EDITOR` y `ADMIN_PASSWORD`
+  quedaron obsoletas junto con el middleware.
+- **El deploy de Netlify pierde los 3 endpoints** (data en vivo y formulario), porque
+  también pasa a ser estático. Ver la nota al principio de `netlify.toml`.

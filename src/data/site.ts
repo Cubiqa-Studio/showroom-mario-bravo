@@ -89,20 +89,15 @@ export const SITE: SiteConfig = {
   // El contenido EDITORIAL (specNarrative, paymentPlan, deliveryNote) vive en
   // src/i18n/translations.ts (es/en) — texto por-idioma, no config del sitio.
 
-  // Los otros dos desarrollos de TIER (pedido de Camila y Juani, 26-08): el mapa de
-  // Ubicación muestra el portfolio completo de la desarrolladora, no puntos del barrio.
-  // El pin principal (`location`, arriba) es Bravo; estos dos son los hermanos.
+  // Los otros dos desarrollos de TIER (pedido de Camila y Juani, 26-08) ya NO viven
+  // acá: el mapa de Ubicación muestra el portfolio de la desarrolladora, y ése vive en
+  // src/data/proyectos.ts —la misma lista que la portada y "El Equipo"— con sus
+  // coordenadas y su `comercializan`.
   //
-  // Coordenadas geocodificadas contra OpenStreetMap con match A NIVEL DE ALTURA (no
-  // de calle) y código postal de CABA. Conviene que el cliente las mire una vez:
-  //   Sinclair 3087            → Palermo Pacífico, C1425GMN
-  //   Av. Estado de Israel 4338 → Almagro, C1430BXU
-  // ⚠ Que "Avenue" sea el de Estado de Israel es deducción por descarte (TIER tiene
-  // tres desarrollos, Bravo es éste y Sinclair coincide con su calle). Confirmarlo.
-  pois: [
-    { name: "TIER Sinclair", cat: "Sinclair 3087", lat: -34.574206, lng: -58.422938 },
-    { name: "TIER Avenue", cat: "Av. Estado de Israel 4338", lat: -34.598167, lng: -58.427095 },
-  ],
+  // Se mudaron porque estaban duplicados: al tener su propia lista sin noción de
+  // ORIGEN, el mapa le mostraba a la inmobiliaria un desarrollo que no comercializa.
+  // Con una sola fuente, los tres lugares no se pueden desincronizar.
+  // El pin principal del mapa (`location`, arriba) sigue siendo este edificio.
 
   // PLACEHOLDER — el aéreo del footer/404 usa un render exterior hasta que llegue
   // la toma aérea real del edificio.

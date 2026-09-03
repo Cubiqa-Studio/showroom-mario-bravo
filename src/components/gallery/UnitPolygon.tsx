@@ -2,10 +2,8 @@
 
 import { useRef } from "react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { FILL_ALPHA } from "@/lib/status";
-import { PARAM_VISTA } from "@/lib/residencia";
-import { useTransitionOrigin } from "@/components/transition/TransitionProvider";
+import { useAbrirFicha, useTransitionOrigin } from "@/components/transition/TransitionProvider";
 import { markUnitEntryPoint } from "@/lib/analytics";
 
 interface UnitPolygonProps {
@@ -58,14 +56,17 @@ export function UnitPolygon({
   onMove,
   onLeave,
 }: UnitPolygonProps) {
-  const router = useRouter();
+  const abrirFicha = useAbrirFicha();
   const { beginOpen } = useTransitionOrigin();
   const open = () => {
     // `beginOpen` fija el ORIGEN y arranca el zoom-in SINCRÓNICO (instantáneo),
-    // sin esperar a que cargue la landing.
+    // sin esperar a que monte la ficha.
     markUnitEntryPoint("showroom_polygon", unitId);
     beginOpen({ x: lastPtRef.current.x, y: lastPtRef.current.y });
-    router.push(`/residencia/${unitId}?${PARAM_VISTA}=${stopId}`);
+    // `useAbrirFicha` monta la ficha como overlay sobre el showroom (sin navegar,
+    // así el visor no se desmonta). La vista viaja en la URL para que el cierre de
+    // la landing muestre ESTA misma vista con la unidad señalada.
+    abrirFicha(unitId, { vista: stopId });
   };
   // Última posición del puntero en el polígono (origen del zoom al abrir).
   const lastPtRef = useRef({ x: 0, y: 0 });

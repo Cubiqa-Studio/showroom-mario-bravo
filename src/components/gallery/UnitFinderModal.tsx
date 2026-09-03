@@ -7,7 +7,8 @@ import "../residencia/residencia.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useAbrirFicha } from "@/components/transition/TransitionProvider";
 import unitsData from "@/data/units.json";
 import type { Unit, Units } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
@@ -53,7 +54,7 @@ export function UnitFinderModal({
    *  /api/unidades al abrirse (caso landing). */
   units?: Units;
 }) {
-  const router = useRouter();
+  const abrirFicha = useAbrirFicha();
   const pathname = usePathname();
   const { t } = useI18n();
   // Si el padre no las pasó, fetch lazy al abrir; si las pasó, usamos esas.
@@ -135,7 +136,7 @@ export function UnitFinderModal({
     if (navigatingId) return; // ya hay una navegación en curso
     markUnitEntryPoint("unit_finder", id);
     setNavigatingId(id);
-    router.push(`/residencia/${id}`);
+    abrirFicha(id);
   };
 
   // Cerrar el buscador cuando la navegación LLEGA al detalle elegido. Así el modal

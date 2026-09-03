@@ -4,6 +4,8 @@ import { SITE_NAME, BRAND_SHORT, DEFAULT_DESCRIPTION, HTML_LANG } from "@/lib/se
 // Web App Manifest (Next lo sirve en /manifest.webmanifest y agrega el <link>).
 // Completa favicon + apple-touch-icon (convención app/icon.svg, favicon.ico,
 // apple-icon.png) con los iconos instalables 192/512 (generados en public/).
+export const dynamic = "force-static";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${SITE_NAME} — Buenos Aires`,

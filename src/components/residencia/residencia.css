@@ -1243,14 +1243,9 @@
   70%  { transform: scale(3.4); opacity: 0; }
   100% { transform: scale(3.4); opacity: 0; }
 }
-.res-landing .prop-label {
-  position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
-  white-space: nowrap;
-  font-family: var(--sans); font-size: calc(16.5px * var(--fs-k)); font-weight: 700;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--white);
-  background: var(--glass-strong); border: 1px solid var(--divider);
-  padding: 5px 11px; border-radius: 999px; box-shadow: var(--shadow-card);
-}
+/* `.prop-label` (la píldora de texto sobre el pin de este edificio) se retiró: ahora
+   este edificio lleva la MISMA tarjeta con fachada que sus hermanos, y lo que lo
+   distingue es el anillo pulsante del pin. Ver LocationMap → `htmlPopup`. */
 .res-landing .poi-marker {
   width: 11px; height: 11px; border-radius: 50%;
   background: var(--panel); border: 2px solid var(--gold);
@@ -1266,12 +1261,95 @@
   background: var(--glass-strong) !important;
   border: 1px solid var(--divider);
   border-radius: var(--radius) !important;
-  padding: 12px 16px !important;
+  /* Sin padding: ahora la FACHADA va a sangre contra el borde de la tarjeta y el
+     aire lo pone `.pop-txt`. `overflow:hidden` es lo que recorta la foto con el
+     radio de la tarjeta. */
+  padding: 0 !important;
+  overflow: hidden;
   box-shadow: var(--shadow-float) !important;
   font-family: var(--sans);
+  /* De qué lado del punto cae la tarjeta lo decide `acomodarTarjetas` en vivo, y el
+     corrimiento se escribe como `transform` ACÁ (no en el popup de afuera, que es el
+     que maplibre reescribe cada cuadro para seguir al punto — ver la nota en
+     LocationMap). Sin transición el cambio de lado es un salto seco; con ella la
+     tarjeta se desliza alrededor de su punto mientras el mapa se mueve. */
+  transition: transform .5s cubic-bezier(.22, .61, .36, 1);
+  will-change: transform;
+  /* La foto define el ancho; el popup se abre con `maxWidth:"none"` desde el JS.
+     168 y no 208: con tres tarjetas abiertas a la vez, más ancho tapa el mapa que
+     están señalando (Joaquim, 03-09: "son muy grandes"). */
+  width: 168px;
 }
-.res-landing .maplibregl-popup-content .pop-name { font-family: var(--serif); font-size: calc(22px * var(--fs-k)); letter-spacing: .04em; color: var(--white); }
-.res-landing .maplibregl-popup-content .pop-cat { font-size: calc(15px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+/* Fachada del proyecto (pedido de Camila, 03-09: "que aparezcan las fotos de las
+   fachadas de estos edificios, así queda más llamativo").
+   `width:100%` + `display:block` es OBLIGATORIO: `.res-landing img` y el preflight de
+   Tailwind ponen `max-width:100%`, que sin un ancho declarado deja la imagen en su
+   tamaño intrínseco y desborda la tarjeta. La relación 4/3 recorta la fachada (que es
+   vertical) a una franja: se ve el cuerpo del edificio, no el cielo. */
+.res-landing .maplibregl-popup-content .pop-foto {
+  display: block;
+  width: 100%;
+  /* 3/2 y no 4/3: la tarjeta tiene que leerse como una ETIQUETA del mapa, no como
+     una foto con epígrafe. Recortada así se ve el cuerpo del edificio y la tarjeta
+     entera queda más baja que ancha. */
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: 50% 38%;
+  border-bottom: 1px solid var(--divider);
+}
+.res-landing .maplibregl-popup-content .pop-txt { padding: 8px 11px 9px; }
+.res-landing .maplibregl-popup-content .pop-name { font-family: var(--serif); font-size: calc(17px * var(--fs-k)); letter-spacing: .04em; color: var(--white); line-height: 1.15; }
+.res-landing .maplibregl-popup-content .pop-cat { font-size: calc(11.5px * var(--fs-k)); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-top: 3px; line-height: 1.25; }
+/* Celular: la tarjeta se ACUESTA. Misma información y la fachada sigue estando, pero
+   la foto pasa de arriba (apilada, ~160px de alto) a un cuadradito a la izquierda:
+   la tarjeta baja a ~56px y tres de ellas entran en un mapa de 460px sin pisarse,
+   que era el problema. Apiladas, dos proyectos cercanos se montaban uno sobre otro. */
+@media (max-width: 640px) {
+  .res-landing .maplibregl-popup-content {
+    /* Ancho FIJO y no `auto`: con ancho por contenido, "Av. Estado de Israel 4338"
+       hacía una tarjeta de 196px y "Mario Bravo 955" una de 156, y tres tarjetas de
+       distinto tamaño desparramadas por el mapa se ven como un error. */
+    width: 178px;
+    display: flex; align-items: stretch;
+  }
+  .res-landing .maplibregl-popup-content .pop-foto {
+    display: block;
+    /* CUADRADA, y con el alto declarado. Con `height:auto` el que manda es la
+       relación de aspecto de la FOTO, no el layout: las fachadas verticales daban
+       tarjetas de 81px y la de Bravo (horizontal) de 33px. Desparejas, y las dos más
+       cercanas se pisaban. Un cuadrado de 56px iguala las tres. */
+    aspect-ratio: 1 / 1;
+    flex: 0 0 56px;
+    width: 56px; height: 56px; align-self: stretch;
+    border-bottom: 0;
+    border-right: 1px solid var(--divider);
+  }
+  .res-landing .maplibregl-popup-content .pop-txt {
+    padding: 7px 11px;
+    display: flex; flex-direction: column; justify-content: center;
+    min-width: 0;
+  }
+  .res-landing .maplibregl-popup-content .pop-name { font-size: calc(14.5px * var(--fs-k)); }
+  /* SIN dirección en celular. "Av. Estado de Israel 4338" no entra en un renglón de
+     100px y hacía una tarjeta de 80px contra los 40px de las otras: desparejas, y las
+     dos más cercanas terminaban pisándose. Sin ella las tres miden lo mismo y quedan
+     separadas. No se pierde nada: el mapa ya dice dónde está cada una, y la dirección
+     de ESTE edificio está en la tarjeta de al lado. En escritorio sí se muestra. */
+  .res-landing .maplibregl-popup-content .pop-cat { display: none; }
+}
+/* Teléfono de verdad (≤440px cubre de un iPhone SE a un Pixel/Galaxy grande). Medido
+   con las tres tarjetas puestas y los tres puntos protegidos: a 178px de ancho no
+   existe NINGUNA combinación de lugares en la que las tres entren sin tocarse —el
+   acomodador elegía la que menos se pisaba, que igual se pisaba— porque el mapa no da
+   más de sí. Bajarlas a 152 devuelve el margen que falta. Es el único caso en el que
+   el tamaño de la tarjeta cambia por ancho de pantalla; de 440 para arriba sobra
+   lugar y se quedan en 178. */
+@media (max-width: 440px) {
+  .res-landing .maplibregl-popup-content { width: 152px; }
+  .res-landing .maplibregl-popup-content .pop-foto { flex-basis: 46px; width: 46px; height: 46px; }
+  .res-landing .maplibregl-popup-content .pop-txt { padding: 6px 8px; }
+  .res-landing .maplibregl-popup-content .pop-name { font-size: calc(13.5px * var(--fs-k)); }
+}
 .res-landing .maplibregl-popup-tip { display: none; }
 .res-landing .maplibregl-popup-close-button { display: none; }
 
@@ -1569,6 +1647,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .res-landing .reveal { opacity: 1; transform: none; transition: none; }
+  /* La tarjeta sigue cambiando de lado del punto para no pisar a las otras —eso es
+     legibilidad, no adorno—, pero sin deslizarse. `transform: none` acá NO va: se
+     comería el corrimiento y las dejaría a todas encimadas sobre su punto. */
+  .res-landing .maplibregl-popup-content { transition: none; }
   .res-landing .plan-view.entering,
   .res-landing .spec-panel.active { animation: none; }
   .res-landing .prop-marker .ring { animation: none; opacity: 0; }
@@ -1735,11 +1817,21 @@
   .res-landing .timeline-foot2 { padding-left: 52px; font-size: calc(21px * var(--fs-k)); margin-top: 14px; }
 
   /* ---- UBICACIÓN (mapa) ---- */
-  .res-landing .map-stage { height: 460px; margin-top: 40px; }
-  .res-landing .map-info-card { top: 14px; left: 14px; right: 14px; width: auto; padding: 15px 18px; }
-  .res-landing .map-info-card .mi-addr { font-size: calc(23.5px * var(--fs-k)); }
-  .res-landing .map-info-card .mi-note { margin-top: 10px; font-size: calc(17.5px * var(--fs-k)); }
-  .res-landing .map-info-card .mi-cta { margin-top: 14px; }
+  /* 600 y no 460: en celular el mapa tiene que alojar la tarjeta de la dirección
+     (arriba), las tres tarjetas de los desarrollos y las pills (abajo) sin que se
+     tapen. Ese aire sale del encuadre —ver el `padding` del fitBounds de entrada— así
+     que con 460 los tres puntos quedaban apretados en 100px y el mapa terminaba
+     alejadísimo. Cada píxel de alto acá es zoom que se recupera. */
+  .res-landing .map-stage { height: 600px; margin-top: 40px; }
+  /* La tarjeta de la dirección era FULL-WIDTH (left+right a 14) con el serif a 23,5px:
+     se comía el tercio de arriba de un mapa de 460px y dejaba a los proyectos
+     apretados abajo. Acotada a 60vw y con la tipografía un escalón abajo, el mapa
+     vuelve a ser el protagonista de la sección — que es de lo que habla. */
+  .res-landing .map-info-card { top: 10px; left: 10px; right: auto; width: min(54vw, 214px); padding: 9px 11px; }
+  .res-landing .map-info-card .mi-eyebrow { font-size: calc(11.5px * var(--fs-k)); letter-spacing: .14em; }
+  .res-landing .map-info-card .mi-addr { font-size: calc(15px * var(--fs-k)); line-height: 1.18; margin-top: 4px; }
+  .res-landing .map-info-card .mi-note { margin-top: 6px; font-size: calc(12px * var(--fs-k)); gap: 6px; }
+  .res-landing .map-info-card .mi-cta { margin-top: 8px; font-size: calc(12px * var(--fs-k)); }
   /* El control +/- vive en top-right, justo donde ahora está la tarjeta de dirección
      full-width → lo bajamos para que no quede tapado ni intocable. */
   .res-landing .map-stage .maplibregl-ctrl-top-right { top: auto; bottom: 92px; }
@@ -1748,7 +1840,6 @@
   .res-landing .map-stage .maplibregl-ctrl-bottom-right { bottom: 58px; }
   /* El label del marker (buildingName) puede ser largo: en celu
      envuelve y se acota para no recortarse contra .map-stage{overflow:hidden}. */
-  .res-landing .prop-label { white-space: normal; max-width: 56vw; text-align: center; line-height: 1.22; letter-spacing: .08em; }
   .res-landing .map-pills { bottom: 14px; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; padding: 0 14px; }
   .res-landing .map-pill { padding: 11px 16px; font-size: calc(16.5px * var(--fs-k)); min-height: 44px; }
 
@@ -2190,7 +2281,20 @@
   background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
   border-bottom: 1px solid var(--divider);
 }
-.team-obra-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* `position:absolute` para sacar la imagen DEL FLUJO. Con `height:100%` dentro de un
+   contenedor de alto automático, el porcentaje queda indeterminado y cae al alto
+   INTRÍNSECO: una fachada vertical (1120×1600) estiraba la tarjeta a más del doble y
+   se comía el `aspect-ratio: 16/10`. Con las horizontales no pasaba —por eso nunca se
+   había visto— y apareció al sumar los renders de Sinclair y Avenue.
+   Fuera del flujo, la caja la fija el `aspect-ratio` del padre y las tres tarjetas
+   miden lo mismo. Es el mismo patrón que usa `.pp-media img` en la portada.
+   El encuadre sube un poco (38%) para mostrar el cuerpo del edificio, no el asfalto. */
+.team-obra-media img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 38%;
+  display: block;
+}
 /* Proyecto sin render todavía: panel tipográfico, NO una foto prestada de otro. */
 .team-obra-sinmedia {
   font-size: calc(21px * var(--fs-k)); letter-spacing: .42em; text-indent: .42em;

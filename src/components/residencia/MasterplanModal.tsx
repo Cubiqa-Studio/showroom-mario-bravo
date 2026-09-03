@@ -5,7 +5,6 @@
 // por ende su CSS— no está montada. Es CSS scopeado, no filtra nada global.
 import "./residencia.css";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { FloatingPortal } from "@floating-ui/react";
 import unitsData from "@/data/units.json";
@@ -15,6 +14,7 @@ import { useLiveUnits } from "@/hooks/useLiveUnits";
 import { CloseIcon } from "../gallery/icons";
 import { FloorPlate } from "./FloorPlate";
 import { markUnitEntryPoint } from "@/lib/analytics";
+import { useAbrirFicha } from "@/components/transition/TransitionProvider";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 
 // Fallback estático (bundleado, seguro en cliente). El estado/precio EN VIVO sale
@@ -40,7 +40,7 @@ export function MasterplanModal({
    *  trae solo de /api/unidades al abrirse (caso landing). */
   units?: Units;
 }) {
-  const router = useRouter();
+  const abrirFicha = useAbrirFicha();
   const { t } = useI18n();
   // Si el padre no las pasó, fetch lazy al abrir; si las pasó, usamos esas.
   const fetched = useLiveUnits(UNITS, open && !units);
@@ -63,7 +63,10 @@ export function MasterplanModal({
   const openUnit = (id: string) => {
     markUnitEntryPoint("masterplan", id);
     onClose();
-    router.push(`/residencia/${id}`);
+    // `useAbrirFicha` resuelve solo el destino: overlay sobre el showroom cuando se
+    // abrió desde el exterior, navegación real desde la ficha standalone; y push o
+    // replace según si ya había una ficha abierta.
+    abrirFicha(id);
   };
 
   return (

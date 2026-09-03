@@ -11,6 +11,83 @@ import type { Unit } from "./types";
  */
 export const PARAM_VISTA = "vista";
 
+/** Prefijo de las rutas de ficha. Una sola definición para escribirlas y leerlas. */
+export const RUTA_RESIDENCIA = "/residencia/";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Apertura de la ficha SOBRE el showroom, sin navegar.
+//
+// Antes esto lo hacía una RUTA INTERCEPTADA (`app/@modal/(.)residencia/[id]`):
+// `router.push("/residencia/704")` renderizaba la ficha en el slot @modal con el
+// showroom vivo debajo. Con `output: "export"` eso NO existe — Next corta el build
+// con "Intercepting routes are not supported with static export", porque la
+// interceptación se decide en el SERVIDOR (por el header `Next-URL` del fetch RSC)
+// y en un sitio estático no hay servidor que la decida.
+//
+// El reemplazo usa el History API NATIVO, que Next parchea a propósito para esto
+// (ver node_modules/next/dist/client/components/app-router.js: "Ensures usePathname
+// and useSearchParams hold the newly provided url"): `pushState` despacha un
+// ACTION_RESTORE con el árbol de rutas ACTUAL y la URL nueva → la barra dice
+// /residencia/704 y `usePathname()` lo refleja, pero el árbol sigue siendo
+// /showroom y el FlybyViewer NO se desmonta (cámara y scroll preservados, que es
+// justo lo que daba la interceptación).
+//
+// De ahí en adelante todo lo demás sigue igual y sin tocar:
+//   · <ZoomLayer> ya reaccionaba al pathname → el zoom-in/out anda solo.
+//   · el back del navegador dispara popstate → Next restaura /showroom → la ficha
+//     se desmonta y el zoom-out arranca. `router.back()` del DetailOverlay sigue
+//     siendo la forma correcta de cerrar.
+//   · un F5 sobre /residencia/704 pide el HTML horneado de la ficha standalone
+//     (app/residencia/[id]), igual que antes.
+//
+// ⚠ El primer argumento va en `null` A PROPÓSITO. El parche de Next hace bypass si
+// el `data` que le pasás ya trae sus marcas internas (`__NA` / `_N`): pasarle
+// `window.history.state` haría que la URL cambie SIN avisarle al router, y entonces
+// `usePathname()` seguiría en /showroom → la ficha nunca se abriría. Next copia solo
+// su estado interno a la entrada nueva.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** El id de unidad de una ruta de ficha, o null si la ruta no es una ficha. */
+export function unitIdDeRuta(pathname: string | null | undefined): string | null {
+  if (!pathname?.startsWith(RUTA_RESIDENCIA)) return null;
+  const resto = pathname.slice(RUTA_RESIDENCIA.length);
+  // Sin barras: /residencia/704 sí, /residencia/704/algo no.
+  if (!resto || resto.includes("/")) return null;
+  try {
+    return decodeURIComponent(resto);
+  } catch {
+    return resto;
+  }
+}
+
+interface AbrirFichaOpts {
+  /** Stop del showroom desde el que se entró (query `?vista=`). */
+  vista?: number;
+  /**
+   * `true` para NO apilar historial. Los saltos LATERALES entre unidades (carrusel,
+   * plano de la planta, plan maestro) reemplazan: así el historial queda
+   * `/showroom → /residencia/<actual>` y un solo back vuelve al exterior, en vez de
+   * tener que desandar una entrada por unidad visitada.
+   */
+  reemplazar?: boolean;
+}
+
+/**
+ * Abre (o cambia) la ficha de una unidad SOBRE el showroom: reescribe la URL sin
+ * navegar. Sólo tiene sentido en el cliente y con el showroom montado — desde la
+ * ficha standalone hay que navegar de verdad (router.replace).
+ */
+export function abrirFichaSobreShowroom(unitId: string, opts: AbrirFichaOpts = {}): void {
+  const url = new URL(window.location.href);
+  url.pathname = `${RUTA_RESIDENCIA}${unitId}`;
+  if (opts.vista != null) url.searchParams.set(PARAM_VISTA, String(opts.vista));
+  else url.searchParams.delete(PARAM_VISTA);
+
+  const destino = url.pathname + url.search + url.hash;
+  if (opts.reemplazar) window.history.replaceState(null, "", destino);
+  else window.history.pushState(null, "", destino);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Derivaciones para la landing de detalle. Mantienen la landing "data-driven":
 // si la unidad trae el campo, se usa; si no, se deriva de sus otros datos (NO
