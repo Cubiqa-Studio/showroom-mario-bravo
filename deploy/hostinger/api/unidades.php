@@ -21,12 +21,20 @@ require __DIR__ . '/_lib.php';
 showroom_cors();
 showroom_solo('GET', 'OPTIONS');
 
-$tabla = showroom_cfg('airtable_units_table');
-$records = showroom_airtable_records($tabla);
+// Si falta configuración, decilo EN LA RESPUESTA. El sitio se comporta igual (cae a
+// los datos horneados), pero abrir /api/unidades pasa a explicar qué falta en vez de
+// devolver una lista vacía muda.
+$problema = showroom_motivo_sin_datos(['airtable_token', 'airtable_base_id', 'airtable_units_table']);
+if ($problema) {
+    error_log('[showroom] /api/unidades: ' . $problema['motivo'] . ' — faltan: ' . implode(', ', $problema['faltan']));
+    showroom_json(['records' => []] + $problema, 200);
+}
+
+$records = showroom_airtable_records(showroom_cfg('airtable_units_table'));
 
 if ($records === null) {
-    error_log('[showroom] /api/unidades: sin datos de Airtable (revisá showroom-config.php).');
-    showroom_json(['records' => []], 200);
+    error_log('[showroom] /api/unidades: Airtable no respondió y no hay copia en cache.');
+    showroom_json(['records' => [], 'motivo' => 'airtable_sin_respuesta'], 200);
 }
 
 // `max-age=60` acompaña al TTL de la cache de archivo: el navegador no vuelve a

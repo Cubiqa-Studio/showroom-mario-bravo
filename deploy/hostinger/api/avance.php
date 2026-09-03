@@ -13,15 +13,18 @@ require __DIR__ . '/_lib.php';
 showroom_cors();
 showroom_solo('GET', 'OPTIONS');
 
-$tabla = showroom_cfg('airtable_avance_table');
-if ($tabla === '') {
-    showroom_json(['records' => []], 200, 60);
+// Igual que unidades.php: un `records: []` mudo no distingue "falta el config" de
+// "la tabla de avance no está cargada" ni de "Airtable no respondió".
+$problema = showroom_motivo_sin_datos(['airtable_token', 'airtable_base_id', 'airtable_avance_table']);
+if ($problema) {
+    error_log('[showroom] /api/avance: ' . $problema['motivo'] . ' — faltan: ' . implode(', ', $problema['faltan']));
+    showroom_json(['records' => []] + $problema, 200);
 }
 
-$records = showroom_airtable_records($tabla);
+$records = showroom_airtable_records(showroom_cfg('airtable_avance_table'));
 if ($records === null) {
-    error_log('[showroom] /api/avance: sin datos de Airtable.');
-    showroom_json(['records' => []], 200);
+    error_log('[showroom] /api/avance: Airtable no respondió y no hay copia en cache.');
+    showroom_json(['records' => [], 'motivo' => 'airtable_sin_respuesta'], 200);
 }
 
 showroom_json(['records' => $records], 200, 60);

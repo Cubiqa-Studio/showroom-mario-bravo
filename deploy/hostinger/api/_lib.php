@@ -69,6 +69,7 @@ function showroom_config(): array
     if ($cache !== null) {
         return $cache;
     }
+    $GLOBALS['showroom_config_desde_archivo'] = false;
 
     $candidatos = [];
     $desdeEnv = getenv('SHOWROOM_CONFIG');
@@ -88,6 +89,7 @@ function showroom_config(): array
             $cargado = require $ruta;
             if (is_array($cargado)) {
                 $cache = $cargado;
+                $GLOBALS['showroom_config_desde_archivo'] = true;
                 return $cache;
             }
         }
@@ -114,6 +116,41 @@ function showroom_cfg(string $clave, string $default = ''): string
     $cfg = showroom_config();
     $v = $cfg[$clave] ?? $default;
     return is_string($v) ? trim($v) : $default;
+}
+
+/**
+ * Por qué NO hay datos, en una palabra. Se devuelve en el JSON para que un
+ * `{"records":[]}` diga qué le pasa en vez de quedar mudo.
+ *
+ * Sin esto los dos fallos más probables —"no subiste el config" y "Airtable no
+ * respondió"— se ven EXACTAMENTE IGUAL desde el navegador: una lista vacía y el
+ * sitio mostrando los datos horneados. Pasó en el primer deploy y costó una vuelta
+ * entera averiguar cuál de los dos era.
+ *
+ * Sólo devuelve NOMBRES de claves y estados, nunca valores: es seguro que sea público.
+ */
+function showroom_motivo_sin_datos(array $obligatorias): array
+{
+    showroom_config(); // fuerza la carga, que setea la bandera de abajo
+    $desdeArchivo = !empty($GLOBALS['showroom_config_desde_archivo']);
+
+    $faltan = [];
+    foreach ($obligatorias as $clave) {
+        if (showroom_cfg($clave) === '') {
+            $faltan[] = $clave;
+        }
+    }
+    if (!$faltan) {
+        return [];
+    }
+    return [
+        'motivo' => $desdeArchivo ? 'config_incompleta' : 'falta_showroom_config',
+        'faltan' => $faltan,
+        'ayuda' => $desdeArchivo
+            ? 'Encontré showroom-config.php pero le faltan estas claves.'
+            : 'No encontré showroom-config.php. Tiene que estar UN NIVEL ARRIBA de public_html '
+                . '(al lado, no adentro). Generalo con `npm run deploy:config`.',
+    ];
 }
 
 /**
