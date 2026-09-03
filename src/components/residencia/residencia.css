@@ -2222,7 +2222,20 @@
   background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
   border-bottom: 1px solid var(--divider);
 }
-.team-obra-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* `position:absolute` para sacar la imagen DEL FLUJO. Con `height:100%` dentro de un
+   contenedor de alto automático, el porcentaje queda indeterminado y cae al alto
+   INTRÍNSECO: una fachada vertical (1120×1600) estiraba la tarjeta a más del doble y
+   se comía el `aspect-ratio: 16/10`. Con las horizontales no pasaba —por eso nunca se
+   había visto— y apareció al sumar los renders de Sinclair y Avenue.
+   Fuera del flujo, la caja la fija el `aspect-ratio` del padre y las tres tarjetas
+   miden lo mismo. Es el mismo patrón que usa `.pp-media img` en la portada.
+   El encuadre sube un poco (38%) para mostrar el cuerpo del edificio, no el asfalto. */
+.team-obra-media img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 38%;
+  display: block;
+}
 /* Proyecto sin render todavía: panel tipográfico, NO una foto prestada de otro. */
 .team-obra-sinmedia {
   font-size: calc(21px * var(--fs-k)); letter-spacing: .42em; text-indent: .42em;
