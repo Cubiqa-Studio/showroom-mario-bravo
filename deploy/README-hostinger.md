@@ -51,10 +51,21 @@ extensión, 404, cache) y hace de stand-in del PHP para `/api/unidades` y
 | `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID`, `AIRTABLE_UNITS_TABLE_ID` | Hornear estado/precio/superficies reales en el HTML | Cae a `units.json`: el HTML sale con "Consultar" hasta que el navegador refresca desde el proxy |
 | `AIRTABLE_AVANCE_TABLE_ID` | Avance de obra | El badge queda oculto hasta el refresco del cliente |
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST` | Analítica | Sin eventos |
-| `NEXT_PUBLIC_SITE_URL` | Canonical, `og:url`, sitemap | Cae al placeholder de `src/lib/seo.ts` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical, `og:url`, **`og:image`**, sitemap, JSON-LD | Cae al placeholder de `src/lib/seo.ts` — ver abajo |
 | `NEXT_PUBLIC_API_BASE` | Sólo si el proxy NO vive en el mismo dominio | Default `/api` (el caso normal) |
 
 ⚠ `RESEND_API_KEY`, `EMAIL_TO` y compañía **no** van en el build: son del PHP.
+
+### Ojo con `NEXT_PUBLIC_SITE_URL`
+
+Si no la setéas, `src/lib/seo.ts` cae a su placeholder `https://mariobravo955.com.ar`,
+que **todavía no resuelve**. El sitio funciona igual, así que es fácil no darse
+cuenta — hasta que compartís el link: WhatsApp, Discord y Meta Ads muestran el
+título y la descripción bien, pero **la imagen sale rota**, porque `og:image` es
+absoluta y la van a buscar a un dominio que no existe.
+
+Ponela apuntando al host donde realmente se sirve (el subdominio de prueba mientras
+se prueba) y rebuildeá: se hornea en el HTML.
 
 ---
 
