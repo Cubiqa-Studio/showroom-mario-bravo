@@ -149,6 +149,13 @@ const servidor = createServer(async (req, res) => {
     return;
   }
 
+  // Misma red de seguridad que el .htaccess: si alguien LLEGA a un payload .txt
+  // como documento (no como fetch del router), le servimos el .html.
+  if (rutaUrl.endsWith(".txt") && req.headers["sec-fetch-dest"] === "document") {
+    const equivalente = rutaUrl.slice(0, -4) + ".html";
+    if (await esArchivo(join(RAIZ, equivalente))) rutaUrl = equivalente;
+  }
+
   const candidatos = [];
   const sinBarra = rutaUrl.replace(/\/+$/, "");
   if (rutaUrl.endsWith("/") || rutaUrl === "") candidatos.push(join(RAIZ, rutaUrl, "index.html"));

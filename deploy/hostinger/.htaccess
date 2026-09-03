@@ -38,6 +38,29 @@ Options -Indexes
   # Sin substitución y sin [L]: sólo etiqueta, no reescribe ni corta.
   RewriteRule ^api/plate/[^/]+$ - [E=PLATE_JSON:1]
 
+  # ── 1b. Red de seguridad: nunca mostrarle un payload RSC a una persona ──────
+  # Los .txt de al lado de cada .html son los payloads de React que usa la
+  # navegación cliente de Next (pide /showroom.txt para pintar /showroom sin
+  # recargar). No son páginas: si se abren como documento se ve un choclo de JSON
+  # crudo, que es lo que apareció una vez en celular durante un deploy a medio subir.
+  #
+  # Cuando el fetch de ese .txt falla (un 404 mientras se están sobrescribiendo los
+  # 450 archivos, la red que se corta), Next hace un fallback DURO a esa misma URL
+  # —ver `doMpaNavigation` en fetch-server-response.js— y el visitante termina
+  # mirando el payload.
+  #
+  # `Sec-Fetch-Dest` distingue los dos casos sin ambigüedad: el fetch del router
+  # manda "empty", una navegación de verdad manda "document". Así que si alguien
+  # LLEGA a un .txt como documento, le servimos el .html que le corresponde.
+  # El router no se entera y sigue recibiendo su payload.
+  #
+  # La condición `-f` sobre el .html protege a robots.txt (no existe robots.html,
+  # así que la regla no se le aplica). Navegadores viejos sin Sec-Fetch-Dest
+  # simplemente no matchean y quedan como antes.
+  RewriteCond %{HTTP:Sec-Fetch-Dest} =document [NC]
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^(.+)\.txt$ /$1.html [L]
+
   # ── 2. URLs sin extensión → el .html horneado ───────────────────────────────
   # El export emite out/showroom.html y out/residencia/101.html (sin
   # trailingSlash, así las URLs canónicas, el sitemap y el JSON-LD siguen siendo
