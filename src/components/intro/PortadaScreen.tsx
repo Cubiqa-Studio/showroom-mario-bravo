@@ -3,7 +3,7 @@
 import "./portada.css";
 import Link, { useLinkStatus } from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PROYECTOS, type Proyecto } from "@/data/proyectos";
+import { MARCA, PROYECTOS, nombreCompleto, posterMid, type Proyecto } from "@/data/proyectos";
 import { useOrigen } from "@/components/OrigenProvider";
 import { useI18n } from "@/i18n/LanguageProvider";
 
@@ -118,7 +118,7 @@ function Panel({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [reproduciendo, setReproduciendo] = useState(false);
   const abrible = proyecto.href !== null;
-  const nombre = `TIER ${proyecto.nombre}`;
+  const nombre = nombreCompleto(proyecto);
   const muestraVideo = conVideo && proyecto.video !== null;
 
   const entrar = useCallback(() => {
@@ -144,7 +144,22 @@ function Panel({
     <>
       <div className="pp-media">
         {proyecto.poster ? (
-          <img src={proyecto.poster} alt="" aria-hidden="true" />
+          // En CELULAR el panel es una franja de 1/3 de pantalla y la fachada entra
+          // recortadísima por `object-fit: cover`, así que baja la variante `-mid`
+          // (720px, ~146 KB) en vez de la grande (1120px, ~305 KB): son 320 KB menos
+          // en la primera pantalla del sitio, justo en la conexión que peor lo paga.
+          // A 412 CSS px con DPR 2 quedan 720 sobre 824 necesarios — imperceptible
+          // detrás del velo oscuro que lleva el panel encima (ver `.pp-velo`).
+          //
+          // Va como <picture> y no como `srcset` con descriptores `w` porque las tres
+          // fachadas NO miden lo mismo (Bravo es horizontal, 1600×900; las otras dos
+          // verticales, 1120×1600): un descriptor fijo mentiría en dos de los tres.
+          <picture>
+            {posterMid(proyecto) ? (
+              <source media="(max-aspect-ratio: 5 / 4)" srcSet={posterMid(proyecto)!} />
+            ) : null}
+            <img src={proyecto.poster} alt="" aria-hidden="true" />
+          </picture>
         ) : (
           // Sin render todavía: la inicial gigante de marca de agua le da escala al
           // panel dibujado (ver `.pp--sin-media` en portada.css).
@@ -172,7 +187,7 @@ function Panel({
             encabezado se anuncia "TIERSinclair" de corrido. Visualmente no se ve,
             porque `.pp-marca` es un bloque y el espacio que le sigue colapsa. */}
         <h2 className="pp-nombre">
-          <span className="pp-marca">TIER</span>{" "}
+          <span className="pp-marca">{MARCA}</span>{" "}
           <span>{proyecto.nombre}</span>
         </h2>
         <span className="pp-linea" aria-hidden="true" />

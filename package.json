@@ -12,6 +12,7 @@
     "lint": "eslint",
     "gallery:optimize": "node scripts/optimize-gallery.mjs",
     "unidades:optimize": "node scripts/optimize-unit-renders.mjs",
+    "proyectos:optimize": "node scripts/optimize-proyectos.mjs",
     "video:mario-bravo": "node scripts/optimize-video.mjs _media-src/mario-bravo-master.mp4 mario-bravo",
     "flyby:frames": "node scripts/extract-flyby-frames.mjs",
     "stops:optimize": "node scripts/optimize-stops.mjs",

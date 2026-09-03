@@ -1243,14 +1243,9 @@
   70%  { transform: scale(3.4); opacity: 0; }
   100% { transform: scale(3.4); opacity: 0; }
 }
-.res-landing .prop-label {
-  position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
-  white-space: nowrap;
-  font-family: var(--sans); font-size: calc(16.5px * var(--fs-k)); font-weight: 700;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--white);
-  background: var(--glass-strong); border: 1px solid var(--divider);
-  padding: 5px 11px; border-radius: 999px; box-shadow: var(--shadow-card);
-}
+/* `.prop-label` (la píldora de texto sobre el pin de este edificio) se retiró: ahora
+   este edificio lleva la MISMA tarjeta con fachada que sus hermanos, y lo que lo
+   distingue es el anillo pulsante del pin. Ver LocationMap → `htmlPopup`. */
 .res-landing .poi-marker {
   width: 11px; height: 11px; border-radius: 50%;
   background: var(--panel); border: 2px solid var(--gold);
@@ -1266,12 +1261,50 @@
   background: var(--glass-strong) !important;
   border: 1px solid var(--divider);
   border-radius: var(--radius) !important;
-  padding: 12px 16px !important;
+  /* Sin padding: ahora la FACHADA va a sangre contra el borde de la tarjeta y el
+     aire lo pone `.pop-txt`. `overflow:hidden` es lo que recorta la foto con el
+     radio de la tarjeta. */
+  padding: 0 !important;
+  overflow: hidden;
   box-shadow: var(--shadow-float) !important;
   font-family: var(--sans);
+  /* La foto define el ancho; el popup se abre con `maxWidth:"none"` desde el JS.
+     168 y no 208: con tres tarjetas abiertas a la vez, más ancho tapa el mapa que
+     están señalando (Joaquim, 03-09: "son muy grandes"). */
+  width: 168px;
 }
-.res-landing .maplibregl-popup-content .pop-name { font-family: var(--serif); font-size: calc(22px * var(--fs-k)); letter-spacing: .04em; color: var(--white); }
-.res-landing .maplibregl-popup-content .pop-cat { font-size: calc(15px * var(--fs-k)); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+/* Fachada del proyecto (pedido de Camila, 03-09: "que aparezcan las fotos de las
+   fachadas de estos edificios, así queda más llamativo").
+   `width:100%` + `display:block` es OBLIGATORIO: `.res-landing img` y el preflight de
+   Tailwind ponen `max-width:100%`, que sin un ancho declarado deja la imagen en su
+   tamaño intrínseco y desborda la tarjeta. La relación 4/3 recorta la fachada (que es
+   vertical) a una franja: se ve el cuerpo del edificio, no el cielo. */
+.res-landing .maplibregl-popup-content .pop-foto {
+  display: block;
+  width: 100%;
+  /* 3/2 y no 4/3: la tarjeta tiene que leerse como una ETIQUETA del mapa, no como
+     una foto con epígrafe. Recortada así se ve el cuerpo del edificio y la tarjeta
+     entera queda más baja que ancha. */
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: 50% 38%;
+  border-bottom: 1px solid var(--divider);
+}
+.res-landing .maplibregl-popup-content .pop-txt { padding: 8px 11px 9px; }
+.res-landing .maplibregl-popup-content .pop-name { font-family: var(--serif); font-size: calc(17px * var(--fs-k)); letter-spacing: .04em; color: var(--white); line-height: 1.15; }
+.res-landing .maplibregl-popup-content .pop-cat { font-size: calc(11.5px * var(--fs-k)); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-top: 3px; line-height: 1.25; }
+/* Celular: SIN foto. Acá el mapa mide ~250px de alto, así que tres tarjetas de 130px
+   se comen la mitad de la escena, se pisan entre sí y tapan las pills de abajo — y a
+   ese tamaño la fachada no se llega a ver, sólo estorba. Vuelven a ser la etiqueta
+   compacta de siempre; las fachadas quedan para escritorio, que es donde hay lugar
+   para que luzcan. (Se sigue bajando el thumb, 8-19 KB: no vale un `<picture>`.) */
+@media (max-width: 640px) {
+  .res-landing .maplibregl-popup-content { width: auto; max-width: 62vw; }
+  .res-landing .maplibregl-popup-content .pop-foto { display: none; }
+  .res-landing .maplibregl-popup-content .pop-txt { padding: 7px 11px 8px; }
+  .res-landing .maplibregl-popup-content .pop-name { font-size: calc(15px * var(--fs-k)); }
+  .res-landing .maplibregl-popup-content .pop-cat { font-size: calc(10.5px * var(--fs-k)); }
+}
 .res-landing .maplibregl-popup-tip { display: none; }
 .res-landing .maplibregl-popup-close-button { display: none; }
 
@@ -1748,7 +1781,6 @@
   .res-landing .map-stage .maplibregl-ctrl-bottom-right { bottom: 58px; }
   /* El label del marker (buildingName) puede ser largo: en celu
      envuelve y se acota para no recortarse contra .map-stage{overflow:hidden}. */
-  .res-landing .prop-label { white-space: normal; max-width: 56vw; text-align: center; line-height: 1.22; letter-spacing: .08em; }
   .res-landing .map-pills { bottom: 14px; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; padding: 0 14px; }
   .res-landing .map-pill { padding: 11px 16px; font-size: calc(16.5px * var(--fs-k)); min-height: 44px; }
 
