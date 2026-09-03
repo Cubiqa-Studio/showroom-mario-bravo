@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "preview:static": "node scripts/serve-static.mjs",
+    "deploy:zip": "node scripts/make-deploy-zip.mjs",
+    "deploy:config": "node scripts/make-hostinger-config.mjs",
     "lint": "eslint",
     "gallery:optimize": "node scripts/optimize-gallery.mjs",
     "unidades:optimize": "node scripts/optimize-unit-renders.mjs",

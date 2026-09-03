@@ -19,14 +19,26 @@ la cuenta — que era justo el motivo de la migración.
 
 ---
 
-## 1. Build
+## 1. Build y paquete
 
 ```bash
-# Las variables van en .env.local (o en el entorno del CI). Se HORNEAN en el build.
 npm ci
-npm run build          # deja todo en out/
-npm run preview:static # opcional: mirá out/ como lo va a servir Apache → localhost:4321
+npm run build                 # → out/
+npm run preview:static        # opcional: mirá out/ como lo sirve Apache → localhost:4321
+
+npm run deploy:zip -- --test  # → DEPLOY.zip  (subdominio de PRUEBA, agrega noindex)
+npm run deploy:zip            # → DEPLOY.zip  (PRODUCCIÓN, indexable)
+npm run deploy:config         # → showroom-config.php  (secretos, desde .env.local)
 ```
+
+`DEPLOY.zip` se extrae **dentro** de `public_html`. `showroom-config.php` va **un
+nivel arriba** y por eso NO viene en el zip.
+
+`--test` le agrega al `.htaccess` un `X-Robots-Tag: noindex, nofollow`, así el
+subdominio de prueba no compite con el sitio real por las mismas queries. El default
+es producción (sin noindex) a propósito: olvidarse el `--test` en una prueba es
+molesto pero se arregla; olvidarse de sacar el noindex en producción dejaría el sitio
+real sin tráfico, en silencio.
 
 `npm run preview:static` aplica las mismas reglas del `.htaccess` (URLs sin
 extensión, 404, cache) y hace de stand-in del PHP para `/api/unidades` y
