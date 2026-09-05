@@ -23,18 +23,20 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# www → apex a nivel EDGE (cubre páginas Y assets, que en Netlify no pasan por el
-# server de Next — el redirect de next.config sólo ve documentos). Hoy el DNS de
-# www apunta a Hostinger, así que esta regla queda dormida; si el sitio migra o se
-# alias-ea www acá, ya canonicaliza sola. force=true para pisar contenido existente.
+# ESTE DEPLOY NO SE INDEXA.
 #
-# ⚠ PLACEHOLDER — el dominio real todavía no está definido: actualizá este host
-# junto con el de next.config.ts y PROD_SITE_URL (src/lib/seo.ts).
-[[redirects]]
-  from = "https://www.mariobravo955.com.ar/*"
-  to = "https://mariobravo955.com.ar/:splat"
-  status = 301
-  force = true
+# El sitio de producción es https://tierbravo.kuvus.app (Hostinger). Acá se sirve el
+# MISMO HTML pero con canonical a sí mismo (SITE_URL cae a `process.env.URL`, que en
+# Netlify es el dominio de Netlify), así que para Google eran dos sitios con el mismo
+# contenido compitiendo por las mismas queries. Verificado el 05-09-2026: respondía 200,
+# indexable y con sus 65 URLs en su propio sitemap.
+#
+# Si algún día este pasa a ser el deploy productivo: sacar este bloque y cargar
+# NEXT_PUBLIC_SITE_URL con el dominio definitivo en las envs del sitio.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
 
 # Cache larga para los assets del flyby (frames + stills). El runtime de Next sirve
 # /public con `max-age=0, must-revalidate`, y ni next.config>headers() ni public/_headers
