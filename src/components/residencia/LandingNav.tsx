@@ -267,6 +267,9 @@ export function LandingNav({
             <motion.button
               type="button"
               className="btn btn-gold consult-buzz"
+              // En teléfonos el CSS esconde el .btn-label y queda sólo el ícono: sin esto
+              // el botón no tiene nombre accesible.
+              aria-label={t.nav.consult}
               onClick={() => {
                 captureCta("contact_form", "residence_nav");
                 scrollToContact();

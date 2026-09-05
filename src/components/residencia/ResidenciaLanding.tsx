@@ -111,6 +111,15 @@ export function ResidenciaLanding({
             exposure: unit.exposure,
           })}
         </p>
+        {/* Link crawleable a la portada: el nav sólo tiene <a href="/showroom">, y el
+            BreadcrumbList de esta página declara la portada como posición 1. Sin esto la
+            jerarquía que promete el JSON-LD no existe en el HTML. */}
+        <p className="sr-only">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/" tabIndex={-1}>
+            {t.seo.homeLink}
+          </a>
+        </p>
 
         <Reveal as="section" className="section-pad">
           <PlanSection unit={unit} unitId={unitId} floorUnits={floorUnits} />

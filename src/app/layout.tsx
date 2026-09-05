@@ -50,14 +50,6 @@ export const metadata: Metadata = {
   creator: "Cubiqa Studio",
   publisher: "Cubiqa Studio",
   category: "real estate",
-  keywords: [
-    "TIER Bravo",
-    "Mario Bravo 955",
-    "departamentos en Buenos Aires",
-    "departamentos CABA",
-    "monoambientes Buenos Aires",
-    "TIER desarrollos",
-  ],
   formatDetection: { telephone: false, address: false, email: false },
   openGraph: {
     type: "website",
@@ -128,7 +120,11 @@ export default function RootLayout({
             <TransitionProvider>{children}</TransitionProvider>
           </OrigenProvider>
         </LanguageProvider>
-        <CubiqaBadge />
+        {/* <footer> para que el badge no quede fuera de todo landmark. No lo mueve: el
+            `fixed` vive en el propio componente. */}
+        <footer>
+          <CubiqaBadge />
+        </footer>
       </body>
     </html>
   );
