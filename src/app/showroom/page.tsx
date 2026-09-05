@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { getStops, getLiveUnits, getFlyby, getSite } from "@/lib/data";
 import { ShowroomClient } from "@/components/gallery/ShowroomClient";
-import { ShowroomSeo } from "@/components/seo/ShowroomSeo";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Showroom 360° en Mario Bravo 955",
+  title: "Showroom 360° en Mario Bravo 955, Buenos Aires",
   description:
-    "Recorré TIER Bravo en 360°: explorá los 63 departamentos de 1 a 4 ambientes de Mario Bravo 955 y mirá planta, superficie, vistas y disponibilidad de cada unidad.",
+    "Recorré TIER Bravo en 360°: explorá los 63 departamentos de 1 a 4 ambientes de Mario Bravo 955 y mirá planta, superficie y disponibilidad de cada unidad.",
   path: "/showroom",
 });
 
@@ -23,34 +22,26 @@ export const metadata: Metadata = pageMetadata({
 // dentro de FlybyViewer) — el contorno se repinta con el dato real de Airtable sin
 // rebuild, y el HTML horneado es el fallback si el proxy está caído.
 
+// El <main>, el H1 y los 63 links crawleables están en layout.tsx, que queda por fuera
+// del boundary de Suspense que crea loading.tsx. Ver el comentario de ese archivo.
 export default async function Showroom() {
   const stops = await getStops();
   // Unidades con el estado/precio/etc. de Airtable mergeado sobre units.json, leído
-  // EN EL BUILD. Sirve dos cosas: el contorno de cada unidad sale ya pintado con un
-  // estado plausible en el primer frame (sin parpadeo) y el bloque SEO de abajo viaja
-  // en el HTML. El dato EN VIVO lo refresca el cliente (ver ShowroomClient).
+  // EN EL BUILD: el contorno de cada unidad sale ya pintado con un estado plausible en
+  // el primer frame (sin parpadeo). El dato EN VIVO lo refresca el cliente.
   const units = await getLiveUnits();
   const segments = getFlyby();
 
-  // Lista para el bloque SEO (sr-only): un <a href> real a cada unidad, en el HTML
-  // del servidor → descubrimiento crawleable de las 44 fichas desde el showroom.
-  const unitList = Object.entries(units)
-    .map(([id, u]) => ({ id, residence: u.residence, beds: u.beds }))
-    .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-
   if (stops.length === 0) {
     return (
-      <main className="grid min-h-[100dvh] place-items-center px-6">
+      <div className="grid min-h-[100dvh] place-items-center px-6">
         <p className="text-red-600">No se encontraron stops en stops.json.</p>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="relative">
-      {/* H1 + descripción + links a cada unidad (sr-only, sin impacto visual). */}
-      <ShowroomSeo units={unitList} />
-
+    <>
       {/* ShowroomClient refresca las unidades en vivo y monta el visor + la ficha
           como overlay (con el zoom-in/out cinematográfico). El visor NO se desmonta
           al abrir una ficha, así al volver queda donde estaba (cámara/scroll
@@ -97,6 +88,6 @@ export default async function Showroom() {
             </span>
         }
       />
-    </main>
+    </>
   );
 }

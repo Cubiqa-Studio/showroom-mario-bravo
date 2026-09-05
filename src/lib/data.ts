@@ -227,6 +227,14 @@ export function getSegment(from: number, to: number): FlybySegment | undefined {
  * El orden es el mismo criterio que usa el preload del `FlybyViewer`: primero lo que
  * destraba la pantalla, después lo que destraba el primer click, y al final el resto.
  */
+/**
+ * Still de la primera vista del recorrido, sincrónico (del stops.json commiteado). Lo
+ * usa el fallback de /showroom para pintar el render mientras el visor no montó.
+ */
+export function getFirstStopImage(): string | undefined {
+  return seedStops[0]?.image;
+}
+
 export function getShowroomPreloadSrcs(): string[] {
   const segments = getFlyby();
   const first = seedStops[0];

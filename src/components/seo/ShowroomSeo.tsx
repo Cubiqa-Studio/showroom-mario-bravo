@@ -30,16 +30,23 @@ export function ShowroomSeo({
           <a> plano a propósito (como los de unidades): crawleable y sin prefetch. */}
       <p>
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="/">{t.seo.homeLink}</a>
+        <a href="/" tabIndex={-1}>
+          {t.seo.homeLink}
+        </a>
       </p>
       {/* <a> planos (NO next/link): crawleables e igual de válidos para SR, sin el
-          prefetch de 44 links que castigaría la performance del showroom en mobile.
-          La navegación real del usuario va por los polígonos (con la transición). */}
+          prefetch de 63 links que castigaría la performance del showroom en mobile.
+          La navegación real del usuario va por los polígonos (con la transición).
+          `tabIndex={-1}` porque .sr-only recorta a 1x1px pero no saca del tabulado: sin
+          eso el teclado pasaba por 64 paradas invisibles antes de llegar a un control.
+          Siguen en el DOM, en el árbol de accesibilidad y crawleables. */}
       <nav aria-label={t.seo.unitsNavLabel}>
         <ul>
           {units.map((u) => (
             <li key={u.id}>
-              <a href={`/residencia/${u.id}`}>{t.seo.unitLink(u.residence, u.beds)}</a>
+              <a href={`/residencia/${u.id}`} tabIndex={-1}>
+                {t.seo.unitLink(u.residence, u.beds)}
+              </a>
             </li>
           ))}
         </ul>
