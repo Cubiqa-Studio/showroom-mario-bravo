@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SITE } from "@/data/site";
 import type { Unit } from "./types";
-import { normalizeAmount } from "./residencia";
+import { normalizeAmount, unitTotalBaths } from "./residencia";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Fuente única de la configuración SEO del microsite (metadata, OG/Twitter,
@@ -9,14 +9,9 @@ import { normalizeAmount } from "./residencia";
 // y para reusarlo en próximos showrooms.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ⚠ PLACEHOLDER — el cliente todavía no definió el dominio de producción. Ojo:
-// desde que el producto se llama TIER Bravo, el dominio probablemente NO sea el de
-// la dirección — preguntá antes de comprar nada.
-// Este valor alimenta canonical, og:url y el sitemap: si se deploya así, Google
-// indexa un dominio que no existe. Reemplazalo por el real ANTES del primer deploy
-// (y cargá el mismo valor en NEXT_PUBLIC_SITE_URL en el panel del host).
+// Dominio de producción. Alimenta canonical, og:url y el sitemap.
 // Overridable con NEXT_PUBLIC_SITE_URL sin tocar código.
-const PROD_SITE_URL = "https://mariobravo955.com.ar";
+const PROD_SITE_URL = "https://tierbravo.kuvus.app";
 
 // URL ABSOLUTA del sitio — imprescindible para canonical, og:url, sitemap y para
 // que og:image sea absoluta (clave para el preview al compartir en Meta Ads/WhatsApp).
@@ -36,7 +31,7 @@ export const HTML_LANG = "es-AR";
 
 // Descripción por defecto (150–160 chars) — home / fallback.
 export const DEFAULT_DESCRIPTION =
-  "Descubrí TIER Bravo, en Mario Bravo 955: 63 departamentos de 1 a 4 ambientes en Buenos Aires. Recorré el desarrollo en 360° y mirá plantas, superficies y disponibilidad.";
+  "TIER Bravo, en Mario Bravo 955: 63 departamentos de 1 a 4 ambientes en Buenos Aires. Recorré la fachada en 360°, elegí tu unidad y mirá plano y superficies.";
 
 export const OG_IMAGE = {
   url: "/og.jpg",
@@ -64,7 +59,11 @@ export function pageMetadata(opts: {
   const { title, description, path, type = "website" } = opts;
   const img = opts.image ?? OG_IMAGE;
   const url = absolute(path);
-  const ogTitle = title ?? `${BRAND_SHORT} — Departamentos en Mario Bravo 955, Buenos Aires`;
+  // El `title.template` del layout sólo aplica al <title>; acá se replica a mano para
+  // que og:title y twitter:title digan lo mismo.
+  const ogTitle = title
+    ? `${title} — ${BRAND_SHORT}`
+    : `${BRAND_SHORT} — Departamentos en Mario Bravo 955, Buenos Aires`;
   return {
     title,
     description,
@@ -113,16 +112,25 @@ const GEO = {
   longitude: SITE.location.lng,
 } as const;
 
-// Derivados de los renders entregados (pileta, solárium, gimnasio, SUM/coworking,
-// parrilla, juegos). VERIFICAR contra el pliego de amenities del cliente.
+// Copiados de las dos listas que entregó el cliente y que el sitio ya muestra: la hoja
+// de Amenities (26-08) y la memoria descriptiva (30-08), en src/i18n/translations.ts.
+// Si un amenity no está en una de esas entregas, no se publica.
 const AMENITIES = [
-  "Pileta con solárium",
-  "Gimnasio",
-  "SUM y coworking",
-  "Parrilla y comedor de terraza",
-  "Juegos infantiles",
+  "Pileta exterior con deck de madera y solárium",
+  "Zona de parrillas con comedor al aire libre",
+  "Jardín con juegos para niños",
+  "Gimnasio totalmente equipado",
+  "SUM amplio para eventos y encuentros",
+  "Cowork",
+  "Sauna",
+  "Lavadero",
   "Cochera cubierta",
-  "Lobby con seguridad",
+  "Bicicletero",
+  "Bauleras",
+  "Ascensores de primera marca",
+  "Sistema de CCTV en espacios comunes",
+  "Grupo electrógeno para servicios comunes",
+  "Calefacción central por losa radiante",
 ].map((name) => ({ "@type": "LocationFeatureSpecification", name, value: true }));
 
 /** Desarrollador (Cubiqa) — Organization. */
@@ -157,7 +165,7 @@ export function developmentLd(unitCount: number) {
     description: DEFAULT_DESCRIPTION,
     url: `${SITE_URL}/`,
     image: absolute(OG_IMAGE.url),
-    numberOfAccommodationUnits: unitCount,
+    numberOfAccommodationUnits: { "@type": "QuantitativeValue", value: unitCount },
     address: POSTAL_ADDRESS,
     geo: GEO,
     amenityFeature: AMENITIES,
@@ -205,9 +213,12 @@ export function residenceGraphLd(id: string, unit: Unit) {
     "@id": `${url}#apartment`,
     name: `Departamento ${unit.residence} — ${SITE_NAME}`,
     url,
-    image: absolute(unit.image || unit.floorPlan || OG_IMAGE.url),
+    // Primero el render 1200x630 (imagen representativa), después el plano, que es un
+    // dibujo vertical compartido por hasta 13 unidades.
+    image: [absolute(OG_IMAGE.url), absolute(unit.image || unit.floorPlan)].filter(Boolean),
     numberOfBedrooms: unit.beds,
-    numberOfBathroomsTotal: unit.baths,
+    // Baños completos + toilette, igual que `unitTotalBaths` en el buscador de unidades.
+    numberOfBathroomsTotal: unitTotalBaths(unit),
     address: POSTAL_ADDRESS,
     geo: GEO,
     containedInPlace: { "@id": `${SITE_URL}/#development` },
@@ -229,14 +240,11 @@ export function residenceGraphLd(id: string, unit: Unit) {
   // Piso desde el id ("216" → "2", "001" → "0" = PB) — misma regla que PlanSection.
   const floor = id.length > 2 ? id.slice(0, -2) : id;
   apartment.floorLevel = floor === "0" ? "PB" : floor;
-  // Offer SIEMPRE: la disponibilidad es dato real (Airtable) aunque el precio no
-  // se publique (ver PRICE_CURRENCY). Google no da rich result de Apartment, pero
-  // el Offer le da a los buscadores/AI la señal disponible/reservada por unidad.
+  // Offer SIN `availability`: el estado se hornea en el build y el sitio lo refresca en
+  // vivo (ver ResidenciaLandingLive), así que entre un deploy y el siguiente el JSON-LD
+  // podía contradecir al chip visible. Sólo se publica lo que no se vence.
   const offer: Record<string, unknown> = {
     "@type": "Offer",
-    availability:
-      // "reserved" ≠ vendida: schema.org tiene el valor exacto Reserved.
-      unit.status === "available" ? "https://schema.org/InStock" : "https://schema.org/Reserved",
     url,
   };
   if (price) {
@@ -244,15 +252,38 @@ export function residenceGraphLd(id: string, unit: Unit) {
     offer.priceCurrency = price.currency;
   }
   apartment.offers = offer;
-  const breadcrumb = {
+  const breadcrumb = breadcrumbLd([
+    { name: "Inicio", item: `${SITE_URL}/` },
+    { name: "Showroom", item: `${SITE_URL}/showroom` },
+    { name: `Departamento ${unit.residence}`, item: url },
+  ]);
+  return { "@context": "https://schema.org", "@graph": [apartment, breadcrumb] };
+}
+
+/** BreadcrumbList — compartido por el showroom y las fichas, así declaran la misma jerarquía. */
+export function breadcrumbLd(items: { name: string; item: string }[]) {
+  return {
     "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Inicio", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Showroom", item: `${SITE_URL}/showroom` },
-      { "@type": "ListItem", position: 3, name: `Departamento ${unit.residence}`, item: url },
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: it.item,
+    })),
+  };
+}
+
+/** Grafo del showroom: sólo las migas (el resto del edificio vive en el home). */
+export function showroomGraphLd() {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbLd([
+        { name: "Inicio", item: `${SITE_URL}/` },
+        { name: "Showroom", item: `${SITE_URL}/showroom` },
+      ]),
     ],
   };
-  return { "@context": "https://schema.org", "@graph": [apartment, breadcrumb] };
 }
 
 /** Snippet reutilizable para inyectar JSON-LD como <script>. */

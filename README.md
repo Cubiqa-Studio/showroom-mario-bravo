@@ -1172,7 +1172,7 @@ faltantes) y de dónde salió cada asset.
 | Qué | Bloquea |
 |---|---|
 | **Renders con ~440px menos de alto** (5000×2375) | Con 16:9 se recorta el 15,6% del alto en una ventana maximizada. Ver [El encuadre del render](#el-encuadre-del-render) — son *menos* píxeles, no cuesta más tiempo de render. |
-| **Dominio de producción** | `PROD_SITE_URL` (`src/lib/seo.ts`), el redirect www→apex de `next.config.ts` y `netlify.toml`, y `NEXT_PUBLIC_SITE_URL`. Hoy tienen un placeholder con la dirección; **desde el rebranding probablemente sea un dominio TIER**. No deployar así. |
+| **¿El dominio definitivo es `tierbravo.kuvus.app`?** | Ya está cargado como dominio de producción (`PROD_SITE_URL` en `src/lib/seo.ts`, el redirect www→apex del `.htaccess`, `NEXT_PUBLIC_SITE_URL`). Si el cliente compra un dominio propio, esos tres lugares se actualizan juntos y hay que rebuildear: el valor se hornea en canonical, og:url y sitemap. |
 | **Tipografía del logotipo** | Camila se lo preguntó al cliente. Sin eso no se pueden armar lockups tipográficos coherentes con el wordmark. |
 | **Teléfonos de ventas** | `WHATSAPP_NUMBER` (`src/lib/contact.ts`) está vacío → los CTA abren el selector de contacto. |
 | **Casilla de leads + verificar dominio en Resend** | `EMAIL_TO`. Sin dominio verificado, Resend sólo entrega a la cuenta dueña de la key. |

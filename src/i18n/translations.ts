@@ -54,7 +54,7 @@ const es = {
   seo: {
     homeH1: "TIER Bravo — Departamentos en Mario Bravo 955, Buenos Aires",
     homeBody:
-      "TIER Bravo, en Mario Bravo 955, es un desarrollo de 63 departamentos en la Ciudad de Buenos Aires, de monoambiente a 4 ambientes, distribuidos en siete pisos. Amenities de edificio: pileta con solárium, gimnasio, SUM y coworking, parrilla y comedor de terraza, sector de juegos, cochera cubierta y lobby con seguridad. Recorré el edificio en un tour interactivo 360° y consultá plantas, superficies y disponibilidad.",
+      "TIER Bravo, en Mario Bravo 955, es un desarrollo de 63 departamentos en la Ciudad de Buenos Aires, de monoambiente a 4 ambientes, distribuidos en siete pisos. Amenities de edificio: pileta exterior con deck de madera y solárium, zona de parrillas con comedor al aire libre, jardín con juegos para niños, gimnasio totalmente equipado, SUM, cowork, sauna, lavadero, cochera cubierta y bicicletero. Recorré el edificio en un tour interactivo 360° y consultá plantas, superficies y disponibilidad.",
     showroomH1: "Showroom 360° — Recorré TIER Bravo, en Mario Bravo 955",
     showroomBody:
       "Recorrido interactivo de TIER Bravo, el edificio de Mario Bravo 955, Ciudad de Buenos Aires. Girá la vista en 360°, explorá los 63 departamentos de los pisos 1 a 7 y entrá a cada unidad para ver su planta, superficie y disponibilidad.",
@@ -850,7 +850,7 @@ const en: Dict = {
   seo: {
     homeH1: "TIER Bravo — Apartments at Mario Bravo 955, Buenos Aires",
     homeBody:
-      "TIER Bravo, at Mario Bravo 955, is a development of 63 apartments in the City of Buenos Aires, from studios to 4-room units, across seven floors. Building amenities: pool with sun deck, gym, lounge and coworking, terrace grill and dining area, play area, covered parking and a staffed lobby. Explore the building in an interactive 360° tour and check floor plans, areas and availability.",
+      "TIER Bravo, at Mario Bravo 955, is a development of 63 apartments in the City of Buenos Aires, from studios to 4-room units, across seven floors. Building amenities: outdoor pool with wooden deck and sun terrace, barbecue area with open-air dining, garden with children's playground, fully equipped gym, multipurpose room, cowork, sauna, laundry, covered parking and bike storage. Explore the building in an interactive 360° tour and check floor plans, areas and availability.",
     showroomH1: "360° Showroom — Explore TIER Bravo at Mario Bravo 955",
     showroomBody:
       "Interactive tour of TIER Bravo, the building at Mario Bravo 955, City of Buenos Aires. Rotate the 360° view, explore the 63 apartments on floors 1 to 7, and enter each unit to see its floor plan, area and availability.",

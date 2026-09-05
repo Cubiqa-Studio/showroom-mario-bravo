@@ -43,14 +43,32 @@ export async function generateMetadata({
   const { id } = await params;
   const unit = await getLiveUnit(id);
   if (!unit) return { title: "Departamento", robots: { index: false } };
-  const m2 = unit.areas?.total ? `, ${unit.areas.total} m²` : "";
-  const dorm = unit.beds >= 1 ? `${unit.beds} dorm.` : "monoambiente";
+  const monoambiente = unit.ambientes === 1 || unit.beds === 0;
+  const cuerpo = monoambiente
+    ? "monoambiente"
+    : `${unit.ambientes} ambientes, ${unit.beds} dorm.`;
   const baths = `${unit.baths} ${unit.baths === 1 ? "baño" : "baños"}`;
-  const estado = unit.status === "available" ? "Disponible" : "Reservada";
+  const m2 = unit.areas?.total ? `${unit.areas.total} m²` : null;
+  // La 706 (pasante) no tiene exposición definida: sin dato, se omite.
+  const orientacion =
+    unit.exposure === "frente"
+      ? " al frente"
+      : unit.exposure === "contrafrente"
+        ? " al contrafrente"
+        : "";
+  // El PISO y no el estado: la description se hornea en el build, así que "Disponible"
+  // podía quedar meses en el snippet con la unidad ya reservada. El piso no se vence.
+  const floor = id.length > 2 ? id.slice(0, -2) : id;
+  const piso = floor === "0" ? "Planta baja" : `Piso ${floor}`;
+  // Sólo promete el 360° en las unidades que lo tienen (50 de 63).
+  const cierre = unit.tour360
+    ? "Mirá el plano y el recorrido 360°."
+    : "Mirá el plano y consultá con un asesor.";
+  const ficha = [cuerpo, baths, m2].filter(Boolean).join(", ");
   // Miro 2026-07-15: sin precio en la description (los precios se sacaron del sitio).
   return pageMetadata({
-    title: `Departamento ${unit.residence} en Mario Bravo 955`,
-    description: `Departamento ${unit.residence} en TIER Bravo, Mario Bravo 955 (Buenos Aires): ${dorm}, ${baths}${m2}. ${estado}. Consultá plano, superficies y vistas.`,
+    title: `Departamento ${unit.residence} · ${unit.ambientes} amb. en Mario Bravo 955`,
+    description: `Departamento ${unit.residence} en Mario Bravo 955, Buenos Aires: ${ficha}${orientacion}. ${piso}. ${cierre}`,
     path: `/residencia/${id}`,
   });
 }
