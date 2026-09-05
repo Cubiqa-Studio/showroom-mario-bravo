@@ -330,15 +330,44 @@ export function PortadaScreen({ preload = [] }: { preload?: string[] }) {
   // Precalentado del showroom mientras se mira la portada. Corre una sola vez por carga
   // de página. Van en prioridad BAJA: no compiten con los posters de los paneles, sólo
   // aprovechan la red ociosa mientras el visitante elige.
+  // Arranca DESPUÉS del `load` y en el primer hueco ocioso. Son 160 archivos y ~18,5 MB:
+  // aunque cada uno pida prioridad baja, en un 4G lento la cola satura la red igual y se
+  // llevaba puesto el LCP de la propia portada. Esperar no le saca nada al precalentado
+  // —el visitante todavía está eligiendo proyecto—.
   useEffect(() => {
     if (precalentados.length > 0 || preload.length === 0) return;
-    for (const src of preload) {
-      const img = new Image();
-      img.fetchPriority = "low";
-      img.decoding = "async";
-      img.src = src;
-      precalentados.push(img);
+    let cancelado = false;
+
+    const precalentar = () => {
+      if (cancelado || precalentados.length > 0) return;
+      for (const src of preload) {
+        const img = new Image();
+        img.fetchPriority = "low";
+        img.decoding = "async";
+        img.src = src;
+        precalentados.push(img);
+      }
+    };
+
+    const enOcio = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(precalentar, { timeout: 3000 });
+      } else {
+        window.setTimeout(precalentar, 1200);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      enOcio();
+      return () => {
+        cancelado = true;
+      };
     }
+    window.addEventListener("load", enOcio, { once: true });
+    return () => {
+      cancelado = true;
+      window.removeEventListener("load", enOcio);
+    };
   }, [preload]);
 
   return (

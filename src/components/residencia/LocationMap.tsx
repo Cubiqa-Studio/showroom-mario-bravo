@@ -19,6 +19,16 @@ const DARK_MATTER = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 /**
+ * `new maplibregl.Marker({ element })` le escribe `aria-label="Map marker"` a nuestro
+ * div, y un aria-label sobre un elemento sin rol es inválido. Le pone el rol y un
+ * nombre que dice cuál es. Va DESPUÉS del constructor, que es quien pisa el label.
+ */
+function etiquetarMarcador(el: HTMLElement, nombre: string) {
+  el.setAttribute("role", "img");
+  el.setAttribute("aria-label", nombre);
+}
+
+/**
  * Mapa interactivo (sección 7). Port de la lógica de /design-reference/app.js a
  * React: marker dorado pulsante + label para ESTE edificio, y un punto con popup
  * (nombre + dirección + fachada) por cada OTRO desarrollo de TIER; scrollZoom
@@ -113,7 +123,7 @@ export function LocationMap({ site }: { site: SiteConfig }) {
     let cancelled = false;
     let io: IntersectionObserver | null = null;
 
-    (async () => {
+    const arrancar = async () => {
       const maplibregl = (await import("maplibre-gl")).default;
       if (cancelled || !containerRef.current) return;
 
@@ -152,6 +162,7 @@ export function LocationMap({ site }: { site: SiteConfig }) {
       pm.className = "prop-marker";
       pm.innerHTML = `<div class="ring"></div><div class="dot"></div>`;
       new maplibregl.Marker({ element: pm, anchor: "center" }).setLngLat(PROP).addTo(map);
+      etiquetarMarcador(pm, site.buildingName ?? site.projectName);
 
       const esteProyecto = proyectoDeEsteSitio();
       if (esteProyecto) {
@@ -206,6 +217,7 @@ export function LocationMap({ site }: { site: SiteConfig }) {
           offset: null,
         });
         new maplibregl.Marker({ element: el }).setLngLat([p.coords.lng, p.coords.lat]).addTo(map);
+        etiquetarMarcador(el, nombreCompleto(p));
         // Etiqueta SIEMPRE visible (pedido del cliente): los puntos pasaban
         // desapercibidos y no se notaba que eran interactivos. (El popup es
         // pointer-events:none vía CSS, así no traba el paneo del mapa.)
@@ -475,10 +487,38 @@ export function LocationMap({ site }: { site: SiteConfig }) {
       io.observe(containerRef.current);
 
       map.on("load", () => map.resize());
-    })();
+    };
+
+    // maplibre-gl son ~785 KB y armar el mapa levanta un contexto WebGL. "Ubicación"
+    // está varias pantallas debajo del pliegue: se arranca recién cuando se asoma.
+    // Sin IntersectionObserver (navegador viejo) arranca de una, como antes.
+    const cerca = containerRef.current;
+    if (!cerca || typeof IntersectionObserver === "undefined") {
+      void arrancar();
+      return () => {
+        cancelled = true;
+        io?.disconnect();
+        mapRef.current?.remove();
+        mapRef.current = null;
+        zoomOnRef.current = false;
+        poiPopupsRef.current = [];
+        encuadrarRef.current = null;
+        acomodarRef.current = null;
+      };
+    }
+    const ioArranque = new IntersectionObserver(
+      (entradas) => {
+        if (!entradas.some((e) => e.isIntersecting)) return;
+        ioArranque.disconnect();
+        void arrancar();
+      },
+      { rootMargin: "400px" },
+    );
+    ioArranque.observe(cerca);
 
     return () => {
       cancelled = true;
+      ioArranque.disconnect();
       io?.disconnect();
       mapRef.current?.remove();
       mapRef.current = null;

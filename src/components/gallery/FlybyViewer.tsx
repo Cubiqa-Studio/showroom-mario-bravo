@@ -1129,11 +1129,18 @@ export function FlybyViewer({
       ? "216"
       : mostCentralUnitId(currentStop);
 
-  // Stage de paneo: en táctil (ya medido) el render se sobre-dimensiona y se traslada;
-  // en desktop ocupa todo el contenedor (inset-0) sin transform, como siempre.
+  // Stage de paneo. En táctil (ya medido) el render se sobre-dimensiona y se traslada;
+  // el estado SIN medir describe la MISMA caja pero en CSS (`min-width`/`min-height` al
+  // 100% + `aspect-ratio` = el mismo cover, sin esperar a JS).
+  //
+  // Que las dos cajas sean iguales importa: antes la de arranque era `inset-0` y en
+  // mobile cambiaba a la grande recién cuando resolvían `isTouch` y la medición, los dos
+  // en efectos. El recorte que se ve es el mismo, así que el salto era invisible, pero
+  // el navegador lo contaba igual — 0,639 de CLS en el showroom, casi todo el
+  // presupuesto de Core Web Vitals gastado en un movimiento que nadie ve.
   const useStage = isTouch && containerSize.w > 0 && containerSize.h > 0;
-  const stageClassName = useStage ? "absolute" : "absolute inset-0";
-  const stageStyle: CSSProperties | undefined = useStage
+  const stageClassName = "absolute";
+  const stageStyle: CSSProperties = useStage
     ? {
         width: stageW,
         height: stageH,
@@ -1142,7 +1149,14 @@ export function FlybyViewer({
         transform: STAGE_TRANSFORM(panRef.current.x, panRef.current.y),
         willChange: "transform",
       }
-    : undefined;
+    : {
+        minWidth: "100%",
+        minHeight: "100%",
+        aspectRatio: `${imgW} / ${imgH}`,
+        left: "50%",
+        top: "50%",
+        transform: STAGE_TRANSFORM(0, 0),
+      };
 
   // Hotspot 360° de la vista actual (si tiene). Se apaga durante el movimiento.
   const hotspot = VR_HOTSPOTS[currentStop.id];
@@ -1256,6 +1270,8 @@ export function FlybyViewer({
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover"
           draggable={false}
+          // Primera capa que pinta el visor, y el elemento del LCP de /showroom.
+          fetchPriority="high"
           onError={(e) => {
             e.currentTarget.style.visibility = "hidden";
           }}

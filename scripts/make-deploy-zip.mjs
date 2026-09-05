@@ -92,6 +92,13 @@ await writeFile(join(STAGING, ".htaccess"), htaccess, "utf8");
 // 4. El _headers de Netlify no hace nada en Apache y sólo confunde.
 await rm(join(STAGING, "_headers"), { force: true });
 
+// 4b. Los JPG nativos de los stops (~14,3 MB) NO se suben: el sitio pide siempre los
+//     .webp y en todo out/ no hay una sola referencia a stops/*.jpg. Son los masters
+//     que leen los scripts de build (make-og.mjs), así que siguen en public/ y en out/.
+for (const jpg of (await readdir(join(STAGING, "stops"))).filter((f) => f.endsWith(".jpg"))) {
+  await rm(join(STAGING, "stops", jpg), { force: true });
+}
+
 // 5. Instrucciones, para que el zip se explique solo dentro de seis meses.
 await writeFile(
   join(STAGING, "LEEME-DEPLOY.txt"),
