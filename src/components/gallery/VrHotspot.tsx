@@ -11,9 +11,10 @@ const PANTALLA_BAJA = 560;
 /** Escala máxima de la bolita en pantalla baja. A 0,55 mide 35px y entra dentro del
  *  vano de la puerta, que en apaisado queda de ~48px de alto. */
 const ESCALA_COMPACTA = 0.55;
-/** Banda que ocupan las flechas ‹ GIRAR › abajo: 48px de alto + los 24 de `bottom-6`
- *  (ver FlybyViewer) + 10 de aire. La bolita nunca baja de acá. */
-const BANDA_FLECHAS = 48 + 24 + 10;
+/** Aire mínimo entre la bolita y la fila de controles cuando tiene que esquivarla. */
+const AIRE_CONTROLES = 6;
+/** Aire contra el borde de la pantalla, para que no quede lamiendo el filo. */
+const AIRE_BORDE = 8;
 
 interface VrHotspotProps {
   stop: Stop;
@@ -35,6 +36,11 @@ interface VrHotspotProps {
   isTouch?: boolean;
   /** Señal para descartar el preview revelado (ej.: el usuario empezó a panear). */
   resetKey?: number;
+  /** ¿Está en pantalla la fila ‹ GIRAR ›? Es la zona que la bolita tiene que esquivar,
+   *  y aparece DESPUÉS que ella (cuando terminan de bajar los frames del stop): sin
+   *  esta señal, la bolita se ubica cuando todavía no había nada que esquivar y nadie
+   *  la vuelve a medir. */
+  controlesVisibles?: boolean;
   /** Abre el modal del tour 360°. Si no se pasa, la bolita no dispara nada al click. */
   onOpen?: () => void;
 }
@@ -62,6 +68,7 @@ export function VrHotspot({
   previewKind = "hall",
   isTouch = false,
   resetKey = 0,
+  controlesVisibles = false,
   onOpen,
 }: VrHotspotProps) {
   const width = stop.imageWidth ?? 1920;
@@ -116,14 +123,15 @@ export function VrHotspot({
       // que en pantalla caía por debajo del pliegue, y la bolita terminaba montada
       // sobre la fila de flechas ‹ GIRAR › (solape medido: 64×44 px).
       //
-      // En pantallas BAJAS se reserva EXACTAMENTE la banda de las flechas y nada más
-      // (antes eran 100px redondos, que la dejaban 28px más arriba de lo necesario,
-      // "a la mitad de la nada" sobre la fachada — reporte de Joaquim, 30-08). Con
-      // la bolita ya achicada, el tope la deja lo más abajo posible sin tocar los
-      // controles: pegada al vano de la puerta, que en apaisado cae justo detrás de
-      // las flechas. En una pantalla normal la puerta queda MUY por encima de esa
-      // zona, así que el tope ni se activa y la bolita sigue donde la aprobó el
-      // cliente, a tamaño completo.
+      // ⚠ LA RESERVA SE MIDE, NO SE ADIVINA. Antes era un número escrito a mano
+      // (48 + 24 + 10 = la banda de las flechas) que se aplicaba SIEMPRE que la
+      // pantalla fuera baja, como si los controles ocuparan todo el ancho. No lo
+      // ocupan: en 915px de ancho la fila mide 211 y vive en el medio. Con la regla
+      // vieja, una bolita que caía a un costado —lejísimos de los controles— se subía
+      // igual 75px y quedaba flotando en la mitad de la fachada (reporte de Joaquim,
+      // 03-09: "quedó mal ubicada, como muy arriba", en apaisado). Ahora se lee la
+      // caja real de la fila (`data-flyby-controles`) y sólo se esquiva si de verdad
+      // se la va a pisar; si no hay controles en pantalla, no hay nada que esquivar.
       //
       // ⚠ TODO SE MIDE EN PÍXELES CSS DE LA CAPA, no en píxeles de pantalla.
       //
@@ -147,11 +155,32 @@ export function VrHotspot({
       const k = layer.offsetHeight > 0 ? l.height / layer.offsetHeight : 1;
       const anchoCapa = layer.offsetWidth;
       const altoCapa = layer.offsetHeight;
-      const reservaPie = baja ? BANDA_FLECHAS : 16;
-      // El tope de abajo nace en píxeles de pantalla (`window.innerHeight`) y se pasa
-      // a coordenadas de la capa en el mismo paso que el resto.
-      const topeEnCapa = (window.innerHeight - reservaPie - l.top) / k - 32 * esc;
-      const yEnCapa = Math.min((a.top + a.height / 2 - l.top) / k, topeEnCapa);
+      // Radio de la bolita en píxeles de PANTALLA (el de arriba, `r`, está en píxeles
+      // de la capa; acá se compara contra cajas medidas con getBoundingClientRect).
+      const rPant = 32 * esc * k;
+
+      // Dónde caería la bolita si nadie la molestara: su ancla, en pantalla.
+      const xNatPant = a.left + a.width / 2;
+      const yNatPant = a.top + a.height / 2;
+
+      // El tope de abajo: primero el borde inferior de la PANTALLA…
+      let topePant = window.innerHeight - AIRE_BORDE - rPant;
+
+      // …y después, sólo si hace falta, el techo de la fila de controles. Se esquiva
+      // únicamente cuando la bolita y la fila se cruzan TAMBIÉN en horizontal: si la
+      // bolita cae a un costado, puede bajar tranquila hasta el borde.
+      const fila = document
+        .querySelector("[data-flyby-controles]")
+        ?.getBoundingClientRect();
+      if (fila && fila.width > 0) {
+        const seCruzanEnX =
+          xNatPant + rPant > fila.left - AIRE_CONTROLES &&
+          xNatPant - rPant < fila.right + AIRE_CONTROLES;
+        if (seCruzanEnX) topePant = Math.min(topePant, fila.top - AIRE_CONTROLES - rPant);
+      }
+
+      const topeEnCapa = (topePant - l.top) / k;
+      const yEnCapa = Math.min((yNatPant - l.top) / k, topeEnCapa);
 
       // ⚠ EN X TAMBIÉN HAY QUE CLAMPEAR CONTRA LA PANTALLA, no sólo contra la capa.
       //
@@ -172,7 +201,7 @@ export function VrHotspot({
       // El eje Y ya se clampeaba así (ver el tope de abajo); esto es lo mismo para X.
       const izqEnCapa = (0 - l.left) / k;
       const derEnCapa = (window.innerWidth - l.left) / k;
-      const xEnCapa = (a.left + a.width / 2 - l.left) / k;
+      const xEnCapa = (xNatPant - l.left) / k;
 
       setPos({
         x: clamp(
@@ -199,7 +228,7 @@ export function VrHotspot({
     // cambiaba de tamaño, el ResizeObserver no volvía a disparar y la bolita quedaba
     // con la posición vieja. El hotspot se vuelve `active` recién cuando la vista
     // está parada y lista: recalcular ahí es la señal correcta.
-  }, [x, y, width, height, scale, active]);
+  }, [x, y, width, height, scale, active, controlesVisibles]);
 
   // Si el overlay se apaga (transición), soltá el hover/preview para no dejarlo pegado.
   useEffect(() => {

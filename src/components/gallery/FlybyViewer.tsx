@@ -1357,6 +1357,11 @@ export function FlybyViewer({
             previewKind={hotspot.previewKind}
             isTouch={isTouch}
             resetKey={selResetKey}
+            // La fila ‹ GIRAR › aparece DESPUÉS que la bolita (recién cuando los
+            // frames del stop están bajados). La bolita tiene que volver a medir
+            // cuando eso pasa: si no, se ubicó cuando no había nada que esquivar y
+            // se queda quieta mientras los controles le crecen encima.
+            controlesVisibles={(showBack || showForward) && !preparing}
             onOpen={
               hotspot.kuulaUrl
                 ? () => setVr360Url(hotspot.kuulaUrl!)
@@ -1476,8 +1481,16 @@ export function FlybyViewer({
         // si capturara eventos en su caja vacía, taparía la mitad inferior de la bolita
         // 360° que queda debajo (bug del hover a medias). Sólo la fila de flechas
         // reactiva los eventos, que es donde de verdad hay controles.
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex items-center justify-center px-4">
-          <div className="pointer-events-auto flex items-center gap-4">
+        // `bottom-2` en pantalla BAJA (teléfono acostado) y `bottom-6` en el resto:
+        // ahí el alto es el recurso escaso y esos 16px son los que le devuelven aire
+        // a la bolita 360°, que en apaisado tiene que convivir con esta fila justo
+        // donde cae la puerta del edificio (ver VrHotspot).
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex items-center justify-center px-4 [@media(max-height:560px)]:bottom-2">
+          {/* `data-flyby-controles`: es lo que mide la bolita 360° para saber qué zona
+              NO puede ocupar. Va acá, en la fila de verdad —no en el contenedor
+              full-width, que es transparente al puntero y ocuparía toda la pantalla—
+              así la reserva es exactamente el rectángulo que se ve. */}
+          <div data-flyby-controles className="pointer-events-auto flex items-center gap-4">
             {arrowSlots.left}
             <span className="pointer-events-none select-none rounded-full bg-tier-dark/80 px-3 py-1.5 text-[15px] font-semibold uppercase tracking-[0.18em] text-ink shadow-lg ring-1 ring-line backdrop-blur">
               {t.flyby.rotateLabel}
@@ -1541,7 +1554,10 @@ function FlybyArrow({
       onPointerDown={onPrime}
       aria-label={label}
       title={label}
-      className="grid h-12 w-12 place-items-center rounded-full bg-tier-dark/80 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:scale-105 hover:bg-tier-dark active:scale-95"
+      // 44px en pantalla baja (teléfono acostado) en vez de 48: sigue siendo un
+      // objetivo táctil cómodo y le devuelve 4px de alto a la bolita 360°, que en
+      // apaisado compite con esta fila por la misma franja (ver VrHotspot).
+      className="grid h-12 w-12 place-items-center rounded-full bg-tier-dark/80 text-ink shadow-lg ring-1 ring-line backdrop-blur transition hover:scale-105 hover:bg-tier-dark active:scale-95 [@media(max-height:560px)]:h-11 [@media(max-height:560px)]:w-11"
     >
       <svg
         viewBox="0 0 24 24"
