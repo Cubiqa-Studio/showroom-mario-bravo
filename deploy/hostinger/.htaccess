@@ -21,6 +21,22 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # ── 0b. Canonicalización de host y esquema ──────────────────────────────────
+  # VA PRIMERO: un redirect externo tiene que decidirse sobre la URL que pidió el
+  # visitante, no sobre la ya reescrita por las reglas de abajo.
+  #
+  # www → apex. Verificado el 05-09-2026: https://www.tierbravo.kuvus.app/ devolvía 200
+  # con el mismo contenido que el apex → contenido duplicado.
+  RewriteCond %{HTTP_HOST} ^www\.tierbravo\.kuvus\.app$ [NC]
+  RewriteRule ^(.*)$ https://tierbravo.kuvus.app/$1 [R=301,L]
+
+  # http → https. Hostinger ya lo hace en su borde; esto es la red de seguridad. Las DOS
+  # condiciones son necesarias: detrás de un CDN que termina el TLS, %{HTTPS} puede
+  # llegar en "off" con el visitante en https, y mirar sólo esa variable da loop.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
   # ── 1. Endpoints del proxy PHP ──────────────────────────────────────────────
   # El código cliente pide /api/unidades, /api/avance y /api/contact (mismas
   # rutas que en `next dev`, ver src/lib/api.ts). Acá se mapean a los .php.
@@ -76,18 +92,7 @@ Options -Indexes
   RewriteCond %{DOCUMENT_ROOT}/$1.html -f
   RewriteRule ^(.+?)/?$ /$1.html [L]
 
-  # ── 3. Canonicalización www → apex ──────────────────────────────────────────
-  # Si www y el apex sirven ambos 200 con el MISMO contenido, Google ve contenido
-  # duplicado y divide las señales. Esto es lo que hacían el redirect de
-  # next.config.ts y la regla edge de netlify.toml.
-  #
-  # ⚠ PLACEHOLDER — el dominio real todavía no está definido (ver PROD_SITE_URL en
-  # src/lib/seo.ts). Descomentá y poné el host real al salir a producción. En el
-  # SUBDOMINIO DE PRUEBA dejalo comentado: no hay www que canonicalizar y una
-  # regla mal puesta te deja el test en loop de redirects.
-  #
-  # RewriteCond %{HTTP_HOST} ^www\.mariobravo955\.com\.ar$ [NC]
-  # RewriteRule ^(.*)$ https://mariobravo955.com.ar/$1 [R=301,L]
+  # (La canonicalización de host/esquema está en la sección 0b, arriba.)
 </IfModule>
 
 # ── 4. Tipos MIME ─────────────────────────────────────────────────────────────
@@ -137,6 +142,18 @@ Options -Indexes
     Header set Cache-Control "public, max-age=0, must-revalidate"
   </FilesMatch>
 
+  # Los payloads RSC (.txt al lado de cada .html) no se indexan: llevan la misma copy
+  # que la página, no admiten canonical (son text/plain) y no están en el sitemap. La
+  # regla 1b sólo los cubre cuando el pedido manda Sec-Fetch-Dest. No se hace con
+  # `Disallow` en robots.txt porque eso bloquearía el fetch del router.
+  <FilesMatch "\.txt$">
+    Header set X-Robots-Tag "noindex"
+  </FilesMatch>
+  # …salvo los dos que SÍ son documentos públicos. Apache aplica los FilesMatch en orden.
+  <FilesMatch "^(robots|llms)\.txt$">
+    Header unset X-Robots-Tag
+  </FilesMatch>
+
   # Metadata que cambia en cada deploy.
   <FilesMatch "^(sitemap\.xml|robots\.txt|manifest\.webmanifest)$">
     Header set Cache-Control "public, max-age=3600"
@@ -152,6 +169,10 @@ Options -Indexes
   Header set Referrer-Policy "strict-origin-when-cross-origin"
   Header set X-Frame-Options "SAMEORIGIN"
   Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+  # HSTS un año, SIN `includeSubDomains` ni `preload` a propósito: el sitio vive en un
+  # subdominio de kuvus.app y no controlamos sus hermanos; si algún día se mudara al
+  # apex de un dominio propio, forzaría https en todo lo que cuelgue de él.
+  Header always set Strict-Transport-Security "max-age=31536000"
   # Higiene: no anunciar el stack (PHP agrega X-Powered-By en sus responses).
   Header always unset X-Powered-By
 </IfModule>
