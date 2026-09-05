@@ -11,12 +11,6 @@ export function scrollToTop() {
   document.querySelector(".res-landing")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-/** Alterna pantalla completa del documento. No-op si el browser no lo soporta. */
-export function toggleFullscreen() {
-  if (typeof document === "undefined") return;
-  if (document.fullscreenElement) {
-    document.exitFullscreen?.();
-  } else {
-    document.documentElement.requestFullscreen?.();
-  }
-}
+// El fullscreen se mudó a `@/lib/fullscreen`, que además sabe si el navegador PUEDE
+// (en iOS no puede) y cubre el prefijo `webkit` de iPadOS/Safari viejo. Acá había una
+// segunda copia que sólo probaba la API sin prefijo y no avisaba cuando no existía.

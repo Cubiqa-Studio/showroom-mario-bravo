@@ -14,7 +14,8 @@ import { AvanceBadge } from "../AvanceBadge";
 import { MasterplanModal } from "./MasterplanModal";
 import { ContactModal } from "./ContactModal";
 import { GalleryModal } from "./GalleryModal";
-import { scrollToContact, toggleFullscreen } from "./landing-dom";
+import { scrollToContact } from "./landing-dom";
+import { useFullscreen } from "../useFullscreen";
 
 /** Alto de la barra (px). Vive en residencia.css como `.nav-inner { height: 78px }`;
  *  acá se usa para correr la línea de disparo del observer al pie del nav. */
@@ -45,6 +46,7 @@ export function LandingNav({
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const { lang, setLang, t } = useI18n();
+  const { disponible: puedeFullscreen, alternar: alternarPantallaCompleta } = useFullscreen();
   // WhatsApp del comercializador que trajo la visita (ver src/lib/origen.ts).
   const waUrl = useWhatsappUrl();
 
@@ -240,22 +242,26 @@ export function LandingNav({
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              className="icon-btn"
-              title={t.nav.fullscreen}
-              aria-label={t.nav.fullscreen}
-              onClick={toggleFullscreen}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.6}
+            {/* Sólo si el navegador PUEDE: en iOS no existe fullscreen de elementos y
+                el botón quedaba dibujado sin hacer nada (ver `@/lib/fullscreen`). */}
+            {puedeFullscreen && (
+              <button
+                type="button"
+                className="icon-btn"
+                title={t.nav.fullscreen}
+                aria-label={t.nav.fullscreen}
+                onClick={alternarPantallaCompleta}
               >
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3" />
-              </svg>
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.6}
+                >
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3" />
+                </svg>
+              </button>
+            )}
             {/* Vibración idéntica a la del toolbar del home (ShowroomToolbar):
               ráfaga corta por las 4 diagonales + descanso, en loop; frena en hover. */}
             <motion.button

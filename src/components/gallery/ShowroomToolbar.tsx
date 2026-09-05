@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { captureCta } from "@/lib/analytics";
@@ -12,6 +12,7 @@ import {
   ShareIcon,
 } from "./icons";
 import { VolverAPortada } from "./VolverAPortada";
+import { useFullscreen } from "../useFullscreen";
 
 interface ShowroomToolbarProps {
   /** Pintar todas las unidades por estado (switch "Disponibilidad"). */
@@ -30,24 +31,6 @@ interface ShowroomToolbarProps {
   brandingLabel?: string;
 }
 
-/** Fullscreen del documento, con estado sincronizado al evento del navegador. */
-function useFullscreen() {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  useEffect(() => {
-    const sync = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", sync);
-    return () => document.removeEventListener("fullscreenchange", sync);
-  }, []);
-  const toggle = useCallback(() => {
-    if (document.fullscreenElement) {
-      void document.exitFullscreen?.();
-    } else {
-      void document.documentElement.requestFullscreen?.();
-    }
-  }, []);
-  return { isFullscreen, toggle };
-}
-
 /**
  * Chrome flotante del showroom. Arriba a la derecha, la barra de acciones
  * (consultar por WhatsApp, compartir, pantalla completa y menú) con el dorado
@@ -63,7 +46,7 @@ export function ShowroomToolbar({
   onBrandingClick,
   brandingLabel,
 }: ShowroomToolbarProps) {
-  const { isFullscreen, toggle } = useFullscreen();
+  const { disponible: puedeFullscreen, activo: isFullscreen, alternar: toggle } = useFullscreen();
   const [copied, setCopied] = useState(false);
   const { lang, setLang, t } = useI18n();
 
@@ -184,12 +167,14 @@ export function ShowroomToolbar({
             <ShareIcon width={20} height={20} />
           </IconButton>
 
-          {/* Pantalla completa SÓLO de tablet para arriba. En iOS —o sea, en TODOS
-              los navegadores de iPhone, que van sobre WebKit— `requestFullscreen`
-              no existe para elementos: el botón no hacía nada. Y en Android el
-              propio navegador ya esconde su barra al scrollear. Ocupaba 36px de
-              una fila que no sobra. */}
-          <span className="hidden min-[560px]:contents">
+          {/* Pantalla completa: se dibuja SÓLO si el navegador puede hacerlo.
+              Antes el filtro era por ANCHO (`min-[560px]`), suponiendo que abajo de
+              eso hay teléfonos y arriba no. Un iPhone ACOSTADO mide más de 560, así
+              que el botón aparecía y no hacía nada — iOS no tiene fullscreen de
+              elementos en ningún ancho (reporte de Juani, 03-09). Preguntando por la
+              capacidad en vez de por el tamaño, el botón está donde funciona
+              (escritorio, Android, iPad) y no está donde no. */}
+          {puedeFullscreen && (
             <IconButton
               label={isFullscreen ? t.toolbar.exitFullscreen : t.toolbar.fullscreen}
               onClick={toggle}
@@ -200,7 +185,7 @@ export function ShowroomToolbar({
                 <ExpandIcon width={20} height={20} />
               )}
             </IconButton>
-          </span>
+          )}
 
           <IconButton label={t.toolbar.menu} onClick={onOpenMenu}>
             <MenuIcon width={20} height={20} />
