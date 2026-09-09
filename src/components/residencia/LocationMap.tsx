@@ -541,7 +541,7 @@ export function LocationMap({ site }: { site: SiteConfig }) {
       popup.setHTML(htmlPopup(proyecto));
     }
     // El texto nuevo cambia el TAMAÑO de la tarjeta ("CÓMO LLEGAR" no mide lo mismo
-    // que "GET DIRECTIONS", y "Av. Estado de Israel 4338" puede pasar de uno a dos
+    // que "GET DIRECTIONS", y "Av. Estado de Israel 4358/60" puede pasar de uno a dos
     // renglones), así que hay que volver a acomodarlas: un acomodo calculado con las
     // medidas viejas deja tarjetas pisadas hasta que el visitante mueva el mapa.
     acomodarRef.current?.();

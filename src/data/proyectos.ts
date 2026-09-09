@@ -78,16 +78,19 @@ export interface Proyecto {
 }
 
 export const PROYECTOS: Proyecto[] = [
-  // ⚠ LAS DIRECCIONES Y COORDENADAS DE ESTOS DOS SIGUEN SIN CONFIRMAR. Venían del
-  // bloque `pois` de site.ts (que ahora vive acá) y su nota original decía:
+  // ⚠ SINCLAIR SIGUE SIN CONFIRMAR. Venía del bloque `pois` de site.ts (que ahora
+  // vive acá) y su nota original decía:
   //   Geocodificadas contra OpenStreetMap con match A NIVEL DE ALTURA (no de calle)
   //   y código postal de CABA:
-  //     Sinclair 3087             → Palermo Pacífico, C1425GMN
-  //     Av. Estado de Israel 4338 → Almagro, C1430BXU
+  //     Sinclair 3087 → Palermo Pacífico, C1425GMN
   //   Que "Avenue" sea el de Estado de Israel es DEDUCCIÓN POR DESCARTE (TIER tiene
   //   tres desarrollos, Bravo es éste y Sinclair coincide con su calle). Confirmarlo.
-  // Ahora pesa más que antes: la dirección ya no se ve sólo en el mapa, también en la
-  // portada y en "El Equipo". Hay que preguntarle a Camila.
+  //
+  // AVENUE YA ESTÁ CONFIRMADA (Camila, 09-09) — y la deducción resultó correcta, pero
+  // la ALTURA no: era 4358/60, no 4338. Que el dato adivinado haya estado mal por 20
+  // números es justamente el motivo de esta nota, así que vale repetirla para el que
+  // quede: la dirección no se ve sólo en el mapa, también en la portada y en "El
+  // Equipo". Para Sinclair, preguntarle a Camila antes de darla por buena.
   {
     id: "sinclair",
     nombre: "Sinclair",
@@ -124,11 +127,21 @@ export const PROYECTOS: Proyecto[] = [
   },
   {
     id: "avenue",
-    ubicacion: "Av. Estado de Israel 4338 · Almagro",
+    // CONFIRMADA por Camila el 09-09: "te pasamos mal la dirección del proyecto
+    // avenue, es estado de israel 4358/60 — son dos lotes". Antes decía 4338, que
+    // venía de la geocodificación a ojo de más arriba.
+    //
+    // Se escribe "4358/60" y no "4358" a secas porque son DOS lotes y así lo nombra
+    // el desarrollador; es la forma habitual de escribir una parcela doble.
+    ubicacion: "Av. Estado de Israel 4358/60 · Almagro",
     nombre: "Avenue",
     href: null,
     poster: "/proyectos/avenue.webp",
-    coords: { lat: -34.598167, lng: -58.427095 },
+    // Re-geocodificadas con la altura corregida, y esta vez con match A NIVEL DE
+    // ALTURA exacto (Nominatim devuelve `house_number: 4358` sobre "Avenida Estado de
+    // Israel", Almagro, C1430BXU — o sea que el barrio y el CP que ya estaban eran
+    // correctos). El pin se corrió ~25m respecto del que había para el 4338.
+    coords: { lat: -34.5982675, lng: -58.4273487 },
     video: null,
     comercializan: ["desarrolladora", "inmobiliaria"],
   },

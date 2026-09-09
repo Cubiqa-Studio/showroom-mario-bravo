@@ -1306,7 +1306,7 @@
    que era el problema. Apiladas, dos proyectos cercanos se montaban uno sobre otro. */
 @media (max-width: 640px) {
   .res-landing .maplibregl-popup-content {
-    /* Ancho FIJO y no `auto`: con ancho por contenido, "Av. Estado de Israel 4338"
+    /* Ancho FIJO y no `auto`: con ancho por contenido, "Av. Estado de Israel 4358/60"
        hacía una tarjeta de 196px y "Mario Bravo 955" una de 156, y tres tarjetas de
        distinto tamaño desparramadas por el mapa se ven como un error. */
     width: 178px;
@@ -1330,7 +1330,7 @@
     min-width: 0;
   }
   .res-landing .maplibregl-popup-content .pop-name { font-size: calc(14.5px * var(--fs-k)); }
-  /* SIN dirección en celular. "Av. Estado de Israel 4338" no entra en un renglón de
+  /* SIN dirección en celular. "Av. Estado de Israel 4358/60" no entra en un renglón de
      100px y hacía una tarjeta de 80px contra los 40px de las otras: desparejas, y las
      dos más cercanas terminaban pisándose. Sin ella las tres miden lo mismo y quedan
      separadas. No se pierde nada: el mapa ya dice dónde está cada una, y la dirección
