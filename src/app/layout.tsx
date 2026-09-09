@@ -6,6 +6,7 @@ import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { OrigenProvider } from "@/components/OrigenProvider";
 import { CubiqaBadge } from "@/components/CubiqaBadge";
+import { ChatbaseWidget } from "@/components/ChatbaseWidget";
 import { getUnitIds } from "@/lib/data";
 import {
   SITE_URL,
@@ -127,15 +128,7 @@ export default function RootLayout({
         <footer>
           <CubiqaBadge />
         </footer>
-        {chatbaseId ? (
-          <Script
-            id="chatbase-widget"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="${chatbaseId}";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();`,
-            }}
-          />
-        ) : null}
+        {chatbaseId ? <ChatbaseWidget agentId={chatbaseId} /> : null}
       </body>
     </html>
   );
