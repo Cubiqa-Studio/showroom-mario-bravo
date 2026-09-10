@@ -37,9 +37,9 @@ export function whatsappUrl(
 }
 
 /** Brochure del proyecto (PDF en /public, descargable). Fuente única: lo referencian
- *  el SideMenu (showroom + landing) y la DataBar de la ficha.
+ *  el item "Brochure" del SideMenu (showroom + ficha) y el botón "Ver PDF" de la ficha
+ *  (PlanSection). Si cambia el archivo, se actualiza sólo acá.
  *
- *  ⚠ PLACEHOLDER — todavía no hay brochure comercial del proyecto. Lo único que
- *  entregó el cliente son las plantas CAD y el listado de unidades, que NO son
- *  material para el público. `null` = el botón de descarga no se muestra. */
-export const BROCHURE_URL: string | null = null;
+ *  Llegó el 10-09-2026 (Camila, `TIER_Bravo_Brochure.pdf`, 32 págs.). `null` apaga
+ *  los dos botones a la vez: un botón que baja un 404 es peor que no tenerlo. */
+export const BROCHURE_URL: string | null = "/brochure_tier_bravo.pdf";

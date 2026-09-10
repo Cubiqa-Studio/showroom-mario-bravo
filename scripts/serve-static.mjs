@@ -52,6 +52,7 @@ const TIPOS = {
   ".ico": "image/x-icon",
   ".mp4": "video/mp4",
   ".woff2": "font/woff2",
+  ".pdf": "application/pdf",
 };
 
 const CACHE_LARGA = "public, max-age=86400, stale-while-revalidate=2592000";
