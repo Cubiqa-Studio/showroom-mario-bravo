@@ -1037,8 +1037,48 @@ apple-icon, favicon.ico).
 
 ⚠ **La tipografía del logo no se puede saber desde los archivos**: el `.ai`, el `.pdf` y
 el `.svg` traen las letras vectorizadas, sin fuente embebida ni metadata. Por las formas
-(sans geométrica monolínea, "E" en tres barras) se parece mucho a **Futura / Jost Light**,
-y Jost ya está cargada en el sitio — pero confirmalo con el cliente antes de armar lockups.
+(sans geométrica monolínea, "E" en tres barras) se parece a **Futura**. Lo que acompaña al
+logo sí está definido: la tapa del brochure compone "BRAVO" en Montserrat Light, y así va
+en el lockup del showroom y de la ficha.
+
+### La tipografía
+
+**Montserrat en toda la web**, desde el 10-09-2026. Es la del brochure (la propuso Camila;
+Juani confirmó "en toda la web") y reemplazó a Playfair Display SC + Jost. Verificado
+contra el PDF, no a ojo: sus fuentes embebidas son Montserrat ExtraLight, Light,
+LightItalic, Regular, Medium y Bold.
+
+Una sola familia (variable: todos los pesos, más la itálica) para los dos roles de
+siempre, con los mismos nombres, así que no hubo que tocar ninguna regla de familia:
+
+| Rol | Variable | Dónde |
+|---|---|---|
+| Texto general | `--font-sans` / `--sans` | cuerpo, rótulos, botones, "BRAVO" del lockup |
+| Display | `--font-serif` / `--serif` | títulos |
+
+**Los títulos van en Light (300)** porque así los compone el brochure, y el peso sale de
+una sola palanca: `--display-weight`, en el `:root` de `globals.css`. La usan todas las
+reglas del rol display de `residencia.css` y `portada.css`, y la utilidad `font-serif`.
+Si el cliente los quiere más firmes, se pone `400` (Regular) y listo.
+
+Antes, con Playfair (sólo tenía cargados 400 y 700), todos los títulos caían en 400 aunque
+algunas reglas pidieran 500. Con una fuente variable eso ya no pasa —el 500 saldría
+Medium—, y por eso el peso quedó fijado en un solo lugar y no regla por regla.
+
+⚠ **No cargar una segunda instancia "sólo 300" para los títulos.** Parece la solución
+limpia y no funciona: `next/font` les pone a las dos el MISMO nombre de familia
+(`Montserrat`), el navegador las fusiona y cada título sale con el peso que pida su regla.
+Medido: el mismo texto dio anchos idénticos a 300/400/500/700 en las dos instancias.
+
+El cuerpo NO copia el Light gris del brochure: se quedó con los pesos que ya tenía. El
+brochure es papel y se lee de cerca; el sitio lo leen compradores grandes en un teléfono,
+y la escala de abajo existe justamente por eso.
+
+"serif" quedó como nombre del ROL display (utilidad `font-serif`, variable `--serif`), pero
+ya no es una serif. Con Playfair **SC** las minúsculas salían como versalitas; Montserrat no
+tiene versalitas (el brochure tampoco las usa), así que los títulos se ven como están
+escritos: los que llevan `text-transform: uppercase` (el de la unidad, los de sección)
+siguen en caja alta, y el resto pasa a mayúscula y minúscula.
 
 ### La escala tipográfica
 

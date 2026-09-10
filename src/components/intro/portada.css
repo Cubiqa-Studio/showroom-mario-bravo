@@ -19,8 +19,8 @@
    ============================================================ */
 
 .portada {
-  --serif: var(--font-playfair-sc), "Playfair Display SC", Georgia, serif;
-  --sans: var(--font-jost), "Jost", -apple-system, system-ui, sans-serif;
+  --serif: var(--font-montserrat), "Montserrat", -apple-system, system-ui, sans-serif;
+  --sans: var(--font-montserrat), "Montserrat", -apple-system, system-ui, sans-serif;
 
   position: relative;
   height: 100dvh;
@@ -209,7 +209,7 @@
   position: absolute;
   right: -0.1em;
   bottom: -0.3em;
-  font-family: var(--serif);
+  font-family: var(--serif); font-weight: var(--display-weight);
   font-size: clamp(150px, 26vw, 400px);
   line-height: 0.78;
   color: rgba(255, 255, 255, 0.055);
@@ -263,7 +263,7 @@
 }
 .pp-nombre {
   font-family: var(--serif);
-  font-weight: 400;
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   /* `clamp` contra el ancho del PANEL no existe en CSS, así que el vw se calibró
      contra un tercio de pantalla: a 1440 da 38px y "SINCLAIR" —la más larga— mide

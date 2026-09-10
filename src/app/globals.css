@@ -2,7 +2,7 @@
 
 /* ============================================================
    SISTEMA PREMIUM — global
-   Playfair Display SC (títulos) + Jost (general).
+   Montserrat, la del brochure: Light en los títulos, variable en el resto.
 
    PALETA TIER. El key visual de la marca es NEGRO + oro #BF9753, y el
    sitio se pinta sobre ese negro: lienzo `--tier-dark`, texto off-white,
@@ -25,6 +25,9 @@
    ============================================================ */
 
 :root {
+  /* Peso de TODOS los títulos: el rol display (utilidad `font-serif` y `var(--serif)`
+     de la ficha y la portada). Light, como en el brochure. Palanca única: 400 = Regular. */
+  --display-weight: 300;
   /* El sitio es OSCURO siempre: opt-out del auto-oscurecido de los browsers
      (Chrome "Oscurecer sitios web", Samsung Internet dark mode) declarando que la
      página YA es oscura. El meta espejo va en layout.tsx. */
@@ -206,9 +209,11 @@
   --color-cream: var(--cream);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* tipografías de marca: sans global = Jost; display/serif = Playfair Display SC */
-  --font-sans: var(--font-jost);
-  --font-serif: var(--font-playfair-sc);
+  /* tipografía de marca: Montserrat (la del brochure) para los dos roles. "serif" es
+     el rol DISPLAY (títulos): ya no es una serif, conserva el nombre para no tocar las
+     utilidades `font-serif`. Su peso lo pone --display-weight (ver :root). */
+  --font-sans: var(--font-montserrat);
+  --font-serif: var(--font-montserrat);
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -217,6 +222,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), -apple-system, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* El rol display va con el peso de --display-weight. En @layer base a propósito: si
+   algún día se pone una utilidad de peso al lado (font-medium…), gana ella. */
+@layer base {
+  .font-serif { font-weight: var(--display-weight); }
 }
 
 /* ============================================================

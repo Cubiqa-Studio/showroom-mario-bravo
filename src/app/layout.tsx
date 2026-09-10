@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Jost, Playfair_Display_SC } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
@@ -20,22 +20,20 @@ import {
   jsonLdScriptProps,
 } from "@/lib/seo";
 
-// Tipografías de MARCA — definidas por el cliente (Miro, 2026-06-10):
-//   · Playfair Display SC → títulos / display
-//   · Jost → tipografía general (cuerpo y subtítulos)
-// Se exponen como variables CSS en <html> y se consumen globalmente
-// (globals.css → --font-serif/--font-sans) y en la landing de detalle
-// (residencia.css → --serif/--sans).
-const playfairSC = Playfair_Display_SC({
-  variable: "--font-playfair-sc",
-  weight: ["400", "700"], // Playfair Display SC provee 400/700/900 — alcanza con 400 y 700
+// Tipografía de MARCA: Montserrat, la del brochure de TIER Bravo (Camila, 10-09-2026;
+// Juani confirmó "en toda la web"). Reemplaza a Playfair Display SC + Jost.
+//
+// Una sola familia para los dos ROLES de siempre: texto general (--font-sans/--sans)
+// y títulos (--font-serif/--serif; "serif" quedó como nombre del rol, ya no es una
+// serif). Es variable, así que trae todos los pesos. El peso de los títulos NO sale
+// de acá: lo fija `--display-weight` en globals.css (Light, como en el brochure).
+// ⚠ No sirve cargar una segunda instancia "sólo 300" para los títulos: next/font les
+// pone a las dos el MISMO nombre de familia, el navegador las fusiona y cada título
+// sale con el peso que pida su regla. Medido.
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const jost = Jost({
-  variable: "--font-jost",
-  subsets: ["latin"], // fuente variable → todo el eje de pesos disponible
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -100,7 +98,7 @@ export default function RootLayout({
   return (
     <html
       lang={HTML_LANG}
-      className={`${playfairSC.variable} ${jost.variable} h-full antialiased`}
+      className={`${montserrat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* Player API de Kuula. `beforeInteractive` porque tiene que estar ANTES de que

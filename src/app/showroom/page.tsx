@@ -55,9 +55,9 @@ export default async function Showroom() {
         branding={
             // Lockup en DOS líneas (pedido del cliente, 26-08): el logotipo TIER y
             // debajo "BRAVO". El logotipo es un archivo (trazos vectorizados, sin
-            // tipografía embebida) y "BRAVO" va tipografiado en Jost —la sans del
-            // sitio, la que más se le parece— con tracking suficiente para que las
-            // dos líneas midan casi lo mismo.
+            // tipografía embebida) y "BRAVO" va en Montserrat Light —la sans del
+            // sitio, y la misma que usa la tapa del brochure para este lockup— con
+            // tracking suficiente para que las dos líneas midan casi lo mismo.
             <span className="flex flex-col items-start">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
