@@ -563,23 +563,49 @@ puede comprobar entrando directo a `/residencia/205`.
 
 ### Los 5 stops
 
-`public/stops/stop-{0..4}.jpg` (nativo, 4999×2812) + `.webp` (2560×1440, el que se sirve):
+`public/stops/stop-{0..4}.jpg` (nativo) + `.webp` (2560×1440, el que se sirve):
 
 | Stop | Vista | Render del cliente |
 |---|---|---|
-| 0 | Fachada frontal sobre Mario Bravo, atardecer | `View 01_02` |
-| 1 | Esquina a nivel de calle, locales de PB | `View 02` |
-| 2 | Primer plano de los balcones (punto intermedio) | `View 02b` |
-| 3 | Contrafrente ancho con pileta | `View 03` (v2 del 29-08) |
-| 4 | Contrafrente cerca desde el jardín | `View 04` |
+| 0 | Fachada frontal sobre Mario Bravo, atardecer | `View 01` del 13-09 · 4807×2704 (recortado, ver abajo) |
+| 1 | Esquina a nivel de calle, locales de PB | `View 02` del 13-09 · 4000×2250 |
+| 2 | Primer plano de los balcones (punto intermedio) | `View 02b` · 4999×2812 |
+| 3 | Contrafrente ancho con pileta | `View 03` (v2 del 29-08) · 4999×2812 |
+| 4 | Contrafrente cerca desde el jardín | `View 04` · 4999×2812 |
 
 Se regeneran con `npm run stops:stills` (lee `_media-src/stops/stop-N-src.jpg`,
 **conserva los polígonos ya trazados**, indexados por id de stop).
 
-El drop del 27-08 re-renderizó las cuatro vistas originales a 4999×2812 (antes la 0 ya
-iba a 5k y las otras tres a 4000×2250) y sumó la `View 02b` en el medio. Las cinco
-comparten espacio de coordenadas: **los polígonos y los hotspots se trazan sobre
-4999×2812**, y `imageWidth`/`imageHeight` de `stops.json` son la fuente de verdad.
+El drop del 27-08 re-renderizó las cuatro vistas originales a 4999×2812 y sumó la
+`View 02b` en el medio. **Cada vista tiene su propio espacio de coordenadas** —el de su
+JPG nativo— y ahí se trazan sus polígonos y su bolita: `imageWidth`/`imageHeight` de
+`stops.json` son la fuente de verdad. Las cinco son 16:9.
+
+#### Re-render de una vista que ya tiene polígonos (drop del 13-09)
+
+Llegaron `View 01` y `View 02` nuevas, con sus transiciones `0-30` y `30-60`. Esas dos
+vistas ya tenían 24 y 12 polígonos trazados, así que antes de aceptarlas se **midió si se
+había movido la cámara**, que es lo único que obliga a re-trazar:
+
+- **Registro de imagen** viejo → nuevo: escala por barrido + traslación por correlación de
+  fase (robusta a cambios de luz), y después **residuos por parche** en toda la imagen. Si
+  la cámara sólo cambió de resolución o de encuadre, el residuo da ~0 en todos lados; si se
+  movió, varía de una zona a otra (paralaje) y no hay fórmula que sirva.
+- **Vista 1**: `p' = 0,7998·p` (4999×2812 → 4000×2250), residuo máximo **0,35 px**. La
+  cámara no se movió: sólo cambian luz y materiales.
+- **Vista 0**: `p' = 0,9642·p + (−4,7; +0,1)`. En el centro de 23 de los 24 polígonos el
+  residuo da ≤ 0,7 px (la 406 midió 3,2, rodeada de vecinas en 0,2-0,3: textura cambiada,
+  no geometría); en los bordes —linderos y vereda— llega a 5 px, o sea que la cámara se
+  movió apenas, pero no donde hay polígonos. Además se verificó a ojo, dibujando los
+  polígonos convertidos sobre el render.
+- El `View 01` llegó a **4807×2708**, que NO es 16:9. Se recortó a **4807×2704** (2 filas
+  arriba y 2 abajo; polígonos y bolita con `y − 2`): el visor cambia de proporción de
+  escenario al aterrizar, y con una vista fuera de 16:9 cada llegada al stop 0 pegaba un
+  salto de ~1 px. El original quedó en `_media-src/stops/_originales-2026-09-13/`.
+
+Los scripts de esa conversión quedaron en `_media-src/_drop-13-09/` (gitignoreado). Si
+vuelve a llegar un re-render de una vista con polígonos, **ese es el procedimiento**: medir
+primero, y convertir sólo si los residuos dan sub-píxel donde hay polígonos.
 
 #### Por qué los ids se renumeraron
 
@@ -750,7 +776,7 @@ celular vertical la imagen entraría como una tira finita; ahí el dedo recorre 
 ### El punto 360° del exterior
 
 La "bolita" que flota sobre el render del showroom. Vive en `src/lib/vr-hotspots.ts`,
-con las coordenadas en **píxeles nativos del render** (4999×2812), igual que los polígonos.
+con las coordenadas en **píxeles nativos del render de cada vista**, igual que los polígonos.
 
 El cliente marcó **un solo punto** (Miro "Division showroom", 25-08): la puerta del hall,
 entre el café y el local. Se ve desde las dos vistas a nivel de calle, así que va en las
@@ -760,11 +786,13 @@ contrafrente.
 
 Con el re-render del 27-08 la vista 1 pasó de 4000×2250 a 4999×2812 **sin cambiar el
 encuadre** (39,6 dB de PSNR entre los dos masters remuestreados), así que su punto se
-convirtió por escala pura: `1390,1520` → `1737,1900`, verificado sobre el JPG nuevo.
+convirtió por escala pura: `1390,1520` → `1737,1900`, verificado sobre el JPG nuevo. Con el
+re-render del 13-09 volvió a 4000×2250 y el punto volvió con ella: `1737,1900` → `1389,1520`.
+La de la vista 0 pasó de `2230,2400` a `2146,2312` (ver [Los 5 stops](#los-5-stops)).
 
 Ojo con el borde de abajo: en una ventana maximizada se recortan los últimos ~220px
 nativos (ver [El encuadre del render](#el-encuadre-del-render)), así que un `y` muy pegado
-al piso queda fuera de cuadro. Por eso la bolita de la vista 0 va en 2400 y no más abajo.
+al piso queda fuera de cuadro. Por eso la bolita de la vista 0 va en y=2312 (de 2704) y no más abajo.
 El clamp de `VrHotspot` es sólo la red de seguridad para contenedores muy bajos.
 
 **Qué abre la bolita.** Desde el 30-08 abre el recorrido de **amenities**
@@ -890,11 +918,18 @@ aterrizaje tiene que dar **≥30 dB** o se ve un salto al estacionar. Hoy:
 
 | Tramo | Frames | Arranque | Aterrizaje | Peso |
 |---|---|---|---|---|
-| 0→1 | 31 | 37,39 dB | 38,12 dB | 4,0 MB |
-| 1→2 | 31 | 38,12 dB | 34,61 dB | 3,1 MB |
-| 2→3 | 31 | 34,61 dB | 27,39 dB | 2,6 MB |
-| 3→4 | 31 | 27,39 dB | 30,29 dB | 3,9 MB |
-| 4→0 | 31 | 30,29 dB | 37,39 dB | 2,5 MB |
+| 0→1 | 31 | 34,93 dB | 38,43 dB | 3,8 MB |
+| 1→2 | 31 | 38,43 dB | 34,61 dB | 2,9 MB |
+| 2→3 | 31 | 34,61 dB | 27,39 dB | 2,7 MB |
+| 3→4 | 31 | 27,39 dB | 30,29 dB | 4,0 MB |
+| 4→0 | 31 | 30,29 dB | 34,93 dB | 2,5 MB |
+
+Actualizado el 13-09: el 0→1 y el 1→2 son los clips nuevos, y el 4→0 se re-extrajo sólo
+para cambiarle el frame de cierre (el primero del `0-30` nuevo), así aterriza en el stop 0
+nuevo. El cierre del anillo no empeoró: el paso entre el último frame del 4→0 y ese frame
+de cierre da 13,65 dB (con el render viejo era 13,77), más suave que el paso mediano del
+propio clip (10,7). ⚠ **Cada vez que cambie el render del stop 0, hay que re-extraer el
+4→0**, aunque su clip sea el mismo.
 
 Fijate que **el aterrizaje de cada tramo es idéntico al arranque del siguiente**. Esa es la
 firma de un anillo bien armado: cada stop está representado por UN frame, compartido como
@@ -907,7 +942,7 @@ corrimiento. Es detalle fino, el render de `View 03` tiene follaje denso y la pi
 video de 1080p no puede reproducir esa textura. El crossfade de aterrizaje lo tapa; el
 cliente lo probó y no se ve nada.
 
-17 MB en total. Pesan más que los de Caviahue (9,2 MB con 30 frames a 1080p y la misma
+16 MB en total. Pesan más que los de Caviahue (9,2 MB con 30 frames a 1080p y la misma
 calidad) porque las escenas son mucho más densas —calle urbana, follaje, ladrillo
 texturado—. Bajar la calidad de WebP 78 → 70 ahorra sólo un 15%, así que no vale la pena
 moverse del baseline. Los frames no bloquean nada: se precargan desde la intro y el
@@ -931,6 +966,11 @@ Y en los cinco, ese frame matchea el still mucho mejor que el último frame del 
 | 2→3 | 20,78 dB | **27,39 dB** |
 | 3→4 | 27,88 dB | **30,29 dB** |
 | 4→0 | 16,94 dB | **37,39 dB** |
+
+Los clips del 13-09 vienen con el mismo corte. Medido contra el render del stop de destino:
+el último frame del `0-30` da 24,8 dB y el primero del `30-60`, 33,8; el último del `30-60`,
+25,9 dB y el primero del `60-90`, 31,0. Por eso siguen llevando `--land` y quedan en 31
+frames: los 30 del clip, enteros, más el del stop.
 
 El caso que lo hace evidente es el 4→0: sin el frame de cierre, el último frame que se
 sirve todavía tiene la cámara en movimiento —el edificio corrido a la izquierda y el árbol

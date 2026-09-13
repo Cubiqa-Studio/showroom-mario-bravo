@@ -3,9 +3,9 @@
 //
 // Las coordenadas van en el ESPACIO NATIVO del render del stop —igual que los
 // polígonos—, así la bolita trackea la imagen al hacer object-cover en cualquier
-// viewport. Desde el drop del 27-08 las CINCO vistas comparten espacio (**4999×2812**);
-// antes la 0 iba a 5k y las 1-3 a 4000×2250. Igual, la fuente de verdad sigue siendo
-// `imageWidth`/`imageHeight` de `stops.json`, no este comentario.
+// viewport. Cada vista tiene SU espacio: desde el drop del 13-09 la 0 es 4807×2704 y la 1
+// es 4000×2250; la 2, la 3 y la 4 siguen en 4999×2812 (las cinco son 16:9). La fuente de
+// verdad es `imageWidth`/`imageHeight` de `stops.json`, no este comentario.
 //
 // Para reubicar una bolita: abrí `public/stops/stop-<n>.jpg`, mirá en qué píxel cae
 // el punto y escribilo acá. Ojo: el visor va con "cover", así que en un viewport más
@@ -88,23 +88,18 @@ const GARDEN_PREVIEW: [string, string, string] = [
  * baja entera fuera de cuadro, así que no hay dónde anclarla.
  */
 export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
-  // Stop 0 (landing, fachada de frente). ⚠ Espacio 4999×2812 — el render de 5k que
-  // reemplazó al recorte extendido de 5000×2250 el 25-08. NO es el mismo encuadre: la
-  // cámara quedó más lejos, así que las coordenadas viejas NO se convierten con una
-  // regla de tres. Medido sobre `public/stops/stop-0.jpg` con grilla:
-  //   café          x≈1450-1780
-  //   VANO DEL HALL x≈1990-2260 · y≈2220 (dintel) → 2480 (piso), hoja en x≈2020-2140
-  //   local         x≈2250-2900
-  // 27-08: estaba en x=2040, que cae sobre la MACETA y el paño de listones a la
-  // izquierda del vano, no sobre la puerta. La puerta de verdad son las dos hojas de
-  // vidrio con los tiradores verticales: medido sobre `public/stops/stop-0.jpg` con
-  // grilla, van de x≈2200 a x≈2260, así que el centro es 2230.
-  // La `y` no se movió: 2400 es la altura de los tiradores. Más abajo se la come el
-  // recorte de una ventana maximizada, que en esta vista se lleva los últimos ~220px
-  // nativos (ver README § El encuadre del render).
+  // Stop 0 (landing, fachada de frente). ⚠ Espacio 4807×2704 desde el re-render del
+  // 13-09. La cámara casi no se movió: medido por registro de imagen contra el render
+  // anterior (4999×2812), p_nuevo = 0,9642·p_viejo + (−4,7; +0,1), y después el render se
+  // recortó 2 filas arriba y 2 abajo para dejarlo en 16:9 exacto (y −2).
+  // El punto viejo, (2230, 2400), es la puerta de vidrio del hall a la altura de los
+  // tiradores (el 27-08 estaba en x=2040, sobre la maceta y el paño de listones de al
+  // lado). Convertido con esa fórmula da (2146, 2312), verificado a ojo sobre el render
+  // nuevo (residuo local 0,4 px). No bajarla: una ventana maximizada se come ~8% del
+  // alto por abajo (ver README § El encuadre del render).
   0: {
-    x: 2230,
-    y: 2400,
+    x: 2146,
+    y: 2312,
     scale: 0.85,
     // Abre el recorrido de AMENITIES (pedido de Joaquim, 30-08: el link que mandó
     // el cliente va en la bolita de las vistas 01 y 02).
@@ -125,13 +120,13 @@ export const VR_HOTSPOTS: Record<number, VrHotspotConfig> = {
   // Stop 1 (esquina) — la MISMA puerta, vista de costado: el paño oscuro sobre el
   // muro de listones de madera. Acá queda a media altura del render, así que no la
   // toca ningún recorte.
-  // Con el re-render del 27-08 esta vista pasó de 4000×2250 a 4999×2812 SIN cambiar
-  // el encuadre (39,6 dB de PSNR entre los dos masters remuestreados), así que el
-  // punto se convirtió por escala pura —1390×4999/4000, 1520×2812/2250— y se verificó
-  // sobre el JPG nuevo: cae sobre el paño de madera, entre el café y el local.
+  // Con el re-render del 13-09 esta vista volvió a 4000×2250 SIN mover la cámara
+  // (registro de imagen: escala 0,7998, residuo máximo 0,35 px en toda la imagen), así
+  // que el punto se convirtió por escala pura: (1737, 1900) → (1389, 1520). Es, a un
+  // píxel, el que tenía cuando esta vista ya medía 4000×2250 (1390, 1520).
   1: {
-    x: 1737,
-    y: 1900,
+    x: 1389,
+    y: 1520,
     scale: 0.8,
     kuulaUrl: AMENITIES_360 ?? undefined,
     // Mismo mosaico que la vista 0: es la misma puerta y el mismo recorrido.
