@@ -1,25 +1,26 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Datos de contacto del showroom.
-//   - WHATSAPP_NUMBER: destino de TODOS los botones de WhatsApp. Formato
-//     internacional, sólo dígitos (ej. "5491165462626").
+//   - WHATSAPP_NUMBER: WhatsApp de la DESARROLLADORA (CCM). Destino de todos los
+//     botones de WhatsApp en las visitas sin parámetro o con `?v=desarrolladora`.
+//   - WHATSAPP_NUMBER_INMOBILIARIA: el de la inmobiliaria, para `?v=inmobiliaria`.
 //   - WHATSAPP_NUMBER_2: segundo contacto. Hoy no se muestra en UI; queda acá
 //     como fuente canónica por si se lista en alguna sección.
 //
-// ⚠ PLACEHOLDER — el cliente todavía no pasó los números de ventas. Con el string
-// vacío los CTA de WhatsApp abren el selector de contacto en vez de un chat con
-// ventas: sirve para demo, NO para producción. Completalos antes de publicar.
+// Formato de wa.me: internacional y SÓLO dígitos — 54 (Argentina) + 9 (celular) +
+// característica sin el 0 + número sin el 15. Los pasó Camila el 14-09-2026 como
+// "1165668320" (desarrolladora) y "54 9 11 5149-6123" (inmobiliaria).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const WHATSAPP_NUMBER = "";
+export const WHATSAPP_NUMBER = "5491165668320";
 export const WHATSAPP_NUMBER_2 = "";
 
 /** WhatsApp de la INMOBILIARIA que comercializa. Lo usan sólo las visitas que
  *  entraron por su link (`?v=inmobiliaria`, ver src/lib/origen.ts).
  *
- *  ⚠ PLACEHOLDER — falta el número. A propósito NO cae al de la desarrolladora:
- *  es preferible que se note que falta un número a mandarle callado el lead de
- *  una al teléfono de la otra. */
-export const WHATSAPP_NUMBER_INMOBILIARIA = "";
+ *  A propósito NO cae al de la desarrolladora si alguna vez queda vacío: es
+ *  preferible que se note que falta un número a mandarle callado el lead de una al
+ *  teléfono de la otra. */
+export const WHATSAPP_NUMBER_INMOBILIARIA = "5491151496123";
 
 export const CONSULT_MESSAGE =
   "¡Hola! Estoy viendo el Showroom de TIER Bravo (Mario Bravo 955) y quería hacer una consulta.";

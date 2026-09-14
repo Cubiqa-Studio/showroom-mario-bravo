@@ -260,11 +260,13 @@ solos.
 cambiarlo. Alcanza de sobra para que cada campaña alimente su bandeja; no sirve para nada
 que tenga que ser infalsificable.
 
-⚠ **Faltan los datos**: el nombre y el WhatsApp de la inmobiliaria, y su casilla de mail
-(y el WhatsApp de ventas de la desarrolladora sigue vacío desde el principio). Con el
-número en blanco, el botón de WhatsApp abre el selector de contactos. A propósito no cae
-al número de la otra parte: es preferible que se note que falta un número a mandarle
-callado el lead de una al teléfono de la otra.
+Los datos los pasó Camila el 14-09-2026: WhatsApp de la desarrolladora `5491165668320` y
+de la inmobiliaria `5491151496123` (`src/lib/contact.ts`), y la casilla de leads de la
+desarrolladora en `EMAIL_TO`. ⚠ **Siguen faltando** el nombre comercial y la casilla de la
+inmobiliaria: sin casilla, sus leads caen en `EMAIL_TO` con "Vino por: Inmobiliaria". Si un
+número vuelve a quedar en blanco, el botón de WhatsApp abre el selector de contactos, y a
+propósito no cae al número de la otra parte: es preferible que se note que falta a
+mandarle callado el lead de una al teléfono de la otra.
 
 ### "El Equipo"
 
@@ -1255,8 +1257,7 @@ faltantes) y de dónde salió cada asset.
 | **Renders con ~440px menos de alto** (5000×2375) | Con 16:9 se recorta el 15,6% del alto en una ventana maximizada. Ver [El encuadre del render](#el-encuadre-del-render) — son *menos* píxeles, no cuesta más tiempo de render. |
 | **¿El dominio definitivo es `tierbravo.kuvus.app`?** | Ya está cargado como dominio de producción (`PROD_SITE_URL` en `src/lib/seo.ts`, el redirect www→apex del `.htaccess`, `NEXT_PUBLIC_SITE_URL`). Si el cliente compra un dominio propio, esos tres lugares se actualizan juntos y hay que rebuildear: el valor se hornea en canonical, og:url y sitemap. |
 | **Tipografía del logotipo** | Camila se lo preguntó al cliente. Sin eso no se pueden armar lockups tipográficos coherentes con el wordmark. |
-| **Teléfonos de ventas** | `WHATSAPP_NUMBER` (`src/lib/contact.ts`) está vacío → los CTA abren el selector de contacto. |
-| **Casilla de leads + verificar dominio en Resend** | `EMAIL_TO`. Sin dominio verificado, Resend sólo entrega a la cuenta dueña de la key. |
+| **Nombre y casilla de la inmobiliaria** | Sin casilla, sus leads caen en `EMAIL_TO` con "Vino por: Inmobiliaria"; sin nombre, el mail dice "Inmobiliaria". Los dos WhatsApp y la casilla de la desarrolladora ya están cargados (14-09), con remitente en `tierbravo.kuvus.app`, que está verificado en Resend. |
 | **¿Los precios son públicos?** | Airtable los trae y hoy viajan en el HTML sin mostrarse. Ver el aviso en [Data en vivo](#data-en-vivo-airtable). |
 | **Token de Airtable definitivo** | El actual lo pasó el cliente para probar y va a ser rotado. |
 | **Pin exacto del edificio** | `SITE.location` tiene coordenadas aproximadas de la altura 900 de Mario Bravo. |

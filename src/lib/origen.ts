@@ -52,11 +52,12 @@ export interface Comercializador {
 }
 
 /**
- * ⚠ PLACEHOLDER — falta el nombre y el WhatsApp de la inmobiliaria (y el de ventas
- * de la desarrolladora sigue vacío desde el principio, ver `contact.ts`). Con el
- * string vacío el botón de WhatsApp abre el selector de contactos en vez de un chat.
- * A propósito NO cae al número de la otra: es preferible que se vea que falta un
- * número a mandarle callado el lead de una al teléfono de la otra.
+ * Los dos WhatsApp salen de `contact.ts` (cargados el 14-09-2026). Lo que sigue
+ * faltando es el NOMBRE comercial de la inmobiliaria: hasta que llegue, el mail del
+ * lead dice "Inmobiliaria". Si un número vuelve a quedar vacío, el botón abre el
+ * selector de contactos en vez de un chat, y a propósito NO cae al de la otra: es
+ * preferible que se vea que falta a mandarle callado el lead de una al teléfono de
+ * la otra.
  */
 export const COMERCIALIZADORES: Record<Origen, Comercializador> = {
   desarrolladora: { nombre: "TIER Desarrollos", whatsapp: WHATSAPP_NUMBER },
