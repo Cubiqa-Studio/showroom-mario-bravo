@@ -1141,10 +1141,18 @@ contra 16): la pauta del cliente se respeta, lo que se corrige es el tamaño rel
 
 | Escalón | Ancho | `--text-base` | `--fs-k` |
 |---|---|---|---|
-| Escritorio | > 1180px | 20px | 1 |
-| Tablet | 721-1180px | 17.5px | 0.9 |
-| Celular | ≤ 720px | 17px | 0.85 |
-| Celular chico | ≤ 400px | 16px | 0.81 |
+| Escritorio | > 1180px | 15.3px | 0.77 |
+| Tablet | 721-1180px | 13.39px | 0.69 |
+| Celular | ≤ 720px | 14.08px | 0.7 |
+| Celular chico | ≤ 400px | 13.25px | 0.68 |
+
+⚠ **14-09: −10% en toda la escala, por el cambio a Montserrat.** A los mismos píxeles
+Montserrat se ve bastante más grande que Jost —medido con las dos fuentes cargadas: la
+altura de la x es un 15-17% mayor y el texto ocupa un 10-16% más de ancho—, así que desde el
+cambio de fuente todo había quedado grande. Con −10% el ancho vuelve al de la escala que el
+cliente aprobó con Jost y la x queda apenas por encima (~4%): no se pierde legibilidad. Se
+aplicó a los `--fs-*` y `--fs-k` de los cuatro bloques a la vez; el script es
+`_media-src/_contacto-14-09/escala.js` (`node escala.js 0.9`). La portada no usa esta escala.
 
 Dos palancas, y nada más:
 

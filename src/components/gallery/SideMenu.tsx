@@ -160,7 +160,11 @@ export function SideMenu({
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", stiffness: 360, damping: 38 }}
-                className="absolute right-0 top-0 flex h-full w-[300px] max-w-[85vw] flex-col bg-paper shadow-2xl ring-1 ring-line"
+                // 360px, no 300 (14-09): "VOLVER A TIER DESARROLLOS" mide 255px de texto a
+                // 15,3px y en el cajón de 300 quedaban 220 → cortaba en dos líneas, y no por
+                // la Montserrat: con Jost tampoco entraba. En teléfono manda el 90vw (a 320px
+                // de ancho quedan 208px para el texto, que mide 195).
+                className="absolute right-0 top-0 flex h-full w-[360px] max-w-[90vw] flex-col bg-paper shadow-2xl ring-1 ring-line"
               >
                 <header className="flex items-center justify-between px-5 py-4">
                   <div>

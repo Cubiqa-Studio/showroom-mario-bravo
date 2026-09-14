@@ -93,23 +93,30 @@
      Con esto el cuerpo de escritorio queda en 17px contra los 16 del default: sigue
      siendo "letra grande", pero deja de gritar. Si Juani quiere otro escalón, la palanca
      son estos números + `--fs-k`, y no hay que tocar nada más.
+
+     ⚠ REBAJA DEL 14-09: −10% en los cuatro bloques (`--fs-*` y `--fs-k`), por el cambio
+     a Montserrat. A los mismos px se ve bastante más grande que Jost —medido con las dos
+     cargadas: la x es 15-17% más alta y el texto ocupa 10-16% más de ancho—. Con −10% el
+     ancho vuelve al de la escala aprobada con Jost y la x queda ~4% por encima, así que
+     el cuerpo de escritorio en 15,3px se LEE como los 17px de antes. Script:
+     `_media-src/_contacto-14-09/escala.js` (`node escala.js <factor>`).
      ============================================================ */
-  --fs-xs: 14.88px; /* Tailwind: 12px */
-  --fs-sm: 17px; /* Tailwind: 14px */
-  --fs-base: 17px; /* Tailwind: 16px */
-  --fs-lg: 18.7px; /* Tailwind: 18px */
-  --fs-xl: 20.82px; /* Tailwind: 20px */
-  --fs-2xl: 24.65px; /* Tailwind: 24px */
-  --fs-3xl: 29.75px; /* Tailwind: 30px */
-  --fs-4xl: 34.85px; /* Tailwind: 36px */
-  --fs-5xl: 44.2px; /* Tailwind: 48px */
-  --fs-6xl: 53.98px; /* Tailwind: 60px */
-  --fs-7xl: 65.02px; /* Tailwind: 72px */
+  --fs-xs: 13.39px; /* Tailwind: 12px */
+  --fs-sm: 15.3px; /* Tailwind: 14px */
+  --fs-base: 15.3px; /* Tailwind: 16px */
+  --fs-lg: 16.83px; /* Tailwind: 18px */
+  --fs-xl: 18.74px; /* Tailwind: 20px */
+  --fs-2xl: 22.19px; /* Tailwind: 24px */
+  --fs-3xl: 26.78px; /* Tailwind: 30px */
+  --fs-4xl: 31.37px; /* Tailwind: 36px */
+  --fs-5xl: 39.78px; /* Tailwind: 48px */
+  --fs-6xl: 48.58px; /* Tailwind: 60px */
+  --fs-7xl: 58.52px; /* Tailwind: 72px */
 
   /* Multiplicador de la tipografía de la LANDING (residencia.css), que no usa
      utilidades de Tailwind sino ~160 `font-size` en px. Escala todas juntas
      manteniendo las proporciones que ya están decididas. Una sola palanca. */
-  --fs-k: 0.85;
+  --fs-k: 0.77;
 }
 
 /* ── TABLET (721-1180px) ─────────────────────────────────────────────────────
@@ -119,18 +126,18 @@
    cliente se mantiene), sólo deja de comerse la pantalla. */
 @media (min-width: 721px) and (max-width: 1180px) {
   :root {
-    --fs-xs: 13.17px;
-    --fs-sm: 14.88px;
-    --fs-base: 14.88px;
-    --fs-lg: 16.57px;
-    --fs-xl: 18.27px;
-    --fs-2xl: 21.68px;
-    --fs-3xl: 26.35px;
-    --fs-4xl: 30.6px;
-    --fs-5xl: 38.67px;
-    --fs-6xl: 47.6px;
-    --fs-7xl: 56.95px;
-    --fs-k: 0.77;
+    --fs-xs: 11.85px;
+    --fs-sm: 13.39px;
+    --fs-base: 13.39px;
+    --fs-lg: 14.91px;
+    --fs-xl: 16.44px;
+    --fs-2xl: 19.51px;
+    --fs-3xl: 23.72px;
+    --fs-4xl: 27.54px;
+    --fs-5xl: 34.8px;
+    --fs-6xl: 42.84px;
+    --fs-7xl: 51.26px;
+    --fs-k: 0.69;
   }
 }
 
@@ -143,36 +150,36 @@
    corrige es que un teléfono de 360-412px no es un monitor de 1400. */
 @media (max-width: 720px) {
   :root {
-    --fs-xs: 11.96px;
-    --fs-sm: 13.8px;
-    --fs-base: 15.64px;
-    --fs-lg: 17.02px;
-    --fs-xl: 18.86px;
-    --fs-2xl: 22.08px;
-    --fs-3xl: 25.76px;
-    --fs-4xl: 29.9px;
-    --fs-5xl: 35.88px;
-    --fs-6xl: 43.24px;
-    --fs-7xl: 51.52px;
-    --fs-k: 0.78;
+    --fs-xs: 10.76px;
+    --fs-sm: 12.42px;
+    --fs-base: 14.08px;
+    --fs-lg: 15.32px;
+    --fs-xl: 16.97px;
+    --fs-2xl: 19.87px;
+    --fs-3xl: 23.18px;
+    --fs-4xl: 26.91px;
+    --fs-5xl: 32.29px;
+    --fs-6xl: 38.92px;
+    --fs-7xl: 46.37px;
+    --fs-k: 0.7;
   }
 }
 
 /* ── CELULAR CHICO (≤400px) — iPhone SE, Galaxy A0x y similares. */
 @media (max-width: 400px) {
   :root {
-    --fs-xs: 11.5px;
-    --fs-sm: 12.88px;
-    --fs-base: 14.72px;
-    --fs-lg: 16.1px;
-    --fs-xl: 17.48px;
-    --fs-2xl: 20.24px;
-    --fs-3xl: 23.92px;
-    --fs-4xl: 27.6px;
-    --fs-5xl: 33.12px;
-    --fs-6xl: 39.56px;
-    --fs-7xl: 46.92px;
-    --fs-k: 0.75;
+    --fs-xs: 10.35px;
+    --fs-sm: 11.59px;
+    --fs-base: 13.25px;
+    --fs-lg: 14.49px;
+    --fs-xl: 15.73px;
+    --fs-2xl: 18.22px;
+    --fs-3xl: 21.53px;
+    --fs-4xl: 24.84px;
+    --fs-5xl: 29.81px;
+    --fs-6xl: 35.6px;
+    --fs-7xl: 42.23px;
+    --fs-k: 0.68;
   }
 }
 
