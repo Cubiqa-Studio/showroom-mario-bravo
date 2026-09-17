@@ -53,7 +53,6 @@ extensión, 404, cache) y hace de stand-in del PHP para `/api/unidades` y
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST` | Analítica | Sin eventos |
 | `NEXT_PUBLIC_SITE_URL` | Canonical, `og:url`, **`og:image`**, sitemap, JSON-LD | Cae al placeholder de `src/lib/seo.ts` — ver abajo |
 | `NEXT_PUBLIC_API_BASE` | Sólo si el proxy NO vive en el mismo dominio | Default `/api` (el caso normal) |
-| `NEXT_PUBLIC_CHATBASE_ID` | Widget de chat de Chatbase | No se monta el widget (silencioso: no hay error ni hueco) |
 
 ⚠ `RESEND_API_KEY`, `EMAIL_TO` y compañía **no** van en el build: son del PHP.
 

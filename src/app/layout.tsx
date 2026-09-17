@@ -6,7 +6,6 @@ import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { OrigenProvider } from "@/components/OrigenProvider";
 import { CubiqaBadge } from "@/components/CubiqaBadge";
-import { ChatbaseWidget } from "@/components/ChatbaseWidget";
 import { getUnitIds } from "@/lib/data";
 import {
   SITE_URL,
@@ -93,8 +92,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const chatbaseId = process.env.NEXT_PUBLIC_CHATBASE_ID;
-
   return (
     <html
       lang={HTML_LANG}
@@ -126,7 +123,6 @@ export default function RootLayout({
         <footer>
           <CubiqaBadge />
         </footer>
-        {chatbaseId ? <ChatbaseWidget agentId={chatbaseId} /> : null}
       </body>
     </html>
   );

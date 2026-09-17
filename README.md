@@ -26,7 +26,6 @@ No hace falta ninguna variable de entorno: sin Airtable la app lee `src/data/uni
 y sin Resend el formulario de contacto devuelve 500 controlado. Copiá `.env.example` a
 `.env.local` cuando conectes los servicios. `ffmpeg` sólo hace falta para los pipelines
 de video/frames.
-El widget de chat de Chatbase se prende con `NEXT_PUBLIC_CHATBASE_ID` (ver `.env.example`).
 
 ## Rutas
 
