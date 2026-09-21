@@ -55,7 +55,7 @@ export function UnitFinderModal({
   open: boolean;
   onClose: () => void;
   /** Unidades EN VIVO ya mergeadas (las pasa el showroom). Sin esto, se traen de
-   *  /api/unidades al abrirse (caso landing). */
+   *  /api/proyecto al abrirse (caso landing). */
   units?: Units;
 }) {
   const abrirFicha = useAbrirFicha();

@@ -29,7 +29,16 @@ function traerAvance(): Promise<AvanceObra | null> {
       // Registros CRUDOS de Airtable; el parseo (elegir la fila más reciente y
       // resolver los nombres de columna) es el mismo que usa el build.
       const records = (data?.records as AirtableRecord[] | undefined) ?? [];
-      resuelto = parseAvance(records);
+      const avance = parseAvance(records);
+      // El VACÍO no se memoiza: el proxy responde 200 con `records: []` tanto si la
+      // tabla no está configurada como si Airtable no contestó, y guardar eso
+      // dejaría el badge escondido el resto de la sesión por un hipo de tres
+      // segundos. Se libera el flag y el próximo montaje reintenta.
+      if (!avance) {
+        enVuelo = null;
+        return null;
+      }
+      resuelto = avance;
       return resuelto;
     })
     .catch(() => {

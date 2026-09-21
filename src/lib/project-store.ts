@@ -44,8 +44,14 @@ import { mergeLiveUnits, parseProyecto, unidadesHuerfanas } from "./cubiqa-parse
 const BASE = unitsData as unknown as Units;
 
 export interface ProyectoResuelto {
-  /** units.json con los campos en vivo ya pisados. */
-  units: Units;
+  /** units.json con los campos en vivo ya pisados, o `null` si el back no trajo
+   *  NINGUNA unidad (proyecto recién creado, catálogo sin cargar, id equivocado).
+   *
+   *  Nullable a propósito: un `Units` vacío-pero-presente le ganaría a las unidades
+   *  horneadas en el build (`useLiveUnits(fallback)` hace `?? fallback`, así que sólo
+   *  un null deja pasar el fallback) y el sitio se repintaría a todo verde y
+   *  "Consultar" unos cientos de ms después de cargar. */
+  units: Units | null;
   /** El brochure del proyecto, o `null` si el cliente no subió ninguno. */
   brochure: CubiqaBrochure | null;
 }
@@ -78,15 +84,27 @@ export function getProyecto(): Promise<ProyectoResuelto | null> {
     .then((body) => {
       // El endpoint devuelve el `data` del back tal cual, bajo `project`. El
       // mapeo y el merge se hacen acá, con el MISMO código que usa el build
-      // (src/lib/cubiqa-parse.ts). Sin unidades no hay nada que pisar.
+      // (src/lib/cubiqa-parse.ts).
       const { units, brochure } = parseProyecto(body?.project);
-      if (!Object.keys(units).length && !brochure) {
-        resuelto = null;
+      const hayUnidades = Object.keys(units).length > 0;
+
+      // NADA: ni unidades ni brochure. Puede ser el back caído, el proxy sin
+      // configurar o un 404. NO se memoiza —se libera el flag— para que el próximo
+      // montaje reintente: el proxy siempre responde 200 (con `project: null`), así
+      // que si esto se guardara, un hipo de tres segundos justo en la carga dejaría
+      // al visitante con los datos horneados TODA la sesión, sin un solo reintento
+      // hasta el F5. Antes lo salvaba el dedupe por instancia del hook (abrir el
+      // buscador era una segunda chance); con el singleton hay que decirlo acá.
+      if (!hayUnidades && !brochure) {
+        enVuelo = null;
         avisar(null);
         return null;
       }
-      avisarHuerfanas(units);
-      resuelto = { units: mergeLiveUnits(BASE, units), brochure };
+
+      if (hayUnidades) avisarHuerfanas(units);
+      // Las dos mitades por SEPARADO: un proyecto con brochure cargado pero sin
+      // unidades no puede pisar las unidades horneadas con units.json pelado.
+      resuelto = { units: hayUnidades ? mergeLiveUnits(BASE, units) : null, brochure };
       avisar(resuelto);
       return resuelto;
     })

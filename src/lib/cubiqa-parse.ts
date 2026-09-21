@@ -150,25 +150,20 @@ export interface ProyectoEnVivo {
 // Por eso: para precio, total y cubierta, CERO SIGNIFICA "no cargado" y se
 // descarta. Es una decisión, no una omisión.
 //
-// La semicubierta es el caso distinto: ahí `0` es un dato REAL y frecuente (una
-// unidad sin balcón ni patio), y la ficha ya sabe ocultar la fila cuando vale 0.
-// Se acepta ese cero, pero sólo si la fila da señales de estar cargada de verdad
-// (tiene precio, total o cubierta). Así una unidad en blanco no "gana" un 0 que en
-// units.json no estaba.
+// La semicubierta NO es la excepción que parecía. La idea era aceptar su cero
+// —"esta unidad no tiene balcón"— porque la ficha ocultaría la fila; pero el
+// único lugar que la renderiza (PlanSection) filtra por `!= null`, no por `> 0`,
+// así que un 0 se imprime como "Superficie descubierta …… 0 m²". Y las 63
+// unidades de units.json tienen semicubierta > 0, o sea que ese cero nunca es un
+// dato nuevo: siempre pisa uno bueno. Va por la misma puerta que las otras tres.
+//
+// Si algún día entra una unidad sin balcón de verdad, el arreglo es cambiar ese
+// `!= null` por `> 0` en PlanSection y recién ahí aceptar el cero acá.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Número real y POSITIVO, o `undefined`. El `0` se descarta (ver arriba). */
 function positivo(v: unknown): number | undefined {
   return typeof v === "number" && Number.isFinite(v) && v > 0 ? v : undefined;
-}
-
-/** `true` si la fila tiene al menos un número cargado — o sea, no está en blanco. */
-function filaCargada(u: CubiqaUnit): boolean {
-  return (
-    positivo(u.usdPrice) !== undefined ||
-    positivo(u.totalArea) !== undefined ||
-    positivo(u.coveredArea) !== undefined
-  );
 }
 
 /**
@@ -236,16 +231,13 @@ export function parseProyecto(data: unknown): ProyectoEnVivo {
     const name = str((u as CubiqaUnit)?.name);
     if (!name) continue;
     const row = u as CubiqaUnit;
-    const cargada = filaCargada(row);
     units[name] = {
       status: mapEstado(row.state),
       price: money(row.usdPrice),
       ambientes: positivo(row.bedrooms),
       superficieCubierta: positivo(row.coveredArea),
       superficieTotal: positivo(row.totalArea),
-      // El único campo donde un 0 explícito es un dato: "sin descubierta".
-      superficieExterior:
-        cargada && row.semiCoveredArea === 0 ? 0 : positivo(row.semiCoveredArea),
+      superficieExterior: positivo(row.semiCoveredArea),
       vistas: mapVista(row.view),
     };
   }

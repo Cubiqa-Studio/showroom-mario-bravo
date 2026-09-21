@@ -543,7 +543,7 @@ export function SideMenu({
       />
 
       {/* Buscador de unidades. Fuera del bloque `open` para seguir montado al cerrarse
-        el menú. Sin `units`: se traen lazy de /api/unidades al abrir (funciona igual
+        el menú. Sin `units`: se traen lazy de /api/proyecto al abrir (funciona igual
         en el showroom y en la landing). */}
       <UnitFinderModal open={finderOpen} onClose={() => setFinderOpen(false)} />
     </>

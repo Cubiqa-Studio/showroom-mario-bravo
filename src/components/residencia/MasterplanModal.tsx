@@ -19,7 +19,7 @@ import { lockBodyScroll } from "@/lib/scroll-lock";
 
 // Fallback estático (bundleado, seguro en cliente). El estado/precio EN VIVO sale
 // de Cubiqa: si el padre nos pasa `units` (el showroom ya las tiene en vivo) las
-// usamos directo; si no (la landing), las traemos lazy de /api/unidades al abrir.
+// usamos directo; si no (la landing), las traemos lazy de /api/proyecto al abrir.
 const UNITS = unitsData as unknown as Units;
 
 /**
@@ -37,7 +37,7 @@ export function MasterplanModal({
   open: boolean;
   onClose: () => void;
   /** Unidades EN VIVO ya mergeadas (las pasa el showroom). Sin esto, el modal las
-   *  trae solo de /api/unidades al abrirse (caso landing). */
+   *  trae solo de /api/proyecto al abrirse (caso landing). */
   units?: Units;
 }) {
   const abrirFicha = useAbrirFicha();

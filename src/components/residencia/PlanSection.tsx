@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Unit } from "@/lib/types";
 import type { UnitWithId } from "@/lib/data";
 import { formatBaths, unitAmbientes } from "@/lib/residencia";
-import { useBrochureHref } from "@/hooks/useLiveUnits";
+import { useBrochureHref, useLiveUnitsOrNull } from "@/hooks/useLiveUnits";
 import { captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { FloorPlate } from "./FloorPlate";
@@ -38,6 +38,11 @@ export function PlanSection({
   const { t } = useI18n();
   // Brochure EN VIVO (Cubiqa) con el PDF commiteado de respaldo — ver useBrochureHref.
   const brochureHref = useBrochureHref();
+  // El map EN VIVO completo para la planta. `floorUnits` son sólo los vecinos del
+  // piso DE ORIGEN y no cambian al usar las flechas ‹ ›, así que sin esto los otros
+  // nueve pisos se pintaban con units.json (todo disponible, todo "Consultar").
+  // No cuesta un pedido extra: es el mismo singleton que ya trajo la unidad.
+  const liveUnits = useLiveUnitsOrNull();
   // Piso de la unidad = su id sin los dos últimos dígitos ("101" → "1", "001" → "0" = PB).
   const floor = unitId.length > 2 ? unitId.slice(0, -2) : unitId;
 
@@ -102,7 +107,7 @@ export function PlanSection({
            animación viewIn. */
         <div className="plate-col" key="plate">
           <div className="plan-view entering">
-            <FloorPlate unitId={unitId} floorUnits={floorUnits} />
+            <FloorPlate unitId={unitId} floorUnits={floorUnits} allUnits={liveUnits ?? undefined} />
           </div>
         </div>
       ) : (

@@ -31,8 +31,9 @@ const ES_BUILD_DE_PROD = process.env.NODE_ENV === "production";
 //     estático no hay middleware, así que directamente no se publica. Es MÁS
 //     seguro que antes: no está, en vez de estar y responder 404.
 //
-//   · Los endpoints con SECRETOS (/api/contact con la key de Resend, /api/unidades
-//     y /api/avance con el token de Airtable). En producción los atiende el proxy
+//   · Los endpoints que necesitan un servidor: /api/contact (key de Resend),
+//     /api/avance (token de Airtable) y /api/proyecto (el back de Cubiqa, que no
+//     lleva secreto pero sí necesita esquivar su CORS y cachear). En prod los atiende el proxy
 //     PHP de deploy/hostinger (ver src/lib/api.ts). En dev siguen siendo estos
 //     route handlers, así que trabajar en local no cambió en nada.
 //

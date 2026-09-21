@@ -33,15 +33,17 @@ export function useLiveUnitsOrNull(enabled = true): Units | null {
   // dato real desde el primer frame, sin parpadear con lo horneado.
   const [units, setUnits] = useState<Units | null>(() => proyectoResuelto()?.units ?? null);
 
+
   useEffect(() => {
     if (!enabled) return;
     let vivo = true;
-    const baja = onProyecto((p) => {
-      if (vivo && p) setUnits(p.units);
-    });
-    void getProyecto().then((p) => {
-      if (vivo && p) setUnits(p.units);
-    });
+    // `p.units` puede ser null (el back contestó pero sin unidades): en ese caso
+    // no se pisa nada y queda lo horneado. Ver ProyectoResuelto.
+    const aplicar = (p: { units: Units | null } | null) => {
+      if (vivo && p?.units) setUnits(p.units);
+    };
+    const baja = onProyecto(aplicar);
+    void getProyecto().then(aplicar);
     return () => {
       vivo = false;
       baja();
@@ -101,7 +103,18 @@ export function useBrochure(enabled = true): CubiqaBrochure | null | undefined {
  * El fallback NO es sólo para el "mientras carga": si Cubiqa devuelve `null`
  * porque el cliente todavía no subió el suyo, el sitio sigue ofreciendo el que ya
  * tenía. Estrenar la integración no puede hacerle perder un botón que hoy funciona.
+ *
+ * ⚠ EL `?v=` NO ES DECORACIÓN. El back guarda el PDF siempre con la misma clave
+ * (`<projectId>/brochure/brochure.pdf`) y lo pisa al re-subir, así que la url del
+ * CDN es IDÉNTICA entre versiones: lo único que cambia es `updatedAt`. Sin colgarlo
+ * de la url, el cliente sube un brochure nuevo y el visitante —y el edge de Bunny,
+ * que cachea 30 días— siguen bajando el viejo sin nada que los invalide. La cache de
+ * 60 s del proxy no ayuda: cachea el JSON, no el PDF. Un query string no cambia el
+ * nombre del objeto en el CDN ni necesita CORS.
  */
 export function useBrochureHref(enabled = true): string | null {
-  return useBrochure(enabled)?.downloadUrl ?? BROCHURE_FALLBACK;
+  const brochure = useBrochure(enabled);
+  if (!brochure) return BROCHURE_FALLBACK;
+  const v = brochure.updatedAt;
+  return v ? `${brochure.downloadUrl}?v=${encodeURIComponent(v)}` : brochure.downloadUrl;
 }

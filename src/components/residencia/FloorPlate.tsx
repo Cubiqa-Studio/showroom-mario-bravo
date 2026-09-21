@@ -253,19 +253,24 @@ export function FloorPlate({
 
   const byId = useMemo(() => {
     const m = new Map<string, UnitWithId>();
-    // ORDEN IMPORTANTE. Primero las unidades del piso actual, que llegan por props y
-    // traen el estado EN VIVO; después las del endpoint, SÓLO para las que falten.
+    // ORDEN IMPORTANTE, de más fresco a más viejo.
     //
-    // Al revés estaba mal: `plateUnits` sale de out/api/plate/<piso>, un archivo
-    // horneado en el build, así que pisaba el dato fresco con uno congelado y una
-    // unidad vendida después del build seguía apareciendo verde en la planta.
-    // El endpoint existe por los ENTREPISOS —en el piso 3 hay polígonos de unidades
-    // del piso 2 (dúplex), que no están en `currentFloorUnits`—, y para eso alcanza
-    // con que rellene los huecos.
-    for (const u of currentFloorUnits) m.set(u.id, u);
+    // 1. El map EN VIVO completo, si lo tenemos. Va PRIMERO y por id (no filtrado
+    //    por piso) porque hay polígonos AJENOS al piso: sobre la azotea (8°) se
+    //    dibujan las terrazas privadas de la 701, 702 y 706, que no están en
+    //    `currentFloorUnits` de ese piso —de hecho el 8° no tiene ninguna unidad
+    //    propia—. Sin esta línea, esas tres se resuelven desde el endpoint y salen
+      //    siempre verdes y "Consultar" aunque estén vendidas.
+    // 2. Los vecinos que llegan por props (la ficha, que no manda `allUnits`).
+    // 3. El endpoint horneado, último recurso.
+    //
+    // `plateUnits` sale de out/api/plate/<piso>, un archivo horneado en el build a
+    // partir de units.json: no sabe nada del estado real y por eso va último.
+    if (allUnits) for (const [id, u] of Object.entries(allUnits)) m.set(id, { id, ...u });
+    for (const u of currentFloorUnits) if (!m.has(u.id)) m.set(u.id, u);
     for (const [id, u] of Object.entries(plateUnits)) if (!m.has(id)) m.set(id, { id, ...u });
     return m;
-  }, [plateUnits, currentFloorUnits]);
+  }, [allUnits, plateUnits, currentFloorUnits]);
 
   // Click en una unidad de la planta → abrir ESA residencia. Misma unidad: subo al
   // hero (scroll suave). Otra unidad: `useAbrirFicha`, que resuelve el destino según

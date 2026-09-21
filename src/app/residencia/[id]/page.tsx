@@ -11,6 +11,7 @@ import {
 } from "@/lib/data";
 import { ResidenciaLandingLive } from "@/components/residencia/ResidenciaLandingLive";
 import { pageMetadata, residenceGraphLd, jsonLdScriptProps } from "@/lib/seo";
+import { unitAmbientes } from "@/lib/residencia";
 
 // Landing STANDALONE de una unidad (acceso directo por link, Google, refresh, SEO).
 // Cuando se llega navegando desde el showroom, la ficha se muestra como OVERLAY
@@ -44,9 +45,14 @@ export async function generateMetadata({
   const unit = await getLiveUnit(id);
   if (!unit) return { title: "Departamento", robots: { index: false } };
   const monoambiente = unit.ambientes === 1 || unit.beds === 0;
+  // Con coma decimal: `bedrooms` es Float en Cubiqa y un 1½ ambientes llega como
+  // 1.5, que interpolado crudo salía "1.5 ambientes" en una página en español —
+  // horneado en el HTML y en el snippet de Google. El resto del sitio lo formatea
+  // con el diccionario; acá no se puede (generateMetadata es servidor).
+  const amb = unitAmbientes(unit).toLocaleString("es-AR");
   const cuerpo = monoambiente
     ? "monoambiente"
-    : `${unit.ambientes} ambientes, ${unit.beds} dorm.`;
+    : `${amb} ambientes, ${unit.beds} dorm.`;
   const baths = `${unit.baths} ${unit.baths === 1 ? "baño" : "baños"}`;
   const m2 = unit.areas?.total ? `${unit.areas.total} m²` : null;
   // La 706 (pasante) no tiene exposición definida: sin dato, se omite.
@@ -67,7 +73,7 @@ export async function generateMetadata({
   const ficha = [cuerpo, baths, m2].filter(Boolean).join(", ");
   // Miro 2026-07-15: sin precio en la description (los precios se sacaron del sitio).
   return pageMetadata({
-    title: `Departamento ${unit.residence} · ${unit.ambientes} amb. en Mario Bravo 955`,
+    title: `Departamento ${unit.residence} · ${amb} amb. en Mario Bravo 955`,
     description: `Departamento ${unit.residence} en Mario Bravo 955, Buenos Aires: ${ficha}${orientacion}. ${piso}. ${cierre}`,
     path: `/residencia/${id}`,
   });

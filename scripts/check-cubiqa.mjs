@@ -122,10 +122,12 @@ const cuenta = (pred) => crudas.filter(pred).length;
 const sinPrecio = cuenta((u) => !(u.usdPrice > 0));
 const sinTotal = cuenta((u) => !(u.totalArea > 0));
 const sinCubierta = cuenta((u) => !(u.coveredArea > 0));
+const sinSemi = cuenta((u) => !(u.semiCoveredArea > 0));
 const sinAmbientes = cuenta((u) => !(u.bedrooms > 0));
 if (sinPrecio) avisos.push(`${sinPrecio} unidad(es) con usdPrice = 0 → quedan en "Consultar".`);
 if (sinTotal) avisos.push(`${sinTotal} unidad(es) con totalArea = 0 → queda la superficie de units.json.`);
 if (sinCubierta) avisos.push(`${sinCubierta} unidad(es) con coveredArea = 0 → idem.`);
+if (sinSemi) avisos.push(`${sinSemi} unidad(es) con semiCoveredArea = 0 → queda la de units.json (las 63 la tienen cargada).`);
 if (sinAmbientes) avisos.push(`${sinAmbientes} unidad(es) con bedrooms = 0 → quedan los ambientes de units.json.`);
 
 const ESTADOS = new Set(["Available", "Reserved", "Sold"]);

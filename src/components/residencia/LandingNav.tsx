@@ -353,7 +353,7 @@ export function LandingNav({
       />
       <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
       <GalleryModal open={galleryOpen} onClose={() => setGalleryOpen(false)} />
-      {/* Buscador de unidades (lupa del nav). Sin `units`: se traen lazy de /api/unidades. */}
+      {/* Buscador de unidades (lupa del nav). Sin `units`: se traen lazy de /api/proyecto. */}
       <UnitFinderModal open={finderOpen} onClose={() => setFinderOpen(false)} />
     </>
   );

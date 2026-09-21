@@ -49,13 +49,16 @@ extensión, 404, cache) y hace de stand-in del PHP para `/api/proyecto` y
 
 | Variable | Para qué | Si falta |
 | --- | --- | --- |
-| `CUBIQA_API_BASE`, `CUBIQA_PROJECT_ID` | Hornear estado/precio/superficies reales en el HTML y traer el brochure | Cae a `units.json`: el HTML sale con "Consultar" hasta que el navegador refresca desde el proxy, y el brochure es el PDF commiteado |
-| `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID`, `AIRTABLE_AVANCE_TABLE_ID` | Avance de obra (lo único que queda en Airtable) | El badge queda oculto hasta el refresco del cliente |
+| `CUBIQA_API_BASE`, `CUBIQA_PROJECT_ID` | Hornear estado/precio/superficies reales en el HTML | Cae a `units.json`: el HTML sale con "Consultar" hasta que el navegador refresca desde el proxy |
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST` | Analítica | Sin eventos |
 | `NEXT_PUBLIC_SITE_URL` | Canonical, `og:url`, **`og:image`**, sitemap, JSON-LD | Cae al placeholder de `src/lib/seo.ts` — ver abajo |
 | `NEXT_PUBLIC_API_BASE` | Sólo si el proxy NO vive en el mismo dominio | Default `/api` (el caso normal) |
 
-⚠ `RESEND_API_KEY`, `EMAIL_TO` y compañía **no** van en el build: son del PHP.
+⚠ Del build salen SOLO las unidades. El **brochure** y el **avance de obra** los
+resuelve el navegador contra el proxy, asi que `AIRTABLE_*`, `RESEND_API_KEY`,
+`EMAIL_TO` y compañía **no** van en el build: son del PHP (`showroom-config.php`).
+Las dos `CUBIQA_*` van en LOS DOS lados — en el build para hornear, y en el config
+del PHP para el dato en vivo.
 
 ### Ojo con `NEXT_PUBLIC_SITE_URL`
 
@@ -128,7 +131,6 @@ curl -sI  $S/residencia/9999       # 404 + la página 404 del sitio
 curl -s   $S/api/plate/5 | head -c 120   # {"plate":{"floor":"5"…  (archivo estático)
 curl -s   $S/api/proyecto | head -c 120  # {"project":{"id":"…     (PHP → Cubiqa)
 curl -s   $S/api/avance   | head -c 120  # {"records":[{"id":"rec…  (PHP → Airtable)
-curl -s   $S/api/avance   | head -c 120  # {"records":[…]}
 curl -sI  $S/frames/  --   # (elegí un frame real) → Cache-Control: max-age=86400
 curl -sI  $S/sitemap.xml           # 200, application/xml
 ```
