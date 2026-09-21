@@ -107,10 +107,16 @@ export function useBrochure(enabled = true): CubiqaBrochure | null | undefined {
  * ⚠ EL `?v=` NO ES DECORACIÓN. El back guarda el PDF siempre con la misma clave
  * (`<projectId>/brochure/brochure.pdf`) y lo pisa al re-subir, así que la url del
  * CDN es IDÉNTICA entre versiones: lo único que cambia es `updatedAt`. Sin colgarlo
- * de la url, el cliente sube un brochure nuevo y el visitante —y el edge de Bunny,
- * que cachea 30 días— siguen bajando el viejo sin nada que los invalide. La cache de
- * 60 s del proxy no ayuda: cachea el JSON, no el PDF. Un query string no cambia el
- * nombre del objeto en el CDN ni necesita CORS.
+ * de la url, el cliente sube un brochure nuevo y el visitante sigue bajando el viejo
+ * sin nada que lo invalide (el CDN manda `max-age=2592000`, o sea 30 días). La cache
+ * de 60 s del proxy no ayuda: cachea el JSON, no el PDF. Un query string no cambia el
+ * nombre del objeto en el storage ni necesita CORS.
+ *
+ * ⚠ Esto rompe la cache DEL NAVEGADOR con seguridad. Que rompa también la del EDGE de
+ * Bunny depende de si el pull zone tiene el query string en la clave de cache —es una
+ * opción del panel de Cubiqa, no algo que se vea desde acá—. Si no la tiene, el edge
+ * puede seguir sirviendo el PDF viejo hasta que expire; hay que pedirles que la
+ * prendan o que purguen al re-subir.
  */
 export function useBrochureHref(enabled = true): string | null {
   const brochure = useBrochure(enabled);
