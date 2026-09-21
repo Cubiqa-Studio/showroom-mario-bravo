@@ -38,13 +38,17 @@ Options -Indexes
   RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
   # ── 1. Endpoints del proxy PHP ──────────────────────────────────────────────
-  # El código cliente pide /api/unidades, /api/avance y /api/contact (mismas
+  # El código cliente pide /api/proyecto, /api/avance y /api/contact (mismas
   # rutas que en `next dev`, ver src/lib/api.ts). Acá se mapean a los .php.
+  #
+  # La lista de nombres es EXACTA y está anclada: si agregás un endpoint al
+  # proxy y te olvidás de sumarlo acá, Apache devuelve 404 y el front lo ve como
+  # "el proxy no contesta".
   #
   # OJO: /api/plate/<piso> NO entra acá. Eso es un ARCHIVO estático horneado en el
   # build (out/api/plate/5), y las condiciones de abajo sólo matchean los tres
   # nombres exactos, así que las plantas siguen sirviéndose de disco.
-  RewriteRule ^api/(unidades|avance|contact)/?$ api/$1.php [L]
+  RewriteRule ^api/(proyecto|avance|contact)/?$ api/$1.php [L]
 
   # Las plantas horneadas (out/api/plate/5) salen SIN extensión, así que Apache no
   # sabe que son JSON. Marcamos el pedido con una variable de entorno y el bloque

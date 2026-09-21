@@ -34,7 +34,7 @@ function Flecha() {
 
 /**
  * Contenido del CTA. Va DENTRO del <Link> para poder leer `useLinkStatus()`: mientras
- * la navegación al showroom está en vuelo (la página hace fetch de stops + Airtable)
+ * la navegación al showroom está en vuelo (la página hace fetch de stops + catálogo)
  * `pending` es true y la flecha se reemplaza por un spinner, así el click tiene
  * respuesta inmediata en vez de parecer que no pasó nada.
  */

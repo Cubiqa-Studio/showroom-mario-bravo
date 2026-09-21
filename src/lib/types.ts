@@ -7,16 +7,34 @@
 //   - Metadata  (Unit)                lives ONCE per unit, independent of angle.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type UnitStatus = "available" | "reserved";
+/**
+ * Estado comercial de la unidad. Los tres que maneja el back de Cubiqa
+ * (`UnitState`: Available / Reserved / Sold) — ver src/lib/cubiqa-parse.ts.
+ *
+ * ⚠ Agregar un cuarto valor NO es una línea: `STATUS_STYLES` es el único
+ * `Record<UnitStatus, …>` del repo, así que el compilador encuentra tres sitios y
+ * SE CALLA en los otros siete (pill, buscador, CSS, llms.txt). La lista completa
+ * está en el comentario de `STATUS_ORDER`, en src/lib/status.ts.
+ */
+export type UnitStatus = "available" | "reserved" | "sold";
 
 /** Superficies de una unidad, en m² (Fase 3 — landing de detalle). */
 export interface UnitAreas {
   total?: number;
-  /** Superficie CUBIERTA (Airtable: "Superficie Cubierta"). */
+  /** Superficie CUBIERTA (Cubiqa: `coveredArea`). */
   interior?: number;
-  /** Semicubierta + descubierta (Airtable: "Superficie Semi/Desc"). */
+  /** Semicubierta + descubierta (Cubiqa: `semiCoveredArea`). */
   exterior?: number;
-  /** Proporcional de espacios comunes (Airtable: "Superficie Común"). */
+  /**
+   * Proporcional de espacios comunes.
+   *
+   * ⚠ NO tiene contrapartida en el back de Cubiqa: vive SÓLO en units.json y se
+   * congela en el build. Tampoco se deriva como `total − cubierta − semi`: el back
+   * no valida que `totalArea` sea la suma de las otras dos (ver
+   * docs/project-units-implementation.md del controller), así que la resta puede
+   * dar negativo. Si el cliente necesita cambiarla, hay que pedirle a Cubiqa un
+   * campo `commonArea` en `Unit`.
+   */
   comun?: number;
 }
 
@@ -28,8 +46,13 @@ export interface SpecGroup {
 
 /**
  * Per-unit metadata. One entry per real apartment, keyed by unitId in units.json.
- * Designed to map 1:1 to a future Airtable/Supabase row — when `status` flips
- * upstream, the overlay repaints it without any geometry change.
+ *
+ * units.json es la BASE (planos, tours, geometría, dorm/baño, exposición) y la red
+ * de seguridad: si el back de Cubiqa no contesta, es lo que se ve. Encima se pisan
+ * los campos EN VIVO que manda `GET /projects/:id/public` —estado, precio,
+ * ambientes y superficies— matcheando por la key del JSON contra `unit.name`
+ * (ver src/lib/cubiqa-parse.ts). Cuando `status` cambia arriba, el overlay se
+ * repinta sin tocar un solo polígono.
  */
 export interface Unit {
   /** Display label, e.g. "702". */
@@ -58,20 +81,38 @@ export interface Unit {
   terraza?: boolean;
   /**
    * A qué da la unidad: `"frente"` = a la calle Mario Bravo, `"contrafrente"` = al
-   * pulmón de manzana (pileta, deck y parque). Sale de las plantas generales, NO de
-   * Airtable —el cliente no tiene esa columna—, así que vive en `units.json`.
+   * pulmón de manzana (pileta, deck y parque). Sale de las plantas generales
+   * (`npm run units:exposure`), así que vive en `units.json`.
+   *
+   * ⚠ NO se pisa con el `view` de Cubiqa aunque `front`/`rear` se le parezcan. El
+   * back obliga a elegir UN valor por unidad, y acá 62 de 63 están relevadas del
+   * plano: dejar ganar un desplegable del panel reemplazaría 62 valores verificados
+   * por lo que haya tildado un admin. Los otros 8 valores de `view` (los rumbos)
+   * sí entran, pero en `vistas`, que es un campo distinto.
    *
    * Es opcional a propósito: una unidad que da a los DOS lados (las de retiro que
    * cruzan la planta) se deja sin valor y no muestra chip, antes que etiquetarla mal.
    */
   exposure?: "frente" | "contrafrente";
   /**
-   * Cantidad de AMBIENTES (Airtable, columna "Ambientes"). Distinto de `beds`
-   * (dormitorios): en convención AR un 1 dormitorio = 2 ambientes. Opcional: sólo
-   * lo trae el merge en vivo con Airtable; en `units.json` no vive.
+   * Cantidad de AMBIENTES. Distinto de `beds` (dormitorios): en convención AR un
+   * 1 dormitorio = 2 ambientes. Vive en `units.json` (63/63) y lo pisa en vivo el
+   * `bedrooms` de Cubiqa — que pese al nombre en inglés es la columna que sus dos
+   * paneles rotulan "Ambientes" (ver src/lib/cubiqa-parse.ts).
+   *
+   * Puede ser fraccionario (`1.5` = "1½ ambientes", convención AR): el campo es
+   * `Float` en el back. Se formatea con la locale activa, no con un template.
    */
   ambientes?: number;
-  /** Tipología comercial A–F (Airtable, columna "Tipología"). */
+  /**
+   * Tipología comercial A–E: la letra del relevamiento del Miro, la que agrupa
+   * plano + recorrido 360°. Vive en `units.json`.
+   *
+   * ⚠ NO es la `typology` de Cubiqa. Esa es un enum `"1".."7" | half-floor |
+   * full-floor` que sus paneles muestran como "3 AMBIENTES" / "SEMIPISO": duplica
+   * `bedrooms` y no tiene nada que ver con esta letra. Por eso el parser la
+   * descarta en vez de pisar acá.
+   */
   tipologia?: string;
   /** Toilette (medio baño), por tipología (units.json). Ausente/0 = no se muestra.
    *
@@ -80,12 +121,17 @@ export interface Unit {
    *  grandes del 6°/7° suman además un cuarto con inodoro y bacha, sin ducha ni
    *  bidé — 38 de las 63 unidades. Antes no lo traía NINGUNA y por eso el dato no
    *  se veía en ningún lado (reporte del cliente vía Joaquim, 30-08).
-   *  ⚠ NO está en Airtable: si cambia un plano, se corrige acá. */
+   *  ⚠ NO lo tiene el back de Cubiqa: si cambia un plano, se corrige acá. */
   toilette?: number;
-  /** Vistas de la unidad (Airtable, columna "Vistas"): ej. "Montaña", "Parcial al
-   *  lago", "Plena al lago". Reemplaza a la vieja "Superficie Descubierta". */
+  /** Vistas de la unidad: a qué RUMBO da ("Norte", "Sudoeste"…). Hoy no la trae
+   *  ninguna unidad de `units.json`; la llena en vivo el `view` de Cubiqa cuando el
+   *  cliente carga un rumbo en lugar de `front`/`rear` —esos dos son `exposure`,
+   *  que es otra cosa y no se pisa—. Mientras esté vacía en las 63, el filtro
+   *  "Vistas" del buscador se oculta solo. */
   vistas?: string;
-  /** Free-form price string, e.g. "USD 420,000" or "Consultar". */
+  /** Free-form price string, e.g. "USD 420,000" or "Consultar". Lo pisa en vivo el
+   *  `usdPrice` de Cubiqa, formateado como "USD 226.939". Un `0` NO es un precio:
+   *  se descarta y queda "Consultar" (ver la nota de los ceros en cubiqa-parse). */
   price: string;
   /** Mini floor plan / apartment image shown in the hover tooltip. */
   floorPlan: string;
@@ -129,6 +175,13 @@ export type Units = Record<string, Unit>;
  * Avance de obra (tabla "Avance de Obra" de Airtable): porcentaje general +
  * fecha de actualización. Tipo de dominio (no server-only) para que lo puedan
  * importar los componentes cliente que lo muestran.
+ *
+ * ⚠ ES LO ÚNICO QUE SIGUE EN AIRTABLE. Las unidades y el brochure se migraron al
+ * back de Cubiqa (`/projects/:id/public`), pero ese back no tiene ninguna entidad
+ * de avance de obra — no hay dónde guardar el porcentaje. Sacarlo sería perder una
+ * función que el cliente usa, así que la tabla de Airtable y su token siguen vivos
+ * SÓLO para esto. El día que Cubiqa agregue `progress` al proyecto, `useAvance`
+ * apunta a `/api/proyecto` y Airtable se va del repo entero.
  */
 export interface AvanceObra {
   /** Porcentaje 0–100. */

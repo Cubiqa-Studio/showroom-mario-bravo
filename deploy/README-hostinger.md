@@ -9,7 +9,8 @@ Navegador
    │
    ├── HTML/CSS/JS/assets ─────────────► Apache (archivos de out/)
    │
-   └── /api/unidades  /api/avance ─────► PHP ──► Airtable   (token server-side)
+   └── /api/proyecto ──────────────────► PHP ──► back de Cubiqa (unidades + brochure)
+   └── /api/avance ────────────────────► PHP ──► Airtable   (token server-side)
        /api/contact  ──────────────────► PHP ──► Resend     (API key server-side)
 ```
 
@@ -41,15 +42,15 @@ molesto pero se arregla; olvidarse de sacar el noindex en producción dejaría e
 real sin tráfico, en silencio.
 
 `npm run preview:static` aplica las mismas reglas del `.htaccess` (URLs sin
-extensión, 404, cache) y hace de stand-in del PHP para `/api/unidades` y
+extensión, 404, cache) y hace de stand-in del PHP para `/api/proyecto` y
 `/api/avance`, así verificás la data en vivo antes de subir nada. No manda mails.
 
 ### Variables que necesita el BUILD
 
 | Variable | Para qué | Si falta |
 | --- | --- | --- |
-| `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID`, `AIRTABLE_UNITS_TABLE_ID` | Hornear estado/precio/superficies reales en el HTML | Cae a `units.json`: el HTML sale con "Consultar" hasta que el navegador refresca desde el proxy |
-| `AIRTABLE_AVANCE_TABLE_ID` | Avance de obra | El badge queda oculto hasta el refresco del cliente |
+| `CUBIQA_API_BASE`, `CUBIQA_PROJECT_ID` | Hornear estado/precio/superficies reales en el HTML y traer el brochure | Cae a `units.json`: el HTML sale con "Consultar" hasta que el navegador refresca desde el proxy, y el brochure es el PDF commiteado |
+| `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID`, `AIRTABLE_AVANCE_TABLE_ID` | Avance de obra (lo único que queda en Airtable) | El badge queda oculto hasta el refresco del cliente |
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST` | Analítica | Sin eventos |
 | `NEXT_PUBLIC_SITE_URL` | Canonical, `og:url`, **`og:image`**, sitemap, JSON-LD | Cae al placeholder de `src/lib/seo.ts` — ver abajo |
 | `NEXT_PUBLIC_API_BASE` | Sólo si el proxy NO vive en el mismo dominio | Default `/api` (el caso normal) |
@@ -77,7 +78,7 @@ se prueba) y rebuildeá: se hornea en el HTML.
 │   ├── .htaccess                ← de deploy/hostinger/.htaccess
 │   ├── api/
 │   │   ├── _lib.php             ← de deploy/hostinger/api/
-│   │   ├── unidades.php
+│   │   ├── proyecto.php
 │   │   ├── avance.php
 │   │   └── contact.php
 │   ├── index.html               ┐
@@ -125,7 +126,8 @@ curl -sI  $S/showroom              # 200 (el .htaccess resolvió showroom.html)
 curl -sI  $S/residencia/101        # 200
 curl -sI  $S/residencia/9999       # 404 + la página 404 del sitio
 curl -s   $S/api/plate/5 | head -c 120   # {"plate":{"floor":"5"…  (archivo estático)
-curl -s   $S/api/unidades | head -c 120  # {"records":[{"id":"rec…  (PHP → Airtable)
+curl -s   $S/api/proyecto | head -c 120  # {"project":{"id":"…     (PHP → Cubiqa)
+curl -s   $S/api/avance   | head -c 120  # {"records":[{"id":"rec…  (PHP → Airtable)
 curl -s   $S/api/avance   | head -c 120  # {"records":[…]}
 curl -sI  $S/frames/  --   # (elegí un frame real) → Cache-Control: max-age=86400
 curl -sI  $S/sitemap.xml           # 200, application/xml
@@ -138,8 +140,9 @@ Y en el navegador, lo que sólo se ve ahí:
    `/residencia/<id>` sin recargar**. El back cierra con zoom-out y el recorrido
    queda en la misma vista.
 3. F5 sobre `/residencia/<id>` → carga la ficha standalone.
-4. Los contornos de las unidades toman el color del estado real de Airtable a los
-   pocos ms (mirá `/api/unidades` en la pestaña Network).
+4. Los contornos de las unidades toman el color del estado real de Cubiqa a los
+   pocos ms (mirá `/api/proyecto` en la pestaña Network — tiene que aparecer UNA
+   sola vez por carga de página, aunque navegues entre fichas).
 5. Pestaña "Planta del piso" → carga el plano.
 6. Mandá una consulta desde "Hablemos" y desde el modal del menú → llega el mail.
    Probá también con `?v=inmobiliaria` y confirmá que va a la otra bandeja.
@@ -160,7 +163,7 @@ entran leads. Los detalles quedan en el `error_log` del hosting, no en la respue
 ### Un cambio de dato NO necesita rebuild, un cambio de código SÍ
 
 Estado, precio, ambientes y superficies salen del proxy en runtime: se cambian en
-Airtable y se ven en ≤2 minutos (60 s de cache del PHP + 60 s del navegador). Lo que
+el panel de Cubiqa y se ven en ≤2 minutos (60 s de cache del PHP + 60 s del navegador). Lo que
 necesita rebuild + subida es todo lo demás: geometría de polígonos, planos, tours,
 textos, y el HTML que leen los crawlers.
 

@@ -163,7 +163,7 @@ const PLANS = [
  *  ⚠ La 605 y la 610 las sumó el cliente el 30-08 y NO entran en esa lógica: el plano
  *  del 6° que él mismo mandó tiene ocho departamentos rotulados 01-04 y 06-09, sin 05
  *  ni 10. Se emparejan por POSICIÓN del piso tipo (05 → C de 60,60 m², 10 → A de
- *  39,70), que es lo que dicen sus superficies en Airtable. Si algún día llega un
+ *  39,70), que es lo que dicen sus superficies en el catálogo. Si algún día llega un
  *  plano del 6° con diez unidades, revisá TODO este mapeo: puede que las corridas
  *  sean las que están mal. */
 const INFERRED = {

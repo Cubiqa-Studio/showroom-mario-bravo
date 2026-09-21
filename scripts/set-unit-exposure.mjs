@@ -1,6 +1,6 @@
 // Carga la EXPOSICIÓN (frente / contrafrente) de cada unidad en `src/data/units.json`.
 //
-// De dónde sale el dato: de las plantas generales del cliente, NO de Airtable — su
+// De dónde sale el dato: de las plantas generales del cliente, NO del catálogo — el
 // base no tiene columna de orientación (columnas verificadas el 25-08: Piso, Unidad,
 // Ambientes, Tipología, Precio USD, Anticipo, Saldo y las cuatro superficies).
 //

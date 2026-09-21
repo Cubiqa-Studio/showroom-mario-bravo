@@ -42,9 +42,15 @@ const pedir = (clave, obligatoria = true) => {
 };
 
 const cfg = {
-  airtable_token: pedir("AIRTABLE_TOKEN"),
-  airtable_base_id: pedir("AIRTABLE_BASE_ID"),
-  airtable_units_table: pedir("AIRTABLE_UNITS_TABLE_ID"),
+  // Las DOS obligatorias: sin ellas no hay unidades ni brochure en vivo.
+  cubiqa_api_base: pedir("CUBIQA_API_BASE"),
+  cubiqa_project_id: pedir("CUBIQA_PROJECT_ID"),
+  // Airtable quedó SÓLO para el avance de obra, y el avance es opcional (sin la
+  // tabla, el badge y el modal se ocultan solos). Por eso ninguna es obligatoria:
+  // marcar el token como requerido haría fallar este script en cuanto se apague
+  // Airtable del todo.
+  airtable_token: pedir("AIRTABLE_TOKEN", false),
+  airtable_base_id: pedir("AIRTABLE_BASE_ID", false),
   airtable_avance_table: pedir("AIRTABLE_AVANCE_TABLE_ID", false),
   resend_api_key: pedir("RESEND_API_KEY", false),
   email_to: pedir("EMAIL_TO", false),
@@ -58,10 +64,13 @@ const contenido = `<?php
 // (al lado de public_html, NO adentro). Ver deploy/README-hostinger.md.
 
 return [
-    // ── Airtable — data EN VIVO (estado, precio, ambientes, superficies) ──────
+    // ── Cubiqa — unidades y brochure EN VIVO ─────────────────────────────────
+    'cubiqa_api_base'       => '${php(cfg.cubiqa_api_base)}',
+    'cubiqa_project_id'     => '${php(cfg.cubiqa_project_id)}',
+
+    // ── Airtable — SÓLO el avance de obra ────────────────────────────────────
     'airtable_token'        => '${php(cfg.airtable_token)}',
     'airtable_base_id'      => '${php(cfg.airtable_base_id)}',
-    'airtable_units_table'  => '${php(cfg.airtable_units_table)}',
     'airtable_avance_table' => '${php(cfg.airtable_avance_table)}',
 
     // ── Resend — emails de los formularios de contacto ───────────────────────
@@ -89,6 +98,13 @@ console.log(`\nSubilo UN NIVEL ARRIBA de public_html. No va dentro del zip ni en
 if (faltan.length) {
   console.error(`\n✖ Faltan en .env.local: ${faltan.join(", ")} — sin esto no hay data en vivo.`);
   process.exit(1);
+}
+if (!cfg.airtable_token || !cfg.airtable_avance_table) {
+  console.warn(
+    `\n⚠ Sin AIRTABLE_TOKEN + AIRTABLE_AVANCE_TABLE_ID: el badge y el modal "Avance de\n` +
+      `  obra" quedan ocultos. Es lo único que sigue en Airtable; el resto de la data\n` +
+      `  en vivo (unidades y brochure) sale del back de Cubiqa.`,
+  );
 }
 if (!cfg.resend_api_key || !cfg.email_to) {
   const cuales = [!cfg.resend_api_key && "RESEND_API_KEY", !cfg.email_to && "EMAIL_TO"]

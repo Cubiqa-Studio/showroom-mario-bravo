@@ -24,7 +24,7 @@ import { pageMetadata, residenceGraphLd, jsonLdScriptProps } from "@/lib/seo";
 //
 // Consecuencia: el HTML lleva el estado/precio congelados al MOMENTO DEL BUILD.
 // La data en vivo la refresca el CLIENTE (ver `useLiveUnits` en ResidenciaLanding),
-// así el visitante ve el dato real de Airtable sin rebuild. El HTML horneado es el
+// así el visitante ve el dato real del panel de Cubiqa sin rebuild. El horneado es el
 // fallback y lo que leen los crawlers.
 //
 // Un id que no exista no tiene HTML → Apache sirve el 404.html (ver .htaccess),

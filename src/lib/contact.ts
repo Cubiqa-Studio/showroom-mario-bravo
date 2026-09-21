@@ -37,10 +37,44 @@ export function whatsappUrl(
   return `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
 }
 
-/** Brochure del proyecto (PDF en /public, descargable). Fuente única: lo referencian
- *  el item "Brochure" del SideMenu (showroom + ficha) y el botón "Ver PDF" de la ficha
- *  (PlanSection). Si cambia el archivo, se actualiza sólo acá.
- *
- *  Llegó el 10-09-2026 (Camila, `TIER_Bravo_Brochure.pdf`, 32 págs.). `null` apaga
- *  los dos botones a la vez: un botón que baja un 404 es peor que no tenerlo. */
-export const BROCHURE_URL: string | null = "/brochure_tier_bravo.pdf";
+// ─────────────────────────────────────────────────────────────────────────────
+// BROCHURE DEL PROYECTO
+//
+// Desde la integración con Cubiqa el brochure es DATO EN VIVO: viene en la misma
+// respuesta que las unidades (`brochure.downloadUrl`, un PDF público en el CDN de
+// Bunny) y el cliente lo cambia subiendo otro desde su panel, sin rebuild.
+//
+// Lo consumen el item "Brochure" del SideMenu (showroom + ficha) y el botón
+// "Ver PDF" de la ficha (PlanSection), los dos vía `useBrochure()`.
+//
+// ── Por qué queda un PDF commiteado igual ───────────────────────────────────
+// `BROCHURE_FALLBACK` es el archivo que llegó el 10-09-2026 (Camila,
+// `TIER_Bravo_Brochure.pdf`, 32 págs.) y sigue en /public a propósito: es lo que se
+// muestra mientras el pedido está en vuelo y si el back no contesta, igual que
+// units.json es la red de las unidades. Se puede borrar —y bajar 9 MB del
+// DEPLOY.zip— recién cuando producción devuelva un `brochure` no nulo.
+// `null` apagaría los dos botones a la vez: un botón que baja un 404 es peor que
+// no tener el botón.
+//
+// ── El nombre con el que se descarga (pregunta de Cubiqa, 14-09) ─────────────
+// NO se puede forzar desde el front. El atributo `download` de un <a> sólo respeta
+// el nombre cuando el recurso es del MISMO origen (o `blob:`/`data:`): desde
+// Chrome 65 el hint se descarta para cualquier URL cross-origin, justamente para
+// que una página no pueda disfrazar un archivo ajeno. Como el PDF vive en
+// cubiqa-storage.b-cdn.net, el navegador usa el nombre del archivo en el CDN, que
+// es siempre `brochure.pdf`.
+//
+// Descargarlo como blob y renombrarlo tampoco sirve hoy: probado contra el CDN
+// real (21-09-2026), la respuesta del PDF no trae `Access-Control-Allow-Origin`
+// —el `thumbnail.jpg` sí—, así que el fetch lo bloquea el navegador.
+//
+// El arreglo es del lado del servidor y hay dos caminos, los dos de Cubiqa:
+//   a) guardar el objeto con el nombre real en vez de `brochure.pdf` (la ruta ya
+//      lleva el uuid del proyecto, así que no expone nada que el propio endpoint no
+//      publique en `filename`); o
+//   b) que el pull zone mande `Content-Disposition: attachment; filename="…"`.
+// Mientras tanto se abre en una pestaña nueva y baja como `brochure.pdf`, que es
+// exactamente lo que hace hoy el dashboard de Cubiqa con su botón "Ver PDF".
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const BROCHURE_FALLBACK: string | null = "/brochure_tier_bravo.pdf";

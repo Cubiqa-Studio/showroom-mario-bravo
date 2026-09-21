@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getPlate, getLiveUnits, getPlateFloors } from "@/lib/data";
+import { getPlate, getUnits, getPlateFloors } from "@/lib/data";
 import type { Unit } from "@/lib/types";
 
 // ESTÁTICO en el export. El Blob de Netlify no existe en Hostinger, así que la
@@ -27,8 +27,15 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ floor: str
   // Adjuntamos la metadata de CADA unidad de los polígonos del plano. Clave para los
   // entrepisos: en el piso 3 hay polígonos de unidades del piso 2 (dúplex), que NO
   // están en los floorUnits del piso actual → sin esto saldrían grises/sin tooltip.
-  // EN VIVO (Airtable): el color/estado/precio del plano refleja Airtable, no units.json.
-  const all = await getLiveUnits();
+  //
+  // ⚠ ESTÁTICA (units.json) A PROPÓSITO, no en vivo. Este handler es `force-static`:
+  // lo que devuelva se hornea en out/api/plate/<piso> y queda CONGELADO hasta el
+  // próximo build. Sirviendo el estado en vivo desde acá, una unidad que se vendiera
+  // después del build se quedaba con su color del día del build para siempre — y
+  // encima le ganaba al dato fresco que el cliente ya tenía en memoria (ver el orden
+  // del merge en FloorPlate). Este endpoint aporta GEOMETRÍA y el relleno de las
+  // unidades de otro piso; el estado lo pone el cliente.
+  const all = getUnits();
   const units: Record<string, Unit> = {};
   if (plate) {
     for (const p of plate.polygons) {

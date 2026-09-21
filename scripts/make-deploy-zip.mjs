@@ -128,7 +128,8 @@ QUE VERIFICAR DESPUES
   /showroom             -> carga el recorrido (prueba el rewrite del .htaccess)
   /residencia/101       -> carga la ficha
   /residencia/9999      -> 404 con la pagina 404 del sitio
-  /api/unidades         -> {"records":[...]}  (esto prueba el PHP + Airtable)
+  /api/proyecto         -> {"project":{...}}  (esto prueba el PHP + el back de Cubiqa)
+  /api/avance           -> {"records":[...]}  (el PHP + Airtable, solo el avance)
   /api/plate/5          -> {"plate":{...}}    (archivo estatico horneado)
 
   En el navegador: click en una unidad -> abre la ficha encima con zoom y la URL
@@ -177,7 +178,10 @@ if (conBackslash.length) {
 }
 
 // Los que si faltan dejan el sitio roto de una forma u otra.
-for (const obligatorio of ["index.html", "showroom.html", "404.html", ".htaccess", "api/unidades.php"]) {
+// ⚠ Esta lista es FIJA: si agregás o renombrás un .php del proxy, agregalo acá o el
+// zip sale sin la comprobación. Falla ruidosamente (borra el zip), que es el modo
+// de fallar correcto.
+for (const obligatorio of ["index.html", "showroom.html", "404.html", ".htaccess", "api/proyecto.php", "api/avance.php"]) {
   if (!nombres.includes(obligatorio)) problemas.push(`falta ${obligatorio}`);
 }
 if (!nombres.some((n) => n.startsWith("_next/static/"))) {

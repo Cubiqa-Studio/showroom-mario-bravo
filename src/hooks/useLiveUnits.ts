@@ -1,53 +1,50 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import unitsData from "@/data/units.json";
+import { useEffect, useState } from "react";
 import type { Units } from "@/lib/types";
-import { API_UNIDADES } from "@/lib/api";
-import { mergeLiveUnits, parseUnits, type AirtableRecord } from "@/lib/airtable-parse";
+import type { CubiqaBrochure } from "@/lib/cubiqa-types";
+import { BROCHURE_FALLBACK } from "@/lib/contact";
+import { getProyecto, onProyecto, proyectoResuelto } from "@/lib/project-store";
 
-// Metadata base del sitio (planos, tours, geometría, dorm/baño). Airtable sólo pisa
-// estado/precio/ambientes/superficies encima. Ya venía en el bundle (lo importan el
-// buscador y el plan maestro como fallback), así que no agrega peso.
-const BASE = unitsData as unknown as Units;
+// ─────────────────────────────────────────────────────────────────────────────
+// Los hooks que leen la capa EN VIVO (back de Cubiqa). Todos se cuelgan del MISMO
+// pedido: el fetch vive en `@/lib/project-store` y se hace UNA vez por carga de
+// página, monten los hooks que monten. Ver la nota larga de ese archivo.
+//
+// Las firmas no cambiaron cuando la fuente pasó de Airtable a Cubiqa — por eso
+// ShowroomClient, ResidenciaLandingLive, UnitFinderModal, MasterplanModal y
+// SideMenu no se tocaron.
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Las unidades EN VIVO (estado/precio/tipología/superficies ya mergeados con
- * Airtable), o `null` mientras no llegaron — o si el pedido falló.
+ * Las unidades EN VIVO (estado/precio/ambientes/superficies/vistas ya mergeados
+ * con units.json), o `null` mientras no llegaron — o si el pedido falló.
  *
  * Devolver `null` en vez de un fallback es lo que le permite a quien llama
  * distinguir "todavía no sé" de "ya sé": la ficha standalone usa eso para seguir
  * mostrando lo que horneó el servidor hasta tener el dato real, sin tener que
  * recibir el map entero por props (ver ResidenciaLandingLive).
  *
- * Un solo pedido por montaje. `enabled` permite abrirlo lazily (p. ej. `enabled` =
- * modal abierto) para no pegarle al endpoint hasta que haga falta.
+ * `enabled` permite abrirlo lazily (p. ej. `enabled` = modal abierto) para no
+ * pegarle al endpoint hasta que haga falta.
  */
 export function useLiveUnitsOrNull(enabled = true): Units | null {
-  const [units, setUnits] = useState<Units | null>(null);
-  const pedido = useRef(false);
+  // Sembrado con el valor ya resuelto: un modal que se monta tarde muestra el
+  // dato real desde el primer frame, sin parpadear con lo horneado.
+  const [units, setUnits] = useState<Units | null>(() => proyectoResuelto()?.units ?? null);
 
   useEffect(() => {
-    if (!enabled || pedido.current) return;
-    pedido.current = true;
+    if (!enabled) return;
     let vivo = true;
-    fetch(API_UNIDADES)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        // El endpoint devuelve los registros CRUDOS de Airtable; el parseo y el
-        // merge sobre units.json se hacen acá (misma lógica que usa el build, ver
-        // src/lib/airtable-parse.ts). Sin registros no hay nada que pisar.
-        const records = data?.records as AirtableRecord[] | undefined;
-        if (!vivo || !records?.length) return;
-        setUnits(mergeLiveUnits(BASE, parseUnits(records)));
-      })
-      .catch(() => {
-        // Sin conexión / proxy caído → se queda en null y manda lo horneado.
-        // Se libera el flag para que un remontaje vuelva a intentar.
-        pedido.current = false;
-      });
+    const baja = onProyecto((p) => {
+      if (vivo && p) setUnits(p.units);
+    });
+    void getProyecto().then((p) => {
+      if (vivo && p) setUnits(p.units);
+    });
     return () => {
       vivo = false;
+      baja();
     };
   }, [enabled]);
 
@@ -64,4 +61,47 @@ export function useLiveUnitsOrNull(enabled = true): Units | null {
  */
 export function useLiveUnits(fallback: Units, enabled = true): Units {
   return useLiveUnitsOrNull(enabled) ?? fallback;
+}
+
+/**
+ * El BROCHURE del proyecto, del mismo pedido que las unidades: `undefined` mientras
+ * no se sabe, `null` si el cliente no subió ninguno.
+ *
+ * Quien lo usa arranca con el valor horneado en el build (ver `BROCHURE_FALLBACK`
+ * en src/lib/contact.ts), así que el botón no parpadea ni aparece de golpe.
+ */
+export function useBrochure(enabled = true): CubiqaBrochure | null | undefined {
+  const [brochure, setBrochure] = useState<CubiqaBrochure | null | undefined>(
+    () => proyectoResuelto()?.brochure,
+  );
+
+  useEffect(() => {
+    if (!enabled) return;
+    let vivo = true;
+    const baja = onProyecto((p) => {
+      if (vivo && p) setBrochure(p.brochure);
+    });
+    void getProyecto().then((p) => {
+      if (vivo && p) setBrochure(p.brochure);
+    });
+    return () => {
+      vivo = false;
+      baja();
+    };
+  }, [enabled]);
+
+  return brochure;
+}
+
+/**
+ * La URL a la que apuntan los dos botones de "Brochure", ya resuelta: la del panel
+ * de Cubiqa si hay una, y si no el PDF commiteado. `null` = no hay brochure por
+ * ningún lado y los botones se ocultan.
+ *
+ * El fallback NO es sólo para el "mientras carga": si Cubiqa devuelve `null`
+ * porque el cliente todavía no subió el suyo, el sitio sigue ofreciendo el que ya
+ * tenía. Estrenar la integración no puede hacerle perder un botón que hoy funciona.
+ */
+export function useBrochureHref(enabled = true): string | null {
+  return useBrochure(enabled)?.downloadUrl ?? BROCHURE_FALLBACK;
 }

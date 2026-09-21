@@ -26,13 +26,17 @@ import { lockBodyScroll } from "@/lib/scroll-lock";
 
 /* eslint-disable @next/next/no-img-element */
 
-// Fallback estático (bundleado, seguro en cliente). El estado/precio EN VIVO sale de
-// Airtable: si el padre pasa `units` (el showroom ya las tiene en vivo) se usan directo;
-// si no (la landing), se traen lazy de /api/unidades al abrir. Mismo patrón que MasterplanModal.
+// Fallback estático (bundleado, seguro en cliente). El estado/precio EN VIVO sale del
+// back de Cubiqa: si el padre pasa `units` (el showroom ya las tiene en vivo) se usan
+// directo; si no (la ficha), se piden lazy al abrir — y como el pedido es único por
+// carga de página, abrir el buscador NO agrega una llamada. Igual que MasterplanModal.
 const UNITS = unitsData as unknown as Units;
 
 type UnitWithId = Unit & { id: string };
-type Availability = "all" | "available" | "reserved";
+/** El segmentado de "Disponibilidad". Espeja `UnitStatus` + "all"; un chip cuyo
+ *  estado no tenga ninguna unidad se deshabilita solo (ver `availEnabled`), así que
+ *  "Vendida" no aparece activable hasta que el cliente marque una. */
+type Availability = "all" | "available" | "reserved" | "sold";
 type SortKey = "num" | "area";
 type SortDir = "asc" | "desc";
 
@@ -77,12 +81,13 @@ export function UnitFinderModal({
   // Baños = TOTALES (baños + toilette, unitTotalBaths). Juani 2026-07-16: se sacó
   // el toggle "Toilette" (confundía) y los dúplex 2 baños + toilette filtran como 3.
   const [baths, setBaths] = useState<Set<number>>(new Set());
-  // Vistas (Camila 2026-07-16: "clave para comprar acá") — valores EN VIVO de la
-  // columna "Vistas" de Airtable (ej. Montaña / Parcial al lago / Plena al lago);
-  // sin Airtable no hay valores y el grupo no se muestra.
+  // Vistas (Camila 2026-07-16: "clave para comprar acá") — el RUMBO de la unidad,
+  // EN VIVO desde el `view` de Cubiqa ("Noroeste", "Sudoeste"…). Sólo entran los 8
+  // rumbos: `front`/`rear` son exposición, no vista (ver cubiqa-parse). Mientras el
+  // cliente no cargue rumbos no hay valores y el grupo no se muestra.
   const [vistas, setVistas] = useState<Set<string>>(new Set());
   // Exposición (frente / contrafrente). Set y no booleano: son dos valores y se
-  // pueden querer los dos. Sale de units.json (las plantas), no de Airtable.
+  // pueden querer los dos. Sale de units.json (las plantas), no del panel.
   const [exposure, setExposure] = useState<Set<string>>(new Set());
   // (Miro 2026-07-15: el filtro por tipología se eliminó junto con la tipología en la UI.)
   const [floors, setFloors] = useState<Set<string>>(new Set());
@@ -398,7 +403,7 @@ export function UnitFinderModal({
           role="group"
           aria-label={t.finder.availability}
         >
-          {(["all", "available", "reserved"] as const).map((v) => {
+          {(["all", "available", "reserved", "sold"] as const).map((v) => {
             const disabled = v !== "all" && !availEnabled(v);
             return (
               <button
@@ -471,9 +476,9 @@ export function UnitFinderModal({
         </div>
       )}
 
-      {/* 5 · Vistas (Camila 2026-07-16: diferencial clave del buscador). Valores
-          crudos EN VIVO de Airtable (Montaña / Parcial al lago / Plena al lago…);
-          sin Airtable no hay valores → el grupo no aparece. */}
+      {/* 5 · Vistas (Camila 2026-07-16: diferencial clave del buscador). El rumbo
+          EN VIVO que manda Cubiqa, traducido ("Noroeste", "Sudoeste"…); mientras
+          ninguna unidad traiga rumbo no hay valores → el grupo no aparece. */}
       {facets.vistas.length > 1 && (
         <div className="finder-group">
           <p className="finder-group-h">
@@ -916,7 +921,7 @@ function FinderCard({
       initial={{ opacity: 0 }}
       animate={{ opacity: dimmed ? 0.4 : 1 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
-      className={`finder-card${unit.duplex ? " is-duplex" : ""}${unit.status === "reserved" ? " is-reserved" : ""}${navigating ? " is-navigating" : ""}${dimmed ? " is-dimmed" : ""}`}
+      className={`finder-card${unit.duplex ? " is-duplex" : ""}${unit.status !== "available" ? ` is-${unit.status}` : ""}${navigating ? " is-navigating" : ""}${dimmed ? " is-dimmed" : ""}`}
       onClick={() => onOpen(unit.id)}
       aria-label={t.unitTooltip.enterAria(unit.residence)}
       aria-busy={navigating}

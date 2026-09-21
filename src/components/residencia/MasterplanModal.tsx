@@ -18,7 +18,7 @@ import { useAbrirFicha } from "@/components/transition/TransitionProvider";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 
 // Fallback estático (bundleado, seguro en cliente). El estado/precio EN VIVO sale
-// de Airtable: si el padre nos pasa `units` (el showroom ya las tiene en vivo) las
+// de Cubiqa: si el padre nos pasa `units` (el showroom ya las tiene en vivo) las
 // usamos directo; si no (la landing), las traemos lazy de /api/unidades al abrir.
 const UNITS = unitsData as unknown as Units;
 

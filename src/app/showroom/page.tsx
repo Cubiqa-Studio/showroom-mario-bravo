@@ -19,14 +19,14 @@ export const metadata: Metadata = pageMetadata({
 // No hay ISR (`revalidate` es un error de build con `output: "export"`): la
 // geometría de los stops sale del stops.json commiteado, y el estado/precio de las
 // unidades queda congelado al build y lo refresca el CLIENTE (ver `useLiveUnits`
-// dentro de FlybyViewer) — el contorno se repinta con el dato real de Airtable sin
-// rebuild, y el HTML horneado es el fallback si el proxy está caído.
+// dentro de FlybyViewer) — el contorno se repinta con el dato real del panel de
+// Cubiqa sin rebuild, y el HTML horneado es el fallback si el proxy está caído.
 
 // El <main>, el H1 y los 63 links crawleables están en layout.tsx, que queda por fuera
 // del boundary de Suspense que crea loading.tsx. Ver el comentario de ese archivo.
 export default async function Showroom() {
   const stops = await getStops();
-  // Unidades con el estado/precio/etc. de Airtable mergeado sobre units.json, leído
+  // Unidades con el estado/precio/etc. de Cubiqa mergeado sobre units.json, leído
   // EN EL BUILD: el contorno de cada unidad sale ya pintado con un estado plausible en
   // el primer frame (sin parpadeo). El dato EN VIVO lo refresca el cliente.
   const units = await getLiveUnits();

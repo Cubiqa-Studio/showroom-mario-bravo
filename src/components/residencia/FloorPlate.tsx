@@ -253,10 +253,17 @@ export function FloorPlate({
 
   const byId = useMemo(() => {
     const m = new Map<string, UnitWithId>();
-    // Para el plano TRAZADO: las unidades de SUS polígonos (incluye los dúplex que
-    // vienen de otro piso). Respaldo: las del piso actual (para el esquemático).
-    for (const [id, u] of Object.entries(plateUnits)) m.set(id, { id, ...u });
-    for (const u of currentFloorUnits) if (!m.has(u.id)) m.set(u.id, u);
+    // ORDEN IMPORTANTE. Primero las unidades del piso actual, que llegan por props y
+    // traen el estado EN VIVO; después las del endpoint, SÓLO para las que falten.
+    //
+    // Al revés estaba mal: `plateUnits` sale de out/api/plate/<piso>, un archivo
+    // horneado en el build, así que pisaba el dato fresco con uno congelado y una
+    // unidad vendida después del build seguía apareciendo verde en la planta.
+    // El endpoint existe por los ENTREPISOS —en el piso 3 hay polígonos de unidades
+    // del piso 2 (dúplex), que no están en `currentFloorUnits`—, y para eso alcanza
+    // con que rellene los huecos.
+    for (const u of currentFloorUnits) m.set(u.id, u);
+    for (const [id, u] of Object.entries(plateUnits)) if (!m.has(id)) m.set(id, { id, ...u });
     return m;
   }, [plateUnits, currentFloorUnits]);
 

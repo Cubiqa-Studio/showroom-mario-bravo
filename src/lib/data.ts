@@ -3,7 +3,6 @@ import unitsData from "@/data/units.json";
 import flybyData from "@/data/flyby.json";
 import { SITE } from "@/data/site";
 import type {
-  AvanceObra,
   FloorPlate,
   FlybyFile,
   FlybySegment,
@@ -15,7 +14,7 @@ import type {
 } from "./types";
 import { readStopsFile } from "./stops-store";
 import { readPlatesFile } from "./plates-store";
-import { fetchAirtableUnits, fetchAvance, mergeLiveUnits } from "./airtable";
+import { fetchCubiqaUnits, mergeLiveUnits } from "./cubiqa";
 import {
   floorOf,
   floorUnitsFrom,
@@ -25,8 +24,8 @@ import {
   type VistaUnidad,
 } from "./units";
 
-// Las derivaciones puras (sin Airtable ni Blobs) viven en `./units` para que las
-// pueda importar un componente CLIENTE; se re-exportan acá para no romper los
+// Las derivaciones puras (sin la capa en vivo ni los Blobs) viven en `./units` para
+// que las pueda importar un componente CLIENTE; se re-exportan acá para no romper los
 // imports que ya existían.
 export {
   floorOf,
@@ -44,7 +43,7 @@ export {
 //   commiteado EN EL BUILD (ver la nota de stops-store: el Blob de Netlify ya no
 //   participa en prod). Siguen siendo async por la costura.
 // METADATA (units) y FLYBY (segments): horneados del JSON (el editor no los toca).
-// Para ir 100% a Supabase/Airtable se cambia sólo el body de estas funciones.
+// EN VIVO (estado/precio/ambientes/superficies): el back de Cubiqa, en `./cubiqa`.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const units = unitsData as unknown as Units;
@@ -74,31 +73,30 @@ export function getUnits(): Units {
   return units;
 }
 
-/** ESTÁTICA (units.json, sin Airtable). Para datos en vivo usá `getLiveUnit`. */
+/** ESTÁTICA (units.json, sin la capa en vivo). Para el dato real usá `getLiveUnit`. */
 export function getUnit(unitId: string): Unit | undefined {
   return units[unitId];
 }
 
-// ── Capa EN VIVO (Airtable) ──────────────────────────────────────────────────
-// Pisa el estado/precio/tipología/ambientes/superficies de Airtable sobre la
-// metadata base de units.json (match por id de unidad). Async porque consulta
-// Airtable (con cache de 60 s y fallback a units.json si está caído). El color
-// del contorno y los datos de la landing se recalculan solos al cambiar el dato
-// en Airtable, sin tocar geometría ni rebuild.
+// ── Capa EN VIVO (back de Cubiqa) ────────────────────────────────────────────
+// Pisa el estado/precio/ambientes/superficies/vistas que manda
+// `GET /projects/:id/public` sobre la metadata base de units.json (match por el
+// número de unidad). Async porque consulta el back (con cache de 60 s y fallback a
+// units.json si está caído o sin configurar). El color del contorno y los datos de
+// la ficha se recalculan solos al cambiar el dato en el panel, sin tocar geometría
+// ni rebuildear.
+//
+// ⚠ Esto es lo que corre EN EL BUILD. En runtime el navegador pide lo mismo al
+// proxy del propio dominio y lo mergea con el MISMO código (`./project-store`).
 
-/** Todas las unidades con los campos en vivo de Airtable ya mergeados. */
+/** Todas las unidades con los campos en vivo de Cubiqa ya mergeados. */
 export async function getLiveUnits(): Promise<Units> {
-  return mergeLiveUnits(units, await fetchAirtableUnits());
+  return mergeLiveUnits(units, await fetchCubiqaUnits());
 }
 
-/** Una unidad ya mergeada con Airtable. */
+/** Una unidad ya mergeada con Cubiqa. */
 export async function getLiveUnit(unitId: string): Promise<Unit | undefined> {
   return (await getLiveUnits())[unitId];
-}
-
-/** Avance de obra (% general + fecha) desde Airtable. null si no hay datos. */
-export async function getAvance(): Promise<AvanceObra | null> {
-  return fetchAvance();
 }
 
 /** Todos los ids de unidad (para `generateStaticParams` de la landing). */

@@ -51,6 +51,11 @@
   --violet:       #A78BFA;
   --orange:       #D08206;
   --orange-soft:  #C57312;
+  /* gris de VENDIDA: slate-400, para leer sobre negro (7,2:1). Es el hermano
+     CLARO del #64748B de STATUS_STYLES (src/lib/status.ts), que es el que se
+     pinta sobre el render fotográfico al 45% de opacidad. Los dos son el mismo
+     tono: si cambiás uno, cambiá el otro. */
+  --slate:        #94A3B8;
 
   --radius:    12px;
   --radius-sm: 8px;
@@ -216,6 +221,10 @@
 .res-landing .badge-available .dot { background: var(--green); box-shadow: 0 0 8px color-mix(in srgb, var(--green) 60%, transparent); }
 .res-landing .badge-reserved { background: color-mix(in srgb, var(--orange) 16%, transparent); color: var(--orange-soft); border: 1px solid color-mix(in srgb, var(--orange) 45%, transparent); }
 .res-landing .badge-reserved .dot { background: var(--orange); }
+/* VENDIDA: mismo molde, en gris. Sin glow en el punto —a diferencia de
+   disponible— porque no es un estado que haya que destacar. */
+.res-landing .badge-sold { background: color-mix(in srgb, var(--slate) 14%, transparent); color: var(--slate); border: 1px solid color-mix(in srgb, var(--slate) 40%, transparent); }
+.res-landing .badge-sold .dot { background: var(--slate); }
 
 /* ---------- brand identity details ---------- */
 .res-landing .tick { display: block; width: 40px; height: 2px; background: var(--gold); }
@@ -891,7 +900,8 @@
    de 412. Y como .res-landing es `overflow-x: hidden`, eso NO se veía como una
    barra de scroll: se veía como que el plano y el resumen quedaban CORTADOS a la
    derecha, sin forma de llegar a lo que faltaba (reporte de Joaquim, 29-08).
-   El valor de Vistas viene de Airtable (texto libre), así que esto tiene que
+   El valor de Vistas viene del panel de Cubiqa (un rumbo: "Noroeste", "Sudoeste"),
+   traducido en cubiqa-parse. Es corto y acotado, pero la regla se mantiene porque
    aguantar cualquier largo, no sólo el de amenities de hoy. */
 .res-landing .ov-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; padding: 16px 0; font-size: calc(18.5px * var(--fs-k)); }
 .res-landing .ov-row + .ov-row { border-top: 1px solid var(--divider-2); }
@@ -2535,6 +2545,7 @@
 .res-landing .finder-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .res-landing .finder-dot--available { background: var(--green); }
 .res-landing .finder-dot--reserved { background: var(--orange); }
+.res-landing .finder-dot--sold { background: var(--slate); }
 .res-landing .finder-seg-opt.active .finder-dot { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .7); }
 
 /* Toggle (toilette / dúplex) */
@@ -2586,6 +2597,9 @@
 }
 .res-landing .finder-card:hover .finder-plan { transform: scale(1.045); }
 .res-landing .finder-card.is-reserved .finder-plan { opacity: .9; filter: saturate(.85); }
+/* Vendida: el mismo gesto que reservada, un paso más — el plano queda visible
+   (se sigue pudiendo mirar la unidad) pero se lee de entrada que no está. */
+.res-landing .finder-card.is-sold .finder-plan { opacity: .8; filter: saturate(.55); }
 .res-landing .finder-duplex-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--violet); z-index: 2; }
 /* Vidrio blanco (como el sello de tipología): el badge lee sobre CUALQUIER plano
    —las tipologías tipo A llenan el marco 4:3 y el verde translúcido dejaba pasar el
@@ -2604,6 +2618,8 @@
 .res-landing .finder-status--available .finder-status-dot { background: var(--green); box-shadow: 0 0 6px color-mix(in srgb, var(--green) 55%, transparent); }
 .res-landing .finder-status--reserved { color: var(--orange-soft); }
 .res-landing .finder-status--reserved .finder-status-dot { background: var(--orange); }
+.res-landing .finder-status--sold { color: var(--slate); }
+.res-landing .finder-status--sold .finder-status-dot { background: var(--slate); }
 /* Columna de etiquetas bajo el chip de estado (dúplex y/o exposición). Antes el
    dúplex se posicionaba solo en top:42px; ahora la columna las apila sin que una
    pise a la otra si alguna unidad tuviera las dos. */

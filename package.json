@@ -10,6 +10,7 @@
     "deploy:zip": "node scripts/make-deploy-zip.mjs",
     "deploy:config": "node scripts/make-hostinger-config.mjs",
     "lint": "eslint",
+    "check:cubiqa": "node --experimental-strip-types --no-warnings scripts/check-cubiqa.mjs",
     "gallery:optimize": "node scripts/optimize-gallery.mjs",
     "unidades:optimize": "node scripts/optimize-unit-renders.mjs",
     "proyectos:optimize": "node scripts/optimize-proyectos.mjs",

@@ -73,3 +73,9 @@ next-env.d.ts
 # NO sirven al deploy: lo que se commitea son los derivados web de /public.
 /_media-src/
 .gstack/
+
+# `.env` del BACKEND de Cubiqa (el que pasó Guxar para levantar
+# client-projects-controller-ms en local). No lo lee el showroom, pero trae secretos
+# reales —access key de Bunny Storage, token de PostHog, password del admin bootstrap—
+# y el patrón `.env*` de arriba NO lo matchea porque el archivo se llama `env`, sin punto.
+/env
