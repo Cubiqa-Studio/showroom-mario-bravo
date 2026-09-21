@@ -157,9 +157,10 @@ export function unitAreaValue(unit: Unit): number {
 }
 
 /**
- * Ambientes de la unidad. Prioriza el dato EN VIVO de Airtable; si no está, lo
- * deriva por convención AR (1 dormitorio = 2 ambientes → beds + 1). Siempre
- * devuelve un número (todas las unidades tienen `beds`).
+ * Ambientes de la unidad. Prioriza el dato EN VIVO de Cubiqa (su campo `bedrooms`,
+ * que allá se rotula "Ambientes" — ver cubiqa-parse); si no está, lo deriva por
+ * convención AR (1 dormitorio = 2 ambientes → beds + 1). Siempre devuelve un
+ * número (todas las unidades tienen `beds`). Puede ser fraccionario (1,5).
  */
 export function unitAmbientes(unit: Unit): number {
   return unit.ambientes ?? unit.beds + 1;
@@ -176,9 +177,12 @@ export function unitTotalBaths(unit: Unit): number {
 }
 
 /**
- * Tipología comercial (A–F). Prioriza el campo `tipologia` de Airtable; si no
- * está, la deriva del nombre del plano (`/tipology/unity/TIPOLOGIA%20A.png` → "A").
+ * Tipología comercial (A–F). Sale de `units.json` (el relevamiento del Miro); si
+ * no está, la deriva del nombre del plano (`/tipology/unity/TIPOLOGIA%20A.png` → "A").
  * `undefined` si no se puede determinar.
+ *
+ * ⚠ NO la pisa Cubiqa: su `typology` es un enum de ambientes ("3" → "3 AMBIENTES"),
+ * otra cosa distinta. Ver la nota en `Unit.tipologia`.
  */
 export function unitTipologia(unit: Unit): string | undefined {
   const live = unit.tipologia?.trim().toUpperCase();
@@ -217,7 +221,7 @@ export function normalizeAmount(price: string): string | null {
 }
 
 /**
- * Formatea el precio que viene de Airtable. Un número plano ("100000") se muestra
+ * Formatea el precio de la capa en vivo. Un número plano ("100000") se muestra
  * como "$100.000" (separador de miles del idioma activo). Si NO es un número plano
  * (vacío, "Consultar", "USD 120k"…), devuelve null para que quien lo use muestre
  * su propia etiqueta de "consultar".

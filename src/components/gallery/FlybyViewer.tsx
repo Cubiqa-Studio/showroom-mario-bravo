@@ -1478,7 +1478,7 @@ export function FlybyViewer({
       />
       <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
       <GalleryModal open={galleryOpen} onClose={() => setGalleryOpen(false)} />
-      {/* Buscador de unidades: recibe las unidades EN VIVO (ya mergeadas con Airtable)
+      {/* Buscador de unidades: recibe las unidades EN VIVO (ya mergeadas con Cubiqa)
           para no re-fetchear; la lupa de arriba y el item del menú lo abren. */}
       <UnitFinderModal
         open={finderOpen}

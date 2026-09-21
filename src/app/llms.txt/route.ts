@@ -1,4 +1,5 @@
 import { getUnits } from "@/lib/data";
+import { statusLabel } from "@/lib/status";
 import { SITE, CUBIQA_URL } from "@/data/site";
 import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION } from "@/lib/seo";
 
@@ -23,7 +24,9 @@ function lineaUnidad(id: string, u: ReturnType<typeof getUnits>[string]): string
     u.areas?.total ? `${u.areas.total} m² totales` : null,
     u.tipologia ? `tipología ${u.tipologia}` : null,
     u.exposure === "frente" ? "al frente" : u.exposure === "contrafrente" ? "al contrafrente" : null,
-    u.status === "available" ? "disponible" : "reservada",
+    // Sale de STATUS_STYLES para no tener una tercera lista de estados que se
+    // desincronice: "Disponible" / "Reservada" / "Vendida", en minúscula.
+    statusLabel(u.status).toLowerCase(),
   ].filter(Boolean);
   return `- [Departamento ${u.residence}](${SITE_URL}/residencia/${id}): ${partes.join(", ")}.`;
 }

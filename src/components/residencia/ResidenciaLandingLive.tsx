@@ -8,8 +8,8 @@ import { ResidenciaLanding } from "./ResidenciaLanding";
 
 interface ResidenciaLandingLiveProps {
   unitId: string;
-  /** Lo que horneó el build (Airtable al momento del deploy). Es el punto de partida
-   *  y el fallback si el proxy no responde. */
+  /** Lo que horneó el build (el catálogo de Cubiqa al momento del deploy). Es el
+   *  punto de partida y el fallback si el proxy no responde. */
   unit: Unit;
   others: UnitWithId[];
   floorUnits: UnitWithId[];
@@ -21,7 +21,7 @@ interface ResidenciaLandingLiveProps {
  * Capa EN VIVO de la ficha STANDALONE (entrada directa por link, Google o F5).
  *
  * Antes la página era ISR: se revalidaba cada 60 s y el HTML salía con el estado y
- * el precio reales de Airtable. Con `output: "export"` el HTML se hornea una vez en
+ * el precio reales del catálogo. Con `output: "export"` el HTML se hornea una vez en
  * el build, así que sin esto el dato quedaría congelado hasta el próximo deploy —
  * justo lo que el cliente cambia a diario (disponibilidad y precio).
  *
@@ -43,7 +43,7 @@ export function ResidenciaLandingLive({
 }: ResidenciaLandingLiveProps) {
   const live = useLiveUnitsOrNull();
 
-  // `live[unitId]` puede faltar si la unidad se sacó de Airtable: en ese caso vale
+  // `live[unitId]` puede faltar si la unidad se sacó del catálogo: en ese caso vale
   // lo horneado (nunca se queda sin datos y la ficha no se rompe).
   const unit = live?.[unitId] ?? unitHorneada;
   const others = live ? otherAvailableUnitsFrom(live, unitId) : othersHorneados;

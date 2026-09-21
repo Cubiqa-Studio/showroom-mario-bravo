@@ -2,10 +2,11 @@
 # para poder hostearlo en Hostinger sin proceso Node — ver deploy/README-hostinger.md).
 #
 # Consecuencia para ESTE deploy: ya no hay runtime de Next acá. No hay SSR, ni
-# middleware, ni route handlers → **/api/unidades, /api/avance y /api/contact no
-# existen en Netlify**. O sea: sin data en vivo de Airtable y sin formulario de
-# contacto. El resto del sitio (recorrido, fichas, planos, 360°) funciona completo
-# con los datos horneados en el build.
+# middleware, ni route handlers → **/api/proyecto, /api/avance y /api/contact no
+# existen en Netlify**. O sea: sin data en vivo (unidades y brochure del back de
+# Cubiqa, avance de obra de Airtable) y sin formulario de contacto. El resto del
+# sitio (recorrido, fichas, planos, 360°) funciona completo con los datos horneados
+# en el build.
 #
 # Para que este deploy vuelva a tener data en vivo y formulario, apuntalo al proxy
 # PHP de Hostinger con la env del build:

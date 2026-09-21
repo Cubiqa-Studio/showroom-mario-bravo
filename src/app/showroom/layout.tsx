@@ -8,8 +8,8 @@ import { showroomGraphLd, jsonLdScriptProps } from "@/lib/seo";
 // párrafo "El proyecto" y los 63 <a href="/residencia/…"> metidos en un `<div hidden>`
 // que sólo mueve a su lugar un script de React: un crawler sin JS no veía nada de eso.
 export default function ShowroomLayout({ children }: { children: React.ReactNode }) {
-  // Sale de units.json (sincrónico) y no de Airtable: número, residencia y dormitorios
-  // no cambian en vivo, así que el bloque crawleable no depende de la red en el build.
+  // Sale de units.json (sincrónico) y no de la capa en vivo: número, residencia y
+  // dormitorios no cambian ahí, así que el bloque crawleable no depende de la red.
   const unitList = Object.entries(getUnits())
     .map(([id, u]) => ({ id, residence: u.residence, beds: u.beds }))
     .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));

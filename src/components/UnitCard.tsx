@@ -3,7 +3,7 @@
 import type { Unit } from "@/lib/types";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { unitArea, orientationLabel } from "@/lib/residencia";
-import { STATUS_STYLES, DUPLEX_COLOR, TERRAZA_COLOR, EXPOSURE_COLOR } from "@/lib/status";
+import { statusColor, DUPLEX_COLOR, TERRAZA_COLOR, EXPOSURE_COLOR } from "@/lib/status";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -29,7 +29,7 @@ export function UnitCard({ unit }: { unit: Unit }) {
   const area = unitArea(unit, t.numberLocale);
   const orient = unit.orientation ? orientationLabel(unit.orientation, t.orientations) : "";
   const stats = [
-    // Ambientes y Vistas EN VIVO (Airtable): sólo si la unidad los trae.
+    // Ambientes y Vistas EN VIVO (Cubiqa): sólo si la unidad los trae.
     // Miro 2026-07-15: sin tipología (se sacó de toda la UI).
     unit.ambientes != null ? t.unitCard.rooms(unit.ambientes) : "",
     t.unitCard.beds(unit.beds),
@@ -60,7 +60,7 @@ export function UnitCard({ unit }: { unit: Unit }) {
         <div className="absolute inset-x-2.5 bottom-0 z-10 flex translate-y-1/2 flex-wrap items-center justify-end gap-1.5">
           <span
             className="inline-flex items-center gap-1.5 rounded-full text-[15px] font-semibold text-white shadow"
-            style={badgeStyle(STATUS_STYLES[unit.status].color)}
+            style={badgeStyle(statusColor(unit.status))}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-tier-dark/85" />
             {t.status[unit.status]}

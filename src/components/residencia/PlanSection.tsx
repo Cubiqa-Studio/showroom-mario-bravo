@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Unit } from "@/lib/types";
 import type { UnitWithId } from "@/lib/data";
 import { formatBaths, unitAmbientes } from "@/lib/residencia";
-import { BROCHURE_URL } from "@/lib/contact";
+import { useBrochureHref } from "@/hooks/useLiveUnits";
 import { captureCta } from "@/lib/analytics";
 import { useI18n } from "@/i18n/LanguageProvider";
 import { FloorPlate } from "./FloorPlate";
@@ -36,6 +36,8 @@ export function PlanSection({
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
   const a = unit.areas;
   const { t } = useI18n();
+  // Brochure EN VIVO (Cubiqa) con el PDF commiteado de respaldo — ver useBrochureHref.
+  const brochureHref = useBrochureHref();
   // Piso de la unidad = su id sin los dos últimos dígitos ("101" → "1", "001" → "0" = PB).
   const floor = unitId.length > 2 ? unitId.slice(0, -2) : unitId;
 
@@ -184,7 +186,7 @@ export function PlanSection({
               <span className="val">{unit.toilette}</span>
             </div>
           ) : null}
-          {/* Vistas EN VIVO (Airtable). Sólo si la unidad la trae. */}
+          {/* Vistas EN VIVO (el rumbo que manda Cubiqa). Sólo si la unidad lo trae. */}
           {unit.vistas ? (
             <div className="ov-row">
               <span className="lbl">{t.plan.vistas}</span>
@@ -231,16 +233,20 @@ export function PlanSection({
           </div>
           {/* Juani 2026-07-16: la fila "Entrega — 24 a 30 meses" se sacó (quedaba
               desactualizada con el tiempo); el avance real vive en el modal
-              "Avance de obra" que el cliente actualiza desde Airtable. */}
-          {/* "Ver PDF" = descarga el MISMO brochure del proyecto que el sidebar y la
-              DataBar (BROCHURE_URL). Es un <a download> con estilo de botón (`.btn`
-              aplica igual en anchors), no un <button> mudo — antes no hacía nada.
-              Se oculta si todavía no hay brochure cargado (BROCHURE_URL null). */}
-          {BROCHURE_URL && (
+              "Avance de obra" que el cliente actualiza desde Airtable (lo único que
+              sigue ahí: el back de Cubiqa todavía no tiene avance de obra). */}
+          {/* "Ver PDF" = el MISMO brochure del proyecto que el sidebar (useBrochureHref:
+              el del panel de Cubiqa, o el PDF commiteado si no hay). Es un <a> con
+              estilo de botón (`.btn` aplica igual en anchors), no un <button> mudo.
+              Se oculta sólo si no hay brochure por ningún lado.
+              `download` queda porque el FALLBACK sí es del mismo origen (/public) y
+              ahí el navegador lo respeta; sobre la URL del CDN lo ignora, que es lo
+              mismo que hacía antes — ver la nota larga en src/lib/contact.ts. */}
+          {brochureHref && (
             <a
               className="btn btn-gold"
               style={{ marginTop: 36 }}
-              href={BROCHURE_URL}
+              href={brochureHref}
               download
               target="_blank"
               rel="noopener noreferrer"

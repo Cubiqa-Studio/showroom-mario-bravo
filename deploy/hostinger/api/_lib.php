@@ -5,21 +5,26 @@ declare(strict_types=1);
 // Utilidades compartidas del proxy del showroom.
 //
 // POR QUÉ EXISTE ESTE PHP. El sitio se publica como export estático de Next
-// (`output: "export"`): HTML plano, sin proceso Node. Pero hay tres cosas que
-// necesitan un servidor porque manejan SECRETOS que NO pueden viajar en el bundle
-// de JavaScript (donde cualquiera los lee con F12):
+// (`output: "export"`): HTML plano, sin proceso Node. Pero hay cosas que necesitan
+// un servidor:
 //
-//   · el token de Airtable  → lectura de la base del cliente
-//   · la API key de Resend  → mandar mails desde el dominio del cliente
+//   · SECRETOS que no pueden viajar en el bundle de JavaScript (donde cualquiera
+//     los lee con F12): la API key de Resend (con ella se mandan mails desde el
+//     dominio del cliente) y el token de Airtable, que quedó sólo para el avance
+//     de obra.
+//   · El back de CUBIQA (/api/proyecto: unidades + brochure), que no es un secreto
+//     pero sí necesita un intermediario: su CORS no incluye el dominio del showroom
+//     y no manda cabeceras de cache. Los motivos completos están en proyecto.php.
 //
 // Hostinger corre PHP nativo (PHP-FPM), sin proceso persistente: a diferencia de
 // una app Node, no queda nada corriendo entre pedidos, así que no suma a la métrica
 // de procesos de la cuenta. Sólo se ejecuta durante el request.
 //
-// El proxy es TONTO a propósito: pasa los registros crudos de Airtable y no sabe
-// nada del dominio. El parseo (nombres de columna, merge sobre units.json) vive en
-// TypeScript, en src/lib/airtable-parse.ts, y lo comparten el build y el navegador.
-// Así no hay dos implementaciones del mismo parseo para mantener en sincronía.
+// El proxy es TONTO a propósito: pasa la respuesta cruda del servicio de arriba y no
+// sabe nada del dominio. El mapeo (enums, nombres de columna, merge sobre
+// units.json) vive en TypeScript —src/lib/cubiqa-parse.ts y src/lib/airtable-parse.ts—
+// y lo comparten el build y el navegador. Así no hay dos implementaciones del mismo
+// parseo para mantener en sincronía.
 //
 // La excepción es contact.php: ahí la plantilla del mail y la lista de
 // destinatarios SÍ tienen que estar server-side, porque un proxy que aceptara
@@ -98,9 +103,10 @@ function showroom_config(): array
     // Sin archivo: probamos variables de entorno. Devuelve strings vacíos si no hay
     // nada — cada endpoint decide qué es obligatorio para él.
     $cache = [
+        'cubiqa_api_base'        => (string) (getenv('CUBIQA_API_BASE') ?: ''),
+        'cubiqa_project_id'      => (string) (getenv('CUBIQA_PROJECT_ID') ?: ''),
         'airtable_token'         => (string) (getenv('AIRTABLE_TOKEN') ?: ''),
         'airtable_base_id'       => (string) (getenv('AIRTABLE_BASE_ID') ?: ''),
-        'airtable_units_table'   => (string) (getenv('AIRTABLE_UNITS_TABLE_ID') ?: ''),
         'airtable_avance_table'  => (string) (getenv('AIRTABLE_AVANCE_TABLE_ID') ?: ''),
         'resend_api_key'         => (string) (getenv('RESEND_API_KEY') ?: ''),
         'email_to'               => (string) (getenv('EMAIL_TO') ?: ''),
@@ -278,7 +284,77 @@ function showroom_post_json(string $url, array $payload, array $headers = []): a
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Airtable: pass-through con cache y "última copia buena".
+// Cubiqa: pass-through del endpoint público del proyecto, con cache y "última
+// copia buena". Es lo que sirve /api/proyecto (unidades + brochure).
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Trae el `data` de `GET {base}/api/projects/{id}/public` y lo devuelve tal cual.
+ *
+ * CACHE A ARCHIVO de 60 s, por las mismas dos razones que la de Airtable: el back
+ * de Cubiqa no manda `Cache-Control` ni `ETag` ni tiene rate limit —así que sin
+ * esto cada visitante le cuesta tres consultas a su base—, y el dato no cambia tan
+ * seguido como para pagar una llamada por visita. Con la cache, todo el tráfico del
+ * sitio son como mucho 60 llamadas por hora.
+ *
+ * Si el back falla, se sirve la copia vieja aunque esté vencida (mejor un dato de
+ * hace un rato que ningún dato: el sitio cae a lo horneado y muestra "Consultar").
+ * Devuelve null sólo si nunca hubo una copia buena.
+ *
+ * NO toma ningún input del request: el id del proyecto sale del config. Es a
+ * propósito — un proxy que aceptara la URL por query string sería un proxy abierto.
+ */
+function showroom_cubiqa_proyecto(int $ttl = 60): ?array
+{
+    $base = rtrim(showroom_cfg('cubiqa_api_base'), '/');
+    $projectId = showroom_cfg('cubiqa_project_id');
+    if ($base === '' || $projectId === '') {
+        return null;
+    }
+
+    $cache = showroom_dir_tmp() . '/cubiqa-' . sha1($base . '|' . $projectId) . '.json';
+    $vencida = true;
+    $vieja = null;
+    if (is_readable($cache)) {
+        $crudo = @file_get_contents($cache);
+        $vieja = $crudo === false ? null : json_decode($crudo, true);
+        if (is_array($vieja)) {
+            $vencida = (time() - (int) @filemtime($cache)) >= $ttl;
+        } else {
+            $vieja = null;
+        }
+    }
+    if (!$vencida && is_array($vieja)) {
+        return $vieja;
+    }
+
+    $url = $base . '/api/projects/' . rawurlencode($projectId) . '/public';
+    [$status, $body] = showroom_get($url, ['Accept: application/json']);
+    if ($status !== 200) {
+        // El back devuelve el MISMO 404 para "ese id no existe" y para "el proyecto
+        // está desactivado": desde acá no se pueden distinguir. Lo decimos en el log
+        // para que no cueste media hora averiguar cuál de los dos es.
+        $pista = $status === 404 ? ' (id inexistente o proyecto INACTIVO)' : '';
+        error_log('[showroom] Cubiqa ' . $status . $pista . ': ' . substr($body, 0, 200));
+        return is_array($vieja) ? $vieja : null;
+    }
+    $sobre = json_decode($body, true);
+    // El back envuelve todo en `{statusCode, success, data}`. Sin `data` no hay nada
+    // útil que cachear: mejor servir la copia vieja que pisarla con basura.
+    if (!is_array($sobre) || !isset($sobre['data']) || !is_array($sobre['data'])) {
+        error_log('[showroom] Cubiqa: respuesta sin "data" utilizable.');
+        return is_array($vieja) ? $vieja : null;
+    }
+
+    $data = $sobre['data'];
+    @file_put_contents($cache, json_encode($data, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    return $data;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Airtable: pass-through con cache y "última copia buena". HOY SÓLO PARA EL
+// AVANCE DE OBRA — las unidades se migraron al back de Cubiqa (ver arriba); el
+// avance se quedó acá porque ese back no tiene entidad de avance de obra.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**

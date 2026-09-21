@@ -27,17 +27,32 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 return [
-    // ── Airtable — data EN VIVO (estado, precio, ambientes, superficies) ──────
+    // ── Cubiqa — unidades y brochure EN VIVO ─────────────────────────────────
+    // De dónde salen: el admin carga el proyecto con sus unidades en el panel,
+    // copia el ID del proyecto y lo pega acá. Ninguna de las dos es un secreto
+    // (el endpoint /projects/:id/public es público), pero viven acá igual para
+    // poder apuntar el showroom a otro proyecto SIN rebuildear ni resubir el zip.
+    //
+    // ⚠ Cada showroom apunta a SU proyecto: el match es por el número de unidad
+    // (TEXTO) contra las keys de units.json, y un id ajeno pinta unidades de otro
+    // edificio. Si el id no existe —o el proyecto está desactivado— el back
+    // devuelve 404 y el sitio cae a los datos horneados, sin romperse.
+    //
+    // Sin barra final.
+    'cubiqa_api_base'       => 'https://api.kuvus.app',
+    'cubiqa_project_id'     => '00000000-0000-0000-0000-000000000000',
+
+    // ── Airtable — SÓLO el avance de obra ────────────────────────────────────
+    // Las unidades se migraron a Cubiqa; esto quedó porque ese back todavía no
+    // tiene entidad de avance de obra. El día que la tenga, las tres claves de
+    // abajo se borran.
+    //
     // Personal Access Token (https://airtable.com/create/tokens).
     // Scopes: data.records:read · Acceso: SÓLO la base de este showroom.
-    // ⚠ Cada showroom necesita su PROPIA base y sus propios table IDs: el match es
-    // por la columna "Unidad" (TEXTO) contra las keys de units.json, y mezclar
-    // bases pinta unidades ajenas.
     'airtable_token'        => 'pat_xxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 
-    // Base y tablas de TIER Bravo (no son secretas; el token sí):
+    // Base de TIER Bravo (no es secreta; el token sí):
     'airtable_base_id'      => 'appVdj9WzBYpKtUcu',
-    'airtable_units_table'  => 'tble9NSwIDP5yAtuJ',
     // Opcional: sin esto, el modal "Avance de obra" muestra el estado vacío.
     'airtable_avance_table' => 'tbldUfUyV1eoT8gBe',
 

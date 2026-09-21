@@ -11,9 +11,11 @@
 //   · el mismo Cache-Control por tipo de archivo
 //
 // Y hace de STAND-IN del proxy PHP (que en local no se puede correr) para
-// /api/unidades y /api/avance: le pega a Airtable con el token de .env.local y
-// devuelve EXACTAMENTE el mismo contrato que el PHP (`{ records: [...] }` crudos).
-// Así se verifica de punta a punta que el sitio estático levanta la data en vivo.
+// /api/proyecto y /api/avance, devolviendo EXACTAMENTE el mismo contrato que el PHP:
+//   · /api/proyecto → `{ project: {...} }`, el `data` crudo del back de Cubiqa;
+//   · /api/avance   → `{ records: [...] }`, los registros crudos de Airtable.
+// Así se verifica de punta a punta que el sitio estático levanta la data en vivo —
+// incluido el chequeo que importa: que se pida UNA sola vez por carga de página.
 //
 // ⚠ Es una herramienta de DESARROLLO. No es el servidor de producción (en producción
 // no hay Node: el HTML lo sirve Apache y los endpoints, PHP). /api/contact NO está
@@ -73,7 +75,7 @@ async function esArchivo(p) {
   }
 }
 
-// ── Stand-in del proxy PHP: Airtable con el token de .env.local ───────────────
+// ── Stand-in del proxy PHP: Cubiqa + Airtable con lo que haya en .env.local ───
 
 async function leerEnvLocal() {
   const env = {};
@@ -90,6 +92,28 @@ async function leerEnvLocal() {
 }
 
 const ENV = await leerEnvLocal();
+
+/** El `data` del endpoint público del proyecto, o null si no hay config / falló. */
+async function cubiqaProyecto() {
+  const base = (ENV.CUBIQA_API_BASE ?? "").replace(/\/+$/, "");
+  const projectId = ENV.CUBIQA_PROJECT_ID;
+  if (!base || !projectId) return null;
+  try {
+    const res = await fetch(`${base}/api/projects/${encodeURIComponent(projectId)}/public`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+      // 404 = id inexistente O proyecto desactivado; el back no los distingue.
+      console.warn(`[preview] Cubiqa ${res.status} (404 = id inexistente o proyecto inactivo)`);
+      return null;
+    }
+    const sobre = await res.json();
+    return sobre?.data ?? null;
+  } catch (err) {
+    console.warn(`[preview] Cubiqa no respondió: ${err.message}`);
+    return null;
+  }
+}
 
 async function airtableRecords(tabla) {
   const token = ENV.AIRTABLE_TOKEN;
@@ -128,10 +152,18 @@ const servidor = createServer(async (req, res) => {
   let rutaUrl = decodeURIComponent(url.pathname);
 
   // Endpoints que en producción atiende el PHP.
-  if (rutaUrl === "/api/unidades" || rutaUrl === "/api/avance") {
-    const tabla =
-      rutaUrl === "/api/unidades" ? ENV.AIRTABLE_UNITS_TABLE_ID : ENV.AIRTABLE_AVANCE_TABLE_ID;
-    const records = await airtableRecords(tabla);
+  if (rutaUrl === "/api/proyecto") {
+    const project = await cubiqaProyecto();
+    if (project === null) {
+      console.log(`[preview] ${rutaUrl} → project: null (sin CUBIQA_* o el back no respondió)`);
+      return json(res, { project: null, motivo: "sin_datos" });
+    }
+    const n = Array.isArray(project.units) ? project.units.length : 0;
+    console.log(`[preview] ${rutaUrl} → ${n} unidades · brochure: ${project.brochure ? "sí" : "no"}`);
+    return json(res, { project, count: n });
+  }
+  if (rutaUrl === "/api/avance") {
+    const records = await airtableRecords(ENV.AIRTABLE_AVANCE_TABLE_ID);
     if (records === null) {
       console.log(`[preview] ${rutaUrl} → records: [] (sin token/tabla o Airtable caído)`);
       return json(res, { records: [] });

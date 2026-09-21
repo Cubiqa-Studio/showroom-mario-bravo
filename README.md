@@ -22,7 +22,7 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-No hace falta ninguna variable de entorno: sin Airtable la app lee `src/data/units.json`,
+No hace falta ninguna variable de entorno: sin el back de Cubiqa la app lee `src/data/units.json`,
 y sin Resend el formulario de contacto devuelve 500 controlado. Copiá `.env.example` a
 `.env.local` cuando conectes los servicios. `ffmpeg` sólo hace falta para los pipelines
 de video/frames.
@@ -55,7 +55,7 @@ esté en dos lugares:
 "Inicio" del menú sólo cierra el menú).
 
 **Al entrar a un proyecto, el panel avisa.** `/showroom` es `force-dynamic` y espera a
-Airtable, así que el click tarda. `useLinkStatus()` ya ponía un spinner en el CTA, pero
+la capa en vivo, así que el click tarda. `useLinkStatus()` ya ponía un spinner en el CTA, pero
 mide 13px y en escritorio el `<Link>` es el panel COMPLETO: se puede clickear a 400px
 del botón. Ahora, mientras la navegación está en vuelo, `MarcaEntrando` le pone
 `data-entrando` al panel y eso apaga los otros dos, deja el CTA visible aunque el
@@ -130,13 +130,14 @@ en vivo, el lugar donde iría es un endpoint más del proxy, no un route handler
 Sale de `MB 955 - UNIDADES EN VENTA.pdf`; las superficies dan exacto contra los TOTALES
 del PDF, **salvo la 605 y la 610**, que no están en ese PDF y las sumó el cliente por
 Airtable el 30-08 (ver el aviso más abajo). Ese `unitId` es **la clave de join de todo**: `polygon.unitId` ↔ key de
-`units.json` ↔ columna `Unidad` de Airtable.
+`units.json` ↔ campo `name` de la unidad en Cubiqa.
 
 Cargado: `residence`, `beds`, `ambientes`, `areas`, `sqft`, `status`, `exposure`, y
 —desde el mapeo de Camila— `tipologia` + `tour360` en los pisos 1 a 5. Pendiente:
 
 - `price` en `units.json` queda en `"Consultar"`: los precios reales llegan EN VIVO
-  desde Airtable (ver más abajo), no hardcodeados. Sin Airtable el sitio no muestra precio.
+  desde el back de Cubiqa (ver más abajo), no hardcodeados. Sin esa conexión el sitio
+  no muestra precio.
 - `baths` está puesto por convención (1 para mono y 2 amb., 2 para 3 y 4 amb.). **No sale
   de ningún documento del cliente**, y los planos que llegaron el 25-08 dicen otra cosa:
   ver [Baños: lo que muestran los planos](#baños-lo-que-muestran-los-planos).
@@ -442,9 +443,14 @@ relleno del polígono comunica DISPONIBILIDAD y pintarlo de violeta la taparía.
 ### Exposición: frente y contrafrente
 
 `unit.exposure` (`"frente"` | `"contrafrente"`). Pedido del cliente el 25-08: el mismo
-tratamiento que el chip de dúplex. Sale de las plantas —**Airtable no tiene columna de
-orientación**, verificado contra la base— así que vive en `units.json` y se carga con
-`npm run units:exposure`.
+tratamiento que el chip de dúplex. Sale de las plantas y vive en `units.json`, cargado
+con `npm run units:exposure`.
+
+> ⚠ Cubiqa **sí** tiene un campo `view`, pero NO se usa para esto. Obliga a elegir un
+> valor por unidad, y acá 62 de 63 están relevadas del plano (la 706 es pasante y a
+> propósito no tiene): dejar ganar un desplegable del panel reemplazaría 62 valores
+> verificados. Los 8 RUMBOS de `view` (Norte, Noroeste…) sí entran, pero en `vistas`,
+> que es un campo distinto. Ver [Data en vivo](#data-en-vivo-back-de-cubiqa).
 
 | | Unidades |
 |---|---|
@@ -489,63 +495,126 @@ cambian los patios), por eso entra en el mapeo. **El 6° y el 7° quedaron sin r
 son plantas de retiro con otras unidades — hay que preguntarle a Camila si reusan alguno
 de los A–E o si van a tener el suyo.
 
-### Data en vivo (Airtable)
+### Data en vivo (back de Cubiqa)
 
-La base **TIER Bravo** (`appVdj9WzBYpKtUcu`) maneja estado, precio, ambientes y
-superficies de las 63 unidades; `units.json` es el fallback si Airtable se cae o tarda
-más de 5 s. Las credenciales van en `.env.local` (gitignoreado) — ver `.env.example`.
+El catálogo de unidades y el brochure salen del **back de Cubiqa**
+(`client-projects-controller-ms`), de un solo endpoint PÚBLICO y sin token:
 
-**Se lee DOS veces, y a propósito** (esto cambió con el export estático):
+    GET {CUBIQA_API_BASE}/api/projects/{CUBIQA_PROJECT_ID}/public
 
-1. **En el build** (`src/lib/airtable.ts`, con el token del entorno) → hornea un estado
-   plausible en el HTML: el contorno de cada unidad sale ya pintado en el primer frame,
-   el bloque SEO del showroom lista las 63 fichas y el JSON-LD lleva disponibilidad real.
-2. **En el navegador** (`useLiveUnits` → `/api/unidades`, que en producción es el proxy
-   PHP que guarda el token) → repinta con el dato REAL. Por eso un cambio en Airtable se
-   ve en ≤2 min sin rebuild.
+Maneja **estado, precio, ambientes, superficies y vista** de las 63 unidades, más el
+**brochure** del proyecto. `units.json` es el fallback si el back se cae, tarda más de
+6 s o todavía no está configurado. Las dos variables van en `.env.local`
+(gitignoreado) — ver `.env.example`.
 
-El parseo lo comparten las dos: vive en **`src/lib/airtable-parse.ts`**, que es puro
-(sin fetch ni token) justamente para que no haya dos implementaciones de los alias de
-columna. `airtable.ts` es sólo la capa de red server-side, y el proxy PHP es tonto: pasa
-los registros crudos y no sabe nada del dominio.
+El alta la hace el admin: crea el proyecto con sus unidades en el panel, copia el ID
+del proyecto y ese uuid es el que se carga acá.
 
-Los nombres de columna de esta base **no son los del template**, así que
-`airtable-parse.ts` los lee con alias tolerantes:
+> 🔁 **Antes esto era Airtable.** Migrado el 21-09-2026. Lo ÚNICO que sigue en Airtable
+> es el **avance de obra**, porque el back de Cubiqa todavía no tiene esa entidad (no
+> hay dónde guardar el porcentaje). Por eso el token de Airtable sigue vivo en
+> `showroom-config.php`. El día que Cubiqa sume `progress` al proyecto, `useAvance`
+> apunta a `/api/proyecto` y Airtable se va del repo entero.
 
-| Columna en Airtable | Va a | Nota |
+**Se lee DOS veces, y a propósito** (esto viene del export estático):
+
+1. **En el build** (`src/lib/cubiqa.ts`, con las variables del entorno) → hornea un
+   estado plausible en el HTML: el contorno de cada unidad sale ya pintado en el primer
+   frame, el bloque SEO del showroom lista las 63 fichas y el JSON-LD lleva
+   disponibilidad real.
+2. **En el navegador** (`useLiveUnits` → `/api/proyecto`, que en producción es el proxy
+   PHP) → repinta con el dato REAL. Por eso un cambio en el panel se ve en ≤2 min sin
+   rebuild.
+
+El mapeo lo comparten las dos: vive en **`src/lib/cubiqa-parse.ts`**, que es puro (sin
+fetch ni config) justamente para que no haya dos implementaciones de la traducción de
+los enums. `cubiqa.ts` es sólo la capa de red server-side, y el proxy PHP es tonto:
+pasa el `data` del back tal cual y no sabe nada del dominio.
+
+> ⚠ Ese archivo **no puede tener imports de runtime** (los tres que tiene son
+> `import type`). Es lo que le permite a `npm run check:cubiqa` cargarlo con el
+> TypeScript pelado de Node y correr EXACTAMENTE el mismo parseo que el navegador.
+
+#### Por qué hay un proxy si el endpoint es público
+
+No es por un secreto. Son tres razones y las tres valen:
+
+1. **CORS.** El back sólo acepta como `Origin` a `admin.kuvus.app` y
+   `dashboard.kuvus.app`, y esa lista vive en su código (`config/production.json`), no
+   en una variable de entorno. Peor: cuando el Origin no está en la lista, su handler
+   de errores devuelve **500 sin cabeceras CORS**, así que desde el navegador un
+   dominio mal configurado se ve igual que un back caído. Un pedido server-to-server no
+   manda `Origin` y el back lo deja pasar — es la rama que él mismo habilita.
+2. **Recursos.** El back no manda `Cache-Control` ni `ETag` y no tiene rate limit. Un
+   fetch por visitante son tres consultas a su base por carga. Con la cache de 60 s del
+   PHP son ≤1 por minuto para todo el tráfico del sitio.
+3. **Resiliencia.** Si el back no contesta, el proxy sirve la última copia buena.
+
+#### El mapeo, campo por campo
+
+| Campo de Cubiqa | Va a | Nota |
 |---|---|---|
-| `Unidad` | clave de join | TEXTO, matchea las keys de `units.json` |
-| `Precio USD` | `price` | número plano → se formatea como `USD 279.248` |
-| `Ambientes` | `ambientes` | |
-| `Superficie Total` | `areas.total` | |
-| `Superficie Cubierta` | `areas.interior` | |
-| `Superficie Semi/Desc` | `areas.exterior` | |
-| `Piso` | `piso` | |
-| `Tipología` | — | **se ignora**: dice "3 AMBIENTES" (duplica `Ambientes`). La tipología del sitio es la LETRA A–E, que vive en `units.json`. Si el cliente algún día carga letras, entran solas. |
-| `Estado` | `status` | valores `Disponible` / `Reservada` (el mapeo es por prefijo, así que "Reservado" también entra) |
+| `name` | clave de join | TEXTO, matchea las keys de `units.json` ("101") |
+| `state` | `status` | `Available`/`Reserved`/`Sold` → `available`/`reserved`/`sold`. Igualdad EXACTA: un valor desconocido deja el estado horneado en vez de romper |
+| `usdPrice` | `price` | número plano → `USD 279.248`. **Un `0` no es un precio**: se descarta y queda "Consultar" |
+| `bedrooms` | `ambientes` | ⚠ sí, **ambientes**, no dormitorios — ver abajo |
+| `coveredArea` | `areas.interior` | `0` = no cargado → queda el de `units.json` |
+| `semiCoveredArea` | `areas.exterior` | el ÚNICO donde un `0` explícito es un dato real ("sin descubierta"), y sólo si la fila tiene algún otro número cargado |
+| `totalArea` | `areas.total` | `0` = no cargado |
+| `view` (los 8 rumbos) | `vistas` | `northwest` → "Noroeste". Las etiquetas son copia textual de los paneles de Cubiqa |
+| `view` = `front`/`rear` | — | **se ignora**: eso es `exposure`, relevada de los planos para 62 de 63 unidades (la 706 es pasante y a propósito no tiene). Dejar ganar un desplegable del panel reemplazaría 62 valores verificados |
+| `typology` | — | **se ignora**: es un enum de ambientes ("3" → "3 AMBIENTES"), duplica `bedrooms`. La tipología del sitio es la LETRA A–E, que vive en `units.json` |
+| `floor` | — | **se ignora**: el piso se deriva del número de unidad, en cuatro lugares. Una segunda fuente desincroniza el selector de pisos de los planos horneados |
+| `brochure` | los dos botones "Brochure" | `null` = el cliente no subió ninguno → se usa el PDF commiteado |
 
-> ✅ **La columna `Estado` ya existe** (la creó el cliente el 31-08). Es la que pinta el
-> contorno de cada unidad —verde disponible / ámbar reservada— y la que alimenta el filtro
-> "Disponibilidad" del buscador. Verificado contra la base el 31-08: las 63 unidades
-> traen `Estado`, las 63 resuelven, y los ids coinciden uno a uno con `units.json` (ni
-> sobra ni falta ninguna). Hoy están las 63 en "Disponible".
+**Sin contrapartida en Cubiqa**, y por lo tanto sólo en `units.json`: `beds`, `baths`,
+`toilette`, `duplex`, `terraza`, `exposure`, `tour360`, `floorPlan`, `tipologia` y
+**`areas.comun`** (la superficie común: no hay dónde cambiarla desde el panel, y NO se
+deriva como `total − cubierta − semi` porque el back no valida que la suma cierre).
+
+> ⚠ **`bedrooms` es AMBIENTES, no dormitorios**, pese al nombre en inglés. Los dos
+> paneles de Cubiqa rotulan esa columna "Ambientes"; es `Float` en la base (un
+> dormitorio no es 1,5, un ambiente sí — "1½ ambientes"); su propio ejemplo combina
+> `typology: "1"` (MONOAMBIENTE) con `bedrooms: 1`, que en dormitorios sería 0; y la
+> palabra "dormitorio" no aparece en ninguno de sus tres repos. El showroom tiene los
+> dos campos por separado y confundirlos sale mal en silencio: el `<title>` de las 63
+> fichas dice "N amb.". `beds` se queda con el valor de `units.json`, relevado de los
+> planos. **Confirmar con Cubiqa antes de publicar.**
+
+> ⚠ **La trampa de los ceros.** En Airtable una celda vacía daba `undefined` y el merge
+> dejaba intacto el valor local. En Cubiqa las diez columnas son `NOT NULL` con
+> `minimum: 0`: una unidad a medio cargar no manda "nada", manda **cero**. Y el merge
+> salta un campo sólo si es `!= null`. Sin los guards de `cubiqa-parse`, un proyecto
+> cargado con ceros de relleno pisaría las superficies verificadas de las 63 unidades
+> con `0` —en el HTML horneado, en los `<title>`, en cada JSON-LD y en el repintado en
+> vivo, todo junto—, y "0 m²" se lee como un bug de CSS, no como un dato malo.
+
+> 🔍 **El fallo más probable es SILENCIOSO.** El merge recorre `units.json` y descarta
+> cualquier unidad del back cuyo número no sea una de sus keys. Si el catálogo se carga
+> con otra nomenclatura ("1 01", "Unidad 101", "10" sin el cero — todas válidas para el
+> back), no matchea NADA: el sitio queda con todo "Disponible" y todo "Consultar", que
+> es **exactamente cómo se ve hoy sin la integración**, y sin un solo error en consola.
+> Una integración muerta puede pasar un QA manual completo. Por eso, antes de deployar:
 >
-> El mapeo es por PREFIJO (`mapEstado`): cualquier cosa que empiece con "dispon" es
-> disponible y con "reserv" es reservada, así que "Reservado" y "Reservada" entran las
-> dos. Un valor que no matchee ninguno de los dos NO rompe: cae al estado de
-> `units.json`. También se aceptan los alias `Estado de la unidad` y `Disponibilidad`.
+>     npm run check:cubiqa
 >
-> Probado de punta a punta: forzando una unidad a "Reservada" su polígono pasa de
-> `#22c55e` a `#eab308` y su tarjeta dice "Reservada", con el resto del piso intacto.
+> Le pega al back (o a una respuesta guardada: `npm run check:cubiqa -- payload.json`),
+> corre el MISMO parser que el navegador y sale con código ≠ 0 si hay unidades
+> huérfanas, unidades sin dato, o un estado que el showroom no conoce. Además imprime
+> el diff unidad por unidad —viejo → nuevo— que es lo que se le muestra al cliente para
+> confirmar que el catálogo quedó bien cargado.
 
 > 💰 **Los precios viajan en el HTML aunque no se muestren.** Ningún componente los
 > renderiza hoy, y el JSON-LD no los publica (`PRICE_CURRENCY = null` en `seo.ts`), pero
 > el valor llega al navegador dentro del payload de React y se ve en "ver código fuente".
 > Si el cliente no quiere precios públicos, la solución es una línea: no mapear
-> `Precio USD` en `fetchAirtableUnits`. **Preguntar antes de publicar.**
+> `usdPrice` en `cubiqa-parse.ts`. **Preguntar antes de publicar.**
 
-La tabla **Avance de Obra** (`tbldUfUyV1eoT8gBe`) sí coincide con el template:
-`Porcentaje` + `Hito en curso` → hoy devuelve 59% / "Terminaciones".
+#### El avance de obra sigue en Airtable
+
+La tabla **Avance de Obra** (`tbldUfUyV1eoT8gBe`, base `appVdj9WzBYpKtUcu`):
+`Porcentaje` + `Hito en curso`. Se pide aparte, a `/api/avance`, con el mismo patrón
+de proxy + cache. Es la última dependencia de Airtable que queda.
 
 ### Cómo se llega a una unidad
 
@@ -553,7 +622,7 @@ Hoy hay tres caminos, y **falta el principal**:
 
 | Camino | Estado |
 |---|---|
-| **Buscador de unidades** (la lupa del showroom, el item del menú lateral, y la lupa de la nav de la ficha) | ✅ anda — filtra por ambientes, baños, piso y disponibilidad, con la data en vivo de Airtable |
+| **Buscador de unidades** (la lupa del showroom, el item del menú lateral, y la lupa de la nav de la ficha) | ✅ anda — filtra por ambientes, baños, piso, vistas y disponibilidad (disponible / reservada / vendida), con la data en vivo de Cubiqa |
 | **Carrusel "Unidades Disponibles"** al pie de cada ficha | ✅ anda |
 | **Links crawleables** del bloque SEO del showroom (63 `<a>`, `sr-only`) | ✅ anda |
 | **Clic en la unidad sobre el render / la planta** | ❌ **falta trazar los polígonos** — es el paso siguiente |
@@ -665,8 +734,8 @@ entra por "ancho de tablet": con el `78vh` de escritorio la tarjeta quedaba en 3
 dibujo en ~250 de ancho sobre una pantalla de 915 — "se ve super chico", 30-08).
 
 **Las plantas se cachean a nivel de MÓDULO** (`plantasResueltas` / `imagenesListas` en
-`FloorPlate.tsx`), no por componente. `/api/plate/:floor` es `force-dynamic` —lee el Blob
-de Netlify y Airtable—, así que sin cache cada cambio de piso volvía a pedirla y mostraba
+`FloorPlate.tsx`), no por componente. `/api/plate/:floor` lee el Blob de Netlify en dev,
+así que sin cache cada cambio de piso volvía a pedirla y mostraba
 el spinner otra vez, **incluso al volver a un piso ya visto** ("es super molesto y tosco
 de ver", 30-08). Guardado fuera del componente, la pestaña de la ficha y el Plan Maestro
 comparten lo mismo: se paga una vez por piso y por sesión. Además:
@@ -725,8 +794,8 @@ dúplex de Caviahue), así que el color de estado y el tooltip salen bien.
 > Si alguna vez el cliente confirma que esas terrazas se venden por separado, ahí sí van
 > como unidades propias en `units.json` **con sus superficies y precio**, y se re-apuntan
 > los polígonos. Mientras tanto, crearlas vacías rompería el conteo de 61 (que aparece en
-> el copy, el sitemap y el JSON-LD) y quedarían sin precio para siempre, porque Airtable
-> tampoco las tiene.
+> el copy, el sitemap y el JSON-LD) y quedarían sin precio para siempre, porque el
+> catálogo tampoco las tiene.
 
 El editor lista **todas las plantas con plano** (`getPlateFloors()`), no sólo las que
 tienen unidades: en la azotea hay que poder trazar aunque el piso no tenga unidades propias.
@@ -1265,8 +1334,10 @@ faltantes) y de dónde salió cada asset.
 | **¿El dominio definitivo es `tierbravo.kuvus.app`?** | Ya está cargado como dominio de producción (`PROD_SITE_URL` en `src/lib/seo.ts`, el redirect www→apex del `.htaccess`, `NEXT_PUBLIC_SITE_URL`). Si el cliente compra un dominio propio, esos tres lugares se actualizan juntos y hay que rebuildear: el valor se hornea en canonical, og:url y sitemap. |
 | **Tipografía del logotipo** | Camila se lo preguntó al cliente. Sin eso no se pueden armar lockups tipográficos coherentes con el wordmark. |
 | **Nombre y casilla de la inmobiliaria** | Sin casilla, sus leads caen en `EMAIL_TO` con "Vino por: Inmobiliaria"; sin nombre, el mail dice "Inmobiliaria". Los dos WhatsApp y la casilla de la desarrolladora ya están cargados (14-09), con remitente en `tierbravo.kuvus.app`, que está verificado en Resend. |
-| **¿Los precios son públicos?** | Airtable los trae y hoy viajan en el HTML sin mostrarse. Ver el aviso en [Data en vivo](#data-en-vivo-airtable). |
-| **Token de Airtable definitivo** | El actual lo pasó el cliente para probar y va a ser rotado. |
+| **¿Los precios son públicos?** | Cubiqa los trae y hoy viajan en el HTML sin mostrarse. Ver el aviso en [Data en vivo](#data-en-vivo-back-de-cubiqa). |
+| **ID del proyecto en Cubiqa** | Lo copia el admin del panel y va en `showroom-config.php` (`cubiqa_project_id`). Sin él no hay data en vivo: el sitio queda con lo horneado. |
+| **¿`bedrooms` de Cubiqa es ambientes?** | Todo indica que sí (sus dos paneles rotulan esa columna "Ambientes"), y así está mapeado. Confirmarlo con Guxar antes de publicar: el showroom tiene `ambientes` y `beds` como campos distintos. |
+| **Token de Airtable definitivo** | Ya sólo lo usa el avance de obra. El actual lo pasó el cliente para probar y va a ser rotado. |
 | **Pin exacto del edificio** | `SITE.location` tiene coordenadas aproximadas de la altura 900 de Mario Bravo. |
 | **POIs del barrio** | `SITE.pois` está vacío a propósito (inventarlos publica datos falsos). |
 | **360° del hall** | El de amenities llegó el 30-08 y ya está puesto (bolita del exterior + submenú Tours + modal de Amenities). Falta el del hall: `ENTRANCE_HALL_360` sigue en `null` y su item del menú, oculto. Ver [El punto 360° del exterior](#el-punto-360-del-exterior). |
@@ -1279,7 +1350,8 @@ faltantes) y de dónde salió cada asset.
 | **Plano del 6° con la 605 y la 610** | El plano que mandaron tiene OCHO departamentos (01-04, 06-09) y el cliente sumó dos unidades más por Airtable. Sin un plano actualizado esas dos no pueden tener polígono en "Planta del piso" ni en el Plan Maestro. **Es el pedido más urgente.** Ver [Las 63 unidades](#las-63-unidades). |
 | **Confirmar la numeración corrida del 6°** | Deducimos que `602↔03 · 603↔04 · 604↔05 · 607↔08 · 608↔09 · 609↔10`. Con la 605 y la 610 en la mezcla esto hay que confirmarlo sí o sí. Ver [Los planos de unidad](#los-planos-de-unidad). |
 | **OK para corregir los baños** | Los planos dicen que la C, la D y la E tienen un toilette además del baño. Ver [Baños](#baños-lo-que-muestran-los-planos). |
-| **Brochure comercial** | `BROCHURE_URL` es `null` → el item del menú y el botón "Ver PDF" están ocultos. |
+| **Brochure en Cubiqa** | El cliente tiene que subirlo desde su panel. Mientras no lo haga, los dos botones siguen bajando el PDF commiteado (`BROCHURE_FALLBACK`). |
+| **Nombre de descarga del brochure** | El PDF del CDN siempre baja como `brochure.pdf`: el atributo `download` se ignora cross-origin y el CDN no manda `Content-Disposition` (verificado el 21-09). Lo tiene que arreglar Cubiqa, del lado del servidor. |
 | **Plano individual de cada terraza** | Juani (30-08): en el 7°, la pestaña "Plano de la unidad" debería mostrar también la terraza privada. Camila todavía no las separó. Ver [Terraza propia](#terraza-propia-el-último-piso). |
 | **Media del barrio** | La sección de entorno del menú está oculta (`HAS_DESTINATION_MEDIA`). |
 
@@ -1301,7 +1373,7 @@ faltantes) y de dónde salió cada asset.
 
 **El sitio se publica como EXPORT ESTÁTICO** (`output: "export"`): `npm run build` deja
 todo en `out/` y eso se sube a un hosting común, sin proceso Node. El paso a paso
-—incluido el proxy PHP que guarda los secretos de Airtable y Resend— está en
+—incluido el proxy PHP que habla con el back de Cubiqa y guarda los secretos— está en
 **[`deploy/README-hostinger.md`](deploy/README-hostinger.md)**.
 
 ```bash
@@ -1312,13 +1384,16 @@ npm run preview:static  # mirá out/ como lo va a servir Apache → localhost:43
 Lo que hay que saber de entrada:
 
 - **Sin servidor no hay ISR ni route handlers.** El HTML se hornea en el build; el
-  estado/precio/superficies de Airtable los refresca el NAVEGADOR contra el proxy
+  estado/precio/superficies los refresca el NAVEGADOR contra el proxy
   (`src/lib/api.ts`), así que un cambio de dato se ve en ≤2 min sin rebuild. Un cambio
   de código, de geometría o de textos sí necesita rebuild.
-- **Los secretos no pueden ir en el bundle.** El token de Airtable y la key de Resend
-  viven en `showroom-config.php`, fuera del doc root, y los lee el proxy PHP de
-  `deploy/hostinger/api/`. Sin PHP el sitio igual funciona con los datos horneados,
-  pero no se actualiza y no entran leads.
+- **La config del proxy vive fuera del bundle.** El id del proyecto de Cubiqa, el token
+  de Airtable (ya sólo para el avance) y la key de Resend viven en
+  `showroom-config.php`, fuera del doc root, y los lee el proxy PHP de
+  `deploy/hostinger/api/`. Que estén ahí y no horneados en el build es lo que permite
+  apuntar el sitio a otro proyecto editando una línea, sin rebuild ni resubir el zip.
+  Sin PHP el sitio igual funciona con los datos horneados, pero no se actualiza y no
+  entran leads.
 - **La cache larga de `/frames/*`, `/stops/*` y `/gallery/*` es obligatoria**, no una
   optimización: sin ella el navegador re-baja los frames tras un rato idle y la
   transición "teletransporta" en vez de animar. En Apache la trae

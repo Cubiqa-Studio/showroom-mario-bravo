@@ -72,7 +72,7 @@ export interface KuulaChromeOpts {
  * muestra; -1 requiere plan PRO — si la cuenta no lo es, Kuula lo ignora y el logo
  * queda). Con `hideFullscreen` además saca el botón de pantalla completa (`fs=0`).
  * Se aplica acá, centralizado, para cubrir también las URLs que vienen de datos
- * (units.json / Airtable) sin depender de editarlas una por una.
+ * (units.json / la capa en vivo) sin depender de editarlas una por una.
  *
  * `thumbs=-1` saca el navegador de la colección: las flechas de "anterior/siguiente"
  * a media altura Y los puntitos de abajo (pedido del cliente, 31-08). Es el único

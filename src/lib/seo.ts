@@ -180,8 +180,8 @@ export function siteGraphLd(unitCount: number) {
   };
 }
 
-// Moneda de los precios "número pelado" que manda Airtable (ej. "352170", que la
-// UI mostraba como "$352.170" sin moneda explícita). null = Offer sólo con
+// Moneda de los precios "número pelado" (ej. "352170", que la UI mostraba como
+// "$352.170" sin moneda explícita). null = Offer sólo con
 // disponibilidad, SIN precio — Miro 2026-07-15: el cliente pidió sacar los precios
 // del sitio, así que tampoco se publican en el JSON-LD. Si algún día vuelven,
 // restaurar "USD" acá (confirmado USD el 2026-07-07).
@@ -190,11 +190,12 @@ const PRICE_CURRENCY: "USD" | "ARS" | null = null;
 /** Parsea un precio libre ("USD 420,000", "$352.170", "Consultar") → { amount, currency } | null. */
 function parsePrice(price: string): { amount: string; currency: string } | null {
   // PRICE_CURRENCY=null = precios FUERA del sitio (Miro 2026-07-15): no se publica
-  // precio en el JSON-LD ni aunque Airtable mande la moneda explícita en el texto.
+  // precio en el JSON-LD ni aunque el texto traiga la moneda explícita.
   if (!PRICE_CURRENCY) return null;
   const explicit = /usd|u\$s|dól/i.test(price) ? "USD" : /ar\$|pesos/i.test(price) ? "ARS" : null;
-  // Sin moneda en el texto: sólo un número pelado/"$" (formato actual de Airtable)
-  // puede caer a PRICE_CURRENCY; cualquier otro texto libre no publica precio.
+  // Sin moneda en el texto: sólo un número pelado/"$" puede caer a PRICE_CURRENCY;
+  // cualquier otro texto libre no publica precio. (Hoy la capa en vivo emite
+  // "USD 226.939", con la moneda explícita, así que entra por la rama de arriba.)
   const currency = explicit ?? (/^[\d.,\s$]+$/.test(price.trim()) ? PRICE_CURRENCY : null);
   if (!currency) return null;
   // Monto con conciencia de decimales ("420.000,50" → "420000.50"); si el formato

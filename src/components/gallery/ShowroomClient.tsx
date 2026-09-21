@@ -10,8 +10,8 @@ import { FlybyViewer } from "./FlybyViewer";
 
 interface ShowroomClientProps {
   stops: Stop[];
-  /** Unidades HORNEADAS en el build (Airtable al momento del deploy). Es el punto
-   *  de partida y el fallback si el proxy no responde. */
+  /** Unidades HORNEADAS en el build (el catálogo de Cubiqa al momento del deploy).
+   *  Es el punto de partida y el fallback si el proxy no responde. */
   units: Units;
   segments: FlybySegment[];
   site: SiteConfig;
@@ -21,8 +21,8 @@ interface ShowroomClientProps {
 /**
  * Costura cliente del showroom. Existe por dos razones que trajo el export estático:
  *
- * 1. DATA EN VIVO. Antes la página era ISR: el server leía Airtable y el contorno de
- *    cada unidad salía pintado con su estado real. En un export el HTML se hornea en
+ * 1. DATA EN VIVO. Antes la página era ISR: el server leía el catálogo y el contorno
+ *    de cada unidad salía pintado con su estado real. En un export el HTML se hornea en
  *    build, así que ese estado quedaría congelado hasta el próximo deploy. Acá se
  *    refresca desde el proxy (`useLiveUnits`) arrancando de las unidades horneadas:
  *    el primer frame ya muestra un estado plausible (sin parpadeo) y a los pocos ms

@@ -3,7 +3,7 @@ import type { Stop, Unit, Units } from "./types";
 // ─────────────────────────────────────────────────────────────────────────────
 // Derivaciones PURAS sobre el map de unidades y la geometría de los stops.
 //
-// Viven acá y no en `data.ts` porque `data.ts` arrastra la capa de Airtable
+// Viven acá y no en `data.ts` porque `data.ts` arrastra la capa del back de Cubiqa
 // (`import "server-only"`) y los stores de Netlify Blobs: importarlo desde un
 // componente CLIENTE rompe el build. Con el export estático eso pasó de ser un
 // detalle a ser estructural — la ficha ahora se abre SOBRE el showroom desde el

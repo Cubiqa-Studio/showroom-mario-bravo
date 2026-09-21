@@ -15,7 +15,7 @@ import { AmenitiesModal } from "../residencia/AmenitiesModal";
 import { TeamModal } from "../residencia/TeamModal";
 import { ENTRANCE_HALL_360, AMENITIES_360 } from "@/lib/vr-hotspots";
 import { getUnitToursByFloor } from "@/lib/unit-tours";
-import { BROCHURE_URL } from "@/lib/contact";
+import { useBrochureHref } from "@/hooks/useLiveUnits";
 import { SITE } from "@/data/site";
 import { captureCta } from "@/lib/analytics";
 import {
@@ -102,6 +102,8 @@ export function SideMenu({
   const [teamOpen, setTeamOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const { t } = useI18n();
+  // Brochure EN VIVO (Cubiqa) con el PDF commiteado de respaldo — ver useBrochureHref.
+  const brochureHref = useBrochureHref();
 
   // Secciones de proyecto (Amenities, Calidad y Tecnología, El Equipo) que van
   // "aparte en el inicio" = acá, en el showroom (se sacaron del acordeón por unidad).
@@ -396,13 +398,14 @@ export function SideMenu({
                     )}
                   </AnimatePresence>
 
-                  {/* Brochure: PDF descargable. Abre/descarga el archivo de /public;
-                    mismo item en showroom y en la landing. Se oculta mientras no haya
-                    brochure cargado (BROCHURE_URL null) — un item que baja un 404 es
-                    peor que no tener el item. */}
-                  {BROCHURE_URL && (
+                  {/* Brochure del proyecto: el que subió el cliente al panel de Cubiqa,
+                    o el PDF commiteado si todavía no subió ninguno (useBrochureHref).
+                    Mismo item en showroom y en la ficha. Se oculta sólo si no hay
+                    brochure por ningún lado — un item que baja un 404 es peor que no
+                    tener el item. */}
+                  {brochureHref && (
                     <MenuLink
-                      href={BROCHURE_URL}
+                      href={brochureHref}
                       icon={<BrochureIcon width={20} height={20} />}
                       onClick={() => {
                         captureCta("brochure", "side_menu");
@@ -608,7 +611,9 @@ function MenuLink({
   icon: React.ReactNode;
   children: React.ReactNode;
   onClick?: () => void;
-  /** Fuerza descarga (ej.: el brochure PDF). Donde no se soporta, cae a abrir en pestaña. */
+  /** Fuerza descarga (ej.: el brochure PDF). Sólo tiene efecto si el archivo es del
+   *  MISMO origen: para una URL cross-origin (el CDN de Cubiqa) el navegador ignora
+   *  el atributo y abre la pestaña. Ver la nota de src/lib/contact.ts. */
   download?: boolean;
 }) {
   return (

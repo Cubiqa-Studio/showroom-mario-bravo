@@ -110,7 +110,7 @@ export function AvailableResidences({ others }: { others: UnitWithId[] }) {
                   formatBaths(u.baths, t.numberLocale),
                   u.areas?.total != null ? ` · ${u.areas.total} m²` : "",
                 )}
-                {/* Vistas EN VIVO (Airtable), ej. "Montaña". Sólo si la unidad la trae. */}
+                {/* Vistas EN VIVO (Cubiqa), ej. "Noroeste". Sólo si la unidad la trae. */}
                 {u.vistas ? ` · ${u.vistas}` : ""}
                 {/* Exposición: va en la línea de stats y no como pill (el dúplex
                     tampoco tiene pill acá). Esta lista es para BARRER con la vista,

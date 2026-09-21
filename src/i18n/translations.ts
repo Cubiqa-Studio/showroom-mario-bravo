@@ -16,6 +16,21 @@ import type { SpecPanel, PaymentMilestone, TeamPartner, Unit } from "@/lib/types
 
 export type Lang = "es" | "en";
 
+/**
+ * Número con el separador decimal DEL IDIOMA. Existe por `ambientes`: en el back de
+ * Cubiqa es un `Float`, y la convención argentina del "1½ ambientes" se carga como
+ * `1.5`. Interpolado crudo en un template salía `"1.5 ambientes"` —con punto— en
+ * todo el sitio en español, incluido el `<title>` de las 63 fichas.
+ *
+ * Truncar a `1` sería peor: convierte un 1½ en "Monoambiente", que en un aviso de
+ * venta es mentira. Se formatea y listo. Un entero sale igual que antes ("3").
+ *
+ * Están sueltos y con la locale escrita a mano porque una flecha dentro del objeto
+ * literal no puede leer `numberLocale` de su hermano sin `this`.
+ */
+const nEs = (n: number) => n.toLocaleString("es-AR");
+const nEn = (n: number) => n.toLocaleString("en-US");
+
 const es = {
   /** Locale BCP-47 para toLocaleString (decimales: 2,5 vs 2.5). */
   numberLocale: "es-AR",
@@ -84,6 +99,9 @@ const es = {
   status: {
     available: "Disponible",
     reserved: "Reservada",
+    /** Femenino, como los otros dos: el sustantivo implícito es "la unidad". El
+     *  panel de Cubiqa la rotula "Vendido" (masculino), acá no. */
+    sold: "Vendida",
     duplex: "Dúplex",
     duplexTwoLevels: "Dúplex (dos niveles)",
     /** Chip de TERRAZA propia (último piso). Mismo lugar y forma que el de dúplex. */
@@ -205,9 +223,9 @@ const es = {
   /** Tarjeta compacta de unidad (hover en exterior / planta / unidades disp.).
    *  Miro 2026-07-15: sin precio ni tipología (se sacaron de toda la UI). */
   unitCard: {
-    /** Ambientes compacto (Airtable): "2 amb". */
-    rooms: (n: number) => `${n} amb`,
-    // (Vistas se muestra con su valor crudo de Airtable, ej. "Montaña".)
+    /** Ambientes compacto (en vivo, Cubiqa `bedrooms`): "2 amb", "1,5 amb". */
+    rooms: (n: number) => `${nEs(n)} amb`,
+    // (Vistas se muestra con el rumbo que manda Cubiqa, ej. "Noroeste".)
     beds: (n: number) => (n === 1 ? "1 dormitorio" : `${n} dormitorios`),
     /** Baños de la tarjeta compacta. `toilette` va PEGADO acá y no como un ítem
      *  suelto de la línea: la tarjeta mide 224px y clampea en 2 renglones, así que
@@ -235,7 +253,9 @@ const es = {
     rooms: "Ambientes",
     /** Baños TOTALES (baños + toilette) — ver unitTotalBaths (Juani 2026-07-16). */
     baths: "Baños",
-    /** Vistas (Camila 2026-07-16): chips con los valores crudos de Airtable. */
+    /** Vistas (Camila 2026-07-16): el RUMBO de la unidad. Los chips salen del `view`
+     *  de Cubiqa, traducido a la etiqueta en español de sus paneles ("Noroeste"); el
+     *  grupo entero se oculta mientras ninguna unidad traiga rumbo. */
     vistas: "Vistas",
     /** Frente / contrafrente (pedido del cliente, 25-08). */
     exposure: "Exposición",
@@ -260,7 +280,7 @@ const es = {
     // Tarjeta de unidad
     floorFull: (key: string) => (key === "0" ? "Planta baja" : `${key}° Piso`),
     cardCta: "Ver departamento",
-    statRooms: (n: number) => `${n} amb`,
+    statRooms: (n: number) => `${nEs(n)} amb`,
     statBeds: (n: number) => (n === 1 ? "1 dorm" : `${n} dorm`),
     statBaths: (n: number) => (n === 1 ? "1 baño" : `${n} baños`),
     statToilette: "toilette",
@@ -285,8 +305,8 @@ const es = {
 
   dataBar: {
     /** Párrafo descriptivo ÚNICO por unidad (contenido real por departamento, SEO):
-     *  se arma sólo con datos reales de la unidad (units.json + Airtable en vivo);
-     *  el dato que no está, no se menciona. Miro 2026-07-15: la sección 1 visible
+     *  se arma sólo con datos reales de la unidad (units.json + lo que pisa en vivo
+     *  el back de Cubiqa); el dato que no está, no se menciona. Miro 2026-07-15: la sección 1 visible
      *  se sacó de la landing — este texto sigue saliendo en el HTML como sr-only
      *  (junto al h1) para no perder el contenido único por unidad. Sin tipología. */
     blurb: (u: {
@@ -354,7 +374,7 @@ const es = {
     common: "Superficie común",
     /** Tipología por ambientes. 1 ambiente = monoambiente (convención AR). */
     rooms: "Ambientes",
-    roomsValue: (n: number) => (n <= 1 ? "Monoambiente" : `${n} ambientes`),
+    roomsValue: (n: number) => (n <= 1 ? "Monoambiente" : `${nEs(n)} ambientes`),
     bedrooms: "Dormitorios",
     bathrooms: "Baños",
     orientation: "Orientación",
@@ -386,7 +406,7 @@ const es = {
      *  plural se decide sobre el string. "Dorm" es abreviatura y no se declina. */
     statsLine: (beds: number, baths: string, m2: string) =>
       `${beds} Dorm · ${baths} ${baths === "1" ? "Baño" : "Baños"}${m2}`,
-    rooms: (n: number) => `${n} amb`,
+    rooms: (n: number) => `${nEs(n)} amb`,
     core: "NÚCLEO · CIRCULACIÓN · ASCENSORES",
   },
 
@@ -874,6 +894,7 @@ const en: Dict = {
   status: {
     available: "Available",
     reserved: "Reserved",
+    sold: "Sold",
     duplex: "Duplex",
     duplexTwoLevels: "Duplex (two levels)",
     terraza: "Terrace",
@@ -988,7 +1009,7 @@ const en: Dict = {
      *  y la tarjeta lo imprimía en plural mientras la ficha de esa MISMA unidad decía
      *  "Studio" (25 de 63 unidades). Se unifica con la ficha. En español no pasa:
      *  "1 amb" es una abreviatura y no se declina. */
-    rooms: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
+    rooms: (n: number) => (n <= 1 ? "Studio" : `${nEn(n)} rooms`),
     beds: (n: number) => (n === 1 ? "1 bedroom" : `${n} bedrooms`),
     baths: (n: number, toilette = false) =>
       `${n === 1 ? "1 bathroom" : `${n} bathrooms`}${toilette ? " + toilet" : ""}`,
@@ -1006,7 +1027,8 @@ const en: Dict = {
     availabilityAll: "All",
     rooms: "Rooms",
     baths: "Baths",
-    /** Chip values come raw from Airtable (Spanish), as everywhere else. */
+    /** Chip values are the Spanish labels of Cubiqa's `view` enum ("Noroeste"),
+     *  same as everywhere else in the UI. */
     vistas: "Views",
     exposure: "Exposure",
     floor: "Floor",
@@ -1026,7 +1048,7 @@ const en: Dict = {
     emptyBody: "Adjust the filters to see more.",
     floorFull: (key: string) => (key === "0" ? "Ground floor" : `Floor ${key}`),
     cardCta: "View apartment",
-    statRooms: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
+    statRooms: (n: number) => (n <= 1 ? "Studio" : `${nEn(n)} rooms`),
     statBeds: (n: number) => (n === 1 ? "1 bed" : `${n} beds`),
     statBaths: (n: number) => (n === 1 ? "1 bath" : `${n} baths`),
     statToilette: "toilette",
@@ -1097,7 +1119,7 @@ const en: Dict = {
     uncovered: "Open-air area",
     common: "Share of common areas",
     rooms: "Layout",
-    roomsValue: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
+    roomsValue: (n: number) => (n <= 1 ? "Studio" : `${nEn(n)} rooms`),
     bedrooms: "Bedrooms",
     bathrooms: "Bathrooms",
     orientation: "Orientation",
@@ -1123,7 +1145,7 @@ const en: Dict = {
     duplexNote: "Duplex · bedroom on the mezzanine (floor above)",
     statsLine: (beds: number, baths: string, m2: string) =>
       `${beds} ${beds === 1 ? "Bed" : "Beds"} · ${baths} ${baths === "1" ? "Bath" : "Baths"}${m2}`,
-    rooms: (n: number) => (n <= 1 ? "Studio" : `${n} rooms`),
+    rooms: (n: number) => (n <= 1 ? "Studio" : `${nEn(n)} rooms`),
     core: "CORE · CIRCULATION · ELEVATORS",
   },
 
